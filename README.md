@@ -182,6 +182,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 *"Let no one despise you for your youth, but set the believers an example in speech, in conduct, in love, in faith, in purity." - 1 Timothy 4:12*
 =======
-# LighUp
+# LightUp
 LightUp - Catholic Youth Platform | Faith, Community &amp; Spiritual Growth
 >>>>>>> 29c04eed029736fbb3c3fa18e26970649a50c3fb
