@@ -3,8 +3,8 @@
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { useRouter } from "next/navigation"
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
 import type { User as SupabaseUser } from "@supabase/supabase-js"
+import { supabase } from "@/lib/supabase"
 import { Navigation } from "@/components/navigation"
 import { DailyBibleVerse } from "@/components/daily-bible-verse"
 import { PrayerWall } from "@/components/prayer-wall"
@@ -37,7 +37,7 @@ export default function Dashboard() {
   const [user, setUser] = useState<SupabaseUser | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const router = useRouter()
-  const supabase = createClientComponentClient()
+  // Using the singleton supabase client from lib/supabase.ts
 
   // Check authentication on component mount
   useEffect(() => {
