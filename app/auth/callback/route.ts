@@ -1,0 +1,33 @@
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
+import { cookies } from 'next/headers'
+import { NextResponse } from 'next/server'
+
+export async function GET(request: Request) {
+  try {
+    const requestUrl = new URL(request.url)
+    const code = requestUrl.searchParams.get('code')
+
+    if (code) {
+      const supabase = createRouteHandlerClient({ cookies })
+      const { data, error } = await supabase.auth.exchangeCodeForSession(code)
+      
+      if (error) {
+        console.error('Auth callback error:', error)
+        // Redirect to sign-in with error
+        return NextResponse.redirect(requestUrl.origin + '/auth/sign-in?error=auth_failed')
+      }
+      
+      console.log('Auth callback successful:', data)
+    }
+
+    // URL to redirect to after sign in process completes
+    const redirectUrl = requestUrl.origin + '/dashboard'
+    console.log('Redirecting to:', redirectUrl)
+    
+    return NextResponse.redirect(redirectUrl)
+  } catch (error) {
+    console.error('Callback route error:', error)
+    // Fallback redirect to sign-in
+    return NextResponse.redirect(requestUrl.origin + '/auth/sign-in?error=callback_failed')
+  }
+}
