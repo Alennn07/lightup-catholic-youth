@@ -2,6 +2,9 @@ import { NextResponse } from "next/server"
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
 import { cookies } from "next/headers"
 
+// Force this route to be dynamic (not statically optimized)
+export const dynamic = 'force-dynamic'
+
 export async function DELETE(
   request: Request,
   { params }: { params: { id: string } }
@@ -191,6 +194,9 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    const cookieStore = cookies()
+    const supabase = createRouteHandlerClient({ cookies: () => cookieStore })
+
     const eventId = parseInt(params.id)
     if (isNaN(eventId)) {
       return NextResponse.json({ error: "Invalid event ID" }, { status: 400 })
