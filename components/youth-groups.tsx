@@ -27,7 +27,10 @@ export function YouthGroups() {
   const [selectedParish, setSelectedParish] = useState("all")
   const [selectedType, setSelectedType] = useState("all")
   
-  const supabase = createClientComponentClient()
+  const supabase = createClientComponentClient({
+    supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    supabaseKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  })
   const { toast } = useToast()
 
   const [groupForm, setGroupForm] = useState({
