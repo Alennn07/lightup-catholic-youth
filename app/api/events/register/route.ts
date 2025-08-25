@@ -92,7 +92,7 @@ export async function POST(request: NextRequest) {
     const { data: existingRegistration, error: checkError } = await supabase
       .from('event_registrations')
       .select('*')
-      .eq('event_id', eventId)
+      .eq('event_id', parseInt(eventId))
       .eq('user_id', user.id)
       .single()
 
@@ -135,7 +135,7 @@ export async function POST(request: NextRequest) {
     const { error: updateError } = await supabase
       .from('events')
       .update({ attendees: event.attendees + 1 })
-      .eq('id', eventId)
+      .eq('id', parseInt(eventId))
 
     if (updateError) {
       console.error('Error updating attendee count:', updateError)
