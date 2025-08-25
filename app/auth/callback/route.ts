@@ -2,9 +2,14 @@ import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 
+// Force this route to be dynamic since it uses request.url
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: Request) {
+  let requestUrl: URL
+  
   try {
-    const requestUrl = new URL(request.url)
+    requestUrl = new URL(request.url)
     const code = requestUrl.searchParams.get('code')
 
     if (code) {
@@ -27,7 +32,14 @@ export async function GET(request: Request) {
     return NextResponse.redirect(redirectUrl)
   } catch (error) {
     console.error('Callback route error:', error)
+    
+    // Create a fallback URL if requestUrl is not available
+    let fallbackOrigin = 'http://localhost:3000'
+    if (requestUrl) {
+      fallbackOrigin = requestUrl.origin
+    }
+    
     // Fallback redirect to sign-in
-    return NextResponse.redirect(requestUrl.origin + '/auth/sign-in?error=callback_failed')
+    return NextResponse.redirect(fallbackOrigin + '/auth/sign-in?error=callback_failed')
   }
 }

@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server"
 import { supabase } from "@/lib/supabase"
 
+// Force this route to be dynamic since it uses request.url
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url)

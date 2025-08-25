@@ -160,7 +160,7 @@ export default function SupportPage() {
                       <Mail className="w-5 h-5 text-gray-500" />
                       <div>
                         <div className="font-medium">Email Support</div>
-                        <div className="text-sm text-gray-600">support@lightup.com</div>
+                        <div className="text-sm text-gray-600">lightuphelps@gmail.com</div>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
