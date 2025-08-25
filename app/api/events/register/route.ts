@@ -9,6 +9,19 @@ export async function POST(request: NextRequest) {
   try {
     console.log('🚀 Event registration API called')
     
+    // Check environment variables first
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
+      console.error('❌ NEXT_PUBLIC_SUPABASE_URL is missing')
+      return NextResponse.json({ error: 'Server configuration error' }, { status: 500 })
+    }
+    
+    if (!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+      console.error('❌ NEXT_PUBLIC_SUPABASE_ANON_KEY is missing')
+      return NextResponse.json({ error: 'Server configuration error' }, { status: 500 })
+    }
+    
+    console.log('✅ Environment variables are set')
+    
     // Get authorization header
     const authHeader = request.headers.get('authorization')
     console.log('🔑 Auth header:', authHeader ? 'Present' : 'Missing')
@@ -28,8 +41,8 @@ export async function POST(request: NextRequest) {
     
     // Create Supabase client with token
     const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
       {
         cookies: {
           get(name: string) {
@@ -49,12 +62,12 @@ export async function POST(request: NextRequest) {
     console.log('👤 Auth check - User ID:', user?.id, 'Error:', authError)
     
     if (authError) {
-      console.error('Authentication error:', authError)
+      console.error('❌ Authentication error:', authError)
       return NextResponse.json({ error: `Authentication error: ${authError.message}` }, { status: 401 })
     }
     
     if (!user) {
-      console.error('No user found in session')
+      console.error('❌ No user found in session')
       return NextResponse.json({ error: 'No user found in session' }, { status: 401 })
     }
 
@@ -79,11 +92,12 @@ export async function POST(request: NextRequest) {
 
     // Validate required fields
     if (!eventId || !name || !email || !age || !parish || !diocese || !emergencyContact || !agreeToTerms) {
+      console.error('❌ Missing required fields:', { eventId, name, email, age, parish, diocese, emergencyContact, agreeToTerms })
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
     // Check if event exists and has capacity
-    console.log('Looking for event with ID:', eventId, 'Type:', typeof eventId)
+    console.log('🔍 Looking for event with ID:', eventId, 'Type:', typeof eventId)
     
     const { data: event, error: eventError } = await supabase
       .from('events')
@@ -92,17 +106,19 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (eventError || !event) {
-      console.error('Event lookup error:', eventError)
+      console.error('❌ Event lookup error:', eventError)
       return NextResponse.json({ error: 'Event not found' }, { status: 404 })
     }
     
-    console.log('Found event:', event)
+    console.log('✅ Found event:', event)
 
     if (event.attendees >= event.max_attendees) {
+      console.error('❌ Event is full:', event.attendees, '/', event.max_attendees)
       return NextResponse.json({ error: 'Event is full' }, { status: 400 })
     }
 
     // Check if user is already registered
+    console.log('🔍 Checking if user already registered...')
     const { data: existingRegistration, error: checkError } = await supabase
       .from('event_registrations')
       .select('*')
@@ -111,11 +127,12 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (existingRegistration) {
+      console.error('❌ User already registered for this event')
       return NextResponse.json({ error: 'Already registered for this event' }, { status: 400 })
     }
 
     // Create registration
-    console.log('Creating registration with event_id:', eventId, 'user_id:', user.id)
+    console.log('📝 Creating registration with event_id:', eventId, 'user_id:', user.id)
     
     const { data: registration, error: regError } = await supabase
       .from('event_registrations')
@@ -141,41 +158,54 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (regError) {
-      console.error('Error creating registration:', regError)
+      console.error('❌ Error creating registration:', regError)
       return NextResponse.json({ error: 'Failed to register for event' }, { status: 500 })
     }
 
+    console.log('✅ Registration created successfully:', registration)
+
     // Update event attendee count
+    console.log('📊 Updating event attendee count...')
     const { error: updateError } = await supabase
       .from('events')
       .update({ attendees: event.attendees + 1 })
       .eq('id', parseInt(eventId))
 
     if (updateError) {
-      console.error('Error updating attendee count:', updateError)
+      console.error('⚠️ Error updating attendee count:', updateError)
       // Don't fail the registration if this fails
+    } else {
+      console.log('✅ Attendee count updated successfully')
     }
 
+    console.log('🎉 Event registration completed successfully!')
     return NextResponse.json({ 
       registration, 
       message: 'Successfully registered for event' 
     }, { status: 201 })
   } catch (error) {
-    console.error('Event registration API error:', error)
+    console.error('💥 Event registration API error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
-// GET - Get user's event registrations
+// GET - Test endpoint and get user's event registrations
 export async function GET(request: NextRequest) {
+  // If no authorization header, return test response
+  const authHeader = request.headers.get('authorization')
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return NextResponse.json({ 
+      message: 'Event registration API is working!', 
+      timestamp: new Date().toISOString(),
+      env: {
+        supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL ? 'Set' : 'Missing',
+        supabaseKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? 'Set' : 'Missing'
+      }
+    })
+  }
+
   try {
     // Get authorization header
-    const authHeader = request.headers.get('authorization')
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      console.error('GET No authorization header found')
-      return NextResponse.json({ error: 'No authorization header' }, { status: 401 })
-    }
-
     const token = authHeader.replace('Bearer ', '')
     console.log('GET Token received:', token ? 'Yes' : 'No')
 
