@@ -3,6 +3,15 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export const dynamic = 'force-dynamic'
 
+// Simple health check
+export async function HEAD() {
+  return NextResponse.json({ 
+    message: 'Event registration API is alive!', 
+    timestamp: new Date().toISOString(),
+    status: 'healthy'
+  })
+}
+
 // POST - Register for an event
 export async function POST(request: NextRequest) {
   try {
