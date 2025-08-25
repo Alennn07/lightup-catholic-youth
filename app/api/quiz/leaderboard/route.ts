@@ -1,28 +1,50 @@
-import { NextRequest, NextResponse } from "next/server"
-import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
+import { createServerClient } from "@supabase/ssr"
 import { cookies } from "next/headers"
+import { NextResponse } from "next/server"
 
-// Force this route to be dynamic (not statically optimized)
+// Force this route to be dynamic since it uses request.url
 export const dynamic = 'force-dynamic'
 
-export async function GET(request: NextRequest) {
+export async function GET(request: Request) {
   try {
-    const supabase = createRouteHandlerClient({ cookies })
-    
+    const { searchParams } = new URL(request.url)
+    const category = searchParams.get("category")
+    const limit = parseInt(searchParams.get("limit") || "10")
+    const period = searchParams.get("period") || "all" // all, week, month
+
+    if (!category) {
+      return NextResponse.json({ error: "Category is required" }, { status: 400 })
+    }
+
+    const cookieStore = await cookies()
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          get(name: string) {
+            return cookieStore.get(name)?.value
+          },
+          set(name: string, value: string, options: any) {
+            cookieStore.set({ name, value, ...options })
+          },
+          remove(name: string, options: any) {
+            cookieStore.set({ name, value: '', ...options })
+          },
+        },
+      }
+    )
+
     // Check authentication
     const { data: { session } } = await supabase.auth.getSession()
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { searchParams } = new URL(request.url)
-    const category = searchParams.get('category')
-    const timeframe = searchParams.get('timeframe') || 'all' // all, week, month
-
     let dateFilter = ''
-    if (timeframe === 'week') {
+    if (period === 'week') {
       dateFilter = 'last_attempted >= NOW() - INTERVAL \'7 days\''
-    } else if (timeframe === 'month') {
+    } else if (period === 'month') {
       dateFilter = 'last_attempted >= NOW() - INTERVAL \'30 days\''
     }
 
