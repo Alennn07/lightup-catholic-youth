@@ -69,15 +69,20 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if event exists and has capacity
+    console.log('Looking for event with ID:', eventId, 'Type:', typeof eventId)
+    
     const { data: event, error: eventError } = await supabase
       .from('events')
       .select('*')
-      .eq('id', eventId)
+      .eq('id', parseInt(eventId))
       .single()
 
     if (eventError || !event) {
+      console.error('Event lookup error:', eventError)
       return NextResponse.json({ error: 'Event not found' }, { status: 404 })
     }
+    
+    console.log('Found event:', event)
 
     if (event.attendees >= event.max_attendees) {
       return NextResponse.json({ error: 'Event is full' }, { status: 400 })
@@ -96,10 +101,12 @@ export async function POST(request: NextRequest) {
     }
 
     // Create registration
+    console.log('Creating registration with event_id:', eventId, 'user_id:', user.id)
+    
     const { data: registration, error: regError } = await supabase
       .from('event_registrations')
       .insert({
-        event_id: eventId,
+        event_id: parseInt(eventId),
         user_id: user.id,
         user_email: user.email,
         name,
