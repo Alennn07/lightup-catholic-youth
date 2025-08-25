@@ -1,22 +1,12 @@
-import { createServerClient } from "@supabase/ssr"
-import { cookies } from "next/headers"
-import { NextResponse } from "next/server"
+import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
+import { NextRequest, NextResponse } from 'next/server'
 
-// Force this route to be dynamic since it uses request.url
 export const dynamic = 'force-dynamic'
 
-export async function GET(request: Request) {
+// GET - Fetch all events
+export async function GET() {
   try {
-    const { searchParams } = new URL(request.url)
-    const userId = searchParams.get("userId")
-    const search = searchParams.get("search")
-    const category = searchParams.get("category")
-    const date = searchParams.get("date")
-
-    if (!userId) {
-      return NextResponse.json({ error: "User ID is required" }, { status: 400 })
-    }
-
     const cookieStore = await cookies()
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -36,40 +26,27 @@ export async function GET(request: Request) {
       }
     )
 
-    let query = supabase
-      .from("events")
-      .select(`
-        *,
-        youth_group:youth_groups(name, parish)
-      `)
-      .order("date", { ascending: true })
+    const { data: events, error } = await supabase
+      .from('events')
+      .select('*')
+      .order('date', { ascending: true })
 
-    if (date) {
-      query = query.eq("date", date)
+    if (error) {
+      console.error('Error fetching events:', error)
+      return NextResponse.json({ error: 'Failed to fetch events' }, { status: 500 })
     }
 
-    if (category && category !== "all") {
-      query = query.eq("category", category)
-    }
-
-    if (userId) {
-      query = query.eq("user_id", userId)
-    }
-
-    const { data: events, error } = await query
-
-    if (error) throw error
-
-    return NextResponse.json(events)
-  } catch (error: any) {
-    console.error("Error fetching events:", error)
-    return NextResponse.json({ error: "Failed to fetch events" }, { status: 500 })
+    return NextResponse.json({ events: events || [] })
+  } catch (error) {
+    console.error('Events API error:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
-export async function POST(request: Request) {
+// POST - Create new event
+export async function POST(request: NextRequest) {
   try {
-    const cookieStore = cookies()
+    const cookieStore = await cookies()
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -88,80 +65,50 @@ export async function POST(request: Request) {
       }
     )
 
-    // Check if user is authenticated
-    const {
-      data: { session },
-    } = await supabase.auth.getSession()
-
-    if (!session) {
-      return NextResponse.json({ error: "Unauthorized - Please sign in to create events" }, { status: 401 })
+    // Get current user
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const body = await request.json()
+    const { title, type, date, location, maxAttendees, description, requirements, contactEmail, contactPhone } = body
 
-    // Get user profile to check role and group
-    const { data: userProfile } = await supabase
-      .from("user_profiles")
-      .select("role, group_id")
-      .eq("id", session.user.id)
+    // Validate required fields
+    if (!title || !type || !date || !location || !maxAttendees) {
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+    }
+
+    // Create event
+    const { data: event, error: createError } = await supabase
+      .from('events')
+      .insert({
+        title,
+        type,
+        date,
+        location,
+        max_attendees: maxAttendees,
+        description: description || '',
+        requirements: requirements || '',
+        contact_email: contactEmail || '',
+        contact_phone: contactPhone || '',
+        owner_id: user.id,
+        owner_email: user.email,
+        attendees: 0,
+        is_active: true,
+        created_at: new Date().toISOString()
+      })
+      .select()
       .single()
 
-    if (!userProfile) {
-      return NextResponse.json({ error: "User profile not found" }, { status: 404 })
+    if (createError) {
+      console.error('Error creating event:', createError)
+      return NextResponse.json({ error: 'Failed to create event' }, { status: 500 })
     }
 
-    // Check if user can create events
-    let canCreate = false
-
-    // 1. Regular users can create events
-    if (userProfile.role === "user" || !userProfile.role) {
-      canCreate = true
-    }
-    // 2. Group leaders can create events
-    else if (userProfile.role === "group-leader") {
-      canCreate = true
-    }
-    // 3. OBCC members can create events
-    else if (userProfile.role === "obcc") {
-      canCreate = true
-    }
-    // 4. Clergy can create events
-    else if (userProfile.role === "clergy") {
-      canCreate = true
-    }
-    // 5. Admins can create events
-    else if (userProfile.role === "admin") {
-      canCreate = true
-    }
-
-    if (!canCreate) {
-      return NextResponse.json({ 
-        error: "Forbidden - You don't have permission to create events" 
-      }, { status: 403 })
-    }
-
-    // Add user_id to the event data
-    const eventData = {
-      ...body,
-      user_id: session.user.id,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    }
-
-    const { data: newEvent, error } = await supabase
-      .from("events")
-      .insert(eventData)
-      .select(`
-        *,
-        youth_group:youth_groups(name, parish)
-      `)
-      .single()
-
-    if (error) throw error
-
-    return NextResponse.json(newEvent, { status: 201 })
-  } catch (error: any) {
-    console.error("Error creating event:", error)
-    return NextResponse.json({ error: "Failed to create event" }, { status: 500 })
+    return NextResponse.json({ event, message: 'Event created successfully' }, { status: 201 })
+  } catch (error) {
+    console.error('Create event API error:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

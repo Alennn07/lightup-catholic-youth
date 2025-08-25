@@ -143,6 +143,7 @@ export default function CommunityPage() {
   const [isExploringGroups, setIsExploringGroups] = useState(false)
   const [showRegistrationForm, setShowRegistrationForm] = useState<number | null>(null)
   const [showCreateEventForm, setShowCreateEventForm] = useState(false)
+  const [isLoadingEvents, setIsLoadingEvents] = useState(false)
   const [registrationData, setRegistrationData] = useState({
     name: "",
     email: "",
@@ -154,6 +155,51 @@ export default function CommunityPage() {
     agreeToTerms: false,
     agreeToPhotoRelease: false,
   })
+
+  // Fetch events from backend
+  const fetchEvents = async () => {
+    try {
+      setIsLoadingEvents(true)
+      const response = await fetch('/api/events')
+      if (response.ok) {
+        const data = await response.json()
+        if (data.events && data.events.length > 0) {
+          // Transform backend data to match frontend format
+          const transformedEvents = data.events.map((event: any) => ({
+            id: event.id,
+            title: event.title,
+            date: new Date(event.date).toLocaleDateString('en-US', { 
+              month: 'short', 
+              day: 'numeric', 
+              year: 'numeric' 
+            }),
+            location: event.location,
+            attendees: event.attendees,
+            type: event.type,
+            image: "/placeholder-logo.png",
+            isRegistered: false, // Will be updated based on user's registration
+            maxAttendees: event.max_attendees,
+            owner: event.owner_email,
+            description: event.description,
+            requirements: event.requirements,
+            contactEmail: event.contact_email,
+            contactPhone: event.contact_phone,
+          }))
+          setEvents(transformedEvents)
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching events:', error)
+      // Keep using local events if backend fails
+    } finally {
+      setIsLoadingEvents(false)
+    }
+  }
+
+  // Fetch events on component mount
+  useEffect(() => {
+    fetchEvents()
+  }, [])
 
   // Handle joining youth groups
   const handleJoinGroup = (groupId: number) => {
@@ -239,7 +285,7 @@ export default function CommunityPage() {
     setShowRegistrationForm(eventId)
   }
 
-  const handleRegistrationSubmit = (eventId: number) => {
+  const handleRegistrationSubmit = async (eventId: number) => {
     // Validate required fields
     if (!registrationData.name || !registrationData.email || !registrationData.age || !registrationData.emergencyContact) {
       toast({
@@ -259,22 +305,39 @@ export default function CommunityPage() {
       return
     }
 
-    // Process registration
-    setEvents(prev => prev.map(event => 
-      event.id === eventId 
-        ? { 
-            ...event, 
-            isRegistered: true, 
-            attendees: event.attendees + 1 
-          }
-        : event
-    ))
-    
-    const event = events.find(e => e.id === eventId)
-    if (event) {
+    try {
+      const response = await fetch('/api/events/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          eventId,
+          ...registrationData
+        }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Registration failed')
+      }
+
+      const result = await response.json()
+      
+      // Update local state
+      setEvents(prev => prev.map(event => 
+        event.id === eventId 
+          ? { 
+              ...event, 
+              isRegistered: true, 
+              attendees: event.attendees + 1 
+            }
+          : event
+      ))
+      
       toast({
         title: "Registration Successful! 🎉",
-        description: `You're now registered for "${event.title}"! Check your email for confirmation.`,
+        description: result.message || `You're now registered for this event!`,
         variant: "default",
       })
       
@@ -290,6 +353,12 @@ export default function CommunityPage() {
         specialNeeds: "",
         agreeToTerms: false,
         agreeToPhotoRelease: false,
+      })
+    } catch (error: any) {
+      toast({
+        title: "Registration Failed",
+        description: error.message || "Something went wrong. Please try again.",
+        variant: "destructive",
       })
     }
   }
@@ -390,19 +459,29 @@ export default function CommunityPage() {
     setShowCreateEventForm(true)
   }
 
-  const handleDeleteEvent = (eventId: number) => {
-    const event = events.find(e => e.id === eventId)
-    if (event && user?.email === event.owner) {
+  const handleDeleteEvent = async (eventId: number) => {
+    try {
+      const response = await fetch(`/api/events/${eventId}`, {
+        method: 'DELETE',
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to delete event')
+      }
+
+      // Update local state
       setEvents(prev => prev.filter(e => e.id !== eventId))
+      
       toast({
         title: "Event Deleted",
-        description: `"${event.title}" has been removed.`,
+        description: "Event has been removed successfully.",
         variant: "default",
       })
-    } else {
+    } catch (error: any) {
       toast({
-        title: "Access Denied",
-        description: "Only event owners can delete events.",
+        title: "Delete Failed",
+        description: error.message || "Something went wrong. Please try again.",
         variant: "destructive",
       })
     }
@@ -636,8 +715,15 @@ export default function CommunityPage() {
                 Join exciting Catholic youth events and make memories that last a lifetime
               </p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {events.map((event, index) => (
+            
+            {isLoadingEvents ? (
+              <div className="text-center py-8">
+                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                <p className="mt-2 text-gray-600">Loading events...</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {events.map((event, index) => (
                 <Card key={index} className="bg-white border-0 shadow-sm hover:shadow-md transition-all duration-200">
                   <CardHeader className="pb-4">
                     <div className="flex items-center justify-between mb-3">
@@ -681,7 +767,8 @@ export default function CommunityPage() {
                   </CardContent>
                 </Card>
               ))}
-            </div>
+              </div>
+            )}
           </div>
 
           {/* Call to Action */}

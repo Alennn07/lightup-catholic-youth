@@ -1,195 +1,14 @@
-import { createServerClient } from "@supabase/ssr"
-import { cookies } from "next/headers"
-import { NextResponse } from "next/server"
+import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
+import { NextRequest, NextResponse } from 'next/server'
 
-// Force this route to be dynamic since it uses request.url
 export const dynamic = 'force-dynamic'
 
+// DELETE - Delete an event (only for event owner)
 export async function DELETE(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  try {
-    const cookieStore = cookies()
-    const supabase = createServerClient({ cookies: () => cookieStore })
-
-    // Check if user is authenticated
-    const {
-      data: { session },
-    } = await supabase.auth.getSession()
-
-    if (!session) {
-      return NextResponse.json({ error: "Unauthorized - Please sign in" }, { status: 401 })
-    }
-
-    const eventId = parseInt(params.id)
-    if (isNaN(eventId)) {
-      return NextResponse.json({ error: "Invalid event ID" }, { status: 400 })
-    }
-
-    // Get the event to check ownership
-    const { data: event, error: fetchError } = await supabase
-      .from("events")
-      .select("user_id, group_id")
-      .eq("id", eventId)
-      .single()
-
-    if (fetchError || !event) {
-      return NextResponse.json({ error: "Event not found" }, { status: 404 })
-    }
-
-    // Get user profile to check role
-    const { data: userProfile } = await supabase
-      .from("user_profiles")
-      .select("role, group_id")
-      .eq("id", session.user.id)
-      .single()
-
-    // Check if user can delete this event
-    let canDelete = false
-
-    // 1. User owns the event
-    if (event.user_id === session.user.id) {
-      canDelete = true
-    }
-    // 2. User is admin/OBCC member
-    else if (userProfile?.role === "obcc" || userProfile?.role === "admin") {
-      canDelete = true
-    }
-    // 3. User is clergy
-    else if (userProfile?.role === "clergy") {
-      canDelete = true
-    }
-    // 4. User is group leader and event belongs to their group
-    else if (userProfile?.role === "group-leader" && 
-             event.group_id && 
-             userProfile.group_id === event.group_id) {
-      canDelete = true
-    }
-
-    if (!canDelete) {
-      return NextResponse.json({ 
-        error: "Forbidden - You can only delete your own events or events from your group" 
-      }, { status: 403 })
-    }
-
-    // Delete the event
-    const { error: deleteError } = await supabase
-      .from("events")
-      .delete()
-      .eq("id", eventId)
-
-    if (deleteError) throw deleteError
-
-    return NextResponse.json({ 
-      message: "Event deleted successfully" 
-    })
-
-  } catch (error: any) {
-    console.error("Error deleting event:", error)
-    return NextResponse.json({ 
-      error: "Failed to delete event" 
-    }, { status: 500 })
-  }
-}
-
-export async function PUT(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
-  try {
-    const cookieStore = cookies()
-    const supabase = createServerClient({ cookies: () => cookieStore })
-
-    // Check if user is authenticated
-    const {
-      data: { session },
-    } = await supabase.auth.getSession()
-
-    if (!session) {
-      return NextResponse.json({ error: "Unauthorized - Please sign in" }, { status: 401 })
-    }
-
-    const eventId = parseInt(params.id)
-    if (isNaN(eventId)) {
-      return NextResponse.json({ error: "Invalid event ID" }, { status: 400 })
-    }
-
-    const body = await request.json()
-
-    // Get the event to check ownership
-    const { data: event, error: fetchError } = await supabase
-      .from("events")
-      .select("user_id, group_id")
-      .eq("id", eventId)
-      .single()
-
-    if (fetchError || !event) {
-      return NextResponse.json({ error: "Event not found" }, { status: 404 })
-    }
-
-    // Get user profile to check role
-    const { data: userProfile } = await supabase
-      .from("user_profiles")
-      .select("role, group_id")
-      .eq("id", session.user.id)
-      .single()
-
-    // Check if user can edit this event
-    let canEdit = false
-
-    // 1. User owns the event
-    if (event.user_id === session.user.id) {
-      canEdit = true
-    }
-    // 2. User is admin/OBCC member
-    else if (userProfile?.role === "obcc" || userProfile?.role === "admin") {
-      canEdit = true
-    }
-    // 3. User is clergy
-    else if (userProfile?.role === "clergy") {
-      canEdit = true
-    }
-    // 4. User is group leader and event belongs to their group
-    else if (userProfile?.role === "group-leader" && 
-             event.group_id && 
-             userProfile.group_id === event.group_id) {
-      canEdit = true
-    }
-
-    if (!canEdit) {
-      return NextResponse.json({ 
-        error: "Forbidden - You can only edit your own events or events from your group" 
-      }, { status: 403 })
-    }
-
-    // Update the event
-    const { data: updatedEvent, error: updateError } = await supabase
-      .from("events")
-      .update({
-        ...body,
-        updated_at: new Date().toISOString()
-      })
-      .eq("id", eventId)
-      .select(`
-        *,
-        youth_group:youth_groups(name, parish)
-      `)
-      .single()
-
-    if (updateError) throw updateError
-
-    return NextResponse.json(updatedEvent)
-
-  } catch (error: any) {
-    console.error("Error updating event:", error)
-    return NextResponse.json({ 
-      error: "Failed to update event" 
-    }, { status: 500 })
-  }
-}
-
-export async function GET(request: Request, { params }: { params: { id: string } }) {
   try {
     const cookieStore = await cookies()
     const supabase = createServerClient(
@@ -210,31 +29,191 @@ export async function GET(request: Request, { params }: { params: { id: string }
       }
     )
 
-    const eventId = parseInt(params.id)
-    if (isNaN(eventId)) {
-      return NextResponse.json({ error: "Invalid event ID" }, { status: 400 })
+    // Get current user
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Get the event (public read access)
-    const { data: event, error } = await supabase
-      .from("events")
-      .select(`
-        *,
-        youth_group:youth_groups(name, parish)
-      `)
-      .eq("id", eventId)
+    const eventId = params.id
+
+    // Check if event exists and user owns it
+    const { data: event, error: eventError } = await supabase
+      .from('events')
+      .select('*')
+      .eq('id', eventId)
       .single()
 
-    if (error || !event) {
-      return NextResponse.json({ error: "Event not found" }, { status: 404 })
+    if (eventError || !event) {
+      return NextResponse.json({ error: 'Event not found' }, { status: 404 })
     }
 
-    return NextResponse.json(event)
+    // Check ownership
+    if (event.owner_id !== user.id) {
+      return NextResponse.json({ error: 'Forbidden - Only event owner can delete' }, { status: 403 })
+    }
 
-  } catch (error: any) {
-    console.error("Error fetching event:", error)
+    // Delete all registrations for this event first
+    const { error: deleteRegError } = await supabase
+      .from('event_registrations')
+      .delete()
+      .eq('event_id', eventId)
+
+    if (deleteRegError) {
+      console.error('Error deleting registrations:', deleteRegError)
+      // Continue with event deletion even if this fails
+    }
+
+    // Delete the event
+    const { error: deleteError } = await supabase
+      .from('events')
+      .delete()
+      .eq('id', eventId)
+
+    if (deleteError) {
+      console.error('Error deleting event:', deleteError)
+      return NextResponse.json({ error: 'Failed to delete event' }, { status: 500 })
+    }
+
+    return NextResponse.json({ message: 'Event deleted successfully' })
+  } catch (error) {
+    console.error('Delete event API error:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
+}
+
+// PUT - Update an event (only for event owner)
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const cookieStore = await cookies()
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          get(name: string) {
+            return cookieStore.get(name)?.value
+          },
+          set(name: string, value: string, options: any) {
+            cookieStore.set({ name, value, ...options })
+          },
+          remove(name: string, options: any) {
+            cookieStore.set({ name, value: '', ...options })
+          },
+        },
+      }
+    )
+
+    // Get current user
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const eventId = params.id
+    const body = await request.json()
+
+    // Check if event exists and user owns it
+    const { data: event, error: eventError } = await supabase
+      .from('events')
+      .select('*')
+      .eq('id', eventId)
+      .single()
+
+    if (eventError || !event) {
+      return NextResponse.json({ error: 'Event not found' }, { status: 404 })
+    }
+
+    // Check ownership
+    if (event.owner_id !== user.id) {
+      return NextResponse.json({ error: 'Forbidden - Only event owner can update' }, { status: 403 })
+    }
+
+    // Update the event
+    const { data: updatedEvent, error: updateError } = await supabase
+      .from('events')
+      .update({
+        ...body,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', eventId)
+      .select()
+      .single()
+
+    if (updateError) {
+      console.error('Error updating event:', updateError)
+      return NextResponse.json({ error: 'Failed to update event' }, { status: 500 })
+    }
+
+    return NextResponse.json({ event: updatedEvent, message: 'Event updated successfully' })
+  } catch (error) {
+    console.error('Update event API error:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
+}
+
+// GET - Get specific event details
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const cookieStore = await cookies()
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          get(name: string) {
+            return cookieStore.get(name)?.value
+          },
+          set(name: string, value: string, options: any) {
+            cookieStore.set({ name, value, ...options })
+          },
+          remove(name: string, options: any) {
+            cookieStore.set({ name, value: '', ...options })
+          },
+        },
+      }
+    )
+
+    const eventId = params.id
+
+    // Get event details
+    const { data: event, error: eventError } = await supabase
+      .from('events')
+      .select('*')
+      .eq('id', eventId)
+      .single()
+
+    if (eventError || !event) {
+      return NextResponse.json({ error: 'Event not found' }, { status: 404 })
+    }
+
+    // Get current user to check if they're registered
+    const { data: { user } } = await supabase.auth.getUser()
+    let isRegistered = false
+
+    if (user) {
+      const { data: registration } = await supabase
+        .from('event_registrations')
+        .select('*')
+        .eq('event_id', eventId)
+        .eq('user_id', user.id)
+        .single()
+
+      isRegistered = !!registration
+    }
+
     return NextResponse.json({ 
-      error: "Failed to fetch event" 
-    }, { status: 500 })
+      event: { ...event, isRegistered },
+      message: 'Event details retrieved successfully' 
+    })
+  } catch (error) {
+    console.error('Get event details API error:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
