@@ -105,6 +105,7 @@ const upcomingEvents = [
     image: "/placeholder-logo.png",
     isRegistered: false,
     maxAttendees: 100,
+    owner: "admin@lightup.com",
   },
   {
     id: 2,
@@ -116,6 +117,7 @@ const upcomingEvents = [
     image: "/placeholder-logo.png",
     isRegistered: false,
     maxAttendees: 50,
+    owner: "admin@lightup.com",
   },
   {
     id: 3,
@@ -127,6 +129,7 @@ const upcomingEvents = [
     image: "/placeholder-logo.png",
     isRegistered: false,
     maxAttendees: 30,
+    owner: "admin@lightup.com",
   },
 ]
 
@@ -138,6 +141,19 @@ export default function CommunityPage() {
   const [events, setEvents] = useState(upcomingEvents)
   const [isJoiningCommunity, setIsJoiningCommunity] = useState(false)
   const [isExploringGroups, setIsExploringGroups] = useState(false)
+  const [showRegistrationForm, setShowRegistrationForm] = useState<number | null>(null)
+  const [showCreateEventForm, setShowCreateEventForm] = useState(false)
+  const [registrationData, setRegistrationData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    age: "",
+    emergencyContact: "",
+    dietaryRestrictions: "",
+    specialNeeds: "",
+    agreeToTerms: false,
+    agreeToPhotoRelease: false,
+  })
 
   // Handle joining youth groups
   const handleJoinGroup = (groupId: number) => {
@@ -200,12 +216,56 @@ export default function CommunityPage() {
 
   // Handle event registration
   const handleEventRegistration = (eventId: number) => {
+    if (!user) {
+      toast({
+        title: "Sign In Required",
+        description: "Please sign in to register for events.",
+        variant: "destructive",
+      })
+      return
+    }
+    
+    const event = events.find(e => e.id === eventId)
+    if (event && event.attendees >= event.maxAttendees) {
+      toast({
+        title: "Event Full",
+        description: "This event has reached maximum capacity.",
+        variant: "destructive",
+      })
+      return
+    }
+    
+    // Show the registration form instead of directly registering
+    setShowRegistrationForm(eventId)
+  }
+
+  const handleRegistrationSubmit = (eventId: number) => {
+    // Validate required fields
+    if (!registrationData.name || !registrationData.email || !registrationData.age || !registrationData.emergencyContact) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in all required fields.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    if (!registrationData.agreeToTerms) {
+      toast({
+        title: "Terms Agreement Required",
+        description: "You must agree to the terms and conditions.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    // Process registration
     setEvents(prev => prev.map(event => 
       event.id === eventId 
         ? { 
             ...event, 
-            isRegistered: !event.isRegistered, 
-            attendees: event.isRegistered ? event.attendees - 1 : event.attendees + 1 
+            isRegistered: true, 
+            attendees: event.attendees + 1 
           }
         : event
     ))
@@ -213,11 +273,23 @@ export default function CommunityPage() {
     const event = events.find(e => e.id === eventId)
     if (event) {
       toast({
-        title: event.isRegistered ? "Registration Cancelled" : "Registered!",
-        description: event.isRegistered 
-          ? `You've cancelled your registration for "${event.title}"` 
-          : `You're now registered for "${event.title}"!`,
-        variant: event.isRegistered ? "default" : "default",
+        title: "Registration Successful! 🎉",
+        description: `You're now registered for "${event.title}"! Check your email for confirmation.`,
+        variant: "default",
+      })
+      
+      // Reset form and close modal
+      setShowRegistrationForm(null)
+      setRegistrationData({
+        name: "",
+        email: "",
+        phone: "",
+        age: "",
+        emergencyContact: "",
+        dietaryRestrictions: "",
+        specialNeeds: "",
+        agreeToTerms: false,
+        agreeToPhotoRelease: false,
       })
     }
   }
@@ -302,6 +374,36 @@ export default function CommunityPage() {
         title: "Group Details",
         description: `Learn more about ${group.name}. Full group page with events, members, and activities coming soon!`,
         variant: "default",
+      })
+    }
+  }
+
+  const handleCreateEvent = () => {
+    if (!user) {
+      toast({
+        title: "Sign In Required",
+        description: "Please sign in to create events.",
+        variant: "destructive",
+      })
+      return
+    }
+    setShowCreateEventForm(true)
+  }
+
+  const handleDeleteEvent = (eventId: number) => {
+    const event = events.find(e => e.id === eventId)
+    if (event && user?.email === event.owner) {
+      setEvents(prev => prev.filter(e => e.id !== eventId))
+      toast({
+        title: "Event Deleted",
+        description: `"${event.title}" has been removed.`,
+        variant: "default",
+      })
+    } else {
+      toast({
+        title: "Access Denied",
+        description: "Only event owners can delete events.",
+        variant: "destructive",
       })
     }
   }
@@ -614,6 +716,92 @@ export default function CommunityPage() {
           </div>
         </div>
       </div>
+
+      {/* Registration Form Modal */}
+      {showRegistrationForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <Card className="w-full max-w-md max-h-[90vh] overflow-y-auto">
+            <CardHeader>
+              <CardTitle>Event Registration</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium">Name *</label>
+                  <input
+                    type="text"
+                    value={registrationData.name}
+                    onChange={(e) => setRegistrationData(prev => ({ ...prev, name: e.target.value }))}
+                    className="w-full p-2 border rounded mt-1"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Age *</label>
+                  <input
+                    type="number"
+                    value={registrationData.age}
+                    onChange={(e) => setRegistrationData(prev => ({ ...prev, age: e.target.value }))}
+                    className="w-full p-2 border rounded mt-1"
+                    required
+                  />
+                </div>
+              </div>
+              
+              <div>
+                <label className="text-sm font-medium">Email *</label>
+                <input
+                  type="email"
+                  value={registrationData.email}
+                  onChange={(e) => setRegistrationData(prev => ({ ...prev, email: e.target.value }))}
+                  className="w-full p-2 border rounded mt-1"
+                  required
+                />
+              </div>
+              
+              <div>
+                <label className="text-sm font-medium">Emergency Contact *</label>
+                <input
+                  type="text"
+                  value={registrationData.emergencyContact}
+                  onChange={(e) => setRegistrationData(prev => ({ ...prev, emergencyContact: e.target.value }))}
+                  className="w-full p-2 border rounded mt-1"
+                  required
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    checked={registrationData.agreeToTerms}
+                    onChange={(e) => setRegistrationData(prev => ({ ...prev, agreeToTerms: e.target.checked }))}
+                    className="rounded"
+                    required
+                  />
+                  <span className="text-sm">I agree to the terms and conditions *</span>
+                </label>
+              </div>
+              
+              <div className="flex space-x-2 pt-4">
+                <Button 
+                  onClick={() => setShowRegistrationForm(null)}
+                  variant="outline"
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  onClick={() => handleRegistrationSubmit(showRegistrationForm)}
+                  className="flex-1 bg-blue-600 hover:bg-blue-700"
+                >
+                  Submit Registration
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       <SimpleFooter />
     </div>
