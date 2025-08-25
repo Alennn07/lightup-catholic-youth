@@ -22,7 +22,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { CalendarIcon, Clock, MapPin, Users, Filter, ChevronLeft, ChevronRight, Plus, Trash2, Edit } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
-import { createClientComponentClient } from "@supabase/ssr"
+import { createBrowserClient } from "@supabase/ssr"
 import type { Event as EventType } from "@/lib/database"
 
 type Event = {
@@ -72,10 +72,10 @@ export default function ParishCalendar() {
   const [userId, setUserId] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   
-  const supabase = createClientComponentClient({
-    supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    supabaseKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  })
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
   const { toast } = useToast()
 
   const [newEvent, setNewEvent] = useState({

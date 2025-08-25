@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Calendar, Clock, MapPin, Users, Plus, Edit, Trash2, CheckCircle, AlertCircle, Search, Filter } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
-import { createClientComponentClient } from "@supabase/ssr"
+import { createBrowserClient } from "@supabase/ssr"
 
 export function YouthGroups() {
   const [groups, setGroups] = useState<any[]>([])
@@ -27,10 +27,10 @@ export function YouthGroups() {
   const [selectedParish, setSelectedParish] = useState("all")
   const [selectedType, setSelectedType] = useState("all")
   
-  const supabase = createClientComponentClient({
-    supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    supabaseKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  })
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
   const { toast } = useToast()
 
   const [groupForm, setGroupForm] = useState({
