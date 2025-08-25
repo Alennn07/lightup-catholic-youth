@@ -1,4 +1,4 @@
-import { createServerClient } from '@supabase/ssr'
+import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 
 export const dynamic = 'force-dynamic'
@@ -14,8 +14,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Server configuration error' }, { status: 500 })
     }
     
-    if (!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-      console.error('❌ NEXT_PUBLIC_SUPABASE_ANON_KEY is missing')
+    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      console.error('❌ SUPABASE_SERVICE_ROLE_KEY is missing')
       return NextResponse.json({ error: 'Server configuration error' }, { status: 500 })
     }
     
@@ -34,28 +34,24 @@ export async function POST(request: NextRequest) {
     console.log('✅ Token received:', token ? 'Yes' : 'No')
     console.log('🔍 Token length:', token.length)
 
-    console.log('🔧 Creating Supabase client...')
+    console.log('🔧 Creating Supabase client with service role key...')
     console.log('🌐 Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL ? 'Set' : 'Missing')
-    console.log('🔑 Supabase Key:', process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? 'Set' : 'Missing')
+    console.log('🔑 Service Role Key:', process.env.SUPABASE_SERVICE_ROLE_KEY ? 'Set' : 'Missing')
     
-    // Create Supabase client with token
+    // Create Supabase client with service role key (bypasses RLS)
     let supabase: any
     try {
-      supabase = createServerClient(
+      supabase = createClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+        process.env.SUPABASE_SERVICE_ROLE_KEY,
         {
-          cookies: {
-            get(name: string) {
-              if (name === 'sb-access-token') return token
-              return undefined
-            },
-            set() {},
-            remove() {},
-          },
+          auth: {
+            autoRefreshToken: false,
+            persistSession: false
+          }
         }
       )
-      console.log('✅ Supabase client created')
+      console.log('✅ Supabase client created with service role key')
       
       // Test the connection immediately
       console.log('🔍 Testing Supabase connection...')
@@ -213,7 +209,7 @@ export async function GET(request: NextRequest) {
       timestamp: new Date().toISOString(),
       env: {
         supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL ? 'Set' : 'Missing',
-        supabaseKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? 'Set' : 'Missing'
+        serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY ? 'Set' : 'Missing'
       }
     })
   }
@@ -223,19 +219,15 @@ export async function GET(request: NextRequest) {
     const token = authHeader.replace('Bearer ', '')
     console.log('GET Token received:', token ? 'Yes' : 'No')
 
-    // Create Supabase client with token
-    const supabase = createServerClient(
+    // Create Supabase client with service role key
+    const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
       {
-        cookies: {
-          get(name: string) {
-            if (name === 'sb-access-token') return token
-            return undefined
-          },
-          set() {},
-          remove() {},
-        },
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false
+        }
       }
     )
 
