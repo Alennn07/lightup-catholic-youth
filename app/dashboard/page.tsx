@@ -71,9 +71,30 @@ export default function DashboardPage() {
 
   // SUPER FAST: Simple feature click handler
   const handleFeatureClick = useCallback((featureId: string, featureName: string) => {
-    // No analytics tracking to keep it fast
-    console.log(`Feature clicked: ${featureName}`)
-  }, [])
+    // Navigate to the appropriate feature page
+    switch (featureId) {
+      case 'prayer-wall':
+        router.push('/prayer-wall')
+        break
+      case 'youth-groups':
+        router.push('/youth-groups')
+        break
+      case 'daily-bible-verse':
+        router.push('/daily-bible-verse')
+        break
+      case 'faithbot':
+        router.push('/faithbot')
+        break
+      case 'faith-journal':
+        router.push('/faith-journal')
+        break
+      case 'faith-quiz':
+        router.push('/faith-quiz')
+        break
+      default:
+        console.log(`Feature clicked: ${featureName}`)
+    }
+  }, [router])
 
   if (authLoading) {
     return (
