@@ -15,6 +15,7 @@ interface AuthContextType {
   logout: () => Promise<void>
   isLoading: boolean
   updateProfile: (data: Partial<User>) => Promise<void>
+  getAccessToken: () => Promise<string | null>
 }
 
 interface RegisterData {
@@ -573,6 +574,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  const getAccessToken = async (): Promise<string | null> => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      return session?.access_token || null
+    } catch (error) {
+      console.error('❌ Error getting access token:', error)
+      return null
+    }
+  }
+
   return (
     <AuthContext.Provider
       value={{
@@ -584,6 +595,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         logout,
         isLoading,
         updateProfile,
+        getAccessToken,
       }}
     >
       {children}

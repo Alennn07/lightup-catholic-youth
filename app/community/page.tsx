@@ -135,7 +135,7 @@ const upcomingEvents = [
 
 export default function CommunityPage() {
   const { toast } = useToast()
-  const { user } = useAuth()
+  const { user, getAccessToken } = useAuth()
   const [groups, setGroups] = useState(featuredYouthGroups)
   const [stories, setStories] = useState(faithSpotlight)
   const [events, setEvents] = useState(upcomingEvents)
@@ -308,10 +308,22 @@ export default function CommunityPage() {
     }
 
     try {
+      // Get access token for authentication
+      const accessToken = await getAccessToken()
+      if (!accessToken) {
+        toast({
+          title: "Authentication Error",
+          description: "Please sign in again to continue.",
+          variant: "destructive",
+        })
+        return
+      }
+
       const response = await fetch('/api/events/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`,
         },
         body: JSON.stringify({
           eventId,

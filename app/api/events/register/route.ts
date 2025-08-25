@@ -7,28 +7,35 @@ export const dynamic = 'force-dynamic'
 // POST - Register for an event
 export async function POST(request: NextRequest) {
   try {
-    const cookieStore = await cookies()
+    // Get authorization header
+    const authHeader = request.headers.get('authorization')
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      console.error('No authorization header found')
+      return NextResponse.json({ error: 'No authorization header' }, { status: 401 })
+    }
+
+    const token = authHeader.replace('Bearer ', '')
+    console.log('Token received:', token ? 'Yes' : 'No')
+
+    // Create Supabase client with token
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
         cookies: {
           get(name: string) {
-            return cookieStore.get(name)?.value
+            if (name === 'sb-access-token') return token
+            return undefined
           },
-          set(name: string, value: string, options: any) {
-            cookieStore.set({ name, value, ...options })
-          },
-          remove(name: string, options: any) {
-            cookieStore.set({ name, value: '', ...options })
-          },
+          set() {},
+          remove() {},
         },
       }
     )
 
-    // Get current user
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-    console.log('Auth check - User:', user, 'Error:', authError)
+    // Get current user using token
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+    console.log('Auth check - User:', user?.id, 'Error:', authError)
     
     if (authError) {
       console.error('Authentication error:', authError)
@@ -141,27 +148,34 @@ export async function POST(request: NextRequest) {
 // GET - Get user's event registrations
 export async function GET(request: NextRequest) {
   try {
-    const cookieStore = await cookies()
+    // Get authorization header
+    const authHeader = request.headers.get('authorization')
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      console.error('GET No authorization header found')
+      return NextResponse.json({ error: 'No authorization header' }, { status: 401 })
+    }
+
+    const token = authHeader.replace('Bearer ', '')
+    console.log('GET Token received:', token ? 'Yes' : 'No')
+
+    // Create Supabase client with token
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
         cookies: {
           get(name: string) {
-            return cookieStore.get(name)?.value
+            if (name === 'sb-access-token') return token
+            return undefined
           },
-          set(name: string, value: string, options: any) {
-            cookieStore.set({ name, value, ...options })
-          },
-          remove(name: string, options: any) {
-            cookieStore.set({ name, value: '', ...options })
-          },
+          set() {},
+          remove() {},
         },
       }
     )
 
-    // Get current user
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    // Get current user using token
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
     console.log('GET Auth check - User:', user, 'Error:', authError)
     
     if (authError) {
