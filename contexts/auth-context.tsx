@@ -73,23 +73,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const fetchUserProfile = async (userId: string) => {
     console.log('👤 Fetching user profile for:', userId)
+    
+    // Add timeout to prevent hanging
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Profile fetch timeout')), 10000) // 10 seconds
+    })
+    
     try {
-      const { data, error } = await supabase.from("users").select("*").eq("id", userId).single()
+      const profilePromise = (async () => {
+        const { data, error } = await supabase.from("users").select("*").eq("id", userId).single()
 
-      if (error) {
-        console.error("❌ Error fetching user profile:", error)
-        // If the users table doesn't exist, just set user to null
-        if (error.code === 'PGRST116') {
-          // No profile found - let's create one from auth user data
-          console.log("📝 No user profile found, creating one...")
-          await createUserProfileFromAuth(userId)
+        if (error) {
+          console.error("❌ Error fetching user profile:", error)
+          // If the users table doesn't exist, just set user to null
+          if (error.code === 'PGRST116') {
+            // No profile found - let's create one from auth user data
+            console.log("📝 No user profile found, creating one...")
+            await createUserProfileFromAuth(userId)
+          } else {
+            throw error
+          }
         } else {
-          throw error
+          console.log("✅ User profile data:", data)
+          setUser(data)
         }
-      } else {
-        console.log("✅ User profile data:", data)
-        setUser(data)
-      }
+      })()
+      
+      await Promise.race([profilePromise, timeoutPromise])
+      
     } catch (error) {
       console.error("❌ Error in fetchUserProfile:", error)
       // Try to create profile if it doesn't exist
@@ -107,59 +118,69 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const createUserProfileFromAuth = async (userId: string) => {
     console.log('🔧 Creating user profile from auth data for:', userId)
+    
+    // Add timeout to prevent hanging
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Profile creation timeout')), 10000) // 10 seconds
+    })
+    
     try {
-      // First, test if we can access the users table
-      console.log('🧪 Testing users table access...')
-      const { data: testData, error: testError } = await supabase
-        .from('users')
-        .select('id')
-        .limit(1)
+      const createPromise = (async () => {
+        // First, test if we can access the users table
+        console.log('🧪 Testing users table access...')
+        const { data: testData, error: testError } = await supabase
+          .from('users')
+          .select('id')
+          .limit(1)
+        
+        if (testError) {
+          console.error('❌ Cannot access users table:', testError)
+          throw new Error(`Cannot access users table: ${testError.message}`)
+        }
+        
+        console.log('✅ Users table is accessible')
+
+        // Get auth user data
+        const { data: { user: authUser }, error: authError } = await supabase.auth.getUser()
+        
+        if (authError || !authUser) {
+          console.error('❌ Could not get auth user data:', authError)
+          throw new Error('Could not get auth user data')
+        }
+
+        console.log('📝 Auth user data:', authUser)
+
+        // Create basic profile
+        const profileData = {
+          id: userId,
+          name: authUser.user_metadata?.name || 'User',
+          username: authUser.user_metadata?.username || `user_${userId.slice(0, 8)}`,
+          email: authUser.email || '',
+          age: authUser.user_metadata?.age || 18,
+          parish: authUser.user_metadata?.parish || '',
+          diocese: authUser.user_metadata?.diocese || '',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }
+
+        console.log('📝 Profile data to insert:', profileData)
+
+        const { data: profile, error: profileError } = await supabase
+          .from('users')
+          .insert(profileData)
+          .select()
+          .single()
+
+        if (profileError) {
+          console.error('❌ Failed to create user profile:', profileError)
+          throw profileError
+        }
+
+        console.log('✅ User profile created successfully:', profile)
+        setUser(profile)
+      })()
       
-      if (testError) {
-        console.error('❌ Cannot access users table:', testError)
-        throw new Error(`Cannot access users table: ${testError.message}`)
-      }
-      
-      console.log('✅ Users table is accessible')
-
-      // Get auth user data
-      const { data: { user: authUser }, error: authError } = await supabase.auth.getUser()
-      
-      if (authError || !authUser) {
-        console.error('❌ Could not get auth user data:', authError)
-        throw new Error('Could not get auth user data')
-      }
-
-      console.log('📝 Auth user data:', authUser)
-
-      // Create basic profile
-      const profileData = {
-        id: userId,
-        name: authUser.user_metadata?.name || 'User',
-        username: authUser.user_metadata?.username || `user_${userId.slice(0, 8)}`,
-        email: authUser.email || '',
-        age: authUser.user_metadata?.age || 18,
-        parish: authUser.user_metadata?.parish || '',
-        diocese: authUser.user_metadata?.diocese || '',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      }
-
-      console.log('📝 Profile data to insert:', profileData)
-
-      const { data: profile, error: profileError } = await supabase
-        .from('users')
-        .insert(profileData)
-        .select()
-        .single()
-
-      if (profileError) {
-        console.error('❌ Failed to create user profile:', profileError)
-        throw profileError
-      }
-
-      console.log('✅ User profile created successfully:', profile)
-      setUser(profile)
+      await Promise.race([createPromise, timeoutPromise])
       
     } catch (error) {
       console.error('❌ Error creating user profile:', error)
