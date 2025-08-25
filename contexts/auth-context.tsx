@@ -191,6 +191,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.log('✅ User profile fetched/created')
       }
       
+      // Set loading to false on successful login
+      setIsLoading(false)
+      
     } catch (error: any) {
       console.error('❌ Login error:', error)
       setIsLoading(false)
