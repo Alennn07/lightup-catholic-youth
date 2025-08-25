@@ -44,10 +44,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const { data: { session } } = result
         setSupabaseUser(session?.user ?? null)
         if (session?.user) {
-          fetchUserProfile(session.user.id)
-        } else {
-          setIsLoading(false)
+          // Set basic user without profile fetch
+          const basicUser = {
+            id: session.user.id,
+            name: session.user.user_metadata?.name || 'User',
+            username: session.user.user_metadata?.username || `user_${session.user.id.slice(0, 8)}`,
+            email: session.user.email || '',
+            age: session.user.user_metadata?.age || 18,
+            parish: session.user.user_metadata?.parish || '',
+            diocese: session.user.user_metadata?.diocese || '',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          }
+          setUser(basicUser)
         }
+        setIsLoading(false)
       } else {
         // Timeout reached, set loading to false
         console.log("Session check timeout, setting loading to false")
@@ -61,11 +72,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       setSupabaseUser(session?.user ?? null)
       if (session?.user) {
-        await fetchUserProfile(session.user.id)
+        // Set basic user without profile fetch
+        const basicUser = {
+          id: session.user.id,
+          name: session.user.user_metadata?.name || 'User',
+          username: session.user.user_metadata?.username || `user_${session.user.id.slice(0, 8)}`,
+          email: session.user.email || '',
+          age: session.user.user_metadata?.age || 18,
+          parish: session.user.user_metadata?.parish || '',
+          diocese: session.user.user_metadata?.diocese || '',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        }
+        setUser(basicUser)
       } else {
         setUser(null)
-        setIsLoading(false)
       }
+      setIsLoading(false)
     })
 
     return () => subscription.unsubscribe()
@@ -205,11 +228,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         throw error
       }
       
-      // If login successful, fetch user profile
+      // If login successful, set user immediately without profile fetch
       if (data.user) {
-        console.log('✅ Auth successful, fetching user profile...')
-        await fetchUserProfile(data.user.id)
-        console.log('✅ User profile fetched/created')
+        console.log('✅ Auth successful, setting user...')
+        // Create a basic user object from auth data
+        const basicUser = {
+          id: data.user.id,
+          name: data.user.user_metadata?.name || 'User',
+          username: data.user.user_metadata?.username || `user_${data.user.id.slice(0, 8)}`,
+          email: data.user.email || '',
+          age: data.user.user_metadata?.age || 18,
+          parish: data.user.user_metadata?.parish || '',
+          diocese: data.user.user_metadata?.diocese || '',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        }
+        setUser(basicUser)
+        setSupabaseUser(data.user)
+        console.log('✅ User set successfully')
       }
       
       // Set loading to false on successful login
