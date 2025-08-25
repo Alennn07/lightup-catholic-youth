@@ -10,14 +10,11 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { 
-  Heart, 
-  BookOpen, 
-  MessageCircle, 
-  Users, 
-  PenTool, 
-  Zap, 
-  Sparkles,
-  Activity
+  Sparkles, 
+  Activity,
+  Heart,
+  BookOpen,
+  PenTool
 } from "lucide-react"
 import { useAuth } from "@/contexts/auth-context"
 
@@ -68,33 +65,6 @@ export default function DashboardPage() {
       router.push('/auth/sign-in')
     }
   }, [user, authLoading, router])
-
-  // SUPER FAST: Simple feature click handler
-  const handleFeatureClick = useCallback((featureId: string, featureName: string) => {
-    // Navigate to the appropriate feature page
-    switch (featureId) {
-      case 'prayer-wall':
-        router.push('/prayer-wall')
-        break
-      case 'youth-groups':
-        router.push('/youth-groups')
-        break
-      case 'daily-bible-verse':
-        router.push('/daily-bible-verse')
-        break
-      case 'faithbot':
-        router.push('/faithbot')
-        break
-      case 'faith-journal':
-        router.push('/faith-journal')
-        break
-      case 'faith-quiz':
-        router.push('/faith-quiz')
-        break
-      default:
-        console.log(`Feature clicked: ${featureName}`)
-    }
-  }, [router])
 
   if (authLoading) {
     return (
@@ -187,123 +157,30 @@ export default function DashboardPage() {
         <div className="flex items-center justify-center mb-12">
           <div className="w-24 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
           <div className="mx-4 text-gray-400 text-sm font-medium">
-            Quick Actions
+            Explore Features
           </div>
           <div className="w-24 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
         </div>
 
-        {/* Features Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-          {/* Prayer Wall */}
-          <Card 
-            className="bg-white shadow-lg border border-gray-100 cursor-pointer"
-            onClick={() => handleFeatureClick('prayer-wall', 'Prayer Wall')}
-          >
-            <CardContent className="p-6 text-center">
-              <div className="w-16 h-16 bg-gradient-to-r from-pink-500 to-rose-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <Heart className="h-8 w-8 text-white" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-800 mb-3">Prayer Wall</h3>
-              <p className="text-gray-600 mb-6">Share prayer requests and pray for others</p>
-              <Button className="w-full bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600">
-                Open Prayer Wall
+        {/* Features Call-to-Action */}
+        <div className="text-center mb-12">
+          <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 shadow-lg">
+            <CardContent className="p-8">
+              <h3 className="text-2xl font-bold text-gray-800 mb-4">
+                Discover All Our Features
+              </h3>
+              <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
+                Access prayer wall, youth groups, daily Bible verses, FaithBot AI, faith journal, 
+                faith quiz, and many more tools to support your faith journey.
+              </p>
+              <Button 
+                onClick={() => router.push('/features')}
+                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 text-lg font-medium shadow-lg hover:shadow-xl"
+              >
+                Explore Features
               </Button>
             </CardContent>
           </Card>
-
-          {/* Youth Groups */}
-          <Card 
-            className="bg-white shadow-lg border border-gray-100 cursor-pointer"
-            onClick={() => handleFeatureClick('youth-groups', 'Youth Groups')}
-          >
-            <CardContent className="p-6 text-center">
-              <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <Users className="h-8 w-8 text-white" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-800 mb-3">Youth Groups</h3>
-              <p className="text-gray-600 mb-6">Find and join Catholic youth groups</p>
-              <Button className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600">
-                Find Groups
-              </Button>
-            </CardContent>
-          </Card>
-
-          {/* Daily Bible Verse */}
-          <Card 
-            className="bg-white shadow-lg border border-gray-100 cursor-pointer"
-            onClick={() => handleFeatureClick('daily-bible-verse', 'Daily Bible Verse')}
-          >
-            <CardContent className="p-6 text-center">
-              <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <BookOpen className="h-8 w-8 text-white" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-800 mb-3">Daily Bible Verse</h3>
-              <p className="text-gray-600 mb-6">Today's scripture and reflection</p>
-              <Button className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600">
-                Read Verse
-              </Button>
-            </CardContent>
-          </Card>
-
-          {/* FaithBot AI */}
-          <Card 
-            className="bg-white shadow-lg border border-gray-100 cursor-pointer"
-            onClick={() => handleFeatureClick('faithbot', 'FaithBot AI')}
-          >
-            <CardContent className="p-6 text-center">
-              <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <MessageCircle className="h-8 w-8 text-white" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-800 mb-3">FaithBot AI</h3>
-              <p className="text-gray-600 mb-6">Get answers to your faith questions</p>
-              <Button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600">
-                Ask FaithBot
-              </Button>
-            </CardContent>
-          </Card>
-
-          {/* Faith Journal */}
-          <Card 
-            className="bg-white shadow-lg border border-gray-100 cursor-pointer"
-            onClick={() => handleFeatureClick('faith-journal', 'Faith Journal')}
-          >
-            <CardContent className="p-6 text-center">
-              <div className="w-16 h-16 bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <PenTool className="h-8 w-8 text-white" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-800 mb-3">Faith Journal</h3>
-              <p className="text-gray-600 mb-6">Reflect on your spiritual journey</p>
-              <Button className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600">
-                Write Entry
-              </Button>
-            </CardContent>
-          </Card>
-
-          {/* Faith Quiz */}
-          <Card 
-            className="bg-white shadow-lg border border-gray-100 cursor-pointer"
-            onClick={() => handleFeatureClick('faith-quiz', 'Faith Quiz')}
-          >
-            <CardContent className="p-6 text-center">
-              <div className="w-16 h-16 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <Zap className="h-8 w-8 text-white" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-800 mb-3">Faith Quiz</h3>
-              <p className="text-gray-600 mb-6">Test your knowledge and learn</p>
-              <Button className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600">
-                Take Quiz
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Section Divider */}
-        <div className="flex items-center justify-center mb-12">
-          <div className="w-24 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
-          <div className="mx-4 text-gray-400 text-sm font-medium">
-            Daily Inspiration
-          </div>
-          <div className="w-24 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
         </div>
 
         {/* Daily Bible Verse Section */}

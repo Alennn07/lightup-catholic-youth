@@ -60,7 +60,7 @@ export default function FeaturesPage() {
           rating: feature.rating || 0,
           icon: getIconForFeature(feature.name || ''),
           color: getColorForFeature(feature.name || ''),
-          href: `/dashboard#${feature.id}`,
+          href: getFeatureHref(feature.name || ''),
         }))
         setFeatures(realFeatures)
       } else {
@@ -75,7 +75,7 @@ export default function FeaturesPage() {
             rating: 0,
             icon: Heart,
             color: "from-pink-500 to-rose-500",
-            href: "/dashboard#prayer-wall",
+            href: "/prayer-wall",
           },
           {
             id: "youth-groups",
@@ -86,7 +86,7 @@ export default function FeaturesPage() {
             rating: 0,
             icon: Users2,
             color: "from-blue-500 to-cyan-500",
-            href: "/dashboard#youth-groups",
+            href: "/youth-groups",
           },
           {
             id: "daily-bible-verse",
@@ -97,7 +97,7 @@ export default function FeaturesPage() {
             rating: 0,
             icon: BookOpen,
             color: "from-green-500 to-emerald-500",
-            href: "/dashboard#bible-verse",
+            href: "/daily-bible-verse",
           },
           {
             id: "faithbot",
@@ -108,7 +108,7 @@ export default function FeaturesPage() {
             rating: 0,
             icon: MessageCircle,
             color: "from-purple-500 to-pink-500",
-            href: "/dashboard#faithbot",
+            href: "/faithbot",
           },
           {
             id: "parish-calendar",
@@ -119,7 +119,7 @@ export default function FeaturesPage() {
             rating: 0,
             icon: Calendar,
             color: "from-indigo-500 to-purple-500",
-            href: "/dashboard#parish-calendar",
+            href: "/parish-calendar",
           },
           {
             id: "faith-journal",
@@ -130,7 +130,7 @@ export default function FeaturesPage() {
             rating: 0,
             icon: PenTool,
             color: "from-orange-500 to-red-500",
-            href: "/dashboard#faith-journal",
+            href: "/faith-journal",
           },
           {
             id: "faith-quiz",
@@ -141,7 +141,7 @@ export default function FeaturesPage() {
             rating: 0,
             icon: Zap,
             color: "from-yellow-500 to-orange-500",
-            href: "/dashboard#faith-quiz",
+            href: "/faith-quiz",
           },
           {
             id: "youth-group-finder",
@@ -152,7 +152,7 @@ export default function FeaturesPage() {
             rating: 0,
             icon: MapPin,
             color: "from-teal-500 to-green-500",
-            href: "/dashboard#youth-group-finder",
+            href: "/youth-groups",
           }
         ])
       }
@@ -188,6 +188,20 @@ export default function FeaturesPage() {
       case 'faith quiz': return "from-yellow-500 to-orange-500"
       case 'youth group finder': return "from-teal-500 to-green-500"
       default: return "from-purple-500 to-pink-500"
+    }
+  }
+
+  const getFeatureHref = (featureName: string) => {
+    switch (featureName.toLowerCase()) {
+      case 'prayer wall': return "/prayer-wall"
+      case 'youth groups': return "/youth-groups"
+      case 'daily bible verse': return "/daily-bible-verse"
+      case 'faithbot': return "/faithbot"
+      case 'parish calendar': return "/parish-calendar"
+      case 'faith journal': return "/faith-journal"
+      case 'faith quiz': return "/faith-quiz"
+      case 'youth group finder': return "/youth-groups"
+      default: return "/"
     }
   }
 
