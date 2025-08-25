@@ -28,8 +28,16 @@ export async function POST(request: NextRequest) {
 
     // Get current user
     const { data: { user }, error: authError } = await supabase.auth.getUser()
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    console.log('Auth check - User:', user, 'Error:', authError)
+    
+    if (authError) {
+      console.error('Authentication error:', authError)
+      return NextResponse.json({ error: `Authentication error: ${authError.message}` }, { status: 401 })
+    }
+    
+    if (!user) {
+      console.error('No user found in session')
+      return NextResponse.json({ error: 'No user found in session' }, { status: 401 })
     }
 
     const body = await request.json()
@@ -154,8 +162,16 @@ export async function GET(request: NextRequest) {
 
     // Get current user
     const { data: { user }, error: authError } = await supabase.auth.getUser()
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    console.log('GET Auth check - User:', user, 'Error:', authError)
+    
+    if (authError) {
+      console.error('GET Authentication error:', authError)
+      return NextResponse.json({ error: `Authentication error: ${authError.message}` }, { status: 401 })
+    }
+    
+    if (!user) {
+      console.error('GET No user found in session')
+      return NextResponse.json({ error: 'No user found in session' }, { status: 401 })
     }
 
     const { searchParams } = new URL(request.url)
