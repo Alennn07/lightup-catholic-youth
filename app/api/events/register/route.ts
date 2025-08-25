@@ -7,16 +7,25 @@ export const dynamic = 'force-dynamic'
 // POST - Register for an event
 export async function POST(request: NextRequest) {
   try {
+    console.log('🚀 Event registration API called')
+    
     // Get authorization header
     const authHeader = request.headers.get('authorization')
+    console.log('🔑 Auth header:', authHeader ? 'Present' : 'Missing')
+    
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      console.error('No authorization header found')
+      console.error('❌ No authorization header found')
       return NextResponse.json({ error: 'No authorization header' }, { status: 401 })
     }
 
     const token = authHeader.replace('Bearer ', '')
-    console.log('Token received:', token ? 'Yes' : 'No')
+    console.log('✅ Token received:', token ? 'Yes' : 'No')
+    console.log('🔍 Token length:', token.length)
 
+    console.log('🔧 Creating Supabase client...')
+    console.log('🌐 Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL ? 'Set' : 'Missing')
+    console.log('🔑 Supabase Key:', process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? 'Set' : 'Missing')
+    
     // Create Supabase client with token
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -32,10 +41,12 @@ export async function POST(request: NextRequest) {
         },
       }
     )
+    console.log('✅ Supabase client created')
 
     // Get current user using token
+    console.log('🔍 Authenticating user with token...')
     const { data: { user }, error: authError } = await supabase.auth.getUser(token)
-    console.log('Auth check - User:', user?.id, 'Error:', authError)
+    console.log('👤 Auth check - User ID:', user?.id, 'Error:', authError)
     
     if (authError) {
       console.error('Authentication error:', authError)
@@ -47,7 +58,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No user found in session' }, { status: 401 })
     }
 
+    console.log('📝 Parsing request body...')
     const body = await request.json()
+    console.log('📦 Request body received:', JSON.stringify(body, null, 2))
+    
     const { 
       eventId, 
       name, 
