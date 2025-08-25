@@ -1,0 +1,5 @@
+[33md1a66f4[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31mgithub/main[m[33m, [m[1;31mgithub/HEAD[m[33m)[m Make community page fully functional: Add interactive buttons, state management, toast notifications, and real functionality for all features
+[33mf53e83d[m Complete community page redesign: Create unique Catholic youth community experience with stats, groups, stories, and events
+[33m60ee91f[m Fix infinite loading bug: Add setIsLoading(false) in login success path
+[33ma1f121c[m  Restructure: Move all features from dashboard Quick Actions to features tab with proper navigation
+[33m6bac93c[m Fix client component imports: Use createBrowserClient instead of createClientComponentClient for @supabase/ssr
