@@ -28,6 +28,8 @@ CREATE TABLE IF NOT EXISTS event_registrations (
   email VARCHAR(255) NOT NULL,
   phone VARCHAR(50),
   age INTEGER NOT NULL,
+  parish VARCHAR(255) NOT NULL,
+  diocese VARCHAR(255) NOT NULL,
   emergency_contact VARCHAR(255) NOT NULL,
   dietary_restrictions TEXT,
   special_needs TEXT,

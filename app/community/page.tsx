@@ -149,6 +149,8 @@ export default function CommunityPage() {
     email: "",
     phone: "",
     age: "",
+    parish: "",
+    diocese: "",
     emergencyContact: "",
     dietaryRestrictions: "",
     specialNeeds: "",
@@ -348,6 +350,8 @@ export default function CommunityPage() {
         email: "",
         phone: "",
         age: "",
+        parish: "",
+        diocese: "",
         emergencyContact: "",
         dietaryRestrictions: "",
         specialNeeds: "",
@@ -830,6 +834,31 @@ export default function CommunityPage() {
                     value={registrationData.age}
                     onChange={(e) => setRegistrationData(prev => ({ ...prev, age: e.target.value }))}
                     className="w-full p-2 border rounded mt-1"
+                    required
+                  />
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium">Parish *</label>
+                  <input
+                    type="text"
+                    value={registrationData.parish}
+                    onChange={(e) => setRegistrationData(prev => ({ ...prev, parish: e.target.value }))}
+                    className="w-full p-2 border rounded mt-1"
+                    placeholder="e.g., St. Mary's"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Diocese *</label>
+                  <input
+                    type="text"
+                    value={registrationData.diocese}
+                    onChange={(e) => setRegistrationData(prev => ({ ...prev, diocese: e.target.value }))}
+                    className="w-full p-2 border rounded mt-1"
+                    placeholder="e.g., Los Angeles"
                     required
                   />
                 </div>

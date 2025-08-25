@@ -39,6 +39,8 @@ export async function POST(request: NextRequest) {
       email, 
       phone, 
       age, 
+      parish,
+      diocese,
       emergencyContact, 
       dietaryRestrictions, 
       specialNeeds, 
@@ -47,7 +49,7 @@ export async function POST(request: NextRequest) {
     } = body
 
     // Validate required fields
-    if (!eventId || !name || !email || !age || !emergencyContact || !agreeToTerms) {
+    if (!eventId || !name || !email || !age || !parish || !diocese || !emergencyContact || !agreeToTerms) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
@@ -89,6 +91,8 @@ export async function POST(request: NextRequest) {
         email,
         phone: phone || '',
         age: parseInt(age),
+        parish,
+        diocese,
         emergency_contact: emergencyContact,
         dietary_restrictions: dietaryRestrictions || '',
         special_needs: specialNeeds || '',
