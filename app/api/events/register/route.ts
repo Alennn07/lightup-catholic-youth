@@ -48,21 +48,36 @@ export async function POST(request: NextRequest) {
     console.log('🔑 Supabase Key:', process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? 'Set' : 'Missing')
     
     // Create Supabase client with token
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-      {
-        cookies: {
-          get(name: string) {
-            if (name === 'sb-access-token') return token
-            return undefined
+    let supabase: any
+    try {
+      supabase = createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+        {
+          cookies: {
+            get(name: string) {
+              if (name === 'sb-access-token') return token
+              return undefined
+            },
+            set() {},
+            remove() {},
           },
-          set() {},
-          remove() {},
-        },
+        }
+      )
+      console.log('✅ Supabase client created')
+      
+      // Test the connection immediately
+      console.log('🔍 Testing Supabase connection...')
+      const { data: testData, error: testError } = await supabase.from('events').select('count').limit(1)
+      if (testError) {
+        console.error('❌ Supabase connection test failed:', testError)
+        return NextResponse.json({ error: `Database connection failed: ${testError.message}` }, { status: 500 })
       }
-    )
-    console.log('✅ Supabase client created')
+      console.log('✅ Supabase connection test passed')
+    } catch (clientError: any) {
+      console.error('❌ Error creating Supabase client:', clientError)
+      return NextResponse.json({ error: `Client creation failed: ${clientError.message}` }, { status: 500 })
+    }
 
     // Get current user using token
     console.log('🔍 Authenticating user with token...')
