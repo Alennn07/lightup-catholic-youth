@@ -1,54 +1,73 @@
-import { createClient } from "@supabase/supabase-js"
-import { cookies } from "next/headers"
-import { NextResponse } from "next/server"
+import { createClient } from '@supabase/supabase-js'
+import { NextRequest, NextResponse } from 'next/server'
 
-// Force this route to be dynamic since it uses request.url
 export const dynamic = 'force-dynamic'
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
-    const cookieStore = await cookies()
+    console.log('🚀 Profile GET API called')
     
-    // Create client with service role key for database access
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    )
+    // Check environment variables first
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
+      console.error('❌ NEXT_PUBLIC_SUPABASE_URL is missing')
+      return NextResponse.json({ error: 'Server configuration error' }, { status: 500 })
+    }
+    
+    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      console.error('❌ SUPABASE_SERVICE_ROLE_KEY is missing')
+      return NextResponse.json({ error: 'Server configuration error' }, { status: 500 })
+    }
+    
+    console.log('✅ Environment variables are set')
+    
+    // Get authorization header
+    const authHeader = request.headers.get('authorization')
+    console.log('🔑 Auth header:', authHeader ? 'Present' : 'Missing')
+    
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      console.error('❌ No authorization header found')
+      return NextResponse.json({ error: 'No authorization header' }, { status: 401 })
+    }
 
-    // Get session from cookies manually
-    const supabaseAuth = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    const token = authHeader.replace('Bearer ', '')
+    console.log('✅ Token received:', token ? 'Yes' : 'No')
+
+    // Create Supabase client with service role key
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.SUPABASE_SERVICE_ROLE_KEY,
       {
-        cookies: {
-          get(name: string) {
-            return cookieStore.get(name)?.value
-          },
-          set(name: string, value: string, options: any) {
-            cookieStore.set({ name, value, ...options })
-          },
-          remove(name: string, options: any) {
-            cookieStore.set({ name, value: '', ...options })
-          },
-        },
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false
+        }
       }
     )
 
-    const {
-      data: { session },
-    } = await supabaseAuth.auth.getSession()
-
-    if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    // Get current user using token
+    console.log('🔍 Authenticating user with token...')
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+    console.log('👤 Auth check - User ID:', user?.id, 'Error:', authError)
+    
+    if (authError) {
+      console.error('❌ Authentication error:', authError)
+      return NextResponse.json({ error: `Authentication error: ${authError.message}` }, { status: 401 })
+    }
+    
+    if (!user) {
+      console.error('❌ No user found in session')
+      return NextResponse.json({ error: 'No user found in session' }, { status: 401 })
     }
 
-    const { data: profile, error } = await supabase.from("users").select("*").eq("id", session.user.id).single()
+    // Fetch user profile
+    const { data: profile, error } = await supabase.from("users").select("*").eq("id", user.id).single()
 
     if (error) {
       console.error("Error fetching profile:", error)
       return NextResponse.json({ error: "Failed to fetch profile" }, { status: 500 })
     }
 
+    console.log('✅ Profile fetched successfully')
     return NextResponse.json({ profile })
   } catch (error) {
     console.error("Profile API error:", error)
@@ -56,44 +75,65 @@ export async function GET(request: Request) {
   }
 }
 
-export async function PUT(request: Request) {
+export async function PUT(request: NextRequest) {
   try {
-    const cookieStore = await cookies()
+    console.log('🚀 Profile PUT API called')
     
-    // Create client with service role key for database access
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    )
+    // Check environment variables first
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
+      console.error('❌ NEXT_PUBLIC_SUPABASE_URL is missing')
+      return NextResponse.json({ error: 'Server configuration error' }, { status: 500 })
+    }
+    
+    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      console.error('❌ SUPABASE_SERVICE_ROLE_KEY is missing')
+      return NextResponse.json({ error: 'Server configuration error' }, { status: 500 })
+    }
+    
+    console.log('✅ Environment variables are set')
+    
+    // Get authorization header
+    const authHeader = request.headers.get('authorization')
+    console.log('🔑 Auth header:', authHeader ? 'Present' : 'Missing')
+    
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      console.error('❌ No authorization header found')
+      return NextResponse.json({ error: 'No authorization header' }, { status: 401 })
+    }
 
-    // Get session from cookies manually
-    const supabaseAuth = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    const token = authHeader.replace('Bearer ', '')
+    console.log('✅ Token received:', token ? 'Yes' : 'No')
+
+    // Create Supabase client with service role key
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.SUPABASE_SERVICE_ROLE_KEY,
       {
-        cookies: {
-          get(name: string) {
-            return cookieStore.get(name)?.value
-          },
-          set(name: string, value: string, options: any) {
-            cookieStore.set({ name, value, ...options })
-          },
-          remove(name: string, options: any) {
-            cookieStore.set({ name, value: '', ...options })
-          },
-        },
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false
+        }
       }
     )
 
-    const {
-      data: { session },
-    } = await supabaseAuth.auth.getSession()
-
-    if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    // Get current user using token
+    console.log('🔍 Authenticating user with token...')
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+    console.log('👤 Auth check - User ID:', user?.id, 'Error:', authError)
+    
+    if (authError) {
+      console.error('❌ Authentication error:', authError)
+      return NextResponse.json({ error: `Authentication error: ${authError.message}` }, { status: 401 })
+    }
+    
+    if (!user) {
+      console.error('❌ No user found in session')
+      return NextResponse.json({ error: 'No user found in session' }, { status: 401 })
     }
 
     const body = await request.json()
+    console.log('📦 Request body received:', JSON.stringify(body, null, 2))
+    
     const { name, username, age, parish, diocese, bio, phone, address, city, state, interests, spiritual_gifts } = body
 
     const { data: profile, error } = await supabase
@@ -113,7 +153,7 @@ export async function PUT(request: Request) {
         spiritual_gifts,
         updated_at: new Date().toISOString(),
       })
-      .eq("id", session.user.id)
+      .eq("id", user.id)
       .select()
       .single()
 
@@ -122,6 +162,7 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: "Failed to update profile" }, { status: 500 })
     }
 
+    console.log('✅ Profile updated successfully')
     return NextResponse.json({ profile })
   } catch (error) {
     console.error("Profile update API error:", error)
@@ -129,51 +170,72 @@ export async function PUT(request: Request) {
   }
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
-    const cookieStore = await cookies()
+    console.log('🚀 Profile POST API called')
     
-    // Create client with service role key for database access
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    )
+    // Check environment variables first
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
+      console.error('❌ NEXT_PUBLIC_SUPABASE_URL is missing')
+      return NextResponse.json({ error: 'Server configuration error' }, { status: 500 })
+    }
+    
+    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      console.error('❌ SUPABASE_SERVICE_ROLE_KEY is missing')
+      return NextResponse.json({ error: 'Server configuration error' }, { status: 500 })
+    }
+    
+    console.log('✅ Environment variables are set')
+    
+    // Get authorization header
+    const authHeader = request.headers.get('authorization')
+    console.log('🔑 Auth header:', authHeader ? 'Present' : 'Missing')
+    
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      console.error('❌ No authorization header found')
+      return NextResponse.json({ error: 'No authorization header' }, { status: 401 })
+    }
 
-    // Get session from cookies manually
-    const supabaseAuth = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    const token = authHeader.replace('Bearer ', '')
+    console.log('✅ Token received:', token ? 'Yes' : 'No')
+
+    // Create Supabase client with service role key
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.SUPABASE_SERVICE_ROLE_KEY,
       {
-        cookies: {
-          get(name: string) {
-            return cookieStore.get(name)?.value
-          },
-          set(name: string, value: string, options: any) {
-            cookieStore.set({ name, value, ...options })
-          },
-          remove(name: string, options: any) {
-            cookieStore.set({ name, value: '', ...options })
-          },
-        },
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false
+        }
       }
     )
 
-    const {
-      data: { session },
-    } = await supabaseAuth.auth.getSession()
-
-    if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    // Get current user using token
+    console.log('🔍 Authenticating user with token...')
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+    console.log('👤 Auth check - User ID:', user?.id, 'Error:', authError)
+    
+    if (authError) {
+      console.error('❌ Authentication error:', authError)
+      return NextResponse.json({ error: `Authentication error: ${authError.message}` }, { status: 401 })
+    }
+    
+    if (!user) {
+      console.error('❌ No user found in session')
+      return NextResponse.json({ error: 'No user found in session' }, { status: 401 })
     }
 
     const body = await request.json()
+    console.log('📦 Request body received:', JSON.stringify(body, null, 2))
+    
     const { name, username, age, parish, diocese, bio, phone, address, city, state, interests, spiritual_gifts } = body
 
     const { data: profile, error } = await supabase
       .from("users")
       .insert({
-        id: session.user.id,
-        email: session.user.email,
+        id: user.id,
+        email: user.email,
         name,
         username,
         age,
@@ -197,6 +259,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Failed to create profile" }, { status: 500 })
     }
 
+    console.log('✅ Profile created successfully')
     return NextResponse.json({ profile })
   } catch (error) {
     console.error("Profile creation API error:", error)

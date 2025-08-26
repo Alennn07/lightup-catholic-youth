@@ -556,13 +556,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         Object.entries(data).filter(([_, value]) => value !== undefined && value !== null)
       )
       
-      // Call the API endpoint instead of direct database access
+      // Get the current access token
+      const accessToken = await getAccessToken()
+      if (!accessToken) {
+        throw new Error('No access token available')
+      }
+      
+      // Call the API endpoint with Authorization header
       const response = await fetch('/api/users/profile', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`,
         },
-        credentials: 'include', // Include cookies for authentication
         body: JSON.stringify(cleanData),
       })
 
