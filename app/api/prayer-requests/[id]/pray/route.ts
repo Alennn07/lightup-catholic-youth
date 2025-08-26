@@ -63,11 +63,25 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     const id = params.id
     console.log('📝 Updating prayer count for request ID:', id)
 
-    // Increment prayer count
+    // First get the current prayer count
+    const { data: currentRequest, error: fetchError } = await supabase
+      .from("prayer_requests")
+      .select("prayer_count")
+      .eq("id", id)
+      .single()
+
+    if (fetchError) {
+      console.error("Error fetching current prayer count:", fetchError)
+      throw fetchError
+    }
+
+    const newPrayerCount = (currentRequest.prayer_count || 0) + 1
+
+    // Update prayer count
     const { data, error } = await supabase
       .from("prayer_requests")
       .update({
-        prayer_count: supabase.sql`prayer_count + 1`,
+        prayer_count: newPrayerCount,
         updated_at: new Date().toISOString(),
       })
       .eq("id", id)
