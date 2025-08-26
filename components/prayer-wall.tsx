@@ -147,8 +147,19 @@ export function PrayerWall() {
       }
 
       const { prayerCount } = await response.json()
+      console.log('🔄 API Response - prayerCount:', prayerCount)
+      console.log('🔄 Current requests state:', requests)
+      console.log('🔄 Updating request ID:', requestId)
 
-      setRequests(requests.map((req) => (req.id === requestId ? { ...req, prayer_count: prayerCount } : req)))
+      setRequests(requests.map((req) => {
+        if (req.id === requestId) {
+          console.log('🔄 Updating request:', req.id, 'from', req.prayer_count, 'to', prayerCount)
+          return { ...req, prayer_count: prayerCount }
+        }
+        return req
+      }))
+
+      console.log('🔄 State updated, new requests:', requests.map(req => ({ id: req.id, prayer_count: req.prayer_count })))
 
       toast({
         title: "Prayer added",
