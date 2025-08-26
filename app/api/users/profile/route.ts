@@ -1,4 +1,4 @@
-import { createServerClient } from "@supabase/ssr"
+import { createClient } from "@supabase/supabase-js"
 import { cookies } from "next/headers"
 import { NextResponse } from "next/server"
 
@@ -8,7 +8,15 @@ export const dynamic = 'force-dynamic'
 export async function GET(request: Request) {
   try {
     const cookieStore = await cookies()
-    const supabase = createServerClient(
+    
+    // Create client with service role key for database access
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    )
+
+    // Get session from cookies manually
+    const supabaseAuth = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
@@ -28,7 +36,7 @@ export async function GET(request: Request) {
 
     const {
       data: { session },
-    } = await supabase.auth.getSession()
+    } = await supabaseAuth.auth.getSession()
 
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
@@ -51,7 +59,15 @@ export async function GET(request: Request) {
 export async function PUT(request: Request) {
   try {
     const cookieStore = await cookies()
-    const supabase = createServerClient(
+    
+    // Create client with service role key for database access
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    )
+
+    // Get session from cookies manually
+    const supabaseAuth = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
@@ -71,7 +87,7 @@ export async function PUT(request: Request) {
 
     const {
       data: { session },
-    } = await supabase.auth.getSession()
+    } = await supabaseAuth.auth.getSession()
 
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
@@ -116,7 +132,15 @@ export async function PUT(request: Request) {
 export async function POST(request: Request) {
   try {
     const cookieStore = await cookies()
-    const supabase = createServerClient(
+    
+    // Create client with service role key for database access
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
+
+    // Get session from cookies manually
+    const supabaseAuth = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
@@ -136,7 +160,7 @@ export async function POST(request: Request) {
 
     const {
       data: { session },
-    } = await supabase.auth.getSession()
+    } = await supabaseAuth.auth.getSession()
 
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
