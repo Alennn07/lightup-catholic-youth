@@ -44,9 +44,10 @@ export default function ProfilePage() {
   useEffect(() => {
     if (user) {
       console.log('Profile: User data updated:', user)
+      console.log('Profile: Username from user:', user.username)
       setFormData({
         name: user.name || "",
-        username: user.username || `user_${user.id?.slice(0, 8)}` || "",
+        username: user.username || "", // Remove the fallback username generation
         age: user.age || 0,
         parish: user.parish || "",
         diocese: user.diocese || ""
@@ -83,14 +84,26 @@ export default function ProfilePage() {
         return
       }
       
+      console.log('🔄 Updating profile with data:', formData)
+      
       // Update profile with all data
-      await updateProfile(formData)
+      const updatedProfile = await updateProfile(formData)
+      
+      console.log('✅ Profile update response:', updatedProfile)
       
       alert('Profile updated successfully!')
       setIsEditing(false)
       
-      // Refresh the page to show updated data
-      window.location.reload()
+      // Force a re-render by updating form data with the returned profile
+      if (updatedProfile) {
+        setFormData({
+          name: updatedProfile.name || "",
+          username: updatedProfile.username || "",
+          age: updatedProfile.age || 0,
+          parish: updatedProfile.parish || "",
+          diocese: updatedProfile.diocese || ""
+        })
+      }
       
     } catch (error) {
       console.error('❌ Error in handleSave:', error)
