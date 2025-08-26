@@ -556,18 +556,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         Object.entries(data).filter(([_, value]) => value !== undefined && value !== null)
       )
       
-      const { error } = await supabase.from("users").update(cleanData).eq("id", user.id)
+      // Call the API endpoint instead of direct database access
+      const response = await fetch('/api/users/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(cleanData),
+      })
 
-      if (error) {
-        console.error('❌ Database update error:', error)
-        throw error
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to update profile')
       }
+
+      const { profile } = await response.json()
       
-      // Update local user state
-      const updatedUser = { ...user, ...cleanData }
-      setUser(updatedUser)
+      // Update local user state with the returned profile data
+      setUser(profile)
       
-      return updatedUser
+      return profile
     } catch (error) {
       console.error('❌ Profile update failed:', error)
       throw error
