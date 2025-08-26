@@ -86,9 +86,6 @@ INSERT INTO prayer_requests (user_id, name, request, category, is_anonymous, pra
   )
 ON CONFLICT DO NOTHING;
 
--- Display table structure
-\d prayer_requests;
-
 -- Display sample data
 SELECT 
   id,
