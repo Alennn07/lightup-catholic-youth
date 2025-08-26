@@ -59,11 +59,8 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       return NextResponse.json({ error: 'No user found in session' }, { status: 401 })
     }
 
-    const id = Number.parseInt(params.id)
-    if (isNaN(id)) {
-      return NextResponse.json({ error: 'Invalid prayer request ID' }, { status: 400 })
-    }
-
+    // Remove the number parsing since ID is a UUID string
+    const id = params.id
     console.log('📝 Updating prayer count for request ID:', id)
 
     // Increment prayer count

@@ -17,7 +17,7 @@ import { useAuth } from "@/contexts/auth-context"
 import { formatDistanceToNow } from "date-fns"
 
 interface PrayerRequest {
-  id: number
+  id: string  // Changed from number to string (UUID)
   user_id: string
   name: string
   request: string
@@ -126,7 +126,7 @@ export function PrayerWall() {
     }
   }
 
-  const handlePray = async (requestId: number) => {
+  const handlePray = async (requestId: string) => {
     try {
       // Get the current access token
       const accessToken = await getAccessToken()
