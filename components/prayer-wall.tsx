@@ -43,7 +43,7 @@ export function PrayerWall() {
     isAnonymous: false,
   })
   const { toast } = useToast()
-  const { user } = useAuth()
+  const { user, getAccessToken } = useAuth()
 
   const categories = ["Health", "Family", "Education", "Work", "Spiritual", "Other"]
 
@@ -81,11 +81,19 @@ export function PrayerWall() {
 
     setIsSubmitting(true)
     try {
+      // Get the current access token
+      const accessToken = await getAccessToken()
+      if (!accessToken) {
+        throw new Error('No access token available')
+      }
+
       const response = await fetch("/api/prayer-requests", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${accessToken}`,
+        },
         body: JSON.stringify({
-          user_id: user.id,
           name: formData.isAnonymous ? "Anonymous" : formData.name || user.name,
           request: formData.request,
           category: formData.category,
@@ -93,7 +101,10 @@ export function PrayerWall() {
         }),
       })
 
-      if (!response.ok) throw new Error("Failed to submit request")
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || "Failed to submit request")
+      }
 
       const newRequest = await response.json()
       setRequests([newRequest, ...requests])
@@ -117,11 +128,23 @@ export function PrayerWall() {
 
   const handlePray = async (requestId: number) => {
     try {
+      // Get the current access token
+      const accessToken = await getAccessToken()
+      if (!accessToken) {
+        throw new Error('No access token available')
+      }
+
       const response = await fetch(`/api/prayer-requests/${requestId}/pray`, {
         method: "POST",
+        headers: {
+          "Authorization": `Bearer ${accessToken}`,
+        },
       })
 
-      if (!response.ok) throw new Error("Failed to update prayer count")
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || "Failed to update prayer count")
+      }
 
       const { prayerCount } = await response.json()
 
