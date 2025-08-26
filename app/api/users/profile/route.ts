@@ -34,7 +34,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { data: profile, error } = await supabase.from("user_profiles").select("*").eq("id", session.user.id).single()
+    const { data: profile, error } = await supabase.from("users").select("*").eq("id", session.user.id).single()
 
     if (error) {
       console.error("Error fetching profile:", error)
@@ -78,12 +78,13 @@ export async function PUT(request: Request) {
     }
 
     const body = await request.json()
-    const { name, age, parish, diocese, bio, phone, address, city, state, interests, spiritual_gifts } = body
+    const { name, username, age, parish, diocese, bio, phone, address, city, state, interests, spiritual_gifts } = body
 
     const { data: profile, error } = await supabase
-      .from("user_profiles")
+      .from("users")
       .update({
         name,
+        username,
         age,
         parish,
         diocese,
@@ -142,14 +143,15 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json()
-    const { name, age, parish, diocese, bio, phone, address, city, state, interests, spiritual_gifts } = body
+    const { name, username, age, parish, diocese, bio, phone, address, city, state, interests, spiritual_gifts } = body
 
     const { data: profile, error } = await supabase
-      .from("user_profiles")
+      .from("users")
       .insert({
         id: session.user.id,
         email: session.user.email,
         name,
+        username,
         age,
         parish,
         diocese,
