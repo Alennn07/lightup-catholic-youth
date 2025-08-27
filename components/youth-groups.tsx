@@ -1,469 +1,283 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Badge } from "@/components/ui/badge"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Calendar, Clock, MapPin, Users, Plus, Edit, Trash2, CheckCircle, AlertCircle, Search, Filter } from "lucide-react"
-import { useToast } from "@/hooks/use-toast"
-import { createBrowserClient } from "@supabase/ssr"
+import { useState, useEffect } from 'react'
+import { useAuth } from '@/contexts/auth-context'
+import { useToast } from '@/hooks/use-toast'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Search, Users, MapPin, Calendar, Plus, Settings, MessageSquare, Heart } from 'lucide-react'
 
-export function YouthGroups() {
-  const [groups, setGroups] = useState<any[]>([])
-  const [events, setEvents] = useState<any[]>([])
-  const [userProfile, setUserProfile] = useState<any>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [isCreateGroupOpen, setIsCreateGroupOpen] = useState(false)
-  const [isEditGroupOpen, setIsEditGroupOpen] = useState(false)
-  const [isCreateEventOpen, setIsCreateEventOpen] = useState(false)
-  const [selectedGroup, setSelectedGroup] = useState<any>(null)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [selectedParish, setSelectedParish] = useState("all")
-  const [selectedType, setSelectedType] = useState("all")
-  
-  const supabase = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  )
-  const { toast } = useToast()
-
-  const [groupForm, setGroupForm] = useState({
-    name: "",
-    parish: "",
-    address: "",
-    city: "",
-    age_range: "",
-    meeting_day: "",
-    meeting_time: "",
-    description: "",
-    contact_person: "",
-    contact_email: "",
-    contact_phone: "",
-    type: [] as string[]
-  })
-
-  const [eventForm, setEventForm] = useState({
-    title: "",
-    description: "",
-    event_type: "social",
-    date: "",
-    start_time: "",
-    end_time: "",
-    location: "",
-    organizer: "",
-    max_attendees: undefined as number | undefined,
-    registration_required: false,
-    cost: 0
-  })
-
-  const groupTypes = [
-    "youth-ministry",
-    "bible-study",
-    "service",
-    "social",
-    "prayer",
-    "music",
-    "sports",
-    "outreach"
-  ]
-
-  const eventTypes = [
-    "youth-mass",
-    "service",
-    "social",
-    "prayer",
-    "education",
-    "retreat",
-    "pilgrimage",
-    "other"
-  ]
-
-  const daysOfWeek = [
-    "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"
-  ]
-
-  // Fetch user profile and groups on component mount
-  useEffect(() => {
-    fetchUserProfile()
-    fetchGroups()
-    fetchEvents()
-  }, [])
-
-  const fetchUserProfile = async () => {
-    try {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (session?.user) {
-        const { data: profile } = await supabase
-          .from("user_profiles")
-          .select("*")
-          .eq("id", session.user.id)
-          .single()
-        setUserProfile(profile)
-      }
-    } catch (error) {
-      console.error("Error fetching user profile:", error)
-    }
+interface YouthGroup {
+  id: string
+  name: string
+  description: string
+  mission_statement?: string
+  parish?: string
+  diocese?: string
+  city?: string
+  state?: string
+  country?: string
+  meeting_location?: string
+  meeting_time?: string
+  meeting_frequency?: string
+  age_range?: string
+  max_members: number
+  is_public: boolean
+  is_active: boolean
+  owner_id: string
+  created_at: string
+  updated_at: string
+  owner?: {
+    id: string
+    email: string
+    user_metadata?: any
   }
+  member_count?: number
+  user_role?: string
+  user_status?: string
+  is_member?: boolean
+  members?: any[]
+  events?: any[]
+  posts?: any[]
+}
+
+export default function YouthGroups() {
+  const { user, getAccessToken } = useAuth()
+  const { toast } = useToast()
+  const [groups, setGroups] = useState<YouthGroup[]>([])
+  const [loading, setLoading] = useState(true)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [selectedCategory, setSelectedCategory] = useState('all')
+  const [showCreateForm, setShowCreateForm] = useState(false)
+  const [selectedGroup, setSelectedGroup] = useState<YouthGroup | null>(null)
+  const [showGroupDetails, setShowGroupDetails] = useState(false)
+
+  // Form state for creating groups
+  const [formData, setFormData] = useState({
+    name: '',
+    description: '',
+    mission_statement: '',
+    parish: '',
+    diocese: '',
+    city: '',
+    state: '',
+    country: '',
+    meeting_location: '',
+    meeting_time: '',
+    meeting_frequency: '',
+    age_range: '',
+    max_members: 50,
+    is_public: true
+  })
+
+  useEffect(() => {
+    if (user) {
+      fetchGroups()
+    } else {
+      setLoading(false)
+    }
+  }, [user])
 
   const fetchGroups = async () => {
     try {
-      setIsLoading(true)
-      const { data, error } = await supabase
-        .from("youth_groups")
-        .select("*")
-        .eq("is_active", true)
-        .order("created_at", { ascending: false })
+      const token = await getAccessToken()
+      if (!token) {
+        toast({ title: "Authentication Error", description: "Please sign in to view groups.", variant: "destructive" })
+        return
+      }
 
-      if (error) throw error
-      setGroups(data || [])
-    } catch (error) {
-      console.error("Error fetching groups:", error)
-      toast({
-        title: "Error",
-        description: "Failed to fetch youth groups",
-        variant: "destructive"
+      const response = await fetch('/api/youth-groups', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
       })
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch groups')
+      }
+
+      const data = await response.json()
+      setGroups(data.groups || [])
+    } catch (error) {
+      console.error('Error fetching groups:', error)
+      toast({ title: "Error", description: "Failed to load youth groups.", variant: "destructive" })
     } finally {
-      setIsLoading(false)
+      setLoading(false)
     }
   }
 
-  const fetchEvents = async () => {
+  const handleJoinGroup = async (groupId: string) => {
     try {
-      const { data, error } = await supabase
-        .from("events")
-        .select("*")
-        .order("date", { ascending: true })
+      const token = await getAccessToken()
+      if (!token) {
+        toast({ title: "Authentication Error", description: "Please sign in to join groups.", variant: "destructive" })
+        return
+      }
 
-      if (error) throw error
-      setEvents(data || [])
+      const response = await fetch('/api/youth-groups/join', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ groupId, action: 'join' })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to join group')
+      }
+
+      const data = await response.json()
+      toast({ title: "Success", description: data.message })
+      
+      // Refresh groups to update membership status
+      fetchGroups()
+    } catch (error: any) {
+      console.error('Error joining group:', error)
+      toast({ title: "Error", description: error.message || "Failed to join group.", variant: "destructive" })
+    }
+  }
+
+  const handleLeaveGroup = async (groupId: string) => {
+    try {
+      const token = await getAccessToken()
+      if (!token) {
+        toast({ title: "Authentication Error", description: "Please sign in to leave groups.", variant: "destructive" })
+        return
+      }
+
+      const response = await fetch('/api/youth-groups/join', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ groupId, action: 'leave' })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to leave group')
+      }
+
+      const data = await response.json()
+      toast({ title: "Success", description: data.message })
+      
+      // Refresh groups to update membership status
+      fetchGroups()
+    } catch (error: any) {
+      console.error('Error leaving group:', error)
+      toast({ title: "Error", description: error.message || "Failed to leave group.", variant: "destructive" })
+    }
+  }
+
+  const handleCreateGroup = async () => {
+    try {
+      const token = await getAccessToken()
+      if (!token) {
+        toast({ title: "Authentication Error", description: "Please sign in to create groups.", variant: "destructive" })
+        return
+      }
+
+      const response = await fetch('/api/youth-groups', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(formData)
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to create group')
+      }
+
+      const data = await response.json()
+      toast({ title: "Success", description: "Group created successfully!" })
+      
+      // Reset form and close modal
+      setFormData({
+        name: '',
+        description: '',
+        mission_statement: '',
+        parish: '',
+        diocese: '',
+        city: '',
+        state: '',
+        country: '',
+        meeting_location: '',
+        meeting_time: '',
+        meeting_frequency: '',
+        age_range: '',
+        max_members: 50,
+        is_public: true
+      })
+      setShowCreateForm(false)
+      
+      // Refresh groups
+      fetchGroups()
+    } catch (error: any) {
+      console.error('Error creating group:', error)
+      toast({ title: "Error", description: error.message || "Failed to create group.", variant: "destructive" })
+    }
+  }
+
+  const handleViewGroup = async (group: YouthGroup) => {
+    try {
+      const token = await getAccessToken()
+      if (!token) {
+        toast({ title: "Authentication Error", description: "Please sign in to view group details.", variant: "destructive" })
+        return
+      }
+
+      const response = await fetch(`/api/youth-groups/${group.id}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch group details')
+      }
+
+      const data = await response.json()
+      setSelectedGroup(data.group)
+      setShowGroupDetails(true)
     } catch (error) {
-      console.error("Error fetching events:", error)
+      console.error('Error fetching group details:', error)
+      toast({ title: "Error", description: "Failed to load group details.", variant: "destructive" })
     }
-  }
-
-  const handleCreateGroup = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
-    try {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session) {
-        toast({
-          title: "Error",
-          description: "You must be signed in to create a group",
-          variant: "destructive"
-        })
-        return
-      }
-
-      const groupData = {
-        ...groupForm,
-        created_by: session.user.id,
-        members_count: 0,
-        is_active: true
-      }
-
-      const { data, error } = await supabase
-        .from("youth_groups")
-        .insert(groupData)
-        .select()
-        .single()
-
-      if (error) throw error
-
-      setGroups([data, ...groups])
-      setIsCreateGroupOpen(false)
-      resetGroupForm()
-
-      toast({
-        title: "Success",
-        description: "Youth group created successfully!",
-        variant: "default"
-      })
-    } catch (error: any) {
-      console.error("Error creating group:", error)
-      toast({
-        title: "Error",
-        description: error.message || "Failed to create group",
-        variant: "destructive"
-      })
-    }
-  }
-
-  const handleEditGroup = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
-    if (!selectedGroup) return
-
-    try {
-      const { data, error } = await supabase
-        .from("youth_groups")
-        .update(groupForm)
-        .eq("id", selectedGroup.id)
-        .select()
-        .single()
-
-      if (error) throw error
-
-      setGroups(groups.map(group => 
-        group.id === selectedGroup.id ? data : group
-      ))
-      setIsEditGroupOpen(false)
-      setSelectedGroup(null)
-      resetGroupForm()
-
-      toast({
-        title: "Success",
-        description: "Group updated successfully!",
-        variant: "default"
-      })
-    } catch (error: any) {
-      console.error("Error updating group:", error)
-      toast({
-        title: "Error",
-        description: error.message || "Failed to update group",
-        variant: "destructive"
-      })
-    }
-  }
-
-  const handleDeleteGroup = async (groupId: number) => {
-    if (!confirm("Are you sure you want to delete this group? This action cannot be undone.")) {
-      return
-    }
-
-    try {
-      const { error } = await supabase
-        .from("youth_groups")
-        .delete()
-        .eq("id", groupId)
-
-      if (error) throw error
-
-      setGroups(groups.filter(group => group.id !== groupId))
-      toast({
-        title: "Success",
-        description: "Group deleted successfully",
-        variant: "default"
-      })
-    } catch (error: any) {
-      console.error("Error deleting group:", error)
-      toast({
-        title: "Error",
-        description: error.message || "Failed to delete group",
-        variant: "destructive"
-      })
-    }
-  }
-
-  const handleCreateEvent = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
-    if (!selectedGroup) return
-
-    try {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session) {
-        toast({
-          title: "Error",
-          description: "You must be signed in to create an event",
-          variant: "destructive"
-        })
-        return
-      }
-
-      const eventData = {
-        ...eventForm,
-        user_id: session.user.id,
-        group_id: selectedGroup.id,
-        current_attendees: 0,
-        is_recurring: false,
-        status: "upcoming"
-      }
-
-      const { data, error } = await supabase
-        .from("events")
-        .insert(eventData)
-        .select()
-        .single()
-
-      if (error) throw error
-
-      setEvents([data, ...events])
-      setIsCreateEventOpen(false)
-      resetEventForm()
-
-      toast({
-        title: "Success",
-        description: "Event created successfully!",
-        variant: "default"
-      })
-    } catch (error: any) {
-      console.error("Error creating event:", error)
-      toast({
-        title: "Error",
-        description: error.message || "Failed to create event",
-        variant: "destructive"
-      })
-    }
-  }
-
-  const handleJoinGroup = async (groupId: number) => {
-    try {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session) {
-        toast({
-          title: "Error",
-          description: "You must be signed in to join a group",
-          variant: "destructive"
-        })
-        return
-      }
-
-      // Check if user is already a member
-      const { data: existingMembership } = await supabase
-        .from("group_memberships")
-        .select("*")
-        .eq("user_id", session.user.id)
-        .eq("group_id", groupId)
-        .single()
-
-      if (existingMembership) {
-        toast({
-          title: "Already a member",
-          description: "You are already a member of this group",
-          variant: "default"
-        })
-        return
-      }
-
-      // Add membership
-      const { error } = await supabase
-        .from("group_memberships")
-        .insert({
-          user_id: session.user.id,
-          group_id: groupId,
-          status: "approved"
-        })
-
-      if (error) throw error
-
-      // Update group member count
-      const group = groups.find(g => g.id === groupId)
-      if (group) {
-        setGroups(groups.map(g => 
-          g.id === groupId ? { ...g, members_count: g.members_count + 1 } : g
-        ))
-      }
-
-      toast({
-        title: "Success",
-        description: "You have joined the group successfully!",
-        variant: "default"
-      })
-    } catch (error: any) {
-      console.error("Error joining group:", error)
-      toast({
-        title: "Error",
-        description: error.message || "Failed to join group",
-        variant: "destructive"
-      })
-    }
-  }
-
-  const canManageGroup = (group: any) => {
-    if (!userProfile) return false
-    return group.created_by === userProfile.id || 
-           userProfile.role === "admin" || 
-           userProfile.role === "obcc" ||
-           userProfile.role === "clergy"
-  }
-
-  const canJoinGroup = (group: any) => {
-    if (!userProfile) return false
-    return group.parish === userProfile.parish
-  }
-
-  const resetGroupForm = () => {
-    setGroupForm({
-      name: "",
-      parish: "",
-      address: "",
-      city: "",
-      age_range: "",
-      meeting_day: "",
-      meeting_time: "",
-      description: "",
-      contact_person: "",
-      contact_email: "",
-      contact_phone: "",
-      type: []
-    })
-  }
-
-  const resetEventForm = () => {
-    setEventForm({
-      title: "",
-      description: "",
-      event_type: "social",
-      date: "",
-      start_time: "",
-      end_time: "",
-      location: "",
-      organizer: "",
-      max_attendees: undefined,
-      registration_required: false,
-      cost: 0
-    })
-  }
-
-  const openEditGroup = (group: any) => {
-    setSelectedGroup(group)
-    setGroupForm({
-      name: group.name,
-      parish: group.parish,
-      address: group.address,
-      city: group.city,
-      age_range: group.age_range,
-      meeting_day: group.meeting_day,
-      meeting_time: group.meeting_time,
-      description: group.description,
-      contact_person: group.contact_person,
-      contact_email: group.contact_email,
-      contact_phone: group.contact_phone,
-      type: group.type
-    })
-    setIsEditGroupOpen(true)
-  }
-
-  const openCreateEvent = (group: any) => {
-    setSelectedGroup(group)
-    setIsCreateEventOpen(true)
   }
 
   const filteredGroups = groups.filter(group => {
     const matchesSearch = group.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         group.description.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesParish = selectedParish === "all" || group.parish === selectedParish
-    const matchesType = selectedType === "all" || group.type.includes(selectedType)
+                         group.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         group.parish?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         group.city?.toLowerCase().includes(searchTerm.toLowerCase())
     
-    return matchesSearch && matchesParish && matchesType
+    const matchesCategory = selectedCategory === 'all' || 
+                           (selectedCategory === 'my-groups' && group.is_member) ||
+                           (selectedCategory === 'public' && group.is_public)
+
+    return matchesSearch && matchesCategory
   })
 
-  const getGroupEvents = (groupId: number) => {
-    return events.filter(event => event.group_id === groupId)
-  }
-
-  if (isLoading) {
+  if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading youth groups...</p>
+        </div>
       </div>
     )
   }
@@ -471,57 +285,16 @@ export function YouthGroups() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="text-center">
-        <h1 className="text-4xl font-bold text-gray-800 mb-2">Youth Groups</h1>
-        <p className="text-lg text-gray-600">Find and join Catholic youth communities near you</p>
-      </div>
-
-      {/* Search and Filters */}
-      <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
-        <div className="flex flex-1 max-w-md items-center space-x-2">
-          <Search className="h-4 w-4 text-gray-400" />
-          <Input
-            placeholder="Search groups..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="flex-1"
-          />
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">Youth Groups</h1>
+          <p className="text-muted-foreground">Connect with Catholic youth in your area</p>
         </div>
-        
-        <div className="flex gap-2">
-          <Select value={selectedParish} onValueChange={setSelectedParish}>
-            <SelectTrigger className="w-[150px]">
-              <SelectValue placeholder="Parish" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Parishes</SelectItem>
-              <SelectItem value="St. Mary's">St. Mary's</SelectItem>
-              <SelectItem value="St. Joseph's">St. Joseph's</SelectItem>
-              <SelectItem value="St. Patrick's">St. Patrick's</SelectItem>
-            </SelectContent>
-          </Select>
-          
-          <Select value={selectedType} onValueChange={setSelectedType}>
-            <SelectTrigger className="w-[150px]">
-              <SelectValue placeholder="Type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Types</SelectItem>
-              {groupTypes.map(type => (
-                <SelectItem key={type} value={type}>
-                  {type.replace("-", " ").replace(/\b\w/g, l => l.toUpperCase())}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Create Group Button */}
-        {userProfile && (
-          <Dialog open={isCreateGroupOpen} onOpenChange={setIsCreateGroupOpen}>
+        {user && (
+          <Dialog open={showCreateForm} onOpenChange={setShowCreateForm}>
             <DialogTrigger asChild>
-              <Button className="bg-purple-600 hover:bg-purple-700">
-                <Plus className="h-4 w-4 mr-2" />
+              <Button className="flex items-center gap-2">
+                <Plus className="h-4 w-4" />
                 Create Group
               </Button>
             </DialogTrigger>
@@ -529,582 +302,475 @@ export function YouthGroups() {
               <DialogHeader>
                 <DialogTitle>Create New Youth Group</DialogTitle>
                 <DialogDescription>
-                  Start a new youth group in your parish
+                  Start a new youth group to bring young Catholics together in faith and fellowship.
                 </DialogDescription>
               </DialogHeader>
-              <form onSubmit={handleCreateGroup} className="space-y-4">
+              <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
+                  <div>
                     <Label htmlFor="name">Group Name *</Label>
                     <Input
                       id="name"
-                      value={groupForm.name}
-                      onChange={(e) => setGroupForm({ ...groupForm, name: e.target.value })}
-                      required
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      placeholder="Enter group name"
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="parish">Parish *</Label>
+                  <div>
+                    <Label htmlFor="parish">Parish</Label>
                     <Input
                       id="parish"
-                      value={groupForm.parish}
-                      onChange={(e) => setGroupForm({ ...groupForm, parish: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="address">Address *</Label>
-                    <Input
-                      id="address"
-                      value={groupForm.address}
-                      onChange={(e) => setGroupForm({ ...groupForm, address: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="city">City *</Label>
-                    <Input
-                      id="city"
-                      value={groupForm.city}
-                      onChange={(e) => setGroupForm({ ...groupForm, city: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="age_range">Age Range *</Label>
-                    <Input
-                      id="age_range"
-                      placeholder="e.g., 13-18"
-                      value={groupForm.age_range}
-                      onChange={(e) => setGroupForm({ ...groupForm, age_range: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="meeting_day">Meeting Day *</Label>
-                    <Select
-                      value={groupForm.meeting_day}
-                      onValueChange={(value) => setGroupForm({ ...groupForm, meeting_day: value })}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select day" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {daysOfWeek.map(day => (
-                          <SelectItem key={day} value={day}>{day}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="meeting_time">Meeting Time *</Label>
-                    <Input
-                      id="meeting_time"
-                      type="time"
-                      value={groupForm.meeting_time}
-                      onChange={(e) => setGroupForm({ ...groupForm, meeting_time: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="contact_person">Contact Person *</Label>
-                    <Input
-                      id="contact_person"
-                      value={groupForm.contact_person}
-                      onChange={(e) => setGroupForm({ ...groupForm, contact_person: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="contact_email">Contact Email *</Label>
-                    <Input
-                      id="contact_email"
-                      type="email"
-                      value={groupForm.contact_email}
-                      onChange={(e) => setGroupForm({ ...groupForm, contact_email: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="contact_phone">Contact Phone *</Label>
-                    <Input
-                      id="contact_phone"
-                      value={groupForm.contact_phone}
-                      onChange={(e) => setGroupForm({ ...groupForm, contact_phone: e.target.value })}
-                      required
+                      value={formData.parish}
+                      onChange={(e) => setFormData({ ...formData, parish: e.target.value })}
+                      placeholder="Enter parish name"
                     />
                   </div>
                 </div>
-                
-                <div className="space-y-2">
+                <div>
                   <Label htmlFor="description">Description *</Label>
                   <Textarea
                     id="description"
-                    value={groupForm.description}
-                    onChange={(e) => setGroupForm({ ...groupForm, description: e.target.value })}
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    placeholder="Describe your group's purpose and activities"
                     rows={3}
-                    required
                   />
                 </div>
-
-                <div className="space-y-2">
-                  <Label>Group Type *</Label>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                    {groupTypes.map(type => (
-                      <label key={type} className="flex items-center space-x-2">
-                        <input
-                          type="checkbox"
-                          checked={groupForm.type.includes(type)}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setGroupForm({ ...groupForm, type: [...groupForm.type, type] })
-                            } else {
-                              setGroupForm({ ...groupForm, type: groupForm.type.filter(t => t !== type) })
-                            }
-                          }}
-                        />
-                        <span className="text-sm">{type.replace("-", " ").replace(/\b\w/g, l => l.toUpperCase())}</span>
-                      </label>
-                    ))}
+                <div>
+                  <Label htmlFor="mission_statement">Mission Statement</Label>
+                  <Textarea
+                    id="mission_statement"
+                    value={formData.mission_statement}
+                    onChange={(e) => setFormData({ ...formData, mission_statement: e.target.value })}
+                    placeholder="What is your group's mission?"
+                    rows={2}
+                  />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <Label htmlFor="city">City</Label>
+                    <Input
+                      id="city"
+                      value={formData.city}
+                      onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                      placeholder="City"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="state">State</Label>
+                    <Input
+                      id="state"
+                      value={formData.state}
+                      onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+                      placeholder="State"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="country">Country</Label>
+                    <Input
+                      id="country"
+                      value={formData.country}
+                      onChange={(e) => setFormData({ ...formData, country: e.target.value })}
+                      placeholder="Country"
+                    />
                   </div>
                 </div>
-
-                <DialogFooter>
-                  <Button type="button" variant="outline" onClick={() => setIsCreateGroupOpen(false)}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="meeting_location">Meeting Location</Label>
+                    <Input
+                      id="meeting_location"
+                      value={formData.meeting_location}
+                      onChange={(e) => setFormData({ ...formData, meeting_location: e.target.value })}
+                      placeholder="Where does your group meet?"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="meeting_time">Meeting Time</Label>
+                    <Input
+                      id="meeting_time"
+                      value={formData.meeting_time}
+                      onChange={(e) => setFormData({ ...formData, meeting_time: e.target.value })}
+                      placeholder="e.g., Every Sunday 6:00 PM"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <Label htmlFor="meeting_frequency">Frequency</Label>
+                    <Select value={formData.meeting_frequency} onValueChange={(value) => setFormData({ ...formData, meeting_frequency: value })}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select frequency" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="weekly">Weekly</SelectItem>
+                        <SelectItem value="bi-weekly">Bi-weekly</SelectItem>
+                        <SelectItem value="monthly">Monthly</SelectItem>
+                        <SelectItem value="quarterly">Quarterly</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="age_range">Age Range</Label>
+                    <Select value={formData.age_range} onValueChange={(value) => setFormData({ ...formData, age_range: value })}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select age range" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="13-18">13-18</SelectItem>
+                        <SelectItem value="18-25">18-25</SelectItem>
+                        <SelectItem value="13-25">13-25</SelectItem>
+                        <SelectItem value="16-22">16-22</SelectItem>
+                        <SelectItem value="18-35">18-35</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="max_members">Max Members</Label>
+                    <Input
+                      id="max_members"
+                      type="number"
+                      value={formData.max_members}
+                      onChange={(e) => setFormData({ ...formData, max_members: parseInt(e.target.value) || 50 })}
+                      min="1"
+                      max="100"
+                    />
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="is_public"
+                    checked={formData.is_public}
+                    onChange={(e) => setFormData({ ...formData, is_public: e.target.checked })}
+                    className="rounded"
+                  />
+                  <Label htmlFor="is_public">Make this group public (anyone can join)</Label>
+                </div>
+                <div className="flex justify-end gap-2">
+                  <Button variant="outline" onClick={() => setShowCreateForm(false)}>
                     Cancel
                   </Button>
-                  <Button type="submit">Create Group</Button>
-                </DialogFooter>
-              </form>
+                  <Button onClick={handleCreateGroup} disabled={!formData.name || !formData.description}>
+                    Create Group
+                  </Button>
+                </div>
+              </div>
             </DialogContent>
           </Dialog>
         )}
       </div>
 
-      {/* Groups Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredGroups.map((group) => (
-          <Card key={group.id} className="hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <CardTitle className="text-lg">{group.name}</CardTitle>
-                  <CardDescription className="text-sm text-gray-600">
-                    {group.parish} • {group.city}
-                  </CardDescription>
-                </div>
-                <div className="flex items-center gap-1">
-                  {canManageGroup(group) && (
-                    <>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => openEditGroup(group)}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDeleteGroup(group.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </>
-                  )}
-                </div>
-              </div>
-            </CardHeader>
-            
-            <CardContent className="space-y-4">
-              <p className="text-sm text-gray-700">{group.description}</p>
-              
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <Users className="h-4 w-4" />
-                  <span>{group.members_count} members</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <Calendar className="h-4 w-4" />
-                  <span>{group.meeting_day}s at {group.meeting_time}</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <MapPin className="h-4 w-4" />
-                  <span>{group.address}</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <Clock className="h-4 w-4" />
-                  <span>Ages {group.age_range}</span>
-                </div>
-              </div>
-
-              <div className="flex flex-wrap gap-1">
-                {group.type.map((type: string) => (
-                  <Badge key={type} variant="secondary" className="text-xs">
-                    {type.replace("-", " ").replace(/\b\w/g, l => l.toUpperCase())}
-                  </Badge>
-                ))}
-              </div>
-
-              <div className="flex items-center gap-2">
-                <div className="flex-1">
-                  <p className="text-sm text-gray-600">
-                    Contact: {group.contact_person}
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    {group.contact_email}
-                  </p>
-                </div>
-                
-                <div className="flex flex-col gap-2">
-                  {canJoinGroup(group) && (
-                    <Button
-                      size="sm"
-                      onClick={() => handleJoinGroup(group.id)}
-                      className="bg-green-600 hover:bg-green-700"
-                    >
-                      <UserPlus className="h-4 w-4 mr-1" />
-                      Join
-                    </Button>
-                  )}
-                  
-                  {canManageGroup(group) && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => openCreateEvent(group)}
-                    >
-                      <Plus className="h-4 w-4 mr-1" />
-                      Add Event
-                    </Button>
-                  )}
-                </div>
-              </div>
-
-              {/* Group Events */}
-              {getGroupEvents(group.id).length > 0 && (
-                <div className="border-t pt-3">
-                  <h4 className="font-medium text-sm mb-2 flex items-center gap-1">
-                    <CalendarDays className="h-4 w-4" />
-                    Upcoming Events
-                  </h4>
-                  <div className="space-y-2">
-                    {getGroupEvents(group.id).slice(0, 3).map((event) => (
-                      <div key={event.id} className="text-xs bg-gray-50 p-2 rounded">
-                        <div className="font-medium">{event.title}</div>
-                        <div className="text-gray-600">
-                          {new Date(event.date).toLocaleDateString()} • {event.start_time}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        ))}
+      {/* Search and Filters */}
+      <div className="flex flex-col sm:flex-row gap-4">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+          <Input
+            placeholder="Search groups by name, description, parish, or city..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+        <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+          <SelectTrigger className="w-full sm:w-[180px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Groups</SelectItem>
+            <SelectItem value="my-groups">My Groups</SelectItem>
+            <SelectItem value="public">Public Groups</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
-      {filteredGroups.length === 0 && (
+      {/* Groups Grid */}
+      {filteredGroups.length === 0 ? (
         <div className="text-center py-12">
-          <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No groups found</h3>
-          <p className="text-gray-600">Try adjusting your search or filters</p>
+          <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+          <h3 className="text-lg font-semibold mb-2">No groups found</h3>
+          <p className="text-muted-foreground">
+            {searchTerm || selectedCategory !== 'all' 
+              ? 'Try adjusting your search or filters'
+              : 'Be the first to create a youth group in your area!'
+            }
+          </p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredGroups.map((group) => (
+            <Card key={group.id} className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <CardTitle className="text-lg">{group.name}</CardTitle>
+                    <CardDescription className="line-clamp-2 mt-2">
+                      {group.description}
+                    </CardDescription>
+                  </div>
+                  <div className="flex flex-col items-end gap-2">
+                    {group.is_member && (
+                      <Badge variant="secondary" className="text-xs">
+                        {group.user_role === 'owner' ? 'Owner' : 'Member'}
+                      </Badge>
+                    )}
+                    {!group.is_public && (
+                      <Badge variant="outline" className="text-xs">Private</Badge>
+                    )}
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2 text-sm text-muted-foreground">
+                  {group.parish && (
+                    <div className="flex items-center gap-2">
+                      <MapPin className="h-4 w-4" />
+                      <span>{group.parish}</span>
+                    </div>
+                  )}
+                  {group.city && group.state && (
+                    <div className="flex items-center gap-2">
+                      <MapPin className="h-4 w-4" />
+                      <span>{group.city}, {group.state}</span>
+                    </div>
+                  )}
+                  {group.meeting_time && (
+                    <div className="flex items-center gap-2">
+                      <Calendar className="h-4 w-4" />
+                      <span>{group.meeting_time}</span>
+                    </div>
+                  )}
+                  {group.age_range && (
+                    <div className="flex items-center gap-2">
+                      <Users className="h-4 w-4" />
+                      <span>Ages {group.age_range}</span>
+                    </div>
+                  )}
+                </div>
+                
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">
+                    {group.member_count || 0} members
+                  </span>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleViewGroup(group)}
+                    >
+                      View Details
+                    </Button>
+                    {!group.is_member ? (
+                      <Button
+                        size="sm"
+                        onClick={() => handleJoinGroup(group.id)}
+                        disabled={!group.is_public}
+                      >
+                        Join Group
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => handleLeaveGroup(group.id)}
+                        disabled={group.user_role === 'owner'}
+                      >
+                        Leave Group
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       )}
 
-      {/* Edit Group Dialog */}
-      <Dialog open={isEditGroupOpen} onOpenChange={setIsEditGroupOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Edit Youth Group</DialogTitle>
-            <DialogDescription>
-              Update the group information
-            </DialogDescription>
-          </DialogHeader>
-          <form onSubmit={handleEditGroup} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="edit-name">Group Name *</Label>
-                <Input
-                  id="edit-name"
-                  value={groupForm.name}
-                  onChange={(e) => setGroupForm({ ...groupForm, name: e.target.value })}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="edit-parish">Parish *</Label>
-                <Input
-                  id="edit-parish"
-                  value={groupForm.parish}
-                  onChange={(e) => setGroupForm({ ...groupForm, parish: e.target.value })}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="edit-address">Address *</Label>
-                <Input
-                  id="edit-address"
-                  value={groupForm.address}
-                  onChange={(e) => setGroupForm({ ...groupForm, address: e.target.value })}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="edit-city">City *</Label>
-                <Input
-                  id="edit-city"
-                  value={groupForm.city}
-                  onChange={(e) => setGroupForm({ ...groupForm, city: e.target.value })}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="edit-age-range">Age Range *</Label>
-                <Input
-                  id="edit-age-range"
-                  value={groupForm.age_range}
-                  onChange={(e) => setGroupForm({ ...groupForm, age_range: e.target.value })}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="edit-meeting-day">Meeting Day *</Label>
-                <Select
-                  value={groupForm.meeting_day}
-                  onValueChange={(value) => setGroupForm({ ...groupForm, meeting_day: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {daysOfWeek.map(day => (
-                      <SelectItem key={day} value={day}>{day}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="edit-meeting-time">Meeting Time *</Label>
-                <Input
-                  id="edit-meeting-time"
-                  type="time"
-                  value={groupForm.meeting_time}
-                  onChange={(e) => setGroupForm({ ...groupForm, meeting_time: e.target.value })}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="edit-contact-person">Contact Person *</Label>
-                <Input
-                  id="edit-contact-person"
-                  value={groupForm.contact_person}
-                  onChange={(e) => setGroupForm({ ...groupForm, contact_person: e.target.value })}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="edit-contact-email">Contact Email *</Label>
-                <Input
-                  id="edit-contact-email"
-                  type="email"
-                  value={groupForm.contact_email}
-                  onChange={(e) => setGroupForm({ ...groupForm, contact_email: e.target.value })}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="edit-contact-phone">Contact Phone *</Label>
-                <Input
-                  id="edit-contact-phone"
-                  value={groupForm.contact_phone}
-                  onChange={(e) => setGroupForm({ ...groupForm, contact_phone: e.target.value })}
-                  required
-                />
-              </div>
-            </div>
+      {/* Group Details Modal */}
+      {selectedGroup && (
+        <Dialog open={showGroupDetails} onOpenChange={setShowGroupDetails}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>{selectedGroup.name}</DialogTitle>
+              <DialogDescription>{selectedGroup.description}</DialogDescription>
+            </DialogHeader>
             
-            <div className="space-y-2">
-              <Label htmlFor="edit-description">Description *</Label>
-              <Textarea
-                id="edit-description"
-                value={groupForm.description}
-                onChange={(e) => setGroupForm({ ...groupForm, description: e.target.value })}
-                rows={3}
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label>Group Type *</Label>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                {groupTypes.map(type => (
-                  <label key={type} className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      checked={groupForm.type.includes(type)}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setGroupForm({ ...groupForm, type: [...groupForm.type, type] })
-                        } else {
-                          setGroupForm({ ...groupForm, type: groupForm.type.filter(t => t !== type) })
-                        }
-                      }}
-                    />
-                    <span className="text-sm">{type.replace("-", " ").replace(/\b\w/g, l => l.toUpperCase())}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-            
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setIsEditGroupOpen(false)}>
-                Cancel
-              </Button>
-              <Button type="submit">Update Group</Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-
-      {/* Create Event Dialog */}
-      <Dialog open={isCreateEventOpen} onOpenChange={setIsCreateEventOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Create New Event</DialogTitle>
-            <DialogDescription>
-              Add an event for {selectedGroup?.name}
-            </DialogDescription>
-          </DialogHeader>
-          <form onSubmit={handleCreateEvent} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="event-title">Event Title *</Label>
-                <Input
-                  id="event-title"
-                  value={eventForm.title}
-                  onChange={(e) => setEventForm({ ...eventForm, title: e.target.value })}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="event-type">Event Type *</Label>
-                <Select
-                  value={eventForm.event_type}
-                  onValueChange={(value) => setEventForm({ ...eventForm, event_type: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {eventTypes.map(type => (
-                      <SelectItem key={type} value={type}>
-                        {type.replace("-", " ").replace(/\b\w/g, l => l.toUpperCase())}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="event-date">Date *</Label>
-                <Input
-                  id="event-date"
-                  type="date"
-                  value={eventForm.date}
-                  onChange={(e) => setEventForm({ ...eventForm, date: e.target.value })}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="event-start-time">Start Time *</Label>
-                <Input
-                  id="event-start-time"
-                  type="time"
-                  value={eventForm.start_time}
-                  onChange={(e) => setEventForm({ ...eventForm, start_time: e.target.value })}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="event-end-time">End Time *</Label>
-                <Input
-                  id="event-end-time"
-                  type="time"
-                  value={eventForm.end_time}
-                  onChange={(e) => setEventForm({ ...eventForm, end_time: e.target.value })}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="event-location">Location *</Label>
-                <Input
-                  id="event-location"
-                  value={eventForm.location}
-                  onChange={(e) => setEventForm({ ...eventForm, location: e.target.value })}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="event-organizer">Organizer *</Label>
-                <Input
-                  id="event-organizer"
-                  value={eventForm.organizer}
-                  onChange={(e) => setEventForm({ ...eventForm, organizer: e.target.value })}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="event-max-attendees">Max Attendees</Label>
-                <Input
-                  id="event-max-attendees"
-                  type="number"
-                  value={eventForm.max_attendees || ""}
-                  onChange={(e) => setEventForm({ ...eventForm, max_attendees: e.target.value ? parseInt(e.target.value) : undefined })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="event-cost">Cost</Label>
-                <Input
-                  id="event-cost"
-                  type="number"
-                  step="0.01"
-                  value={eventForm.cost}
-                  onChange={(e) => setEventForm({ ...eventForm, cost: parseFloat(e.target.value) || 0 })}
-                />
-              </div>
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="event-description">Description *</Label>
-              <Textarea
-                id="event-description"
-                value={eventForm.description}
-                onChange={(e) => setEventForm({ ...eventForm, description: e.target.value })}
-                rows={3}
-                required
-              />
-            </div>
-
-            <div className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                id="registration-required"
-                checked={eventForm.registration_required}
-                onChange={(e) => setEventForm({ ...eventForm, registration_required: e.target.checked })}
-              />
-              <Label htmlFor="registration-required">Registration Required</Label>
-            </div>
-            
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setIsCreateEventOpen(false)}>
-                Cancel
-              </Button>
-              <Button type="submit">Create Event</Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
+            <Tabs defaultValue="overview" className="w-full">
+              <TabsList className="grid w-full grid-cols-4">
+                <TabsTrigger value="overview">Overview</TabsTrigger>
+                <TabsTrigger value="members">Members</TabsTrigger>
+                <TabsTrigger value="events">Events</TabsTrigger>
+                <TabsTrigger value="posts">Posts</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="overview" className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <div>
+                      <h4 className="font-semibold mb-2">Mission Statement</h4>
+                      <p className="text-muted-foreground">
+                        {selectedGroup.mission_statement || 'No mission statement provided.'}
+                      </p>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold mb-2">Meeting Information</h4>
+                      <div className="space-y-2 text-sm text-muted-foreground">
+                        {selectedGroup.meeting_location && (
+                          <div className="flex items-center gap-2">
+                            <MapPin className="h-4 w-4" />
+                            <span>{selectedGroup.meeting_location}</span>
+                          </div>
+                        )}
+                        {selectedGroup.meeting_time && (
+                          <div className="flex items-center gap-2">
+                            <Calendar className="h-4 w-4" />
+                            <span>{selectedGroup.meeting_time}</span>
+                          </div>
+                        )}
+                        {selectedGroup.meeting_frequency && (
+                          <div className="flex items-center gap-2">
+                            <Calendar className="h-4 w-4" />
+                            <span>{selectedGroup.meeting_frequency}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="space-y-4">
+                    <div>
+                      <h4 className="font-semibold mb-2">Group Details</h4>
+                      <div className="space-y-2 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Parish:</span>
+                          <span>{selectedGroup.parish || 'Not specified'}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Diocese:</span>
+                          <span>{selectedGroup.diocese || 'Not specified'}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Location:</span>
+                          <span>
+                            {[selectedGroup.city, selectedGroup.state, selectedGroup.country]
+                              .filter(Boolean)
+                              .join(', ') || 'Not specified'}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Age Range:</span>
+                          <span>{selectedGroup.age_range || 'Not specified'}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Max Members:</span>
+                          <span>{selectedGroup.max_members}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Status:</span>
+                          <Badge variant={selectedGroup.is_public ? "default" : "outline"}>
+                            {selectedGroup.is_public ? 'Public' : 'Private'}
+                          </Badge>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="members" className="space-y-4">
+                <div className="space-y-3">
+                  {selectedGroup.members && selectedGroup.members.length > 0 ? (
+                    selectedGroup.members.map((member: any) => (
+                      <div key={member.id} className="flex items-center justify-between p-3 border rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                            <Users className="h-5 w-5 text-primary" />
+                          </div>
+                          <div>
+                            <p className="font-medium">
+                              {member.user?.user_metadata?.full_name || member.user?.email || 'Unknown User'}
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                              {member.role} • Joined {new Date(member.joined_at).toLocaleDateString()}
+                            </p>
+                          </div>
+                        </div>
+                        <Badge variant={member.role === 'owner' ? 'default' : 'secondary'}>
+                          {member.role}
+                        </Badge>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-center text-muted-foreground py-8">No members found.</p>
+                  )}
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="events" className="space-y-4">
+                <div className="space-y-3">
+                  {selectedGroup.events && selectedGroup.events.length > 0 ? (
+                    selectedGroup.events.map((event: any) => (
+                      <div key={event.id} className="p-3 border rounded-lg">
+                        <div className="flex items-start justify-between">
+                          <div>
+                            <h5 className="font-medium">{event.title}</h5>
+                            <p className="text-sm text-muted-foreground mt-1">{event.description}</p>
+                            <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
+                              <span className="flex items-center gap-1">
+                                <Calendar className="h-4 w-4" />
+                                {new Date(event.event_date).toLocaleDateString()}
+                              </span>
+                              {event.location && (
+                                <span className="flex items-center gap-1">
+                                  <MapPin className="h-4 w-4" />
+                                  {event.location}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-center text-muted-foreground py-8">No upcoming events.</p>
+                  )}
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="posts" className="space-y-4">
+                <div className="space-y-3">
+                  {selectedGroup.posts && selectedGroup.posts.length > 0 ? (
+                    selectedGroup.posts.map((post: any) => (
+                      <div key={post.id} className="p-3 border rounded-lg">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            {post.title && (
+                              <h5 className="font-medium mb-2">{post.title}</h5>
+                            )}
+                            <p className="text-sm text-muted-foreground mb-2">{post.content}</p>
+                            <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                              <span className="flex items-center gap-1">
+                                <MessageSquare className="h-3 w-3" />
+                                {post.post_type}
+                              </span>
+                              <span>{new Date(post.created_at).toLocaleDateString()}</span>
+                              <span>by {post.user?.user_metadata?.full_name || post.user?.email || 'Unknown User'}</span>
+                            </div>
+                          </div>
+                          {post.is_pinned && (
+                            <Badge variant="outline" className="text-xs">Pinned</Badge>
+                          )}
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-center text-muted-foreground py-8">No posts yet.</p>
+                  )}
+                </div>
+              </TabsContent>
+            </Tabs>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   )
 }
