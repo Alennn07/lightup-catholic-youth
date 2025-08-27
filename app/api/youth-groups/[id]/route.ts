@@ -42,103 +42,82 @@ export async function GET(
     console.log('🔍 Fetching group details...')
     const { data: group, error: groupError } = await supabase
       .from('youth_groups')
-      .select('*')
+      .select('id, name, description, mission_statement, parish, diocese, city, state, country, meeting_location, meeting_time, meeting_frequency, age_range, max_members, is_public, is_active, owner_id, created_at, updated_at')
       .eq('id', params.id)
       .eq('is_active', true)
       .single()
 
-    if (groupError) {
+    if (groupError || !group) {
       console.error('❌ Error fetching group:', groupError)
-      return NextResponse.json({ error: 'Group not found' }, { status: 404 })
+      return NextResponse.json({ 
+        error: 'Group not found or access denied',
+        details: groupError?.message || 'Group does not exist'
+      }, { status: 404 })
     }
 
-    console.log('✅ Group found:', group.name)
+    console.log('✅ Group fetched successfully')
 
-    // Check if user can view this group (public or member)
-    const { data: membership } = await supabase
-      .from('group_members')
-      .select('role, status')
-      .eq('group_id', params.id)
-      .eq('user_id', user.id)
-      .single()
+    // Fetch all related data in parallel for maximum speed
+    console.log('🔍 Fetching related data in parallel...')
+    const [membersResult, eventsResult, postsResult, memberCountResult] = await Promise.all([
+      // Get group members (simplified)
+      supabase
+        .from('group_members')
+        .select('id, user_id, role, status, joined_at')
+        .eq('group_id', params.id)
+        .eq('status', 'active')
+        .order('joined_at', { ascending: true }),
 
-    const canView = group.is_public || membership?.status === 'active'
-    if (!canView) {
-      console.log('❌ User cannot view this group')
-      return NextResponse.json({ error: 'Access denied' }, { status: 403 })
-    }
+      // Get group events (simplified, only upcoming)
+      supabase
+        .from('group_events')
+        .select('id, title, description, event_date, location, max_attendees, is_public, created_by, created_at')
+        .eq('group_id', params.id)
+        .gte('event_date', new Date().toISOString())
+        .order('event_date', { ascending: true })
+        .limit(5),
 
-    // Get group members (simplified)
-    console.log('🔍 Fetching group members...')
-    const { data: members, error: membersError } = await supabase
-      .from('group_members')
-      .select('*')
-      .eq('group_id', params.id)
-      .eq('status', 'active')
-      .order('joined_at', { ascending: true })
+      // Get group posts (simplified, only recent)
+      supabase
+        .from('group_posts')
+        .select('id, title, content, post_type, is_public, user_id, created_at')
+        .eq('group_id', params.id)
+        .order('created_at', { ascending: false })
+        .limit(10),
 
-    if (membersError) {
-      console.error('❌ Error fetching members:', membersError)
-      return NextResponse.json({ error: 'Failed to fetch group members' }, { status: 500 })
-    }
+      // Get member count (single query)
+      supabase
+        .from('group_members')
+        .select('*', { count: 'exact', head: true })
+        .eq('group_id', params.id)
+        .eq('status', 'active')
+    ])
 
-    // Get group events
-    console.log('🔍 Fetching group events...')
-    const { data: events, error: eventsError } = await supabase
-      .from('group_events')
-      .select('*')
-      .eq('group_id', params.id)
-      .gte('event_date', new Date().toISOString())
-      .order('event_date', { ascending: true })
-      .limit(5)
+    // Process results efficiently
+    const members = membersResult.data || []
+    const events = eventsResult.data || []
+    const posts = postsResult.data || []
+    const memberCount = memberCountResult.count || 0
 
-    if (eventsError) {
-      console.error('❌ Error fetching events:', eventsError)
-      // Don't fail the whole request, just log the error
-      console.log('⚠️ Continuing without events...')
-    }
+    // Check if user is a member
+    const userMembership = members.find((member: any) => member.user_id === user.id)
+    const isMember = !!userMembership
+    const userRole = userMembership?.role || null
 
-    // Get group posts
-    console.log('🔍 Fetching group posts...')
-    const { data: posts, error: postsError } = await supabase
-      .from('group_posts')
-      .select('*')
-      .eq('group_id', params.id)
-      .order('is_pinned', { ascending: false })
-      .order('created_at', { ascending: false })
-      .limit(10)
-
-    if (postsError) {
-      console.error('❌ Error fetching posts:', postsError)
-      // Don't fail the whole request, just log the error
-      console.log('⚠️ Continuing without posts...')
-    }
-
-    // Get member count
-    const { count: memberCount, error: countError } = await supabase
-      .from('group_members')
-      .select('*', { count: 'exact', head: true })
-      .eq('group_id', params.id)
-      .eq('status', 'active')
-
-    if (countError) {
-      console.error('❌ Error counting members:', countError)
-    }
-
-    const groupData = {
+    // Build the complete group object
+    const completeGroup = {
       ...group,
-      user_role: membership?.role || null,
-      user_status: membership?.status || null,
-      is_member: !!membership,
-      is_owner: group.owner_id === user.id,
-      member_count: memberCount || 0,
-      members: members || [],
-      events: events || [],
-      posts: posts || []
+      members,
+      events,
+      posts,
+      member_count: memberCount,
+      is_member: isMember,
+      user_role: userRole,
+      is_owner: group.owner_id === user.id
     }
 
-    console.log('✅ Successfully fetched group data')
-    return NextResponse.json({ group: groupData })
+    console.log(`✅ Group details loaded successfully in parallel: ${members.length} members, ${events.length} events, ${posts.length} posts`)
+    return NextResponse.json({ group: completeGroup })
 
   } catch (error: any) {
     console.error('❌ Unexpected error in GET /api/youth-groups/[id]:', error)

@@ -59,6 +59,7 @@ export default function YouthGroups() {
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [showGroupDetails, setShowGroupDetails] = useState(false)
   const [selectedGroup, setSelectedGroup] = useState<YouthGroup | null>(null)
+  const [loadingGroupDetails, setLoadingGroupDetails] = useState(false)
   const [showAddMemberForm, setShowAddMemberForm] = useState(false)
   const [showCreateEventForm, setShowCreateEventForm] = useState(false)
   const [showCreatePostForm, setShowCreatePostForm] = useState(false)
@@ -141,9 +142,11 @@ export default function YouthGroups() {
 
   const fetchGroupDetails = async (groupId: string) => {
     try {
+      setLoadingGroupDetails(true)
       const token = await getAccessToken()
       if (!token) {
         console.log('❌ No access token available')
+        setLoadingGroupDetails(false)
         return
       }
 
@@ -171,6 +174,8 @@ export default function YouthGroups() {
     } catch (error: any) {
       console.error('❌ Error fetching group details:', error)
       toast({ title: "Error", description: error.message || "Failed to fetch group details", variant: "destructive" })
+    } finally {
+      setLoadingGroupDetails(false)
     }
   }
 
@@ -944,8 +949,13 @@ export default function YouthGroups() {
                       variant="outline"
                       size="sm"
                       onClick={() => handleViewGroup(group)}
+                      disabled={loadingGroupDetails}
                     >
-                      View Details
+                      {loadingGroupDetails ? (
+                        <div className="animate-spin h-4 w-4 border-b-2 border-primary"></div>
+                      ) : (
+                        "View Details"
+                      )}
                     </Button>
                     {!group.is_member ? (
                       <Button
