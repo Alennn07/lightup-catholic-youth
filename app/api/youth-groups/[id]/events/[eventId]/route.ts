@@ -3,6 +3,77 @@ import { createClient } from '@supabase/supabase-js'
 
 export const dynamic = 'force-dynamic'
 
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string; eventId: string } }
+) {
+  try {
+    console.log('🚀 GET /api/youth-groups/[id]/events/[eventId] - Starting request for event:', params.eventId)
+    
+    const authHeader = request.headers.get('authorization')
+    const token = authHeader?.replace('Bearer ', '')
+    
+    if (!token) {
+      console.log('❌ No authorization token provided')
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      { auth: { autoRefreshToken: false, persistSession: false } }
+    )
+
+    let user: any
+    try {
+      const { data: { user: authUser }, error: authError } = await supabase.auth.getUser(token)
+      if (authError || !authUser) {
+        console.log('❌ Auth error:', authError)
+        return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
+      }
+      user = authUser
+      console.log('✅ User authenticated:', user.id)
+    } catch (authError: any) {
+      console.error('❌ Error verifying user:', authError)
+      return NextResponse.json({ error: 'Authentication failed' }, { status: 401 })
+    }
+
+    // Check if user is a member of this group
+    const { data: membership } = await supabase
+      .from('group_members')
+      .select('role, status')
+      .eq('group_id', params.id)
+      .eq('user_id', user.id)
+      .eq('status', 'active')
+      .single()
+
+    if (!membership) {
+      console.log('❌ User is not a member of this group')
+      return NextResponse.json({ error: 'Access denied' }, { status: 403 })
+    }
+
+    // Get the specific event
+    const { data: event, error: eventError } = await supabase
+      .from('group_events')
+      .select('*')
+      .eq('id', params.eventId)
+      .eq('group_id', params.id)
+      .single()
+
+    if (eventError || !event) {
+      console.error('❌ Event not found:', eventError)
+      return NextResponse.json({ error: 'Event not found' }, { status: 404 })
+    }
+
+    console.log('✅ Event fetched successfully')
+    return NextResponse.json({ event })
+
+  } catch (error: any) {
+    console.error('❌ Unexpected error in GET /api/youth-groups/[id]/events/[eventId]:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
+}
+
 export async function PUT(
   request: NextRequest,
   { params }: { params: { id: string; eventId: string } }
