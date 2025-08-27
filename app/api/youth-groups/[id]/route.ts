@@ -112,29 +112,45 @@ export async function GET(
     const isMember = !!userMembership || group.owner_id === user.id
     const userRole = userMembership?.role || (group.owner_id === user.id ? 'owner' : null)
     
-    // If owner is not in members list, add them automatically
-    if (group.owner_id === user.id && !userMembership) {
-      console.log('🔧 Adding owner to members list automatically')
-      const { error: addOwnerError } = await supabase
-        .from('group_members')
-        .insert([{
-          group_id: params.id,
-          user_id: user.id,
-          role: 'owner',
-          status: 'active',
-          joined_at: new Date().toISOString()
-        }])
+    // ALWAYS ensure owner is in members list
+    if (group.owner_id === user.id) {
+      console.log('🔧 Ensuring owner is in members list')
       
-      if (!addOwnerError) {
-        // Add owner to the members list
+      // Check if owner is already in members
+      const ownerInMembers = members.find(member => member.user_id === user.id)
+      
+      if (!ownerInMembers) {
+        console.log('🔧 Owner not found in members, adding automatically')
+        
+        // Try to add to database first
+        const { error: addOwnerError } = await supabase
+          .from('group_members')
+          .insert([{
+            group_id: params.id,
+            user_id: user.id,
+            role: 'owner',
+            status: 'active',
+            joined_at: new Date().toISOString()
+          }])
+        
+        if (addOwnerError) {
+          console.log('⚠️ Could not add owner to database:', addOwnerError)
+        }
+        
+        // Always add owner to the members list for this response
         members.push({
-          id: `temp-${Date.now()}`,
+          id: `temp-owner-${Date.now()}`,
           group_id: params.id,
           user_id: user.id,
           role: 'owner',
           status: 'active',
-          joined_at: new Date().toISOString()
+          joined_at: new Date().toISOString(),
+          user: [{ id: user.id, email: user.email, user_metadata: {} }]
         })
+        
+        console.log('✅ Owner added to members list')
+      } else {
+        console.log('✅ Owner already found in members list')
       }
     }
 
