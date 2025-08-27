@@ -117,9 +117,8 @@ export async function GET(request: NextRequest) {
       // Get member counts for all groups at once
       supabase
         .from('group_members')
-        .select('group_id, count')
-        .eq('status', 'active')
-        .group('group_id'),
+        .select('group_id')
+        .eq('status', 'active'),
       
       // Get user's membership for all groups at once
       supabase
@@ -132,8 +131,10 @@ export async function GET(request: NextRequest) {
     // Create lookup maps for faster processing
     const memberCountMap = new Map()
     if (memberCounts.data) {
+      // Count members per group manually
       memberCounts.data.forEach((item: any) => {
-        memberCountMap.set(item.group_id, parseInt(item.count))
+        const currentCount = memberCountMap.get(item.group_id) || 0
+        memberCountMap.set(item.group_id, currentCount + 1)
       })
     }
 
