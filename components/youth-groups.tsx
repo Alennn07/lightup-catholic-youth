@@ -102,6 +102,7 @@ export default function YouthGroups() {
   })
 
   const [isAddingMember, setIsAddingMember] = useState(false)
+  const [isRemovingMember, setIsRemovingMember] = useState<string | null>(null)
 
   useEffect(() => {
     if (user) {
@@ -207,7 +208,7 @@ export default function YouthGroups() {
       toast({ title: "Success", description: data.message })
       
       // Refresh groups to update membership status
-      fetchGroups()
+    fetchGroups()
     } catch (error: any) {
       console.error('Error joining group:', error)
       toast({ title: "Error", description: error.message || "Failed to join group.", variant: "destructive" })
@@ -329,6 +330,8 @@ export default function YouthGroups() {
   const handleKickMember = async (memberId: string) => {
     if (!selectedGroup) return
     
+    setIsRemovingMember(memberId)
+    
     try {
       const token = await getAccessToken()
       if (!token) {
@@ -355,29 +358,40 @@ export default function YouthGroups() {
           description: "Member removed successfully",
         })
         
-        // IMMEDIATE REFRESH: Refresh the group details right away
-        console.log('🔄 Refreshing group details after removing member...')
-        await fetchGroupDetails(selectedGroup.id)
+        // SMOOTH UPDATE: Update the UI directly instead of full refresh
+        if (selectedGroup) {
+          // Remove the member from the current group data
+          setSelectedGroup(prev => prev ? {
+            ...prev,
+            members: (prev.members || []).filter(member => member.id !== memberId)
+          } : null)
+          
+          // Update the main groups list to reflect the change
+          setGroups(prev => prev.map(group => 
+            group.id === selectedGroup.id 
+              ? { ...group, member_count: Math.max(0, (group.member_count || 0) - 1) }
+              : group
+          ))
+        }
         
-        // Also refresh the main groups list
-        await fetchGroups()
-        
-        console.log('✅ Group refreshed successfully')
+        console.log('✅ Member removed and UI updated smoothly')
       } else {
-        toast({
+      toast({
           title: "Error",
           description: data.error || "Failed to remove member",
           variant: "destructive",
         })
       }
-    } catch (error) {
-      console.error('Error removing member:', error)
-      toast({
-        title: "Error",
-        description: "Failed to remove member",
-        variant: "destructive",
-      })
-    }
+          } catch (error) {
+        console.error('Error removing member:', error)
+        toast({
+          title: "Error",
+          description: "Failed to remove member",
+          variant: "destructive",
+        })
+      } finally {
+        setIsRemovingMember(null)
+      }
   }
 
   const handleEditEvent = (event: any) => {
@@ -486,16 +500,35 @@ export default function YouthGroups() {
         setNewMemberEmail('')
         setShowAddMemberForm(false)
         
-        // IMMEDIATE REFRESH: Refresh the group details right away
-        console.log('🔄 Refreshing group details after adding member...')
-        await fetchGroupDetails(selectedGroup.id)
+        // SMOOTH UPDATE: Update the UI directly instead of full refresh
+        if (selectedGroup) {
+          // Add the new member to the current group data
+          const newMember = {
+            id: data.member.id,
+            user_id: data.member.user_id,
+            role: data.member.role,
+            status: data.member.status,
+            joined_at: data.member.joined_at,
+            user: { email: newMemberEmail } // We'll get the full user data later
+          }
+          
+          // Update the selected group's members list
+          setSelectedGroup(prev => prev ? {
+            ...prev,
+            members: [...(prev.members || []), newMember]
+          } : null)
+          
+          // Update the main groups list to reflect the change
+          setGroups(prev => prev.map(group => 
+            group.id === selectedGroup.id 
+              ? { ...group, member_count: (group.member_count || 0) + 1 }
+              : group
+          ))
+        }
         
-        // Also refresh the main groups list
-        await fetchGroups()
-        
-        console.log('✅ Group refreshed successfully')
+        console.log('✅ Member added and UI updated smoothly')
       } else {
-        toast({
+      toast({
           title: "Error",
           description: data.error || "Failed to add member",
           variant: "destructive",
@@ -732,7 +765,7 @@ export default function YouthGroups() {
         <div>
           <h1 className="text-3xl font-bold text-foreground">Youth Groups</h1>
           <p className="text-muted-foreground">Connect with Catholic youth in your area</p>
-        </div>
+      </div>
         {user && (
           <Dialog open={showCreateForm} onOpenChange={setShowCreateForm}>
             <DialogTrigger asChild>
@@ -777,8 +810,8 @@ export default function YouthGroups() {
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                     placeholder="Describe your group's purpose and activities"
                     rows={3}
-                  />
-                </div>
+                    />
+                  </div>
                 <div>
                   <Label htmlFor="mission_statement">Mission Statement</Label>
                   <Textarea
@@ -787,8 +820,8 @@ export default function YouthGroups() {
                     onChange={(e) => setFormData({ ...formData, mission_statement: e.target.value })}
                     placeholder="What is your group's mission?"
                     rows={2}
-                  />
-                </div>
+                    />
+                  </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
                     <Label htmlFor="city">City</Label>
@@ -877,19 +910,19 @@ export default function YouthGroups() {
                       onChange={(e) => setFormData({ ...formData, max_members: parseInt(e.target.value) || 50 })}
                       min="1"
                       max="100"
-                    />
-                  </div>
+                  />
+                </div>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
+                        <input
+                          type="checkbox"
                     id="is_public"
                     checked={formData.is_public}
                     onChange={(e) => setFormData({ ...formData, is_public: e.target.checked })}
                     className="rounded"
                   />
                   <Label htmlFor="is_public">Make this group public (anyone can join)</Label>
-                </div>
+                  </div>
                 <div className="flex justify-end gap-2">
                   <Button variant="outline" onClick={() => setShowCreateForm(false)}>
                     Cancel
@@ -940,17 +973,17 @@ export default function YouthGroups() {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredGroups.map((group) => (
-            <Card key={group.id} className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <CardTitle className="text-lg">{group.name}</CardTitle>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {filteredGroups.map((group) => (
+          <Card key={group.id} className="hover:shadow-lg transition-shadow">
+            <CardHeader>
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <CardTitle className="text-lg">{group.name}</CardTitle>
                     <CardDescription className="line-clamp-2 mt-2">
                       {group.description}
-                    </CardDescription>
-                  </div>
+                  </CardDescription>
+                </div>
                   <div className="flex flex-col items-end gap-2">
                     {group.is_member && (
                       <Badge variant="secondary" className="text-xs">
@@ -996,9 +1029,9 @@ export default function YouthGroups() {
                     {group.member_count || 0} members
                   </span>
                   <div className="flex gap-2">
-                    <Button
+                      <Button
                       variant="outline"
-                      size="sm"
+                        size="sm"
                       onClick={() => handleViewGroup(group)}
                       disabled={loadingGroupDetails}
                     >
@@ -1007,7 +1040,7 @@ export default function YouthGroups() {
                       ) : (
                         "View Details"
                       )}
-                    </Button>
+                      </Button>
                     {!group.is_member ? (
                       <Button
                         size="sm"
@@ -1025,9 +1058,9 @@ export default function YouthGroups() {
                       >
                         Leave Group
                       </Button>
-                    )}
-                  </div>
+                  )}
                 </div>
+              </div>
               </CardContent>
             </Card>
           ))}
@@ -1059,7 +1092,7 @@ export default function YouthGroups() {
                       <p className="text-muted-foreground">
                         {selectedGroup.mission_statement || 'No mission statement provided.'}
                       </p>
-                    </div>
+                </div>
                     <div>
                       <h4 className="font-semibold mb-2">Meeting Information</h4>
                       <div className="space-y-2 text-sm text-muted-foreground">
@@ -1071,18 +1104,18 @@ export default function YouthGroups() {
                         )}
                         {selectedGroup.meeting_time && (
                           <div className="flex items-center gap-2">
-                            <Calendar className="h-4 w-4" />
+                  <Calendar className="h-4 w-4" />
                             <span>{selectedGroup.meeting_time}</span>
-                          </div>
+                </div>
                         )}
                         {selectedGroup.meeting_frequency && (
                           <div className="flex items-center gap-2">
                             <Calendar className="h-4 w-4" />
                             <span>{selectedGroup.meeting_frequency}</span>
-                          </div>
+                </div>
                         )}
-                      </div>
-                    </div>
+                </div>
+              </div>
                   </div>
                   <div className="space-y-4">
                     <div>
@@ -1116,8 +1149,8 @@ export default function YouthGroups() {
                           <span className="text-muted-foreground">Status:</span>
                           <Badge variant={selectedGroup.is_public ? "default" : "outline"}>
                             {selectedGroup.is_public ? 'Public' : 'Private'}
-                          </Badge>
-                        </div>
+                  </Badge>
+              </div>
                       </div>
                     </div>
                   </div>
@@ -1148,23 +1181,28 @@ export default function YouthGroups() {
                             </p>
                             <p className="text-sm text-muted-foreground">
                               {member.role} • Joined {new Date(member.joined_at).toLocaleDateString()}
-                            </p>
-                          </div>
+                  </p>
+                </div>
                         </div>
                         <div className="flex items-center gap-2">
                           <Badge variant={member.role === 'owner' ? 'default' : 'secondary'}>
                             {member.role}
                           </Badge>
                           {selectedGroup.is_owner && member.role !== 'owner' && (
-                            <Button
+                    <Button
                               variant="outline"
-                              size="sm"
+                      size="sm"
                               onClick={() => handleKickMember(member.id)}
+                              disabled={isRemovingMember === member.id}
                               className="text-red-600 hover:text-red-700"
-                            >
-                              <X className="h-4 w-4" />
-                            </Button>
-                          )}
+                    >
+                              {isRemovingMember === member.id ? (
+                                <div className="animate-spin h-4 w-4 border-b-2 border-red-500"></div>
+                              ) : (
+                                <X className="h-4 w-4" />
+                              )}
+                    </Button>
+                  )}
                         </div>
                       </div>
                     ))
@@ -1258,21 +1296,21 @@ export default function YouthGroups() {
                               )}
                               {(selectedGroup.is_owner || event.created_by === user?.id) && (
                                 <div className="flex gap-2">
-                                  <Button
+                    <Button
                                     variant="outline"
-                                    size="sm"
+                      size="sm"
                                     onClick={() => handleToggleEventVisibility(event)}
                                     className={event.is_public ? "text-orange-600 hover:text-orange-700" : "text-blue-600 hover:text-blue-700"}
                                   >
                                     {event.is_public ? "Make Private" : "Make Public"}
                                   </Button>
                                   <Button
-                                    variant="outline"
+                      variant="outline"
                                     size="sm"
                                     onClick={() => handleEditEvent(event)}
-                                  >
+                    >
                                     <Edit className="h-4 w-4" />
-                                  </Button>
+                    </Button>
                                   <Button
                                     variant="outline"
                                     size="sm"
@@ -1282,16 +1320,16 @@ export default function YouthGroups() {
                                     <Trash2 className="h-4 w-4" />
                                   </Button>
                                 </div>
-                              )}
-                            </div>
-                          </div>
+                  )}
+                </div>
+              </div>
                         </div>
                       ))
                     ) : (
                       <p className="text-center text-muted-foreground py-8">No upcoming events.</p>
                     )}
+                      </div>
                   </div>
-                </div>
               </TabsContent>
               
               <TabsContent value="posts" className="space-y-4">
@@ -1322,8 +1360,8 @@ export default function YouthGroups() {
                                 {post.title && (
                                   <div className="flex items-center gap-2 mb-1">
                                     <h6 className="font-medium">{post.title}</h6>
-                                  </div>
-                                )}
+                </div>
+              )}
                                 <p className="text-sm text-muted-foreground mb-2">{post.content}</p>
                                 <div className="flex items-center gap-4 text-xs text-muted-foreground">
                                   <span className="flex items-center gap-1">
@@ -1336,8 +1374,8 @@ export default function YouthGroups() {
                               </div>
                             </div>
                           </div>
-                        ))}
-                    </div>
+        ))}
+      </div>
                   </div>
                 )}
                 
@@ -1353,7 +1391,7 @@ export default function YouthGroups() {
                               {post.title && (
                                 <div className="flex items-center gap-2 mb-1">
                                   <h6 className="font-medium">{post.title}</h6>
-                                </div>
+        </div>
                               )}
                               <p className="text-sm text-muted-foreground mb-2">{post.content}</p>
                               <div className="flex items-center gap-4 text-xs text-muted-foreground">
@@ -1420,10 +1458,10 @@ export default function YouthGroups() {
       {showAddMemberForm && (
         <Dialog open={showAddMemberForm} onOpenChange={setShowAddMemberForm}>
           <DialogContent>
-            <DialogHeader>
+          <DialogHeader>
               <DialogTitle>Add Member</DialogTitle>
               <DialogDescription>Invite someone to join your group by email.</DialogDescription>
-            </DialogHeader>
+          </DialogHeader>
             <div className="space-y-4">
               <div>
                 <Label htmlFor="member_email">Email Address</Label>
@@ -1447,7 +1485,7 @@ export default function YouthGroups() {
                   )}
                 </Button>
               </div>
-            </div>
+              </div>
           </DialogContent>
         </Dialog>
       )}
@@ -1482,26 +1520,26 @@ export default function YouthGroups() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="event_date">Event Date</Label>
-                  <Input
+                <Input
                     id="event_date"
                     type="datetime-local"
                     value={eventFormData.event_date}
                     onChange={(e) => setEventFormData({ ...eventFormData, event_date: e.target.value })}
-                  />
-                </div>
+                />
+              </div>
                 <div>
                   <Label htmlFor="event_location">Location</Label>
-                  <Input
+                <Input
                     id="event_location"
                     value={eventFormData.location}
                     onChange={(e) => setEventFormData({ ...eventFormData, location: e.target.value })}
                     placeholder="Event location"
-                  />
-                </div>
+                />
+              </div>
               </div>
               <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
+                    <input
+                      type="checkbox"
                   id="is_public_event"
                   checked={eventFormData.is_public}
                   onChange={(e) => setEventFormData({ ...eventFormData, is_public: e.target.checked })}
@@ -1511,25 +1549,25 @@ export default function YouthGroups() {
               </div>
               <div className="flex justify-end gap-2">
                 <Button variant="outline" onClick={() => setShowCreateEventForm(false)}>
-                  Cancel
-                </Button>
+                Cancel
+              </Button>
                 <Button onClick={() => handleCreateEvent()} disabled={!eventFormData.title || !eventFormData.description}>
                   Create Event
                 </Button>
               </div>
             </div>
-          </DialogContent>
-        </Dialog>
+        </DialogContent>
+      </Dialog>
       )}
 
       {/* Edit Event Form */}
       {showEditEventForm && editingEvent && (
         <Dialog open={showEditEventForm} onOpenChange={setShowEditEventForm}>
           <DialogContent>
-            <DialogHeader>
+          <DialogHeader>
               <DialogTitle>Edit Event</DialogTitle>
               <DialogDescription>Update your event details.</DialogDescription>
-            </DialogHeader>
+          </DialogHeader>
             <div className="space-y-4">
               <div>
                 <Label htmlFor="edit_event_title">Title</Label>
@@ -1553,22 +1591,22 @@ export default function YouthGroups() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="edit_event_date">Event Date</Label>
-                  <Input
+                <Input
                     id="edit_event_date"
                     type="datetime-local"
                     value={editingEvent.event_date ? new Date(editingEvent.event_date).toISOString().slice(0, 16) : ''}
                     onChange={(e) => setEditingEvent({ ...editingEvent, event_date: e.target.value })}
-                  />
-                </div>
+                />
+              </div>
                 <div>
                   <Label htmlFor="edit_event_location">Location</Label>
-                  <Input
+                <Input
                     id="edit_event_location"
                     value={editingEvent.location || ''}
                     onChange={(e) => setEditingEvent({ ...editingEvent, location: e.target.value })}
                     placeholder="Event location"
-                  />
-                </div>
+                />
+              </div>
               </div>
               <div className="flex items-center space-x-2">
                 <input
@@ -1613,14 +1651,14 @@ export default function YouthGroups() {
               </div>
               <div>
                 <Label htmlFor="post_content">Content</Label>
-                <Textarea
+              <Textarea
                   id="post_content"
                   value={postFormData.content}
                   onChange={(e) => setPostFormData({ ...postFormData, content: e.target.value })}
                   placeholder="What would you like to share?"
                   rows={4}
-                />
-              </div>
+              />
+            </div>
               <div>
                 <Label htmlFor="post_type">Post Type</Label>
                 <Select value={postFormData.post_type} onValueChange={(value) => setPostFormData({ ...postFormData, post_type: value })}>
@@ -1635,27 +1673,27 @@ export default function YouthGroups() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
                   id="is_public_post"
                   checked={postFormData.is_public}
                   onChange={(e) => setPostFormData({ ...postFormData, is_public: e.target.checked })}
                   className="rounded"
                 />
                 <Label htmlFor="is_public_post">Make this post public (anyone can view)</Label>
-              </div>
+            </div>
               <div className="flex justify-end gap-2">
                 <Button variant="outline" onClick={() => setShowCreatePostForm(false)}>
-                  Cancel
-                </Button>
+                Cancel
+              </Button>
                 <Button onClick={() => handleCreatePost()} disabled={!postFormData.content}>
                   Create Post
                 </Button>
               </div>
             </div>
-          </DialogContent>
-        </Dialog>
+        </DialogContent>
+      </Dialog>
       )}
     </div>
   )

@@ -580,15 +580,15 @@ export default function CommunityPage() {
           <div className="mb-16">
             <div className="text-center mb-10">
               <h2 className="text-3xl font-bold text-gray-900 mb-4">Featured Youth Groups</h2>
-              <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
                 Discover amazing Catholic youth communities near you and across the country
-              </p>
-            </div>
+            </p>
+          </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {groups.map((group, index) => (
                 <Card key={index} className="bg-white border-0 shadow-sm hover:shadow-lg transition-all duration-200 group">
                   <CardHeader className="pb-4">
-                    <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-start justify-between mb-4">
                       <Avatar className="w-16 h-16">
                         <AvatarImage src={group.image} alt={group.name} />
                         <AvatarFallback className="bg-gradient-to-br from-blue-100 to-purple-100 text-blue-600 font-bold">
@@ -599,10 +599,10 @@ export default function CommunityPage() {
                         <div className="flex items-center space-x-1 mb-1">
                           <Star className="h-4 w-4 text-yellow-500 fill-current" />
                           <span className="text-sm font-medium">{group.rating}</span>
-                        </div>
+                    </div>
                         <Badge variant="secondary" className="bg-green-100 text-green-700">
                           {group.members} members
-                        </Badge>
+                      </Badge>
                       </div>
                     </div>
                     <CardTitle className="text-xl text-gray-900 group-hover:text-blue-600 transition-colors">
@@ -611,9 +611,9 @@ export default function CommunityPage() {
                     <div className="flex items-center text-sm text-gray-500 mb-3">
                       <MapPin className="h-4 w-4 mr-1" />
                       {group.location}
-                    </div>
-                  </CardHeader>
-                  <CardContent>
+                  </div>
+                </CardHeader>
+                <CardContent>
                     <p className="text-gray-600 mb-4">{group.description}</p>
                     <div className="flex flex-wrap gap-2 mb-4">
                       {group.tags.map((tag, tagIndex) => (
@@ -628,8 +628,8 @@ export default function CommunityPage() {
                         onClick={() => handleLearnMoreGroup(group.id)}
                       >
                         Learn More
-                        <ArrowRight className="ml-2 h-4 w-4" />
-                      </Button>
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
                       <Button 
                         variant={group.isJoined ? "outline" : "secondary"}
                         className="w-full"
@@ -648,9 +648,9 @@ export default function CommunityPage() {
                         )}
                       </Button>
                     </div>
-                  </CardContent>
-                </Card>
-              ))}
+                </CardContent>
+              </Card>
+            ))}
             </div>
           </div>
 
@@ -680,7 +680,7 @@ export default function CommunityPage() {
                         </AvatarFallback>
                       </Avatar>
                       <span>{story.author}</span>
-                    </div>
+                      </div>
                   </CardHeader>
                   <CardContent>
                     <p className="text-gray-600 mb-4 line-clamp-3">{story.excerpt}</p>
@@ -697,7 +697,7 @@ export default function CommunityPage() {
                           <MessageSquare className="h-4 w-4" />
                           <span>{story.comments}</span>
                         </button>
-                      </div>
+                          </div>
                       <div className="flex items-center space-x-2">
                         <Button 
                           variant="ghost" 
@@ -715,13 +715,13 @@ export default function CommunityPage() {
                         >
                           Read More
                         </Button>
-                      </div>
-                    </div>
+                          </div>
+                        </div>
                   </CardContent>
                 </Card>
               ))}
-            </div>
-          </div>
+                      </div>
+                    </div>
 
           {/* Upcoming Events */}
           <div className="mb-16">
@@ -782,8 +782,8 @@ export default function CommunityPage() {
                     </Button>
                   </CardContent>
                 </Card>
-              ))}
-              </div>
+                  ))}
+                </div>
             )}
           </div>
 
@@ -812,7 +812,7 @@ export default function CommunityPage() {
                   >
                     <Share2 className="mr-2 h-5 w-5" />
                     Invite Friends
-                  </Button>
+                    </Button>
                 </div>
               </CardContent>
             </Card>
