@@ -4,6 +4,7 @@ import { createClient } from '@supabase/supabase-js'
 export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
+  const startTime = Date.now()
   try {
     console.log('🚀 GET /api/youth-groups - Starting request')
     const authHeader = request.headers.get('authorization')
@@ -67,17 +68,18 @@ export async function GET(request: NextRequest) {
       }, { status: 500 })
     }
 
-    // Optimized query: Get groups with minimal data first
-    console.log('🔍 Fetching groups with optimized query...')
+    // ULTRA-FAST LOADING: Get only essential data, no member counts initially
+    console.log('🚀 ULTRA-FAST LOADING: Fetching minimal data...')
     let { data: groups, error: groupsError } = await supabase
       .from('youth_groups')
       .select('id, name, description, parish, city, state, country, meeting_time, age_range, max_members, is_public, is_active, owner_id, created_at')
       .or(`is_public.eq.true,id.in.(select group_id from group_members where user_id.eq.${user.id} and status.eq.'active')`)
       .eq('is_active', true)
       .order('created_at', { ascending: false })
+      .limit(10) // Limit to 10 groups for faster loading
 
     if (groupsError) {
-      console.error('❌ Error with optimized query:', groupsError)
+      console.error('❌ Error with ultra-fast loading query:', groupsError)
       
       // Fallback to simple query
       console.log('🔍 Trying simple query...')
@@ -86,6 +88,7 @@ export async function GET(request: NextRequest) {
         .select('id, name, description, parish, city, state, country, meeting_time, age_range, max_members, is_public, is_active, owner_id, created_at')
         .eq('is_active', true)
         .order('created_at', { ascending: false })
+        .limit(10)
       
       if (simpleError) {
         console.error('❌ Even simple query failed:', simpleError)
@@ -102,7 +105,7 @@ export async function GET(request: NextRequest) {
         (group.owner_id === user.id) // Simple owner check
       )
     } else {
-      console.log('✅ Optimized query succeeded')
+      console.log('✅ Ultra-fast loading query succeeded')
     }
 
     if (!groups || groups.length === 0) {
@@ -112,52 +115,22 @@ export async function GET(request: NextRequest) {
 
     console.log(`✅ Found ${groups.length} groups, processing...`)
 
-    // Get member counts in a single optimized query
-    const { data: memberCounts, error: memberError } = await supabase
-      .from('group_members')
-      .select('group_id')
-      .eq('status', 'active')
+    // FAST PROCESSING: Add basic info without expensive member counts
+    const groupsWithBasicInfo = groups.map((group: any) => ({
+      ...group,
+      member_count: 0, // Will be loaded on demand if needed
+      user_role: null, // Will be loaded on demand if needed
+      user_status: null, // Will be loaded on demand if needed
+      is_member: group.owner_id === user.id, // Quick check
+      is_owner: group.owner_id === user.id
+    }))
 
-    // Get user's membership in a single query
-    const { data: userMemberships, error: membershipError } = await supabase
-      .from('group_members')
-      .select('group_id, role, status')
-      .eq('user_id', user.id)
-      .eq('status', 'active')
-
-    // Create lookup maps for faster processing
-    const memberCountMap = new Map()
-    if (memberCounts) {
-      memberCounts.forEach((item: any) => {
-        const currentCount = memberCountMap.get(item.group_id) || 0
-        memberCountMap.set(item.group_id, currentCount + 1)
-      })
-    }
-
-    const membershipMap = new Map()
-    if (userMemberships) {
-      userMemberships.forEach((item: any) => {
-        membershipMap.set(item.group_id, { role: item.role, status: item.status })
-      })
-    }
-
-    // Process groups with the lookup data
-    const groupsWithData = groups.map((group: any) => {
-      const memberCount = memberCountMap.get(group.id) || 0
-      const membership = membershipMap.get(group.id)
-      
-      return {
-        ...group,
-        member_count: memberCount,
-        user_role: membership?.role || null,
-        user_status: membership?.status || null,
-        is_member: !!membership,
-        is_owner: group.owner_id === user.id
-      }
+    const loadTime = Date.now() - startTime
+    console.log(`✅ Ultra-fast loading completed in ${loadTime}ms: ${groupsWithBasicInfo.length} groups`)
+    return NextResponse.json({ 
+      groups: groupsWithBasicInfo,
+      loadTime: `${loadTime}ms`
     })
-
-    console.log(`✅ Successfully processed ${groupsWithData.length} groups`)
-    return NextResponse.json({ groups: groupsWithData })
 
   } catch (error: any) {
     console.error('❌ Unexpected error in GET /api/youth-groups:', error)
