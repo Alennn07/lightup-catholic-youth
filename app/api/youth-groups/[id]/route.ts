@@ -10,7 +10,6 @@ export async function GET(
   try {
     console.log('🚀 GET /api/youth-groups/[id] - Starting request for group:', params.id)
     
-    // Get authorization header
     const authHeader = request.headers.get('authorization')
     const token = authHeader?.replace('Bearer ', '')
     
@@ -19,26 +18,12 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Create Supabase client with service role key
-    let supabase: any
-    try {
-      supabase = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.SUPABASE_SERVICE_ROLE_KEY!,
-        {
-          auth: {
-            autoRefreshToken: false,
-            persistSession: false
-          }
-        }
-      )
-      console.log('✅ Supabase client created successfully')
-    } catch (clientError: any) {
-      console.error('❌ Error creating Supabase client:', clientError)
-      return NextResponse.json({ error: 'Database connection failed' }, { status: 500 })
-    }
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      { auth: { autoRefreshToken: false, persistSession: false } }
+    )
 
-    // Verify user token
     let user: any
     try {
       const { data: { user: authUser }, error: authError } = await supabase.auth.getUser(token)
@@ -53,14 +38,11 @@ export async function GET(
       return NextResponse.json({ error: 'Authentication failed' }, { status: 401 })
     }
 
-    // Get the group with owner and member count
+    // Get the group with simple query (no complex joins)
+    console.log('🔍 Fetching group details...')
     const { data: group, error: groupError } = await supabase
       .from('youth_groups')
-      .select(`
-        *,
-        owner:owner_id(id, email, user_metadata),
-        member_count:group_members(count)
-      `)
+      .select('*')
       .eq('id', params.id)
       .eq('is_active', true)
       .single()
@@ -69,6 +51,8 @@ export async function GET(
       console.error('❌ Error fetching group:', groupError)
       return NextResponse.json({ error: 'Group not found' }, { status: 404 })
     }
+
+    console.log('✅ Group found:', group.name)
 
     // Check if user can view this group (public or member)
     const { data: membership } = await supabase
@@ -84,13 +68,11 @@ export async function GET(
       return NextResponse.json({ error: 'Access denied' }, { status: 403 })
     }
 
-    // Get group members
+    // Get group members (simplified)
+    console.log('🔍 Fetching group members...')
     const { data: members, error: membersError } = await supabase
       .from('group_members')
-      .select(`
-        *,
-        user:user_id(id, email, user_metadata)
-      `)
+      .select('*')
       .eq('group_id', params.id)
       .eq('status', 'active')
       .order('joined_at', { ascending: true })
@@ -101,6 +83,7 @@ export async function GET(
     }
 
     // Get group events
+    console.log('🔍 Fetching group events...')
     const { data: events, error: eventsError } = await supabase
       .from('group_events')
       .select('*')
@@ -111,16 +94,15 @@ export async function GET(
 
     if (eventsError) {
       console.error('❌ Error fetching events:', eventsError)
-      return NextResponse.json({ error: 'Failed to fetch group events' }, { status: 500 })
+      // Don't fail the whole request, just log the error
+      console.log('⚠️ Continuing without events...')
     }
 
     // Get group posts
+    console.log('🔍 Fetching group posts...')
     const { data: posts, error: postsError } = await supabase
       .from('group_posts')
-      .select(`
-        *,
-        user:user_id(id, email, user_metadata)
-      `)
+      .select('*')
       .eq('group_id', params.id)
       .order('is_pinned', { ascending: false })
       .order('created_at', { ascending: false })
@@ -128,7 +110,19 @@ export async function GET(
 
     if (postsError) {
       console.error('❌ Error fetching posts:', postsError)
-      return NextResponse.json({ error: 'Failed to fetch group posts' }, { status: 500 })
+      // Don't fail the whole request, just log the error
+      console.log('⚠️ Continuing without posts...')
+    }
+
+    // Get member count
+    const { count: memberCount, error: countError } = await supabase
+      .from('group_members')
+      .select('*', { count: 'exact', head: true })
+      .eq('group_id', params.id)
+      .eq('status', 'active')
+
+    if (countError) {
+      console.error('❌ Error counting members:', countError)
     }
 
     const groupData = {
@@ -136,9 +130,11 @@ export async function GET(
       user_role: membership?.role || null,
       user_status: membership?.status || null,
       is_member: !!membership,
-      members,
-      events,
-      posts
+      is_owner: group.owner_id === user.id,
+      member_count: memberCount || 0,
+      members: members || [],
+      events: events || [],
+      posts: posts || []
     }
 
     console.log('✅ Successfully fetched group data')
