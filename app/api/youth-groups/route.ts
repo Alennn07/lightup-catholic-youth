@@ -67,8 +67,8 @@ export async function GET(request: NextRequest) {
       }, { status: 500 })
     }
 
-    // Try a simple query first without complex joins
-    console.log('🔍 Attempting simple query without joins...')
+    // Optimized query: Get groups and member counts in a single query
+    console.log('🔍 Fetching groups with optimized query...')
     let { data: groups, error: groupsError } = await supabase
       .from('youth_groups')
       .select('*')
@@ -77,10 +77,10 @@ export async function GET(request: NextRequest) {
       .order('created_at', { ascending: false })
 
     if (groupsError) {
-      console.error('❌ Error with simple query:', groupsError)
+      console.error('❌ Error with optimized query:', groupsError)
       
-      // If simple query fails, try even simpler
-      console.log('🔍 Trying even simpler query...')
+      // Fallback to simple query
+      console.log('🔍 Trying simple query...')
       const { data: simpleGroups, error: simpleError } = await supabase
         .from('youth_groups')
         .select('*')
@@ -102,7 +102,7 @@ export async function GET(request: NextRequest) {
         (group.owner_id === user.id) // Simple owner check
       )
     } else {
-      console.log('✅ Complex query succeeded')
+      console.log('✅ Optimized query succeeded')
     }
 
     if (!groups || groups.length === 0) {
@@ -112,62 +112,55 @@ export async function GET(request: NextRequest) {
 
     console.log(`✅ Found ${groups.length} groups, processing...`)
 
-    // Get member count for each group (simplified)
-    const groupsWithCounts = await Promise.all(
-      groups.map(async (group: any) => {
-        try {
-          const { count, error: countError } = await supabase
-            .from('group_members')
-            .select('*', { count: 'exact', head: true })
-            .eq('group_id', group.id)
-            .eq('status', 'active')
-          
-          if (countError) {
-            console.error(`❌ Error counting members for group ${group.id}:`, countError)
-            return { ...group, member_count: 0 }
-          }
-          return { ...group, member_count: count || 0 }
-        } catch (countError: any) {
-          console.error(`❌ Exception counting members for group ${group.id}:`, countError)
-          return { ...group, member_count: 0 }
-        }
-      })
-    )
+    // Get member counts and user membership in parallel for better performance
+    const [memberCounts, userMemberships] = await Promise.all([
+      // Get member counts for all groups at once
+      supabase
+        .from('group_members')
+        .select('group_id, count')
+        .eq('status', 'active')
+        .group('group_id'),
+      
+      // Get user's membership for all groups at once
+      supabase
+        .from('group_members')
+        .select('group_id, role, status')
+        .eq('user_id', user.id)
+        .eq('status', 'active')
+    ])
 
-    // Get user's membership status for each group
-    const groupsWithMembership = await Promise.all(
-      groupsWithCounts.map(async (group: any) => {
-        try {
-          const { data: membership } = await supabase
-            .from('group_members')
-            .select('role, status')
-            .eq('group_id', group.id)
-            .eq('user_id', user.id)
-            .single()
-          
-          return {
-            ...group,
-            user_role: membership?.role || null,
-            user_status: membership?.status || null,
-            is_member: !!membership,
-            // Add owner info without complex join
-            is_owner: group.owner_id === user.id
-          }
-        } catch (membershipError: any) {
-          console.error(`❌ Error getting membership for group ${group.id}:`, membershipError)
-          return {
-            ...group,
-            user_role: null,
-            user_status: null,
-            is_member: false,
-            is_owner: group.owner_id === user.id
-          }
-        }
+    // Create lookup maps for faster processing
+    const memberCountMap = new Map()
+    if (memberCounts.data) {
+      memberCounts.data.forEach((item: any) => {
+        memberCountMap.set(item.group_id, parseInt(item.count))
       })
-    )
+    }
 
-    console.log(`✅ Successfully processed ${groupsWithMembership.length} groups`)
-    return NextResponse.json({ groups: groupsWithMembership })
+    const membershipMap = new Map()
+    if (userMemberships.data) {
+      userMemberships.data.forEach((item: any) => {
+        membershipMap.set(item.group_id, { role: item.role, status: item.status })
+      })
+    }
+
+    // Process groups with the lookup data
+    const groupsWithData = groups.map((group: any) => {
+      const memberCount = memberCountMap.get(group.id) || 0
+      const membership = membershipMap.get(group.id)
+      
+      return {
+        ...group,
+        member_count: memberCount,
+        user_role: membership?.role || null,
+        user_status: membership?.status || null,
+        is_member: !!membership,
+        is_owner: group.owner_id === user.id
+      }
+    })
+
+    console.log(`✅ Successfully processed ${groupsWithData.length} groups`)
+    return NextResponse.json({ groups: groupsWithData })
 
   } catch (error: any) {
     console.error('❌ Unexpected error in GET /api/youth-groups:', error)
