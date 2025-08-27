@@ -103,6 +103,8 @@ export default function YouthGroups() {
 
   const [isAddingMember, setIsAddingMember] = useState(false)
   const [isRemovingMember, setIsRemovingMember] = useState<string | null>(null)
+  const [isEditingGroupName, setIsEditingGroupName] = useState(false)
+  const [editingGroupName, setEditingGroupName] = useState('')
 
   useEffect(() => {
     if (user) {
@@ -734,6 +736,66 @@ export default function YouthGroups() {
     }
   }
 
+  const handleUpdateGroupName = async () => {
+    if (!selectedGroup || !editingGroupName.trim()) return
+    
+    try {
+      const token = await getAccessToken()
+      if (!token) {
+        toast({
+          title: "Authentication Error",
+          description: "Please log in again",
+          variant: "destructive",
+        })
+        return
+      }
+
+      const response = await fetch(`/api/youth-groups/${selectedGroup.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ name: editingGroupName.trim() })
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        toast({
+          title: "Success!",
+          description: "Group name updated successfully",
+        })
+        
+        // Update the UI directly
+        setSelectedGroup(prev => prev ? { ...prev, name: editingGroupName.trim() } : null)
+        setGroups(prev => prev.map(group => 
+          group.id === selectedGroup.id 
+            ? { ...group, name: editingGroupName.trim() }
+            : group
+        ))
+        
+        setIsEditingGroupName(false)
+        setEditingGroupName('')
+        
+        console.log('✅ Group name updated and UI refreshed smoothly')
+      } else {
+        toast({
+          title: "Error",
+          description: data.error || "Failed to update group name",
+          variant: "destructive",
+        })
+      }
+    } catch (error) {
+      console.error('Error updating group name:', error)
+      toast({
+        title: "Error",
+        description: "Failed to update group name",
+        variant: "destructive",
+      })
+    }
+  }
+
   const filteredGroups = groups.filter(group => {
     const matchesSearch = group.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          group.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -1072,7 +1134,53 @@ export default function YouthGroups() {
         <Dialog open={showGroupDetails} onOpenChange={setShowGroupDetails}>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>{selectedGroup.name}</DialogTitle>
+              <div className="flex items-center gap-2">
+                {isEditingGroupName ? (
+                  <div className="flex items-center gap-2 flex-1">
+                    <Input
+                      value={editingGroupName}
+                      onChange={(e) => setEditingGroupName(e.target.value)}
+                      className="text-2xl font-bold h-10"
+                      placeholder="Enter group name"
+                    />
+                    <Button
+                      size="sm"
+                      onClick={handleUpdateGroupName}
+                      className="h-10"
+                    >
+                      Save
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setIsEditingGroupName(false)
+                        setEditingGroupName(selectedGroup.name)
+                      }}
+                      className="h-10"
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 flex-1">
+                    <DialogTitle>{selectedGroup.name}</DialogTitle>
+                    {selectedGroup.is_owner && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setIsEditingGroupName(true)
+                          setEditingGroupName(selectedGroup.name)
+                        }}
+                        className="text-muted-foreground hover:text-foreground"
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                )}
+              </div>
               <DialogDescription>{selectedGroup.description}</DialogDescription>
             </DialogHeader>
             
