@@ -105,6 +105,7 @@ export default function YouthGroups() {
   const [isRemovingMember, setIsRemovingMember] = useState<string | null>(null)
   const [isEditingGroupName, setIsEditingGroupName] = useState(false)
   const [editingGroupName, setEditingGroupName] = useState('')
+  const [isPageLoading, setIsPageLoading] = useState(true)
 
   useEffect(() => {
     if (user) {
@@ -116,11 +117,13 @@ export default function YouthGroups() {
 
   const fetchGroups = async () => {
     try {
+      setIsPageLoading(true)
       setLoading(true)
       const token = await getAccessToken()
       if (!token) {
         console.log('❌ No access token available')
         setLoading(false)
+        setIsPageLoading(false)
         return
       }
 
@@ -142,6 +145,7 @@ export default function YouthGroups() {
       toast({ title: "Error", description: error.message || "Failed to fetch groups", variant: "destructive" })
     } finally {
       setLoading(false)
+      setIsPageLoading(false)
     }
   }
 
@@ -809,12 +813,23 @@ export default function YouthGroups() {
     return matchesSearch && matchesCategory
   })
 
-  if (loading) {
+  if (isPageLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
           <p className="text-muted-foreground">Loading youth groups...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Refreshing...</p>
         </div>
       </div>
     )

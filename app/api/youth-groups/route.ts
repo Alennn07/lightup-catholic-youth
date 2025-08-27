@@ -73,10 +73,9 @@ export async function GET(request: NextRequest) {
     let { data: groups, error: groupsError } = await supabase
       .from('youth_groups')
       .select('id, name, description, parish, city, state, country, meeting_time, age_range, max_members, is_public, is_active, owner_id, created_at')
-      .or(`is_public.eq.true,id.in.(select group_id from group_members where user_id.eq.${user.id} and status.eq.'active')`)
       .eq('is_active', true)
       .order('created_at', { ascending: false })
-      .limit(10) // Limit to 10 groups for faster loading
+      .limit(5) // Reduced to 5 groups for faster loading
 
     if (groupsError) {
       console.error('❌ Error with ultra-fast loading query:', groupsError)
@@ -88,7 +87,7 @@ export async function GET(request: NextRequest) {
         .select('id, name, description, parish, city, state, country, meeting_time, age_range, max_members, is_public, is_active, owner_id, created_at')
         .eq('is_active', true)
         .order('created_at', { ascending: false })
-        .limit(10)
+        .limit(5)
       
       if (simpleError) {
         console.error('❌ Even simple query failed:', simpleError)

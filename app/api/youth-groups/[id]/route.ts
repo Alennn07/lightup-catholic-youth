@@ -60,10 +60,18 @@ export async function GET(
     // Fetch all related data in parallel for maximum speed
     console.log('🔍 Fetching related data in parallel...')
     const [membersResult, eventsResult, postsResult, memberCountResult] = await Promise.all([
-      // Get group members (simplified)
+      // Get group members with user details
       supabase
         .from('group_members')
-        .select('id, user_id, role, status, joined_at')
+        .select(`
+          id, 
+          group_id, 
+          user_id, 
+          role, 
+          status, 
+          joined_at,
+          user:user_id(id, email, user_metadata)
+        `)
         .eq('group_id', params.id)
         .eq('status', 'active')
         .order('joined_at', { ascending: true }),
