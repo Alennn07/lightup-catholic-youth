@@ -406,6 +406,8 @@ export default function YouthGroups() {
   }
 
   const handleDeleteEvent = async (eventId: string) => {
+    if (!selectedGroup) return
+    
     try {
       const token = await getAccessToken()
       if (!token) {
@@ -413,23 +415,38 @@ export default function YouthGroups() {
         return
       }
 
-      const response = await fetch(`/api/youth-groups/${selectedGroup?.id}/events/${eventId}`, {
+      const response = await fetch(`/api/youth-groups/${selectedGroup.id}/events/${eventId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
         }
       })
 
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to delete event')
-      }
-
       const data = await response.json()
-      toast({ title: "Success", description: data.message })
-      
-      // Refresh groups
-      fetchGroups()
+
+      if (response.ok) {
+        toast({ title: "Success", description: data.message })
+        
+        // SMOOTH UPDATE: Update the UI directly instead of full refresh
+        if (selectedGroup) {
+          // Remove the event from the current group data
+          setSelectedGroup(prev => prev ? {
+            ...prev,
+            events: (prev.events || []).filter(event => event.id !== eventId)
+          } : null)
+          
+          // Update the main groups list to reflect the change
+          setGroups(prev => prev.map(group => 
+            group.id === selectedGroup.id 
+              ? { ...group }
+              : group
+          ))
+        }
+        
+        console.log('✅ Event deleted and UI updated smoothly')
+      } else {
+        toast({ title: "Error", description: data.error || "Failed to delete event", variant: "destructive" })
+      }
     } catch (error: any) {
       console.error('Error deleting event:', error)
       toast({ title: "Error", description: error.message || "Failed to delete event.", variant: "destructive" })
@@ -442,6 +459,8 @@ export default function YouthGroups() {
   }
 
   const handleDeletePost = async (postId: string) => {
+    if (!selectedGroup) return
+    
     try {
       const token = await getAccessToken()
       if (!token) {
@@ -449,23 +468,38 @@ export default function YouthGroups() {
         return
       }
 
-      const response = await fetch(`/api/youth-groups/${selectedGroup?.id}/posts/${postId}`, {
+      const response = await fetch(`/api/youth-groups/${selectedGroup.id}/posts/${postId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
         }
       })
 
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to delete post')
-      }
-
       const data = await response.json()
-      toast({ title: "Success", description: data.message })
-      
-      // Refresh groups
-      fetchGroups()
+
+      if (response.ok) {
+        toast({ title: "Success", description: data.message })
+        
+        // SMOOTH UPDATE: Update the UI directly instead of full refresh
+        if (selectedGroup) {
+          // Remove the post from the current group data
+          setSelectedGroup(prev => prev ? {
+            ...prev,
+            posts: (prev.posts || []).filter(post => post.id !== postId)
+          } : null)
+          
+          // Update the main groups list to reflect the change
+          setGroups(prev => prev.map(group => 
+            group.id === selectedGroup.id 
+              ? { ...group }
+              : group
+          ))
+        }
+        
+        console.log('✅ Post deleted and UI updated smoothly')
+      } else {
+        toast({ title: "Error", description: data.error || "Failed to delete post", variant: "destructive" })
+      }
     } catch (error: any) {
       console.error('Error deleting post:', error)
       toast({ title: "Error", description: error.message || "Failed to delete post.", variant: "destructive" })
@@ -586,9 +620,28 @@ export default function YouthGroups() {
         is_public: false
       })
       
-      // Auto-refresh the current group details
+      // SMOOTH UPDATE: Update the UI directly instead of full refresh
       if (selectedGroup) {
-        fetchGroupDetails(selectedGroup.id)
+        // Add the new event to the current group data
+        const newEvent = {
+          id: data.event.id,
+          title: eventFormData.title,
+          description: eventFormData.description,
+          event_date: eventFormData.event_date,
+          location: eventFormData.location,
+          max_attendees: eventFormData.max_attendees,
+          is_public: eventFormData.is_public,
+          created_by: user?.id,
+          created_at: new Date().toISOString()
+        }
+        
+        // Update the selected group's events list
+        setSelectedGroup(prev => prev ? {
+          ...prev,
+          events: [...(prev.events || []), newEvent]
+        } : null)
+        
+        console.log('✅ Event created and UI updated smoothly')
       }
     } catch (error: any) {
       console.error('Error creating event:', error)
@@ -628,9 +681,26 @@ export default function YouthGroups() {
         is_public: false
       })
       
-      // Auto-refresh the current group details
+      // SMOOTH UPDATE: Update the UI directly instead of full refresh
       if (selectedGroup) {
-        fetchGroupDetails(selectedGroup.id)
+        // Add the new post to the current group data
+        const newPost = {
+          id: data.post.id,
+          title: postFormData.title,
+          content: postFormData.content,
+          post_type: postFormData.post_type,
+          is_public: postFormData.is_public,
+          user_id: user?.id,
+          created_at: new Date().toISOString()
+        }
+        
+        // Update the selected group's posts list
+        setSelectedGroup(prev => prev ? {
+          ...prev,
+          posts: [...(prev.posts || []), newPost]
+        } : null)
+        
+        console.log('✅ Post created and UI updated smoothly')
       }
     } catch (error: any) {
       console.error('Error creating post:', error)
