@@ -582,6 +582,38 @@ export default function YouthGroups() {
     }
   }
 
+  const handleUpdateEvent = async () => {
+    try {
+      const token = await getAccessToken()
+      if (!token) {
+        toast({ title: "Authentication Error", description: "Please sign in to manage events.", variant: "destructive" })
+        return
+      }
+
+      const response = await fetch(`/api/youth-groups/${selectedGroup?.id}/events/${editingEvent.id}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(editingEvent)
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to update event')
+      }
+
+      const data = await response.json()
+      toast({ title: "Success", description: data.message })
+      setShowEditEventForm(false)
+      fetchGroups()
+    } catch (error: any) {
+      console.error('Error updating event:', error)
+      toast({ title: "Error", description: error.message || "Failed to update event.", variant: "destructive" })
+    }
+  }
+
   const filteredGroups = groups.filter(group => {
     const matchesSearch = group.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          group.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -1387,6 +1419,77 @@ export default function YouthGroups() {
                 </Button>
                 <Button onClick={() => handleCreateEvent()} disabled={!eventFormData.title || !eventFormData.description}>
                   Create Event
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Edit Event Form */}
+      {showEditEventForm && editingEvent && (
+        <Dialog open={showEditEventForm} onOpenChange={setShowEditEventForm}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Edit Event</DialogTitle>
+              <DialogDescription>Update your event details.</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="edit_event_title">Title</Label>
+                <Input
+                  id="edit_event_title"
+                  value={editingEvent.title}
+                  onChange={(e) => setEditingEvent({ ...editingEvent, title: e.target.value })}
+                  placeholder="Event title"
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit_event_description">Description</Label>
+                <Textarea
+                  id="edit_event_description"
+                  value={editingEvent.description}
+                  onChange={(e) => setEditingEvent({ ...editingEvent, description: e.target.value })}
+                  placeholder="Event description"
+                  rows={3}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="edit_event_date">Event Date</Label>
+                  <Input
+                    id="edit_event_date"
+                    type="datetime-local"
+                    value={editingEvent.event_date ? new Date(editingEvent.event_date).toISOString().slice(0, 16) : ''}
+                    onChange={(e) => setEditingEvent({ ...editingEvent, event_date: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="edit_event_location">Location</Label>
+                  <Input
+                    id="edit_event_location"
+                    value={editingEvent.location || ''}
+                    onChange={(e) => setEditingEvent({ ...editingEvent, location: e.target.value })}
+                    placeholder="Event location"
+                  />
+                </div>
+              </div>
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="edit_is_public_event"
+                  checked={editingEvent.is_public || false}
+                  onChange={(e) => setEditingEvent({ ...editingEvent, is_public: e.target.checked })}
+                  className="rounded"
+                />
+                <Label htmlFor="edit_is_public_event">Make this event public (anyone can attend)</Label>
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button variant="outline" onClick={() => setShowEditEventForm(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={() => handleUpdateEvent()} disabled={!editingEvent.title || !editingEvent.description}>
+                  Update Event
                 </Button>
               </div>
             </div>
