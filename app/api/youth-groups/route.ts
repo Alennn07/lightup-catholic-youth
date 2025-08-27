@@ -114,15 +114,27 @@ export async function GET(request: NextRequest) {
 
     console.log(`✅ Found ${groups.length} groups, processing...`)
 
-    // FAST PROCESSING: Add basic info without expensive member counts
-    const groupsWithBasicInfo = groups.map((group: any) => ({
-      ...group,
-      member_count: 0, // Will be loaded on demand if needed
-      user_role: null, // Will be loaded on demand if needed
-      user_status: null, // Will be loaded on demand if needed
-      is_member: group.owner_id === user.id, // Quick check
-      is_owner: group.owner_id === user.id
-    }))
+    // Check user membership for each group
+    const userMemberships = await supabase
+      .from('group_members')
+      .select('group_id')
+      .eq('user_id', user.id)
+      .eq('status', 'active')
+
+    // FAST PROCESSING: Add basic info with proper membership check
+    const groupsWithBasicInfo = groups.map((group: any) => {
+      const isMember = group.owner_id === user.id || 
+        (userMemberships.data || []).some(member => member.group_id === group.id)
+      
+      return {
+        ...group,
+        member_count: 0, // Will be loaded on demand if needed
+        user_role: null, // Will be loaded on demand if needed
+        user_status: null, // Will be loaded on demand if needed
+        is_member: isMember,
+        is_owner: group.owner_id === user.id
+      }
+    })
 
     const loadTime = Date.now() - startTime
     console.log(`✅ Ultra-fast loading completed in ${loadTime}ms: ${groupsWithBasicInfo.length} groups`)
