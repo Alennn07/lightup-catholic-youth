@@ -428,37 +428,55 @@ export default function YouthGroups() {
   }
 
   const handleAddMember = async () => {
+    if (!newMemberEmail || !selectedGroup) return
+    
     try {
       const token = await getAccessToken()
       if (!token) {
-        toast({ title: "Authentication Error", description: "Please sign in to add members.", variant: "destructive" })
+        toast({
+          title: "Authentication Error",
+          description: "Please log in again",
+          variant: "destructive",
+        })
         return
       }
 
-      const response = await fetch(`/api/youth-groups/${selectedGroup?.id}/members`, {
+      const response = await fetch(`/api/youth-groups/${selectedGroup.id}/members`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({ email: newMemberEmail })
       })
 
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to add member')
-      }
-
       const data = await response.json()
-      toast({ title: "Success", description: data.message })
-      setNewMemberEmail('')
-      setShowAddMemberForm(false)
-      
-      // Refresh groups
-      fetchGroups()
-    } catch (error: any) {
+
+      if (response.ok) {
+        toast({
+          title: "Success!",
+          description: "Member added successfully",
+        })
+        setNewMemberEmail('')
+        setShowAddMemberForm(false)
+        // Refresh the group details to show the new member
+        if (selectedGroup) {
+          await fetchGroupDetails(selectedGroup.id)
+        }
+      } else {
+        toast({
+          title: "Error",
+          description: data.error || "Failed to add member",
+          variant: "destructive",
+        })
+      }
+    } catch (error) {
       console.error('Error adding member:', error)
-      toast({ title: "Error", description: error.message || "Failed to add member.", variant: "destructive" })
+      toast({
+        title: "Error",
+        description: "Failed to add member",
+        variant: "destructive",
+      })
     }
   }
 

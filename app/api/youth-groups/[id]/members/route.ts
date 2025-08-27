@@ -8,13 +8,17 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
-    console.log('🚀 POST /api/youth-groups/[id]/members - Starting request for group:', params.id)
+    const { id: groupId } = params
+    const { email } = await request.json()
     
+    if (!email) {
+      return NextResponse.json({ error: 'Email is required' }, { status: 400 })
+    }
+
     const authHeader = request.headers.get('authorization')
     const token = authHeader?.replace('Bearer ', '')
     
     if (!token) {
-      console.log('❌ No authorization token provided')
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -24,117 +28,79 @@ export async function POST(
       { auth: { autoRefreshToken: false, persistSession: false } }
     )
 
-    let user: any
-    try {
-      const { data: { user: authUser }, error: authError } = await supabase.auth.getUser(token)
-      if (authError || !authUser) {
-        console.log('❌ Auth error:', authError)
-        return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
-      }
-      user = authUser
-      console.log('✅ User authenticated:', user.id)
-    } catch (authError: any) {
-      console.error('❌ Error verifying user:', authError)
-      return NextResponse.json({ error: 'Authentication failed' }, { status: 401 })
+    // Verify the current user
+    const { data: { user: currentUser }, error: authError } = await supabase.auth.getUser(token)
+    if (authError || !currentUser) {
+      return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
     }
 
-    // Check if user is the owner of this group
+    // Check if the current user is the group owner
     const { data: group, error: groupError } = await supabase
       .from('youth_groups')
-      .select('owner_id, is_public, max_members')
-      .eq('id', params.id)
+      .select('owner_id')
+      .eq('id', groupId)
       .single()
 
     if (groupError || !group) {
-      console.error('❌ Group not found:', groupError)
       return NextResponse.json({ error: 'Group not found' }, { status: 404 })
     }
 
-    if (group.owner_id !== user.id) {
-      console.log('❌ User is not the owner of this group')
+    if (group.owner_id !== currentUser.id) {
       return NextResponse.json({ error: 'Only group owners can add members' }, { status: 403 })
     }
 
-    const body = await request.json()
-    console.log('📝 Request body:', body)
-
-    if (!body.email) {
-      return NextResponse.json({ error: 'Email is required' }, { status: 400 })
-    }
-
-    // Find user by email
+    // Find the user by email
     const { data: targetUser, error: userError } = await supabase.auth.admin.listUsers()
-    
     if (userError) {
-      console.error('❌ Error listing users:', userError)
       return NextResponse.json({ error: 'Failed to find user' }, { status: 500 })
     }
 
-    const targetUserData = targetUser.users.find(u => u.email === body.email)
-    if (!targetUserData) {
+    const userToAdd = targetUser.users.find(u => u.email === email)
+    if (!userToAdd) {
       return NextResponse.json({ error: 'User with this email not found' }, { status: 404 })
     }
 
     // Check if user is already a member
-    const { data: existingMember } = await supabase
+    const { data: existingMember, error: checkError } = await supabase
       .from('group_members')
-      .select('id, status')
-      .eq('group_id', params.id)
-      .eq('user_id', targetUserData.id)
+      .select('id')
+      .eq('group_id', groupId)
+      .eq('user_id', userToAdd.id)
       .single()
 
     if (existingMember) {
-      if (existingMember.status === 'active') {
-        return NextResponse.json({ error: 'User is already a member of this group' }, { status: 400 })
-      } else if (existingMember.status === 'pending') {
-        return NextResponse.json({ error: 'User already has a pending invitation' }, { status: 400 })
-      }
+      return NextResponse.json({ error: 'User is already a member of this group' }, { status: 400 })
     }
 
-    // Check group capacity
-    const { count: memberCount, error: countError } = await supabase
+    // Add the user as a member
+    const { data: newMember, error: insertError } = await supabase
       .from('group_members')
-      .select('*', { count: 'exact', head: true })
-      .eq('group_id', params.id)
-      .eq('status', 'active')
-
-    if (countError) {
-      console.error('❌ Error counting members:', countError)
-      return NextResponse.json({ error: 'Failed to check group capacity' }, { status: 500 })
-    }
-
-    if (memberCount && memberCount >= group.max_members) {
-      return NextResponse.json({ error: 'Group is at maximum capacity' }, { status: 400 })
-    }
-
-    // Add user as member
-    const { data: member, error: addError } = await supabase
-      .from('group_members')
-      .insert([{
-        group_id: params.id,
-        user_id: targetUserData.id,
+      .insert({
+        group_id: groupId,
+        user_id: userToAdd.id,
         role: 'member',
-        status: 'active'
-      }])
+        status: 'active',
+        joined_at: new Date().toISOString()
+      })
       .select()
       .single()
 
-    if (addError) {
-      console.error('❌ Error adding member:', addError)
-      return NextResponse.json({ 
-        error: 'Failed to add member',
-        details: addError.message 
-      }, { status: 500 })
+    if (insertError) {
+      console.error('Error adding member:', insertError)
+      return NextResponse.json({ error: 'Failed to add member' }, { status: 500 })
     }
 
-    console.log('✅ Member added successfully:', member.id)
     return NextResponse.json({ 
-      member,
-      message: 'Member added successfully' 
-    }, { status: 201 })
+      success: true, 
+      message: 'Member added successfully',
+      member: newMember
+    })
 
   } catch (error: any) {
-    console.error('❌ Unexpected error in POST /api/youth-groups/[id]/members:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    console.error('Error in POST /api/youth-groups/[id]/members:', error)
+    return NextResponse.json({ 
+      error: 'Internal server error',
+      details: error.message 
+    }, { status: 500 })
   }
 }
