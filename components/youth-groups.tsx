@@ -12,7 +12,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Search, Users, MapPin, Calendar, Plus, Settings, MessageSquare, Heart, X, Edit, Trash2 } from 'lucide-react'
+import { Search, Users, MapPin, Calendar, Plus, Settings, MessageSquare, Heart, X, Edit, Trash2, Globe } from 'lucide-react'
 
 interface YouthGroup {
   id: string
@@ -72,12 +72,14 @@ export default function YouthGroups() {
     description: '',
     event_date: '',
     location: '',
-    max_attendees: 50
+    max_attendees: 50,
+    is_public: false
   })
   const [postFormData, setPostFormData] = useState({
     title: '',
     content: '',
-    post_type: 'general'
+    post_type: 'general',
+    is_public: false
   })
 
   // Form state for creating groups
@@ -465,7 +467,7 @@ export default function YouthGroups() {
 
       const data = await response.json()
       toast({ title: "Success", description: data.message })
-      setEventFormData({ title: '', description: '', event_date: '', location: '', max_attendees: 50 })
+      setEventFormData({ title: '', description: '', event_date: '', location: '', max_attendees: 50, is_public: false })
       setShowCreateEventForm(false)
       
       // Refresh groups
@@ -503,7 +505,7 @@ export default function YouthGroups() {
 
       const data = await response.json()
       toast({ title: "Success", description: data.message })
-      setPostFormData({ title: '', content: '', post_type: 'general' })
+      setPostFormData({ title: '', content: '', post_type: 'general', is_public: false })
       setShowCreatePostForm(false)
       
       // Refresh groups
@@ -511,6 +513,72 @@ export default function YouthGroups() {
     } catch (error: any) {
       console.error('Error creating post:', error)
       toast({ title: "Error", description: error.message || "Failed to create post.", variant: "destructive" })
+    }
+  }
+
+  const handleToggleEventVisibility = async (event: any) => {
+    try {
+      const token = await getAccessToken()
+      if (!token) {
+        toast({ title: "Authentication Error", description: "Please sign in to manage events.", variant: "destructive" })
+        return
+      }
+
+      const response = await fetch(`/api/youth-groups/${selectedGroup?.id}/events/${event.id}/visibility`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ is_public: !event.is_public })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to toggle event visibility')
+      }
+
+      const data = await response.json()
+      toast({ title: "Success", description: data.message })
+      
+      // Refresh groups
+      fetchGroups()
+    } catch (error: any) {
+      console.error('Error toggling event visibility:', error)
+      toast({ title: "Error", description: error.message || "Failed to toggle event visibility.", variant: "destructive" })
+    }
+  }
+
+  const handleTogglePostVisibility = async (post: any) => {
+    try {
+      const token = await getAccessToken()
+      if (!token) {
+        toast({ title: "Authentication Error", description: "Please sign in to manage posts.", variant: "destructive" })
+        return
+      }
+
+      const response = await fetch(`/api/youth-groups/${selectedGroup?.id}/posts/${post.id}/visibility`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ is_public: !post.is_public })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to toggle post visibility')
+      }
+
+      const data = await response.json()
+      toast({ title: "Success", description: data.message })
+      
+      // Refresh groups
+      fetchGroups()
+    } catch (error: any) {
+      console.error('Error toggling post visibility:', error)
+      toast({ title: "Error", description: error.message || "Failed to toggle post visibility.", variant: "destructive" })
     }
   }
 
@@ -992,52 +1060,113 @@ export default function YouthGroups() {
                     </Button>
                   )}
                 </div>
-                <div className="space-y-3">
-                  {selectedGroup.events && selectedGroup.events.length > 0 ? (
-                    selectedGroup.events.map((event: any) => (
-                      <div key={event.id} className="p-3 border rounded-lg">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <h5 className="font-medium">{event.title}</h5>
-                            <p className="text-sm text-muted-foreground mt-1">{event.description}</p>
-                            <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
-                              <span className="flex items-center gap-1">
-                                <Calendar className="h-4 w-4" />
-                                {new Date(event.event_date).toLocaleDateString()}
-                              </span>
-                              {event.location && (
+                
+                {/* Public Events Section */}
+                {selectedGroup.events && selectedGroup.events.filter((event: any) => event.is_public).length > 0 && (
+                  <div className="mb-6">
+                    <h5 className="font-medium text-green-600 mb-3 flex items-center gap-2">
+                      <Globe className="h-4 w-4" />
+                      Public Events (Visible to Everyone)
+                    </h5>
+                    <div className="space-y-3">
+                      {selectedGroup.events
+                        .filter((event: any) => event.is_public)
+                        .map((event: any) => (
+                          <div key={event.id} className="p-3 border border-green-200 rounded-lg bg-green-50">
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <h6 className="font-medium">{event.title}</h6>
+                                  <Badge variant="outline" className="text-xs text-green-600 border-green-600">
+                                    Public
+                                  </Badge>
+                                </div>
+                                <p className="text-sm text-muted-foreground">{event.description}</p>
+                                <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
+                                  <span className="flex items-center gap-1">
+                                    <Calendar className="h-4 w-4" />
+                                    {new Date(event.event_date).toLocaleDateString()}
+                                  </span>
+                                  {event.location && (
+                                    <span className="flex items-center gap-1">
+                                      <MapPin className="h-4 w-4" />
+                                      {event.location}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                )}
+                
+                {/* All Group Events */}
+                <div>
+                  <h5 className="font-medium mb-3">Group Events</h5>
+                  <div className="space-y-3">
+                    {selectedGroup.events && selectedGroup.events.length > 0 ? (
+                      selectedGroup.events.map((event: any) => (
+                        <div key={event.id} className="p-3 border rounded-lg">
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <h5 className="font-medium">{event.title}</h5>
+                              <p className="text-sm text-muted-foreground mt-1">{event.description}</p>
+                              <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
                                 <span className="flex items-center gap-1">
-                                  <MapPin className="h-4 w-4" />
-                                  {event.location}
+                                  <Calendar className="h-4 w-4" />
+                                  {new Date(event.event_date).toLocaleDateString()}
                                 </span>
+                                {event.location && (
+                                  <span className="flex items-center gap-1">
+                                    <MapPin className="h-4 w-4" />
+                                    {event.location}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              {event.is_public && (
+                                <Badge variant="outline" className="text-xs text-green-600 border-green-600">
+                                  Public
+                                </Badge>
+                              )}
+                              {(selectedGroup.is_owner || event.created_by === user?.id) && (
+                                <div className="flex gap-2">
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handleToggleEventVisibility(event)}
+                                    className={event.is_public ? "text-orange-600 hover:text-orange-700" : "text-blue-600 hover:text-blue-700"}
+                                  >
+                                    {event.is_public ? "Make Private" : "Make Public"}
+                                  </Button>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handleEditEvent(event)}
+                                  >
+                                    <Edit className="h-4 w-4" />
+                                  </Button>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handleDeleteEvent(event.id)}
+                                    className="text-red-600 hover:text-red-700"
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </div>
                               )}
                             </div>
                           </div>
-                          {(selectedGroup.is_owner || event.created_by === user?.id) && (
-                            <div className="flex gap-2">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleEditEvent(event)}
-                              >
-                                <Edit className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleDeleteEvent(event.id)}
-                                className="text-red-600 hover:text-red-700"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          )}
                         </div>
-                      </div>
-                    ))
-                  ) : (
-                    <p className="text-center text-muted-foreground py-8">No upcoming events.</p>
-                  )}
+                      ))
+                    ) : (
+                      <p className="text-center text-muted-foreground py-8">No upcoming events.</p>
+                    )}
+                  </div>
                 </div>
               </TabsContent>
               
@@ -1051,55 +1180,111 @@ export default function YouthGroups() {
                     </Button>
                   )}
                 </div>
-                <div className="space-y-3">
-                  {selectedGroup.posts && selectedGroup.posts.length > 0 ? (
-                    selectedGroup.posts.map((post: any) => (
-                      <div key={post.id} className="p-3 border rounded-lg">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            {post.title && (
-                              <h5 className="font-medium mb-2">{post.title}</h5>
-                            )}
-                            <p className="text-sm text-muted-foreground mb-2">{post.content}</p>
-                            <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                              <span className="flex items-center gap-1">
-                                <MessageSquare className="h-3 w-3" />
-                                {post.post_type}
-                              </span>
-                              <span>{new Date(post.created_at).toLocaleDateString()}</span>
-                              <span>by {post.user?.user_metadata?.full_name || post.user?.email || 'Unknown User'}</span>
+                
+                {/* Public Posts Section */}
+                {selectedGroup.posts && selectedGroup.posts.filter((post: any) => post.is_public).length > 0 && (
+                  <div className="mb-6">
+                    <h5 className="font-medium text-green-600 mb-3 flex items-center gap-2">
+                      <Globe className="h-4 w-4" />
+                      Public Posts (Visible to Everyone)
+                    </h5>
+                    <div className="space-y-3">
+                      {selectedGroup.posts
+                        .filter((post: any) => post.is_public)
+                        .map((post: any) => (
+                          <div key={post.id} className="p-3 border border-green-200 rounded-lg bg-green-50">
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                {post.title && (
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <h6 className="font-medium">{post.title}</h6>
+                                  </div>
+                                )}
+                                <p className="text-sm text-muted-foreground mb-2">{post.content}</p>
+                                <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                                  <span className="flex items-center gap-1">
+                                    <MessageSquare className="h-3 w-3" />
+                                    {post.post_type}
+                                  </span>
+                                  <span>{new Date(post.created_at).toLocaleDateString()}</span>
+                                  <span>by {post.user?.user_metadata?.full_name || post.user?.email || 'Unknown User'}</span>
+                                </div>
+                              </div>
                             </div>
                           </div>
-                          <div className="flex items-center gap-2">
-                            {post.is_pinned && (
-                              <Badge variant="outline" className="text-xs">Pinned</Badge>
-                            )}
-                            {(selectedGroup.is_owner || post.user_id === user?.id) && (
-                              <div className="flex gap-1">
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => handleEditPost(post)}
-                                >
-                                  <Edit className="h-3 w-3" />
-                                </Button>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => handleDeletePost(post.id)}
-                                  className="text-red-600 hover:text-red-700"
-                                >
-                                  <Trash2 className="h-3 w-3" />
-                                </Button>
+                        ))}
+                    </div>
+                  </div>
+                )}
+                
+                {/* All Group Posts */}
+                <div>
+                  <h5 className="font-medium mb-3">Group Posts</h5>
+                  <div className="space-y-3">
+                    {selectedGroup.posts && selectedGroup.posts.length > 0 ? (
+                      selectedGroup.posts.map((post: any) => (
+                        <div key={post.id} className="p-3 border rounded-lg">
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              {post.title && (
+                                <div className="flex items-center gap-2 mb-1">
+                                  <h6 className="font-medium">{post.title}</h6>
+                                </div>
+                              )}
+                              <p className="text-sm text-muted-foreground mb-2">{post.content}</p>
+                              <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                                <span className="flex items-center gap-1">
+                                  <MessageSquare className="h-3 w-3" />
+                                  {post.post_type}
+                                </span>
+                                <span>{new Date(post.created_at).toLocaleDateString()}</span>
+                                <span>by {post.user?.user_metadata?.full_name || post.user?.email || 'Unknown User'}</span>
                               </div>
-                            )}
+                            </div>
+                            <div className="flex items-center gap-2">
+                              {post.is_pinned && (
+                                <Badge variant="outline" className="text-xs">Pinned</Badge>
+                              )}
+                              {post.is_public && (
+                                <Badge variant="outline" className="text-xs text-green-600 border-green-600">
+                                  Public
+                                </Badge>
+                              )}
+                              {(selectedGroup.is_owner || post.user_id === user?.id) && (
+                                <div className="flex gap-1">
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handleTogglePostVisibility(post)}
+                                    className={post.is_public ? "text-orange-600 hover:text-orange-700" : "text-blue-600 hover:text-blue-700"}
+                                  >
+                                    {post.is_public ? "Private" : "Public"}
+                                  </Button>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handleEditPost(post)}
+                                  >
+                                    <Edit className="h-3 w-3" />
+                                  </Button>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handleDeletePost(post.id)}
+                                    className="text-red-600 hover:text-red-700"
+                                  >
+                                    <Trash2 className="h-3 w-3" />
+                                  </Button>
+                                </div>
+                              )}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))
-                  ) : (
-                    <p className="text-center text-muted-foreground py-8">No posts yet.</p>
-                  )}
+                      ))
+                    ) : (
+                      <p className="text-center text-muted-foreground py-8">No posts yet.</p>
+                    )}
+                  </div>
                 </div>
               </TabsContent>
             </Tabs>
@@ -1186,6 +1371,16 @@ export default function YouthGroups() {
                   />
                 </div>
               </div>
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="is_public_event"
+                  checked={eventFormData.is_public}
+                  onChange={(e) => setEventFormData({ ...eventFormData, is_public: e.target.checked })}
+                  className="rounded"
+                />
+                <Label htmlFor="is_public_event">Make this event public (anyone can attend)</Label>
+              </div>
               <div className="flex justify-end gap-2">
                 <Button variant="outline" onClick={() => setShowCreateEventForm(false)}>
                   Cancel
@@ -1240,6 +1435,16 @@ export default function YouthGroups() {
                     <SelectItem value="event">Event Related</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="is_public_post"
+                  checked={postFormData.is_public}
+                  onChange={(e) => setPostFormData({ ...postFormData, is_public: e.target.checked })}
+                  className="rounded"
+                />
+                <Label htmlFor="is_public_post">Make this post public (anyone can view)</Label>
               </div>
               <div className="flex justify-end gap-2">
                 <Button variant="outline" onClick={() => setShowCreatePostForm(false)}>
