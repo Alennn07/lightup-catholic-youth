@@ -67,11 +67,11 @@ export async function GET(request: NextRequest) {
       }, { status: 500 })
     }
 
-    // Optimized query: Get groups and member counts in a single query
+    // Optimized query: Get groups with minimal data first
     console.log('🔍 Fetching groups with optimized query...')
     let { data: groups, error: groupsError } = await supabase
       .from('youth_groups')
-      .select('*')
+      .select('id, name, description, parish, city, state, country, meeting_time, age_range, max_members, is_public, is_active, owner_id, created_at')
       .or(`is_public.eq.true,id.in.(select group_id from group_members where user_id.eq.${user.id} and status.eq.'active')`)
       .eq('is_active', true)
       .order('created_at', { ascending: false })
@@ -83,7 +83,7 @@ export async function GET(request: NextRequest) {
       console.log('🔍 Trying simple query...')
       const { data: simpleGroups, error: simpleError } = await supabase
         .from('youth_groups')
-        .select('*')
+        .select('id, name, description, parish, city, state, country, meeting_time, age_range, max_members, is_public, is_active, owner_id, created_at')
         .eq('is_active', true)
         .order('created_at', { ascending: false })
       
@@ -112,35 +112,31 @@ export async function GET(request: NextRequest) {
 
     console.log(`✅ Found ${groups.length} groups, processing...`)
 
-    // Get member counts and user membership in parallel for better performance
-    const [memberCounts, userMemberships] = await Promise.all([
-      // Get member counts for all groups at once
-      supabase
-        .from('group_members')
-        .select('group_id')
-        .eq('status', 'active'),
-      
-      // Get user's membership for all groups at once
-      supabase
-        .from('group_members')
-        .select('group_id, role, status')
-        .eq('user_id', user.id)
-        .eq('status', 'active')
-    ])
+    // Get member counts in a single optimized query
+    const { data: memberCounts, error: memberError } = await supabase
+      .from('group_members')
+      .select('group_id')
+      .eq('status', 'active')
+
+    // Get user's membership in a single query
+    const { data: userMemberships, error: membershipError } = await supabase
+      .from('group_members')
+      .select('group_id, role, status')
+      .eq('user_id', user.id)
+      .eq('status', 'active')
 
     // Create lookup maps for faster processing
     const memberCountMap = new Map()
-    if (memberCounts.data) {
-      // Count members per group manually
-      memberCounts.data.forEach((item: any) => {
+    if (memberCounts) {
+      memberCounts.forEach((item: any) => {
         const currentCount = memberCountMap.get(item.group_id) || 0
         memberCountMap.set(item.group_id, currentCount + 1)
       })
     }
 
     const membershipMap = new Map()
-    if (userMemberships.data) {
-      userMemberships.data.forEach((item: any) => {
+    if (userMemberships) {
+      userMemberships.forEach((item: any) => {
         membershipMap.set(item.group_id, { role: item.role, status: item.status })
       })
     }

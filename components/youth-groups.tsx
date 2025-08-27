@@ -110,50 +110,67 @@ export default function YouthGroups() {
 
   const fetchGroups = async () => {
     try {
-      console.log('🚀 fetchGroups started')
-      
+      setLoading(true)
       const token = await getAccessToken()
-      console.log('🔑 Token received:', token ? 'Yes' : 'No')
-      
       if (!token) {
-        console.log('❌ No token available')
-        toast({ title: "Authentication Error", description: "Please sign in to view groups.", variant: "destructive" })
+        console.log('❌ No access token available')
+        setLoading(false)
         return
       }
 
-      console.log('📡 Making API request to /api/youth-groups')
+      console.log('🚀 fetchGroups started')
       const response = await fetch('/api/youth-groups', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       })
 
-      console.log('📡 Response status:', response.status)
-      console.log('📡 Response ok:', response.ok)
-
       if (!response.ok) {
-        const errorText = await response.text()
-        console.error('❌ API Error Response:', errorText)
-        
-        let errorData
-        try {
-          errorData = JSON.parse(errorText)
-        } catch (parseError) {
-          console.error('❌ Could not parse error response:', parseError)
-          errorData = { error: 'Unknown error', details: errorText }
-        }
-        
-        throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`)
+        throw new Error('Failed to fetch groups')
       }
 
       const data = await response.json()
-      console.log('✅ API Response data:', data)
       setGroups(data.groups || [])
     } catch (error: any) {
       console.error('❌ Error fetching groups:', error)
-      toast({ title: "Error", description: error.message || "Failed to load youth groups.", variant: "destructive" })
+      toast({ title: "Error", description: error.message || "Failed to fetch groups", variant: "destructive" })
     } finally {
       setLoading(false)
+    }
+  }
+
+  const fetchGroupDetails = async (groupId: string) => {
+    try {
+      const token = await getAccessToken()
+      if (!token) {
+        console.log('❌ No access token available')
+        return
+      }
+
+      const response = await fetch(`/api/youth-groups/${groupId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch group details')
+      }
+
+      const data = await response.json()
+      
+      // Update the selected group with fresh data
+      setSelectedGroup(data.group)
+      
+      // Update the groups list with fresh data
+      setGroups(prevGroups => 
+        prevGroups.map(group => 
+          group.id === groupId ? data.group : group
+        )
+      )
+    } catch (error: any) {
+      console.error('❌ Error fetching group details:', error)
+      toast({ title: "Error", description: error.message || "Failed to fetch group details", variant: "destructive" })
     }
   }
 
@@ -454,10 +471,7 @@ export default function YouthGroups() {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-          ...eventFormData,
-          group_id: selectedGroup?.id
-        })
+        body: JSON.stringify(eventFormData)
       })
 
       if (!response.ok) {
@@ -467,11 +481,20 @@ export default function YouthGroups() {
 
       const data = await response.json()
       toast({ title: "Success", description: data.message })
-      setEventFormData({ title: '', description: '', event_date: '', location: '', max_attendees: 50, is_public: false })
       setShowCreateEventForm(false)
+      setEventFormData({
+        title: '',
+        description: '',
+        event_date: '',
+        location: '',
+        max_attendees: 50,
+        is_public: false
+      })
       
-      // Refresh groups
-      fetchGroups()
+      // Auto-refresh the current group details
+      if (selectedGroup) {
+        fetchGroupDetails(selectedGroup.id)
+      }
     } catch (error: any) {
       console.error('Error creating event:', error)
       toast({ title: "Error", description: error.message || "Failed to create event.", variant: "destructive" })
@@ -492,10 +515,7 @@ export default function YouthGroups() {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-          ...postFormData,
-          group_id: selectedGroup?.id
-        })
+        body: JSON.stringify(postFormData)
       })
 
       if (!response.ok) {
@@ -505,11 +525,18 @@ export default function YouthGroups() {
 
       const data = await response.json()
       toast({ title: "Success", description: data.message })
-      setPostFormData({ title: '', content: '', post_type: 'general', is_public: false })
       setShowCreatePostForm(false)
+      setPostFormData({
+        title: '',
+        content: '',
+        post_type: 'general',
+        is_public: false
+      })
       
-      // Refresh groups
-      fetchGroups()
+      // Auto-refresh the current group details
+      if (selectedGroup) {
+        fetchGroupDetails(selectedGroup.id)
+      }
     } catch (error: any) {
       console.error('Error creating post:', error)
       toast({ title: "Error", description: error.message || "Failed to create post.", variant: "destructive" })
@@ -607,7 +634,11 @@ export default function YouthGroups() {
       const data = await response.json()
       toast({ title: "Success", description: data.message })
       setShowEditEventForm(false)
-      fetchGroups()
+      
+      // Auto-refresh the current group details
+      if (selectedGroup) {
+        fetchGroupDetails(selectedGroup.id)
+      }
     } catch (error: any) {
       console.error('Error updating event:', error)
       toast({ title: "Error", description: error.message || "Failed to update event.", variant: "destructive" })
