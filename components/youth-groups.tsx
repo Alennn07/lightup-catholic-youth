@@ -327,33 +327,56 @@ export default function YouthGroups() {
   }
 
   const handleKickMember = async (memberId: string) => {
+    if (!selectedGroup) return
+    
     try {
       const token = await getAccessToken()
       if (!token) {
-        toast({ title: "Authentication Error", description: "Please sign in to manage members.", variant: "destructive" })
+        toast({
+          title: "Authentication Error",
+          description: "Please log in again",
+          variant: "destructive",
+        })
         return
       }
 
-      const response = await fetch(`/api/youth-groups/${selectedGroup?.id}/members/${memberId}`, {
+      const response = await fetch(`/api/youth-groups/${selectedGroup.id}/members/${memberId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
         }
       })
 
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to kick member')
-      }
-
       const data = await response.json()
-      toast({ title: "Success", description: data.message })
-      
-      // Refresh groups
-      fetchGroups()
-    } catch (error: any) {
-      console.error('Error kicking member:', error)
-      toast({ title: "Error", description: error.message || "Failed to kick member.", variant: "destructive" })
+
+      if (response.ok) {
+        toast({
+          title: "Success!",
+          description: "Member removed successfully",
+        })
+        
+        // IMMEDIATE REFRESH: Refresh the group details right away
+        console.log('🔄 Refreshing group details after removing member...')
+        await fetchGroupDetails(selectedGroup.id)
+        
+        // Also refresh the main groups list
+        await fetchGroups()
+        
+        console.log('✅ Group refreshed successfully')
+      } else {
+        toast({
+          title: "Error",
+          description: data.error || "Failed to remove member",
+          variant: "destructive",
+        })
+      }
+    } catch (error) {
+      console.error('Error removing member:', error)
+      toast({
+        title: "Error",
+        description: "Failed to remove member",
+        variant: "destructive",
+      })
     }
   }
 

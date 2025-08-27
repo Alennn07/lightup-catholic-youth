@@ -50,14 +50,14 @@ export async function POST(
       return NextResponse.json({ error: 'Only group owners can add members' }, { status: 403 })
     }
 
-    // ULTRA-FAST USER LOOKUP: Direct email search instead of listing all users
-    const { data: targetUser, error: userError } = await supabase
-      .from('auth.users')
-      .select('id')
-      .eq('email', email)
-      .single()
+    // ULTRA-FAST USER LOOKUP: Use proper Supabase auth method
+    const { data: targetUser, error: userError } = await supabase.auth.admin.listUsers()
+    if (userError) {
+      return NextResponse.json({ error: 'Failed to find user' }, { status: 500 })
+    }
 
-    if (userError || !targetUser) {
+    const userToAdd = targetUser.users.find(u => u.email === email)
+    if (!userToAdd) {
       return NextResponse.json({ error: 'User with this email not found' }, { status: 404 })
     }
 
@@ -66,7 +66,7 @@ export async function POST(
       .from('group_members')
       .select('id')
       .eq('group_id', groupId)
-      .eq('user_id', targetUser.id)
+      .eq('user_id', userToAdd.id)
       .maybeSingle()
 
     if (existingMember) {
@@ -78,7 +78,7 @@ export async function POST(
       .from('group_members')
       .insert({
         group_id: groupId,
-        user_id: targetUser.id,
+        user_id: userToAdd.id,
         role: 'member',
         status: 'active',
         joined_at: new Date().toISOString()
