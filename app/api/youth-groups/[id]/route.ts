@@ -107,10 +107,36 @@ export async function GET(
     const posts = postsResult.data || []
     const memberCount = memberCountResult.count || 0
 
-    // Check if user is a member
+    // Check if user is a member (owners are always members)
     const userMembership = members.find((member: any) => member.user_id === user.id)
-    const isMember = !!userMembership
-    const userRole = userMembership?.role || null
+    const isMember = !!userMembership || group.owner_id === user.id
+    const userRole = userMembership?.role || (group.owner_id === user.id ? 'owner' : null)
+    
+    // If owner is not in members list, add them automatically
+    if (group.owner_id === user.id && !userMembership) {
+      console.log('🔧 Adding owner to members list automatically')
+      const { error: addOwnerError } = await supabase
+        .from('group_members')
+        .insert([{
+          group_id: params.id,
+          user_id: user.id,
+          role: 'owner',
+          status: 'active',
+          joined_at: new Date().toISOString()
+        }])
+      
+      if (!addOwnerError) {
+        // Add owner to the members list
+        members.push({
+          id: `temp-${Date.now()}`,
+          group_id: params.id,
+          user_id: user.id,
+          role: 'owner',
+          status: 'active',
+          joined_at: new Date().toISOString()
+        })
+      }
+    }
 
     // Build the complete group object
     const completeGroup = {
@@ -118,7 +144,7 @@ export async function GET(
       members,
       events,
       posts,
-      member_count: memberCount,
+      member_count: members.length, // Use actual members array length
       is_member: isMember,
       user_role: userRole,
       is_owner: group.owner_id === user.id
