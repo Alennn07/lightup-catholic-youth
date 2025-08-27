@@ -7,6 +7,7 @@ export async function POST(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  const startTime = Date.now()
   try {
     const { id: groupId } = params
     const { email } = await request.json()
@@ -28,13 +29,13 @@ export async function POST(
       { auth: { autoRefreshToken: false, persistSession: false } }
     )
 
-    // Verify the current user
+    // FAST AUTH: Quick user verification
     const { data: { user: currentUser }, error: authError } = await supabase.auth.getUser(token)
     if (authError || !currentUser) {
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
     }
 
-    // Check if the current user is the group owner
+    // FAST OWNER CHECK: Quick group ownership verification
     const { data: group, error: groupError } = await supabase
       .from('youth_groups')
       .select('owner_id')
@@ -49,40 +50,40 @@ export async function POST(
       return NextResponse.json({ error: 'Only group owners can add members' }, { status: 403 })
     }
 
-    // Find the user by email
-    const { data: targetUser, error: userError } = await supabase.auth.admin.listUsers()
-    if (userError) {
-      return NextResponse.json({ error: 'Failed to find user' }, { status: 500 })
-    }
+    // ULTRA-FAST USER LOOKUP: Direct email search instead of listing all users
+    const { data: targetUser, error: userError } = await supabase
+      .from('auth.users')
+      .select('id')
+      .eq('email', email)
+      .single()
 
-    const userToAdd = targetUser.users.find(u => u.email === email)
-    if (!userToAdd) {
+    if (userError || !targetUser) {
       return NextResponse.json({ error: 'User with this email not found' }, { status: 404 })
     }
 
-    // Check if user is already a member
-    const { data: existingMember, error: checkError } = await supabase
+    // FAST DUPLICATE CHECK: Quick membership check
+    const { data: existingMember } = await supabase
       .from('group_members')
       .select('id')
       .eq('group_id', groupId)
-      .eq('user_id', userToAdd.id)
-      .single()
+      .eq('user_id', targetUser.id)
+      .maybeSingle()
 
     if (existingMember) {
       return NextResponse.json({ error: 'User is already a member of this group' }, { status: 400 })
     }
 
-    // Add the user as a member
+    // FAST INSERT: Add member with minimal data
     const { data: newMember, error: insertError } = await supabase
       .from('group_members')
       .insert({
         group_id: groupId,
-        user_id: userToAdd.id,
+        user_id: targetUser.id,
         role: 'member',
         status: 'active',
         joined_at: new Date().toISOString()
       })
-      .select()
+      .select('id, user_id, role, status, joined_at')
       .single()
 
     if (insertError) {
@@ -90,10 +91,14 @@ export async function POST(
       return NextResponse.json({ error: 'Failed to add member' }, { status: 500 })
     }
 
+    const totalTime = Date.now() - startTime
+    console.log(`✅ Member added in ${totalTime}ms`)
+    
     return NextResponse.json({ 
       success: true, 
       message: 'Member added successfully',
-      member: newMember
+      member: newMember,
+      loadTime: `${totalTime}ms`
     })
 
   } catch (error: any) {

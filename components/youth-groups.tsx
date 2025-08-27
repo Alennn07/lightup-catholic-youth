@@ -101,6 +101,8 @@ export default function YouthGroups() {
     is_public: true
   })
 
+  const [isAddingMember, setIsAddingMember] = useState(false)
+
   useEffect(() => {
     if (user) {
       fetchGroups()
@@ -431,6 +433,7 @@ export default function YouthGroups() {
     if (!newMemberEmail || !selectedGroup) return
     
     try {
+      setIsAddingMember(true)
       const token = await getAccessToken()
       if (!token) {
         toast({
@@ -459,10 +462,15 @@ export default function YouthGroups() {
         })
         setNewMemberEmail('')
         setShowAddMemberForm(false)
-        // Refresh the group details to show the new member
-        if (selectedGroup) {
-          await fetchGroupDetails(selectedGroup.id)
-        }
+        
+        // IMMEDIATE REFRESH: Refresh the group details right away
+        console.log('🔄 Refreshing group details after adding member...')
+        await fetchGroupDetails(selectedGroup.id)
+        
+        // Also refresh the main groups list
+        await fetchGroups()
+        
+        console.log('✅ Group refreshed successfully')
       } else {
         toast({
           title: "Error",
@@ -477,6 +485,8 @@ export default function YouthGroups() {
         description: "Failed to add member",
         variant: "destructive",
       })
+    } finally {
+      setIsAddingMember(false)
     }
   }
 
@@ -1406,8 +1416,12 @@ export default function YouthGroups() {
                 <Button variant="outline" onClick={() => setShowAddMemberForm(false)}>
                   Cancel
                 </Button>
-                <Button onClick={() => handleAddMember()} disabled={!newMemberEmail}>
-                  Add Member
+                <Button onClick={() => handleAddMember()} disabled={!newMemberEmail || isAddingMember}>
+                  {isAddingMember ? (
+                    <div className="animate-spin h-4 w-4 border-b-2 border-primary"></div>
+                  ) : (
+                    "Add Member"
+                  )}
                 </Button>
               </div>
             </div>
