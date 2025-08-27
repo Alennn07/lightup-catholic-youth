@@ -87,27 +87,48 @@ export default function YouthGroups() {
 
   const fetchGroups = async () => {
     try {
+      console.log('🚀 fetchGroups started')
+      
       const token = await getAccessToken()
+      console.log('🔑 Token received:', token ? 'Yes' : 'No')
+      
       if (!token) {
+        console.log('❌ No token available')
         toast({ title: "Authentication Error", description: "Please sign in to view groups.", variant: "destructive" })
         return
       }
 
+      console.log('📡 Making API request to /api/youth-groups')
       const response = await fetch('/api/youth-groups', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       })
 
+      console.log('📡 Response status:', response.status)
+      console.log('📡 Response ok:', response.ok)
+
       if (!response.ok) {
-        throw new Error('Failed to fetch groups')
+        const errorText = await response.text()
+        console.error('❌ API Error Response:', errorText)
+        
+        let errorData
+        try {
+          errorData = JSON.parse(errorText)
+        } catch (parseError) {
+          console.error('❌ Could not parse error response:', parseError)
+          errorData = { error: 'Unknown error', details: errorText }
+        }
+        
+        throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`)
       }
 
       const data = await response.json()
+      console.log('✅ API Response data:', data)
       setGroups(data.groups || [])
-    } catch (error) {
-      console.error('Error fetching groups:', error)
-      toast({ title: "Error", description: "Failed to load youth groups.", variant: "destructive" })
+    } catch (error: any) {
+      console.error('❌ Error fetching groups:', error)
+      toast({ title: "Error", description: error.message || "Failed to load youth groups.", variant: "destructive" })
     } finally {
       setLoading(false)
     }

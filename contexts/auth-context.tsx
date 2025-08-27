@@ -591,8 +591,46 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const getAccessToken = async (): Promise<string | null> => {
     try {
-      const { data: { session } } = await supabase.auth.getSession()
-      return session?.access_token || null
+      console.log('🔑 Getting access token...')
+      
+      // First try to get the current session
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+      
+      if (sessionError) {
+        console.error('❌ Session error:', sessionError)
+        return null
+      }
+      
+      if (session?.access_token) {
+        console.log('✅ Access token found in session')
+        return session.access_token
+      }
+      
+      // If no session, try to get the current user
+      const { data: { user }, error: userError } = await supabase.auth.getUser()
+      
+      if (userError) {
+        console.error('❌ User error:', userError)
+        return null
+      }
+      
+      if (user) {
+        // Try to refresh the session
+        const { data: { session: refreshedSession }, error: refreshError } = await supabase.auth.refreshSession()
+        
+        if (refreshError) {
+          console.error('❌ Refresh error:', refreshError)
+          return null
+        }
+        
+        if (refreshedSession?.access_token) {
+          console.log('✅ Access token refreshed')
+          return refreshedSession.access_token
+        }
+      }
+      
+      console.log('❌ No access token available')
+      return null
     } catch (error) {
       console.error('❌ Error getting access token:', error)
       return null
