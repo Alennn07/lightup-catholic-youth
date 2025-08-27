@@ -12,7 +12,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Search, Users, MapPin, Calendar, Plus, Settings, MessageSquare, Heart } from 'lucide-react'
+import { Search, Users, MapPin, Calendar, Plus, Settings, MessageSquare, Heart, X, Edit, Trash2 } from 'lucide-react'
 
 interface YouthGroup {
   id: string
@@ -43,6 +43,7 @@ interface YouthGroup {
   user_role?: string
   user_status?: string
   is_member?: boolean
+  is_owner?: boolean
   members?: any[]
   events?: any[]
   posts?: any[]
@@ -56,8 +57,28 @@ export default function YouthGroups() {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [showCreateForm, setShowCreateForm] = useState(false)
-  const [selectedGroup, setSelectedGroup] = useState<YouthGroup | null>(null)
   const [showGroupDetails, setShowGroupDetails] = useState(false)
+  const [selectedGroup, setSelectedGroup] = useState<YouthGroup | null>(null)
+  const [showAddMemberForm, setShowAddMemberForm] = useState(false)
+  const [showCreateEventForm, setShowCreateEventForm] = useState(false)
+  const [showCreatePostForm, setShowCreatePostForm] = useState(false)
+  const [showEditEventForm, setShowEditEventForm] = useState(false)
+  const [showEditPostForm, setShowEditPostForm] = useState(false)
+  const [editingEvent, setEditingEvent] = useState<any>(null)
+  const [editingPost, setEditingPost] = useState<any>(null)
+  const [newMemberEmail, setNewMemberEmail] = useState('')
+  const [eventFormData, setEventFormData] = useState({
+    title: '',
+    description: '',
+    event_date: '',
+    location: '',
+    max_attendees: 50
+  })
+  const [postFormData, setPostFormData] = useState({
+    title: '',
+    content: '',
+    post_type: 'general'
+  })
 
   // Form state for creating groups
   const [formData, setFormData] = useState({
@@ -276,6 +297,220 @@ export default function YouthGroups() {
     } catch (error) {
       console.error('Error fetching group details:', error)
       toast({ title: "Error", description: "Failed to load group details.", variant: "destructive" })
+    }
+  }
+
+  const handleKickMember = async (memberId: string) => {
+    try {
+      const token = await getAccessToken()
+      if (!token) {
+        toast({ title: "Authentication Error", description: "Please sign in to manage members.", variant: "destructive" })
+        return
+      }
+
+      const response = await fetch(`/api/youth-groups/${selectedGroup?.id}/members/${memberId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to kick member')
+      }
+
+      const data = await response.json()
+      toast({ title: "Success", description: data.message })
+      
+      // Refresh groups
+      fetchGroups()
+    } catch (error: any) {
+      console.error('Error kicking member:', error)
+      toast({ title: "Error", description: error.message || "Failed to kick member.", variant: "destructive" })
+    }
+  }
+
+  const handleEditEvent = (event: any) => {
+    setEditingEvent(event)
+    setShowEditEventForm(true)
+  }
+
+  const handleDeleteEvent = async (eventId: string) => {
+    try {
+      const token = await getAccessToken()
+      if (!token) {
+        toast({ title: "Authentication Error", description: "Please sign in to manage events.", variant: "destructive" })
+        return
+      }
+
+      const response = await fetch(`/api/youth-groups/${selectedGroup?.id}/events/${eventId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to delete event')
+      }
+
+      const data = await response.json()
+      toast({ title: "Success", description: data.message })
+      
+      // Refresh groups
+      fetchGroups()
+    } catch (error: any) {
+      console.error('Error deleting event:', error)
+      toast({ title: "Error", description: error.message || "Failed to delete event.", variant: "destructive" })
+    }
+  }
+
+  const handleEditPost = (post: any) => {
+    setEditingPost(post)
+    setShowEditPostForm(true)
+  }
+
+  const handleDeletePost = async (postId: string) => {
+    try {
+      const token = await getAccessToken()
+      if (!token) {
+        toast({ title: "Authentication Error", description: "Please sign in to manage posts.", variant: "destructive" })
+        return
+      }
+
+      const response = await fetch(`/api/youth-groups/${selectedGroup?.id}/posts/${postId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to delete post')
+      }
+
+      const data = await response.json()
+      toast({ title: "Success", description: data.message })
+      
+      // Refresh groups
+      fetchGroups()
+    } catch (error: any) {
+      console.error('Error deleting post:', error)
+      toast({ title: "Error", description: error.message || "Failed to delete post.", variant: "destructive" })
+    }
+  }
+
+  const handleAddMember = async () => {
+    try {
+      const token = await getAccessToken()
+      if (!token) {
+        toast({ title: "Authentication Error", description: "Please sign in to add members.", variant: "destructive" })
+        return
+      }
+
+      const response = await fetch(`/api/youth-groups/${selectedGroup?.id}/members`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email: newMemberEmail })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to add member')
+      }
+
+      const data = await response.json()
+      toast({ title: "Success", description: data.message })
+      setNewMemberEmail('')
+      setShowAddMemberForm(false)
+      
+      // Refresh groups
+      fetchGroups()
+    } catch (error: any) {
+      console.error('Error adding member:', error)
+      toast({ title: "Error", description: error.message || "Failed to add member.", variant: "destructive" })
+    }
+  }
+
+  const handleCreateEvent = async () => {
+    try {
+      const token = await getAccessToken()
+      if (!token) {
+        toast({ title: "Authentication Error", description: "Please sign in to create events.", variant: "destructive" })
+        return
+      }
+
+      const response = await fetch(`/api/youth-groups/${selectedGroup?.id}/events`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          ...eventFormData,
+          group_id: selectedGroup?.id
+        })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to create event')
+      }
+
+      const data = await response.json()
+      toast({ title: "Success", description: data.message })
+      setEventFormData({ title: '', description: '', event_date: '', location: '', max_attendees: 50 })
+      setShowCreateEventForm(false)
+      
+      // Refresh groups
+      fetchGroups()
+    } catch (error: any) {
+      console.error('Error creating event:', error)
+      toast({ title: "Error", description: error.message || "Failed to create event.", variant: "destructive" })
+    }
+  }
+
+  const handleCreatePost = async () => {
+    try {
+      const token = await getAccessToken()
+      if (!token) {
+        toast({ title: "Authentication Error", description: "Please sign in to create posts.", variant: "destructive" })
+        return
+      }
+
+      const response = await fetch(`/api/youth-groups/${selectedGroup?.id}/posts`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          ...postFormData,
+          group_id: selectedGroup?.id
+        })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to create post')
+      }
+
+      const data = await response.json()
+      toast({ title: "Success", description: data.message })
+      setPostFormData({ title: '', content: '', post_type: 'general' })
+      setShowCreatePostForm(false)
+      
+      // Refresh groups
+      fetchGroups()
+    } catch (error: any) {
+      console.error('Error creating post:', error)
+      toast({ title: "Error", description: error.message || "Failed to create post.", variant: "destructive" })
     }
   }
 
@@ -698,6 +933,15 @@ export default function YouthGroups() {
               </TabsContent>
               
               <TabsContent value="members" className="space-y-4">
+                <div className="flex justify-between items-center mb-4">
+                  <h4 className="font-semibold">Members ({selectedGroup.members?.length || 0})</h4>
+                  {selectedGroup.is_owner && (
+                    <Button size="sm" onClick={() => setShowAddMemberForm(true)}>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Member
+                    </Button>
+                  )}
+                </div>
                 <div className="space-y-3">
                   {selectedGroup.members && selectedGroup.members.length > 0 ? (
                     selectedGroup.members.map((member: any) => (
@@ -715,9 +959,21 @@ export default function YouthGroups() {
                             </p>
                           </div>
                         </div>
-                        <Badge variant={member.role === 'owner' ? 'default' : 'secondary'}>
-                          {member.role}
-                        </Badge>
+                        <div className="flex items-center gap-2">
+                          <Badge variant={member.role === 'owner' ? 'default' : 'secondary'}>
+                            {member.role}
+                          </Badge>
+                          {selectedGroup.is_owner && member.role !== 'owner' && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleKickMember(member.id)}
+                              className="text-red-600 hover:text-red-700"
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
                       </div>
                     ))
                   ) : (
@@ -727,12 +983,21 @@ export default function YouthGroups() {
               </TabsContent>
               
               <TabsContent value="events" className="space-y-4">
+                <div className="flex justify-between items-center mb-4">
+                  <h4 className="font-semibold">Events ({selectedGroup.events?.length || 0})</h4>
+                  {selectedGroup.is_member && (
+                    <Button size="sm" onClick={() => setShowCreateEventForm(true)}>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Create Event
+                    </Button>
+                  )}
+                </div>
                 <div className="space-y-3">
                   {selectedGroup.events && selectedGroup.events.length > 0 ? (
                     selectedGroup.events.map((event: any) => (
                       <div key={event.id} className="p-3 border rounded-lg">
                         <div className="flex items-start justify-between">
-                          <div>
+                          <div className="flex-1">
                             <h5 className="font-medium">{event.title}</h5>
                             <p className="text-sm text-muted-foreground mt-1">{event.description}</p>
                             <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
@@ -748,6 +1013,25 @@ export default function YouthGroups() {
                               )}
                             </div>
                           </div>
+                          {(selectedGroup.is_owner || event.created_by === user?.id) && (
+                            <div className="flex gap-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleEditEvent(event)}
+                              >
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleDeleteEvent(event.id)}
+                                className="text-red-600 hover:text-red-700"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          )}
                         </div>
                       </div>
                     ))
@@ -758,6 +1042,15 @@ export default function YouthGroups() {
               </TabsContent>
               
               <TabsContent value="posts" className="space-y-4">
+                <div className="flex justify-between items-center mb-4">
+                  <h4 className="font-semibold">Posts ({selectedGroup.posts?.length || 0})</h4>
+                  {selectedGroup.is_member && (
+                    <Button size="sm" onClick={() => setShowCreatePostForm(true)}>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Create Post
+                    </Button>
+                  )}
+                </div>
                 <div className="space-y-3">
                   {selectedGroup.posts && selectedGroup.posts.length > 0 ? (
                     selectedGroup.posts.map((post: any) => (
@@ -777,9 +1070,30 @@ export default function YouthGroups() {
                               <span>by {post.user?.user_metadata?.full_name || post.user?.email || 'Unknown User'}</span>
                             </div>
                           </div>
-                          {post.is_pinned && (
-                            <Badge variant="outline" className="text-xs">Pinned</Badge>
-                          )}
+                          <div className="flex items-center gap-2">
+                            {post.is_pinned && (
+                              <Badge variant="outline" className="text-xs">Pinned</Badge>
+                            )}
+                            {(selectedGroup.is_owner || post.user_id === user?.id) && (
+                              <div className="flex gap-1">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleEditPost(post)}
+                                >
+                                  <Edit className="h-3 w-3" />
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleDeletePost(post.id)}
+                                  className="text-red-600 hover:text-red-700"
+                                >
+                                  <Trash2 className="h-3 w-3" />
+                                </Button>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
                     ))
@@ -789,6 +1103,153 @@ export default function YouthGroups() {
                 </div>
               </TabsContent>
             </Tabs>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Add Member Form */}
+      {showAddMemberForm && (
+        <Dialog open={showAddMemberForm} onOpenChange={setShowAddMemberForm}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add Member</DialogTitle>
+              <DialogDescription>Invite someone to join your group by email.</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="member_email">Email Address</Label>
+                <Input
+                  id="member_email"
+                  type="email"
+                  value={newMemberEmail}
+                  onChange={(e) => setNewMemberEmail(e.target.value)}
+                  placeholder="Enter email address"
+                />
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button variant="outline" onClick={() => setShowAddMemberForm(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={() => handleAddMember()} disabled={!newMemberEmail}>
+                  Add Member
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Create Event Form */}
+      {showCreateEventForm && (
+        <Dialog open={showCreateEventForm} onOpenChange={setShowCreateEventForm}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Create Event</DialogTitle>
+              <DialogDescription>Add a new event to your group.</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="event_title">Event Title</Label>
+                <Input
+                  id="event_title"
+                  value={eventFormData.title}
+                  onChange={(e) => setEventFormData({ ...eventFormData, title: e.target.value })}
+                  placeholder="Enter event title"
+                />
+              </div>
+              <div>
+                <Label htmlFor="event_description">Description</Label>
+                <Textarea
+                  id="event_description"
+                  value={eventFormData.description}
+                  onChange={(e) => setEventFormData({ ...eventFormData, description: e.target.value })}
+                  placeholder="Enter event description"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="event_date">Event Date</Label>
+                  <Input
+                    id="event_date"
+                    type="datetime-local"
+                    value={eventFormData.event_date}
+                    onChange={(e) => setEventFormData({ ...eventFormData, event_date: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="event_location">Location</Label>
+                  <Input
+                    id="event_location"
+                    value={eventFormData.location}
+                    onChange={(e) => setEventFormData({ ...eventFormData, location: e.target.value })}
+                    placeholder="Event location"
+                  />
+                </div>
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button variant="outline" onClick={() => setShowCreateEventForm(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={() => handleCreateEvent()} disabled={!eventFormData.title || !eventFormData.description}>
+                  Create Event
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Create Post Form */}
+      {showCreatePostForm && (
+        <Dialog open={showCreatePostForm} onOpenChange={setShowCreatePostForm}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Create Post</DialogTitle>
+              <DialogDescription>Share something with your group.</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="post_title">Title (Optional)</Label>
+                <Input
+                  id="post_title"
+                  value={postFormData.title}
+                  onChange={(e) => setPostFormData({ ...postFormData, title: e.target.value })}
+                  placeholder="Enter post title"
+                />
+              </div>
+              <div>
+                <Label htmlFor="post_content">Content</Label>
+                <Textarea
+                  id="post_content"
+                  value={postFormData.content}
+                  onChange={(e) => setPostFormData({ ...postFormData, content: e.target.value })}
+                  placeholder="What would you like to share?"
+                  rows={4}
+                />
+              </div>
+              <div>
+                <Label htmlFor="post_type">Post Type</Label>
+                <Select value={postFormData.post_type} onValueChange={(value) => setPostFormData({ ...postFormData, post_type: value })}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="general">General</SelectItem>
+                    <SelectItem value="announcement">Announcement</SelectItem>
+                    <SelectItem value="prayer">Prayer Request</SelectItem>
+                    <SelectItem value="event">Event Related</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button variant="outline" onClick={() => setShowCreatePostForm(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={() => handleCreatePost()} disabled={!postFormData.content}>
+                  Create Post
+                </Button>
+              </div>
+            </div>
           </DialogContent>
         </Dialog>
       )}
