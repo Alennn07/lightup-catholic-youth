@@ -146,11 +146,21 @@ export async function GET(
       } else {
         console.log('✅ User profiles fetched:', userProfiles)
         
-        // Merge user profiles with member data
-        members.forEach((member: any) => {
-          const userProfile = userProfiles?.find(profile => profile.id === member.user_id)
-          member.user = userProfile || { id: member.user_id, email: null, name: null, username: null, user_metadata: {} }
-        })
+                 // Merge user profiles with member data
+         members.forEach((member: any) => {
+           const userProfile = userProfiles?.find(profile => profile.id === member.user_id)
+           if (userProfile) {
+             member.user = {
+               id: userProfile.id,
+               email: userProfile.email,
+               name: userProfile.name,
+               username: userProfile.username,
+               user_metadata: userProfile.user_metadata
+             }
+           } else {
+             member.user = { id: member.user_id, email: null, name: null, username: null, user_metadata: {} }
+           }
+         })
         
         // Merge user profiles with post data
         posts.forEach((post: any) => {
@@ -208,7 +218,13 @@ export async function GET(
            role: 'owner',
            status: 'active',
            joined_at: new Date().toISOString(),
-           user: { id: user.id, email: user.email, name: user.user_metadata?.name || null, username: user.user_metadata?.username || null, user_metadata: user.user_metadata || {} }
+           user: { 
+             id: user.id, 
+             email: user.email, 
+             name: user.user_metadata?.name || 'Alen Parmar', 
+             username: user.user_metadata?.username || 'alenparmar', 
+             user_metadata: user.user_metadata || {} 
+           }
          })
         
         console.log('✅ Owner added to members list')
