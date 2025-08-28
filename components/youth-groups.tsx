@@ -1374,6 +1374,10 @@ export default function YouthGroups() {
                             <p className="font-medium">
                               {member.user?.name || member.user?.username || member.user?.email || 'Unknown User'}
                             </p>
+                            {/* Debug info */}
+                            <p className="text-xs text-red-500">
+                              Debug: {JSON.stringify(member.user)}
+                            </p>
                             <p className="text-sm text-muted-foreground">
                               {member.role} • Joined {new Date(member.joined_at).toLocaleDateString()}
                   </p>
