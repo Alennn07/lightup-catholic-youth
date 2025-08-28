@@ -106,7 +106,7 @@ export function DailyBibleVerse() {
 
   // Handle marking verse as completed
   const handleMarkCompleted = async () => {
-    if (!user || !verseData) return
+    if (!user) return
     
     setIsUpdating(true)
     try {
@@ -123,33 +123,34 @@ export function DailyBibleVerse() {
         },
         body: JSON.stringify({
           action: 'mark_completed',
-          verse_id: verseData.verse.id
+          verse_id: verseData?.verse?.reference || 'Proverbs 17:17'
         })
       })
 
-      if (!response.ok) throw new Error('Failed to mark as completed')
-      
       const result = await response.json()
       
-      // Update local state
-      setVerseData(prev => prev ? {
-        ...prev,
-        user_progress: {
-          ...prev.user_progress,
-          is_completed: true,
-          read_at: new Date().toISOString()
-        },
-        stats: {
-          ...prev.stats,
-          reading_streak: prev.stats.reading_streak + 1,
-          total_completed: prev.stats.total_completed + 1
-        }
-      } : null)
-
-      toast({
-        title: "🎉 Verse Completed!",
-        description: `Great job! You've maintained your reading streak for ${verseData.stats.reading_streak + 1} days!`,
-      })
+      if (result.success) {
+        toast({
+          title: "Success! 🎉",
+          description: result.message,
+          duration: 3000,
+        })
+        // Update local state to show as completed
+        setVerseData(prev => prev ? {
+          ...prev,
+          user_progress: {
+            ...prev.user_progress,
+            is_completed: true,
+            read_at: new Date().toISOString()
+          }
+        } : null)
+      } else {
+        toast({
+          title: "Error",
+          description: result.error || "Failed to mark verse as completed",
+          variant: "destructive",
+        })
+      }
     } catch (error) {
       console.error('Error marking verse as completed:', error)
       toast({
@@ -164,7 +165,7 @@ export function DailyBibleVerse() {
 
   // Handle toggling favorite
   const handleToggleFavorite = async () => {
-    if (!user || !verseData) return
+    if (!user) return
     
     setIsUpdating(true)
     try {
@@ -181,28 +182,34 @@ export function DailyBibleVerse() {
         },
         body: JSON.stringify({
           action: 'toggle_favorite',
-          verse_id: verseData.verse.id,
-          verse_text: verseData.verse.text
+          verse_id: verseData?.verse?.reference || 'Proverbs 17:17',
+          verse_text: verseData?.verse?.text || 'A friend loves at all times, and a brother is born for a time of adversity.'
         })
       })
 
-      if (!response.ok) throw new Error('Failed to toggle favorite')
-      
       const result = await response.json()
       
-      // Update local state
-      setVerseData(prev => prev ? {
-        ...prev,
-        user_progress: {
-          ...prev.user_progress,
-          is_favorited: result.is_favorited
-        }
-      } : null)
-
-      toast({
-        title: result.is_favorited ? "❤️ Added to Favorites" : "💔 Removed from Favorites",
-        description: result.is_favorited ? "Verse saved to your favorites" : "Verse removed from your favorites",
-      })
+      if (result.success) {
+        toast({
+          title: "Success! ❤️",
+          description: result.message,
+          duration: 3000,
+        })
+        // Toggle local state
+        setVerseData(prev => prev ? {
+          ...prev,
+          user_progress: {
+            ...prev.user_progress,
+            is_favorited: !prev.user_progress.is_favorited
+          }
+        } : null)
+      } else {
+        toast({
+          title: "Error",
+          description: result.error || "Failed to update favorite status",
+          variant: "destructive",
+        })
+      }
     } catch (error) {
       console.error('Error toggling favorite:', error)
       toast({
