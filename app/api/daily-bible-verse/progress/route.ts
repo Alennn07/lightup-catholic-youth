@@ -190,6 +190,22 @@ export async function GET(request: NextRequest) {
     let totalCompleted = 0
     
     try {
+      // First get total completed count
+      const { count: completedCount, error: countError } = await supabase
+        .from('user_verse_progress')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .eq('is_completed', true)
+
+      if (countError) {
+        console.error('❌ Error counting completed verses:', countError)
+        totalCompleted = 0
+      } else {
+        totalCompleted = completedCount || 0
+        console.log('✅ Total completed count:', totalCompleted)
+      }
+
+      // Then get reading history
       const { data: history, error: historyError } = await supabase
         .from('user_verse_progress')
         .select('*')
@@ -198,12 +214,17 @@ export async function GET(request: NextRequest) {
         .order('verse_date', { ascending: false })
         .limit(30)
 
-      if (!historyError) {
+      if (historyError) {
+        console.error('❌ Error fetching reading history:', historyError)
+        readingHistory = []
+      } else {
         readingHistory = history || []
-        totalCompleted = history?.length || 0
+        console.log('✅ Reading history count:', readingHistory.length)
       }
     } catch (error) {
-      console.log('⚠️ Could not fetch reading history:', error)
+      console.error('❌ Exception in data fetching:', error)
+      totalCompleted = 0
+      readingHistory = []
     }
 
     // For now, return data from real table (no favorites yet)

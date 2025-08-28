@@ -148,11 +148,16 @@ export async function GET(request: NextRequest) {
           .eq('user_id', user.id)
           .eq('is_completed', true)
         
-        if (!countError) {
+        if (countError) {
+          console.log('⚠️ Could not fetch total completed count:', countError)
+          totalCompleted = 0
+        } else {
           totalCompleted = completed || 0
+          console.log('✅ Total completed count from main API:', totalCompleted)
         }
       } catch (error) {
         console.log('⚠️ Progress counting not ready yet')
+        totalCompleted = 0
       }
 
       // Prepare the response using the existing table structure
