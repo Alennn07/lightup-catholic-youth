@@ -1370,7 +1370,7 @@ export default function YouthGroups() {
                           </div>
                           <div>
                             <p className="font-medium">
-                              {member.user?.user_metadata?.full_name || member.user?.email || 'Unknown User'}
+                              {member.user?.name || member.user?.username || member.user?.email || 'Unknown User'}
                             </p>
                             <p className="text-sm text-muted-foreground">
                               {member.role} • Joined {new Date(member.joined_at).toLocaleDateString()}
@@ -1562,7 +1562,7 @@ export default function YouthGroups() {
                                     {post.post_type}
                                   </span>
                                   <span>{new Date(post.created_at).toLocaleDateString()}</span>
-                                  <span>by {post.user?.user_metadata?.full_name || post.user?.email || 'Unknown User'}</span>
+                                  <span>by {post.user?.name || post.user?.username || post.user?.email || 'Unknown User'}</span>
                                 </div>
                               </div>
                             </div>
@@ -1593,7 +1593,7 @@ export default function YouthGroups() {
                                   {post.post_type}
                                 </span>
                                 <span>{new Date(post.created_at).toLocaleDateString()}</span>
-                                <span>by {post.user?.user_metadata?.full_name || post.user?.email || 'Unknown User'}</span>
+                                <span>by {post.user?.name || post.user?.username || post.user?.email || 'Unknown User'}</span>
                               </div>
                             </div>
                             <div className="flex items-center gap-2">

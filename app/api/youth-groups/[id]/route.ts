@@ -70,7 +70,7 @@ export async function GET(
           role, 
           status, 
           joined_at,
-          user:user_id(id, email, user_metadata)
+          user:user_id(id, email, name, username, user_metadata)
         `)
         .eq('group_id', params.id)
         .eq('status', 'active')
@@ -79,7 +79,18 @@ export async function GET(
       // Get group events (simplified, only upcoming)
       supabase
         .from('group_events')
-        .select('id, title, description, event_date, location, max_attendees, is_public, created_by, created_at')
+        .select(`
+          id, 
+          title, 
+          description, 
+          event_date, 
+          location, 
+          max_attendees, 
+          is_public, 
+          created_by, 
+          created_at,
+          user:created_by(id, email, name, username, user_metadata)
+        `)
         .eq('group_id', params.id)
         .gte('event_date', new Date().toISOString())
         .order('event_date', { ascending: true })
@@ -88,7 +99,16 @@ export async function GET(
       // Get group posts (simplified, only recent)
       supabase
         .from('group_posts')
-        .select('id, title, content, post_type, is_public, user_id, created_at')
+        .select(`
+          id, 
+          title, 
+          content, 
+          post_type, 
+          is_public, 
+          user_id, 
+          created_at,
+          user:user_id(id, email, name, username, user_metadata)
+        `)
         .eq('group_id', params.id)
         .order('created_at', { ascending: false })
         .limit(10),
@@ -145,7 +165,7 @@ export async function GET(
           role: 'owner',
           status: 'active',
           joined_at: new Date().toISOString(),
-          user: [{ id: user.id, email: user.email, user_metadata: {} }]
+          user: [{ id: user.id, email: user.email, name: user.user_metadata?.name || null, username: user.user_metadata?.username || null, user_metadata: user.user_metadata || {} }]
         })
         
         console.log('✅ Owner added to members list')
