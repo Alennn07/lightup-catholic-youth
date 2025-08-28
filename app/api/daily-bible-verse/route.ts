@@ -115,11 +115,16 @@ export async function GET(request: NextRequest) {
       
       console.log('🔍 Step 1: About to call progress API for fresh stats')
       try {
-        // Call the progress API to get fresh stats
-        const progressUrl = `${process.env.NEXT_PUBLIC_VERCEL_URL || 'http://localhost:3000'}/api/daily-bible-verse/progress`
+        // Call the progress API to get fresh stats using relative path
+        const progressUrl = '/api/daily-bible-verse/progress'
         console.log('🔍 Step 2: Calling progress API at:', progressUrl)
         
-        const progressResponse = await fetch(progressUrl, {
+        // Get the base URL from the request
+        const baseUrl = request.nextUrl.origin
+        const fullProgressUrl = `${baseUrl}${progressUrl}`
+        console.log('🔍 Step 2b: Full progress API URL:', fullProgressUrl)
+        
+        const progressResponse = await fetch(fullProgressUrl, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`
