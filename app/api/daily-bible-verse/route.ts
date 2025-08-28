@@ -109,45 +109,29 @@ export async function GET(request: NextRequest) {
         console.log('⚠️ Database connection test failed:', error)
       }
 
-      // Try to get user's progress for today
-      let userProgress = null
+      // Get fresh stats from progress API
+      let readingStreak = 0
       let totalCompleted = 0
-      let isFavorited = false
       
       try {
-        // Get today's completion status
-        const { data: todayProgress, error: progressError } = await supabase
-          .from('user_verse_progress')
-          .select('*')
-          .eq('user_id', user.id)
-          .eq('verse_date', today)
-          .single()
+        // Call the progress API to get fresh stats
+        const progressResponse = await fetch(`${process.env.NEXT_PUBLIC_VERCEL_URL || 'http://localhost:3000'}/api/daily-bible-verse/progress`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        })
         
-        if (!progressError) {
-          userProgress = todayProgress
-          console.log('✅ Today\'s progress found:', userProgress)
-        } else if (progressError.code !== 'PGRST116') {
-          console.log('⚠️ Error checking today\'s progress:', progressError)
-        }
-        
-        // Get total completed count
-        const { count: completed, error: countError } = await supabase
-          .from('user_verse_progress')
-          .select('*', { count: 'exact', head: true })
-          .eq('user_id', user.id)
-          .eq('is_completed', true)
-        
-        if (countError) {
-          console.log('⚠️ Error counting completed verses:', countError)
-          totalCompleted = 0
+        if (progressResponse.ok) {
+          const progressData = await progressResponse.json()
+          readingStreak = progressData.stats?.reading_streak || 0
+          totalCompleted = progressData.stats?.total_completed || 0
+          console.log('✅ Fresh stats from progress API:', { readingStreak, totalCompleted })
         } else {
-          totalCompleted = completed || 0
-          console.log('✅ Total completed count:', totalCompleted)
+          console.log('⚠️ Progress API call failed, using fallback')
         }
-        
       } catch (error) {
-        console.log('⚠️ Progress table not ready yet:', error)
-        totalCompleted = 0
+        console.log('⚠️ Could not fetch fresh stats:', error)
       }
 
       // Try to check if user has favorited this verse
@@ -164,22 +148,6 @@ export async function GET(request: NextRequest) {
         }
       } catch (error) {
         console.log('⚠️ Favorites table not ready yet')
-      }
-
-      // Try to get user's reading streak
-      let readingStreak = 0
-      try {
-        const { data: streakResult, error: streakError } = await supabase
-          .rpc('get_user_reading_streak', { user_uuid: user.id })
-        
-        if (!streakError) {
-          readingStreak = streakResult || 0
-          console.log('✅ Reading streak calculated:', readingStreak)
-        } else {
-          console.log('⚠️ Reading streak function error:', streakError)
-        }
-      } catch (error) {
-        console.log('⚠️ Reading streak function not ready yet')
       }
 
       // Prepare the response using the existing table structure
