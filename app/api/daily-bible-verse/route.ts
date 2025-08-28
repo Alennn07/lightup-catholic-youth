@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
     console.log('📅 Fetching verse for date:', today)
 
     // Get today's assigned verse
-    const { data: dailyAssignment, error: assignmentError } = await supabase
+    let { data: dailyAssignment, error: assignmentError } = await supabase
       .from('daily_verse_assignments')
       .select(`
         verse_id,
