@@ -92,10 +92,31 @@ export async function GET(request: NextRequest) {
         todayVerse = fallbackVerse
       }
 
+      // Test database connection and table access
+      console.log('🔍 Testing database connection...')
+      try {
+        const { data: testData, error: testError } = await supabase
+          .from('user_verse_progress')
+          .select('count')
+          .limit(1)
+        
+        if (testError) {
+          console.log('⚠️ Database table test failed:', testError)
+        } else {
+          console.log('✅ Database table accessible')
+        }
+      } catch (error) {
+        console.log('⚠️ Database connection test failed:', error)
+      }
+
       // Try to get user's progress for today
       let userProgress = null
+      let totalCompleted = 0
+      let isFavorited = false
+      
       try {
-        const { data: progress, error: progressError } = await supabase
+        // Get today's completion status
+        const { data: todayProgress, error: progressError } = await supabase
           .from('user_verse_progress')
           .select('*')
           .eq('user_id', user.id)
@@ -103,14 +124,33 @@ export async function GET(request: NextRequest) {
           .single()
         
         if (!progressError) {
-          userProgress = progress
+          userProgress = todayProgress
+          console.log('✅ Today\'s progress found:', userProgress)
+        } else if (progressError.code !== 'PGRST116') {
+          console.log('⚠️ Error checking today\'s progress:', progressError)
         }
+        
+        // Get total completed count
+        const { count: completed, error: countError } = await supabase
+          .from('user_verse_progress')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', user.id)
+          .eq('is_completed', true)
+        
+        if (countError) {
+          console.log('⚠️ Error counting completed verses:', countError)
+          totalCompleted = 0
+        } else {
+          totalCompleted = completed || 0
+          console.log('✅ Total completed count:', totalCompleted)
+        }
+        
       } catch (error) {
-        console.log('⚠️ Progress table not ready yet')
+        console.log('⚠️ Progress table not ready yet:', error)
+        totalCompleted = 0
       }
 
       // Try to check if user has favorited this verse
-      let isFavorited = false
       try {
         const { data: favorite, error: favoriteError } = await supabase
           .from('favorite_verses')
@@ -134,30 +174,12 @@ export async function GET(request: NextRequest) {
         
         if (!streakError) {
           readingStreak = streakResult || 0
+          console.log('✅ Reading streak calculated:', readingStreak)
+        } else {
+          console.log('⚠️ Reading streak function error:', streakError)
         }
       } catch (error) {
         console.log('⚠️ Reading streak function not ready yet')
-      }
-
-      // Try to get total completed count
-      let totalCompleted = 0
-      try {
-        const { count: completed, error: countError } = await supabase
-          .from('user_verse_progress')
-          .select('*', { count: 'exact', head: true })
-          .eq('user_id', user.id)
-          .eq('is_completed', true)
-        
-        if (countError) {
-          console.log('⚠️ Could not fetch total completed count:', countError)
-          totalCompleted = 0
-        } else {
-          totalCompleted = completed || 0
-          console.log('✅ Total completed count from main API:', totalCompleted)
-        }
-      } catch (error) {
-        console.log('⚠️ Progress counting not ready yet')
-        totalCompleted = 0
       }
 
       // Prepare the response using the existing table structure
