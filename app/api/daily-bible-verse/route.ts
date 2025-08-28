@@ -111,7 +111,6 @@ export async function GET(request: NextRequest) {
 
       // Get fresh stats from progress API
       let readingStreak = 0
-      let totalCompleted = 0
       
       console.log('🔍 Step 1: About to call progress API for fresh stats')
       try {
@@ -138,8 +137,7 @@ export async function GET(request: NextRequest) {
           console.log('🔍 Step 4: Progress API response data:', progressData)
           
           readingStreak = progressData.stats?.reading_streak || 0
-          totalCompleted = progressData.stats?.total_completed || 0
-          console.log('✅ Fresh stats from progress API:', { readingStreak, totalCompleted })
+          console.log('✅ Fresh streak from progress API:', readingStreak)
         } else {
           console.log('⚠️ Progress API call failed with status:', progressResponse.status)
           const errorText = await progressResponse.text()
@@ -185,13 +183,13 @@ export async function GET(request: NextRequest) {
         },
         stats: {
           reading_streak: readingStreak,
-          total_completed: totalCompleted,
+          total_completed: 0, // Removed total_completed
           today_date: today
         }
       }
 
       console.log('✅ Daily Bible verse data prepared successfully')
-      console.log('📊 User stats - Streak:', readingStreak, 'Total:', totalCompleted)
+      console.log('📊 User stats - Streak:', readingStreak, 'Total:', 0) // Removed total_completed
 
       return NextResponse.json(response)
 

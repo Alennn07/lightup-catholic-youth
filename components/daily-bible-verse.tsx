@@ -31,7 +31,6 @@ interface UserProgress {
 
 interface Stats {
   reading_streak: number
-  total_completed: number
   today_date: string
 }
 
@@ -145,7 +144,7 @@ export function DailyBibleVerse() {
           },
           stats: {
             ...prev.stats,
-            total_completed: (prev.stats.total_completed || 0) + 1
+            reading_streak: (prev.stats.reading_streak || 0) + 1
           }
         } : null)
         
@@ -397,7 +396,7 @@ export function DailyBibleVerse() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-center mb-2">
                 <Trophy className="h-6 w-6 text-yellow-500 mr-2" />
-                <span className="text-2xl font-bold text-gray-800">{verseData.stats.total_completed}</span>
+                <span className="text-2xl font-bold text-gray-800">1</span>
               </div>
               <p className="text-sm text-gray-600">Total Completed</p>
             </CardContent>

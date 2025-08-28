@@ -5,263 +5,119 @@ export const dynamic = 'force-dynamic'
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('🚀 POST /api/daily-bible-verse/progress - Starting request')
+    const { action, verseId } = await request.json()
     
+    // Get authorization header
     const authHeader = request.headers.get('authorization')
-    const token = authHeader?.replace('Bearer ', '')
-    
-    if (!token) {
-      console.log('❌ No authorization token provided')
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
-
+    
+    const token = authHeader.replace('Bearer ', '')
+    
+    // Create Supabase client with service role for admin operations
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!,
       { auth: { autoRefreshToken: false, persistSession: false } }
     )
-
-    let user: any
-    try {
-      const { data: { user: authUser }, error: authError } = await supabase.auth.getUser(token)
-      if (authError || !authUser) {
-        console.log('❌ Auth error:', authError)
-        return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
-      }
-      user = authUser
-      console.log('✅ User authenticated:', user.id)
-    } catch (authError: any) {
-      console.error('❌ Error verifying user:', authError)
-      return NextResponse.json({ error: 'Authentication failed' }, { status: 401 })
+    
+    // Verify the token and get user
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
     }
-
-    const body = await request.json()
-    const { action, verse_id, verse_text } = body
-
-    if (!action || !verse_id) {
-      return NextResponse.json({ error: 'Action and verse_id are required' }, { status: 400 })
-    }
-
+    
     const today = new Date().toISOString().split('T')[0]
-    console.log(`🎯 Action: ${action} for verse: ${verse_id} on ${today}`)
-
+    
     if (action === 'mark_completed') {
-      // Mark verse as completed for today using real table
-      console.log('✅ Marking verse as completed in database')
+      // Check if progress already exists for today
+      const { data: existingProgress, error: selectError } = await supabase
+        .from('user_verse_progress')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('verse_date', today)
+        .single()
       
-      try {
-        // First check if record exists
-        const { data: existing, error: checkError } = await supabase
+      if (existingProgress) {
+        // Update existing progress
+        const { error: updateError } = await supabase
           .from('user_verse_progress')
-          .select('*')
-          .eq('user_id', user.id)
-          .eq('verse_id', verse_id)
-          .eq('verse_date', today)
-          .single()
-
-        if (checkError && checkError.code !== 'PGRST116') {
-          console.error('❌ Error checking existing record:', checkError)
-          return NextResponse.json({ error: 'Failed to check existing progress' }, { status: 500 })
-        }
-
-        let progress
-        if (existing) {
-          // Update existing record
-          const { data: updated, error: updateError } = await supabase
-            .from('user_verse_progress')
-            .update({
-              is_completed: true,
-              read_at: new Date().toISOString()
-            })
-            .eq('id', existing.id)
-            .select()
-            .single()
-
-          if (updateError) {
-            console.error('❌ Error updating record:', updateError)
-            return NextResponse.json({ error: 'Failed to update progress' }, { status: 500 })
-          }
-          progress = updated
-        } else {
-          // Insert new record
-          const { data: inserted, error: insertError } = await supabase
-            .from('user_verse_progress')
-            .insert({
-              user_id: user.id,
-              verse_id: verse_id,
-              verse_date: today,
-              is_completed: true,
-              read_at: new Date().toISOString()
-            })
-            .select()
-            .single()
-
-          if (insertError) {
-            console.error('❌ Error inserting record:', insertError)
-            return NextResponse.json({ error: 'Failed to insert progress' }, { status: 500 })
-          }
-          progress = inserted
-        }
-
-        console.log('✅ Verse marked as completed successfully in database')
-        return NextResponse.json({ 
-          success: true, 
-          message: 'Verse marked as completed!',
-          progress: progress
-        })
-      } catch (error) {
-        console.error('❌ Error in mark_completed:', error)
-        return NextResponse.json({ error: 'Failed to mark verse as completed' }, { status: 500 })
+          .update({ 
+            is_completed: true, 
+            read_at: new Date().toISOString() 
+          })
+          .eq('id', existingProgress.id)
+        
+        if (updateError) throw updateError
+      } else {
+        // Insert new progress
+        const { error: insertError } = await supabase
+          .from('user_verse_progress')
+          .insert({
+            user_id: user.id,
+            verse_id: verseId,
+            verse_date: today,
+            is_completed: true,
+            read_at: new Date().toISOString()
+          })
+        
+        if (insertError) throw insertError
       }
-
-    } else if (action === 'toggle_favorite') {
-      // For now, just return success since favorites table doesn't exist yet
-      console.log('❤️ Favorite toggled (simulated - favorites table not ready)')
-      return NextResponse.json({ 
-        success: true, 
-        message: 'Favorite status updated!',
-        note: 'Favorites will be saved once favorites table is created'
-      })
-
-    } else {
-      return NextResponse.json({ error: 'Invalid action. Use "mark_completed" or "toggle_favorite"' }, { status: 400 })
+      
+      return NextResponse.json({ success: true, message: 'Verse marked as completed' })
     }
-
+    
+    return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
+    
   } catch (error: any) {
-    console.error('❌ Unexpected error in POST /api/daily-bible-verse/progress:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    console.error('Progress API error:', error)
+    return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
 
 export async function GET(request: NextRequest) {
   try {
-    console.log('🚀 GET /api/daily-bible-verse/progress - Starting request')
-    
+    // Get authorization header
     const authHeader = request.headers.get('authorization')
-    const token = authHeader?.replace('Bearer ', '')
-    
-    if (!token) {
-      console.log('❌ No authorization token provided')
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
-
+    
+    const token = authHeader.replace('Bearer ', '')
+    
+    // Create Supabase client with service role for admin operations
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!,
       { auth: { autoRefreshToken: false, persistSession: false } }
     )
-
-    let user: any
-    try {
-      const { data: { user: authUser }, error: authError } = await supabase.auth.getUser(token)
-      if (authError || !authUser) {
-        console.log('❌ Auth error:', authError)
-        return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
-      }
-      user = authUser
-      console.log('✅ User authenticated:', user.id)
-    } catch (authError: any) {
-      console.error('❌ Error verifying user:', authError)
-      return NextResponse.json({ error: 'Authentication failed' }, { status: 401 })
-    }
-
-    // Test if table exists and is accessible
-    let tableTest = null
-    try {
-      const { data: testData, error: testError } = await supabase
-        .from('user_verse_progress')
-        .select('count')
-        .limit(1)
-      
-      if (testError) {
-        console.error('❌ Table test failed:', testError)
-        tableTest = { error: testError.message }
-      } else {
-        console.log('✅ Table test successful')
-        tableTest = { success: true }
-      }
-    } catch (error) {
-      console.error('❌ Table test exception:', error)
-      tableTest = { error: 'Table not accessible' }
-    }
-
-    // Get user's reading history from real table
-    let readingHistory = []
-    let totalCompleted = 0
-    let readingStreak = 0
     
-    try {
-      // First get total completed count
-      const { count: completedCount, error: countError } = await supabase
-        .from('user_verse_progress')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', user.id)
-        .eq('is_completed', true)
-
-      if (countError) {
-        console.error('❌ Error counting completed verses:', countError)
-        totalCompleted = 0
-      } else {
-        totalCompleted = completedCount || 0
-        console.log('✅ Total completed count:', totalCompleted)
-      }
-
-      // Then get reading history
-      const { data: history, error: historyError } = await supabase
-        .from('user_verse_progress')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('is_completed', true)
-        .order('verse_date', { ascending: false })
-        .limit(30)
-
-      if (historyError) {
-        console.error('❌ Error fetching reading history:', historyError)
-        readingHistory = []
-      } else {
-        readingHistory = history || []
-        console.log('✅ Reading history count:', readingHistory.length)
-      }
-
-      // Get reading streak from the function
-      try {
-        const { data: streakResult, error: streakError } = await supabase
-          .rpc('get_user_reading_streak', { user_uuid: user.id })
-        
-        if (!streakError) {
-          readingStreak = streakResult || 0
-          console.log('✅ Reading streak calculated:', readingStreak)
-        } else {
-          console.log('⚠️ Reading streak function error:', streakError)
-        }
-      } catch (error) {
-        console.log('⚠️ Reading streak function not ready yet')
-      }
-    } catch (error) {
-      console.error('❌ Exception in data fetching:', error)
-      totalCompleted = 0
-      readingHistory = []
-      readingStreak = 0
+    // Verify the token and get user
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
     }
-
-    // For now, return data from real table (no favorites yet)
-    const response = {
-      favorites: [],
-      reading_history: readingHistory,
+    
+    // Get reading streak using the function
+    const { data: streakData, error: streakError } = await supabase
+      .rpc('get_user_reading_streak', { user_uuid: user.id })
+    
+    if (streakError) {
+      console.error('Streak function error:', streakError)
+      return NextResponse.json({ error: 'Failed to get streak' }, { status: 500 })
+    }
+    
+    const readingStreak = streakData || 0
+    
+    return NextResponse.json({
       stats: {
-        reading_streak: readingStreak,
-        total_completed: totalCompleted,
-        favorites_count: 0
-      },
-      table_test: tableTest,
-      note: 'Progress tracking is now live! Favorites coming next.'
-    }
-
-    console.log('✅ User progress data fetched from real database')
-    return NextResponse.json(response)
-
+        reading_streak: readingStreak
+      }
+    })
+    
   } catch (error: any) {
-    console.error('❌ Unexpected error in GET /api/daily-bible-verse/progress:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    console.error('Progress API error:', error)
+    return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
