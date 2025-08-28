@@ -327,9 +327,6 @@ export default function YouthGroups() {
       }
 
       const data = await response.json()
-      console.log('🔍 FRONTEND DEBUG - API Response:', JSON.stringify(data, null, 2))
-      console.log('🔍 FRONTEND DEBUG - Members data:', JSON.stringify(data.group.members, null, 2))
-      console.log('🔍 FRONTEND DEBUG - First member user:', data.group.members?.[0]?.user)
       setSelectedGroup(data.group)
       setShowGroupDetails(true)
     } catch (error) {
@@ -1376,10 +1373,6 @@ export default function YouthGroups() {
                           <div>
                             <p className="font-medium">
                               {member.user?.name || member.user?.username || member.user?.email || 'Unknown User'}
-                            </p>
-                            {/* Debug info */}
-                            <p className="text-xs text-red-500">
-                              Debug: {JSON.stringify(member.user)}
                             </p>
                             <p className="text-sm text-muted-foreground">
                               {member.role} • Joined {new Date(member.joined_at).toLocaleDateString()}
