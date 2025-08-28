@@ -226,11 +226,19 @@ export async function GET(
       member_count: members.length, // Use actual members array length
       is_member: isMember,
       user_role: userRole,
-      is_owner: group.owner_id === user.id
+      is_owner: group.owner_id === user.id,
+      _timestamp: Date.now() // Add timestamp to force refresh
     }
 
     console.log(`✅ Group details loaded successfully in parallel: ${members.length} members, ${events.length} events, ${posts.length} posts`)
-    return NextResponse.json({ group: completeGroup })
+    
+    // Force cache refresh by adding cache-busting headers
+    const response = NextResponse.json({ group: completeGroup })
+    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate')
+    response.headers.set('Pragma', 'no-cache')
+    response.headers.set('Expires', '0')
+    
+    return response
 
   } catch (error: any) {
     console.error('❌ Unexpected error in GET /api/youth-groups/[id]:', error)
