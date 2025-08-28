@@ -127,6 +127,25 @@ export async function GET(
     const posts = postsResult.data || []
     const memberCount = memberCountResult.count || 0
 
+    // Debug: Log what user data we're getting
+    console.log('🔍 Debug - Members data:', JSON.stringify(members, null, 2))
+    console.log('🔍 Debug - First member user data:', members[0]?.user)
+    
+    // Debug: Check if user profiles exist in users table
+    if (members.length > 0) {
+      const firstMemberUserId = members[0].user_id
+      console.log('🔍 Debug - Checking user profile for:', firstMemberUserId)
+      
+      const { data: userProfile, error: profileError } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', firstMemberUserId)
+        .single()
+      
+      console.log('🔍 Debug - User profile from users table:', userProfile)
+      console.log('🔍 Debug - Profile error:', profileError)
+    }
+
     // Check if user is a member (owners are always members)
     const userMembership = members.find((member: any) => member.user_id === user.id)
     const isMember = !!userMembership || group.owner_id === user.id
