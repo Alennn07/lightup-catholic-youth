@@ -50,23 +50,57 @@ export async function POST(request: NextRequest) {
       console.log('✅ Marking verse as completed in database')
       
       try {
-        const { data: progress, error: progressError } = await supabase
+        // First check if record exists
+        const { data: existing, error: checkError } = await supabase
           .from('user_verse_progress')
-          .upsert({
-            user_id: user.id,
-            verse_id: verse_id,
-            verse_date: today,
-            is_completed: true,
-            read_at: new Date().toISOString()
-          }, {
-            onConflict: 'user_id,verse_id,verse_date'
-          })
-          .select()
+          .select('*')
+          .eq('user_id', user.id)
+          .eq('verse_id', verse_id)
+          .eq('verse_date', today)
           .single()
 
-        if (progressError) {
-          console.error('❌ Error marking verse as completed:', progressError)
-          return NextResponse.json({ error: 'Failed to mark verse as completed' }, { status: 500 })
+        if (checkError && checkError.code !== 'PGRST116') {
+          console.error('❌ Error checking existing record:', checkError)
+          return NextResponse.json({ error: 'Failed to check existing progress' }, { status: 500 })
+        }
+
+        let progress
+        if (existing) {
+          // Update existing record
+          const { data: updated, error: updateError } = await supabase
+            .from('user_verse_progress')
+            .update({
+              is_completed: true,
+              read_at: new Date().toISOString()
+            })
+            .eq('id', existing.id)
+            .select()
+            .single()
+
+          if (updateError) {
+            console.error('❌ Error updating record:', updateError)
+            return NextResponse.json({ error: 'Failed to update progress' }, { status: 500 })
+          }
+          progress = updated
+        } else {
+          // Insert new record
+          const { data: inserted, error: insertError } = await supabase
+            .from('user_verse_progress')
+            .insert({
+              user_id: user.id,
+              verse_id: verse_id,
+              verse_date: today,
+              is_completed: true,
+              read_at: new Date().toISOString()
+            })
+            .select()
+            .single()
+
+          if (insertError) {
+            console.error('❌ Error inserting record:', insertError)
+            return NextResponse.json({ error: 'Failed to insert progress' }, { status: 500 })
+          }
+          progress = inserted
         }
 
         console.log('✅ Verse marked as completed successfully in database')
