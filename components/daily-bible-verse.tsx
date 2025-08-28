@@ -149,10 +149,7 @@ export function DailyBibleVerse() {
           }
         } : null)
         
-        // Refresh the daily verse data to get updated stats
-        setTimeout(() => {
-          fetchDailyVerse()
-        }, 500)
+        // REMOVED: No more auto-refresh that causes the loop
       } else {
         toast({
           title: "Error",
