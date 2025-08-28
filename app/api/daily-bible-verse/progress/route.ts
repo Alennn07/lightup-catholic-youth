@@ -188,6 +188,7 @@ export async function GET(request: NextRequest) {
     // Get user's reading history from real table
     let readingHistory = []
     let totalCompleted = 0
+    let readingStreak = 0
     
     try {
       // First get total completed count
@@ -221,10 +222,26 @@ export async function GET(request: NextRequest) {
         readingHistory = history || []
         console.log('✅ Reading history count:', readingHistory.length)
       }
+
+      // Get reading streak from the function
+      try {
+        const { data: streakResult, error: streakError } = await supabase
+          .rpc('get_user_reading_streak', { user_uuid: user.id })
+        
+        if (!streakError) {
+          readingStreak = streakResult || 0
+          console.log('✅ Reading streak calculated:', readingStreak)
+        } else {
+          console.log('⚠️ Reading streak function error:', streakError)
+        }
+      } catch (error) {
+        console.log('⚠️ Reading streak function not ready yet')
+      }
     } catch (error) {
       console.error('❌ Exception in data fetching:', error)
       totalCompleted = 0
       readingHistory = []
+      readingStreak = 0
     }
 
     // For now, return data from real table (no favorites yet)
@@ -232,7 +249,7 @@ export async function GET(request: NextRequest) {
       favorites: [],
       reading_history: readingHistory,
       stats: {
-        reading_streak: 0, // We'll add this later
+        reading_streak: readingStreak,
         total_completed: totalCompleted,
         favorites_count: 0
       },
