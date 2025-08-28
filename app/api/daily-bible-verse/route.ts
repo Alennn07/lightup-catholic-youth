@@ -40,63 +40,56 @@ export async function GET(request: NextRequest) {
     console.log('📅 Fetching verse for date:', today)
 
     try {
-      // Try to get today's assigned verse from database
-      let { data: dailyAssignment, error: assignmentError } = await supabase
-        .from('daily_verse_assignments')
-        .select(`
-          verse_id,
-          theme,
-          bible_verses (
-            verse_id,
-            verse_text,
-            book,
-            chapter,
-            verse,
-            theme,
-            reflection,
-            action_prompt
-          )
-        `)
-        .eq('assigned_date', today)
+      // Get today's verse from the existing bible_verses table
+      const { data: todayVerse, error: verseError } = await supabase
+        .from('bible_verses')
+        .select('*')
+        .eq('date', today)
         .single()
 
-      if (assignmentError || !dailyAssignment) {
-        console.log('⚠️ No verse assigned for today, using fallback')
+      if (verseError || !todayVerse) {
+        console.log('⚠️ No verse for today, using fallback')
         
-        // Fallback: Get a random verse from database
+        // Fallback: Get a random verse from existing table
         const { data: fallbackVerse, error: fallbackError } = await supabase
           .from('bible_verses')
           .select('*')
-          .eq('is_active', true)
           .order('RANDOM()')
           .limit(1)
           .single()
         
         if (fallbackError || !fallbackVerse) {
-          console.log('⚠️ Database tables not ready, using hardcoded fallback')
+          console.log('⚠️ No verses in table, using hardcoded fallback')
           
           // Hardcoded fallback verse
-          dailyAssignment = {
-            verse_id: 'Proverbs 17:17',
-            theme: 'Friendship',
-            bible_verses: {
-              verse_id: 'Proverbs 17:17',
-              verse_text: 'A friend loves at all times, and a brother is born for a time of adversity.',
+          const fallbackResponse = {
+            verse: {
+              id: 'fallback-1',
+              text: 'A friend loves at all times, and a brother is born for a time of adversity.',
+              reference: 'Proverbs 17:17',
               book: 'Proverbs',
               chapter: 17,
               verse: 17,
               theme: 'Friendship',
               reflection: 'True friends stick with you through the good times and the bad. They\'re the ones who celebrate your victories and pick you up when you fall.',
               action_prompt: 'Reach out to a friend who might be going through a hard time today.'
+            },
+            user_progress: {
+              is_completed: false,
+              read_at: null,
+              is_favorited: false
+            },
+            stats: {
+              reading_streak: 0,
+              total_completed: 0,
+              today_date: today
             }
           }
-        } else {
-          dailyAssignment = {
-            verse_id: fallbackVerse.verse_id,
-            theme: fallbackVerse.theme,
-            bible_verses: fallbackVerse
-          }
+
+          return NextResponse.json(fallbackResponse)
         }
+        
+        todayVerse = fallbackVerse
       }
 
       // Try to get user's progress for today
@@ -123,7 +116,7 @@ export async function GET(request: NextRequest) {
           .from('favorite_verses')
           .select('id')
           .eq('user_id', user.id)
-          .eq('verse_id', dailyAssignment.verse_id)
+          .eq('verse_id', todayVerse.reference) // Use reference as verse_id
           .single()
         
         if (!favoriteError) {
@@ -162,19 +155,18 @@ export async function GET(request: NextRequest) {
         console.log('⚠️ Progress counting not ready yet')
       }
 
-      // Prepare the response
-      const verseData = dailyAssignment.bible_verses
+      // Prepare the response using the existing table structure
       const response = {
         verse: {
-          id: verseData.verse_id,
-          text: verseData.verse_text,
-          reference: `${verseData.book} ${verseData.chapter}:${verseData.verse}`,
-          book: verseData.book,
-          chapter: verseData.chapter,
-          verse: verseData.verse,
-          theme: verseData.theme,
-          reflection: verseData.reflection,
-          action_prompt: verseData.action_prompt
+          id: todayVerse.reference, // Use reference as ID
+          text: todayVerse.verse, // Use 'verse' column
+          reference: todayVerse.reference, // Use 'reference' column
+          book: todayVerse.reference.split(' ')[0], // Extract book from reference
+          chapter: parseInt(todayVerse.reference.split(' ')[1]?.split(':')[0]) || 1,
+          verse: parseInt(todayVerse.reference.split(' ')[1]?.split(':')[1]) || 1,
+          theme: todayVerse.theme || 'Faith',
+          reflection: todayVerse.reflection || 'Reflect on this verse today.',
+          action_prompt: todayVerse.prayer_suggestion || 'Take a moment to pray about this verse.'
         },
         user_progress: {
           is_completed: userProgress?.is_completed || false,
@@ -229,3 +221,4 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
+

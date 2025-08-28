@@ -48,92 +48,102 @@ export async function POST(request: NextRequest) {
       // Mark verse as completed for today
       console.log('✅ Marking verse as completed:', verse_id)
       
-      const { data: progress, error: progressError } = await supabase
-        .from('user_verse_progress')
-        .upsert({
-          user_id: user.id,
-          verse_id: verse_id,
-          verse_date: today,
-          is_completed: true,
-          read_at: new Date().toISOString()
-        }, {
-          onConflict: 'user_id,verse_id,verse_date'
-        })
-        .select()
-        .single()
+      try {
+        const { data: progress, error: progressError } = await supabase
+          .from('user_verse_progress')
+          .upsert({
+            user_id: user.id,
+            verse_id: verse_id, // This is the verse reference (e.g., "John 3:16")
+            verse_date: today,
+            is_completed: true,
+            read_at: new Date().toISOString()
+          }, {
+            onConflict: 'user_id,verse_id,verse_date'
+          })
+          .select()
+          .single()
 
-      if (progressError) {
-        console.error('❌ Error marking verse as completed:', progressError)
+        if (progressError) {
+          console.error('❌ Error marking verse as completed:', progressError)
+          return NextResponse.json({ error: 'Failed to mark verse as completed' }, { status: 500 })
+        }
+
+        console.log('✅ Verse marked as completed successfully')
+        return NextResponse.json({ 
+          success: true, 
+          message: 'Verse marked as completed',
+          progress: progress
+        })
+      } catch (error) {
+        console.error('❌ Error in mark_completed:', error)
         return NextResponse.json({ error: 'Failed to mark verse as completed' }, { status: 500 })
       }
-
-      console.log('✅ Verse marked as completed successfully')
-      return NextResponse.json({ 
-        success: true, 
-        message: 'Verse marked as completed',
-        progress: progress
-      })
 
     } else if (action === 'toggle_favorite') {
       // Toggle favorite status
       console.log('❤️ Toggling favorite status for verse:', verse_id)
       
-      // Check if already favorited
-      const { data: existingFavorite, error: checkError } = await supabase
-        .from('favorite_verses')
-        .select('id')
-        .eq('user_id', user.id)
-        .eq('verse_id', verse_id)
-        .single()
-
-      if (checkError && checkError.code !== 'PGRST116') {
-        console.error('❌ Error checking favorite status:', checkError)
-        return NextResponse.json({ error: 'Failed to check favorite status' }, { status: 500 })
-      }
-
-      if (existingFavorite) {
-        // Remove from favorites
-        const { error: deleteError } = await supabase
+      try {
+        // Check if already favorited
+        const { data: existingFavorite, error: checkError } = await supabase
           .from('favorite_verses')
-          .delete()
+          .select('id')
           .eq('user_id', user.id)
           .eq('verse_id', verse_id)
-
-        if (deleteError) {
-          console.error('❌ Error removing from favorites:', deleteError)
-          return NextResponse.json({ error: 'Failed to remove from favorites' }, { status: 500 })
-        }
-
-        console.log('✅ Verse removed from favorites')
-        return NextResponse.json({ 
-          success: true, 
-          message: 'Verse removed from favorites',
-          is_favorited: false
-        })
-      } else {
-        // Add to favorites
-        const { data: newFavorite, error: insertError } = await supabase
-          .from('favorite_verses')
-          .insert({
-            user_id: user.id,
-            verse_id: verse_id,
-            verse_text: verse_text || ''
-          })
-          .select()
           .single()
 
-        if (insertError) {
-          console.error('❌ Error adding to favorites:', insertError)
-          return NextResponse.json({ error: 'Failed to add to favorites' }, { status: 500 })
+        if (checkError && checkError.code !== 'PGRST116') {
+          console.error('❌ Error checking favorite status:', checkError)
+          return NextResponse.json({ error: 'Failed to check favorite status' }, { status: 500 })
         }
 
-        console.log('✅ Verse added to favorites')
-        return NextResponse.json({ 
-          success: true, 
-          message: 'Verse added to favorites',
-          is_favorited: true,
-          favorite: newFavorite
-        })
+        if (existingFavorite) {
+          // Remove from favorites
+          const { error: deleteError } = await supabase
+            .from('favorite_verses')
+            .delete()
+            .eq('user_id', user.id)
+            .eq('verse_id', verse_id)
+
+          if (deleteError) {
+            console.error('❌ Error removing from favorites:', deleteError)
+            return NextResponse.json({ error: 'Failed to remove from favorites' }, { status: 500 })
+          }
+
+          console.log('✅ Verse removed from favorites')
+          return NextResponse.json({ 
+            success: true, 
+            message: 'Verse removed from favorites',
+            is_favorited: false
+          })
+        } else {
+          // Add to favorites
+          const { data: newFavorite, error: insertError } = await supabase
+            .from('favorite_verses')
+            .insert({
+              user_id: user.id,
+              verse_id: verse_id,
+              verse_text: verse_text || verse_id
+            })
+            .select()
+            .single()
+
+          if (insertError) {
+            console.error('❌ Error adding to favorites:', insertError)
+            return NextResponse.json({ error: 'Failed to add to favorites' }, { status: 500 })
+          }
+
+          console.log('✅ Verse added to favorites')
+          return NextResponse.json({ 
+            success: true, 
+            message: 'Verse added to favorites',
+            is_favorited: true,
+            favorite: newFavorite
+          })
+        }
+      } catch (error) {
+        console.error('❌ Error in toggle_favorite:', error)
+        return NextResponse.json({ error: 'Failed to toggle favorite status' }, { status: 500 })
       }
 
     } else {
@@ -196,17 +206,7 @@ export async function GET(request: NextRequest) {
     
     const { data: readingHistory, error: historyError } = await supabase
       .from('user_verse_progress')
-      .select(`
-        *,
-        bible_verses (
-          verse_id,
-          verse_text,
-          book,
-          chapter,
-          verse,
-          theme
-        )
-      `)
+      .select('*')
       .eq('user_id', user.id)
       .eq('is_completed', true)
       .gte('verse_date', thirtyDaysAgo.toISOString().split('T')[0])
@@ -217,11 +217,16 @@ export async function GET(request: NextRequest) {
     }
 
     // Get user's reading streak
-    const { data: streakResult, error: streakError } = await supabase
-      .rpc('get_user_reading_streak', { user_uuid: user.id })
-
-    if (streakError) {
-      console.log('⚠️ Could not fetch reading streak:', streakError)
+    let readingStreak = 0
+    try {
+      const { data: streakResult, error: streakError } = await supabase
+        .rpc('get_user_reading_streak', { user_uuid: user.id })
+      
+      if (!streakError) {
+        readingStreak = streakResult || 0
+      }
+    } catch (error) {
+      console.log('⚠️ Reading streak function not ready yet')
     }
 
     // Get total completed count
@@ -239,7 +244,7 @@ export async function GET(request: NextRequest) {
       favorites: favoriteVerses || [],
       reading_history: readingHistory || [],
       stats: {
-        reading_streak: streakResult || 0,
+        reading_streak: readingStreak,
         total_completed: totalCompleted || 0,
         favorites_count: favoriteVerses?.length || 0
       }
