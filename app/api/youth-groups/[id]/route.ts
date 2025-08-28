@@ -185,7 +185,7 @@ export async function GET(
     const isMember = !!userMembership || group.owner_id === user.id
     const userRole = userMembership?.role || (group.owner_id === user.id ? 'owner' : null)
     
-    // ALWAYS ensure owner is in members list
+        // ALWAYS ensure owner is in members list and has user data
     if (group.owner_id === user.id) {
       console.log('🔧 Ensuring owner is in members list')
       
@@ -210,26 +210,37 @@ export async function GET(
           console.log('⚠️ Could not add owner to database:', addOwnerError)
         }
         
-                 // Always add owner to the members list for this response
-         members.push({
-           id: `temp-owner-${Date.now()}`,
-           group_id: params.id,
-           user_id: user.id,
-           role: 'owner',
-           status: 'active',
-           joined_at: new Date().toISOString(),
-           user: { 
-             id: user.id, 
-             email: user.email, 
-             name: user.user_metadata?.name || 'Alen Parmar', 
-             username: user.user_metadata?.username || 'alenparmar', 
-             user_metadata: user.user_metadata || {} 
-           }
-         })
+        // Always add owner to the members list for this response
+        members.push({
+          id: `temp-owner-${Date.now()}`,
+          group_id: params.id,
+          user_id: user.id,
+          role: 'owner',
+          status: 'active',
+          joined_at: new Date().toISOString(),
+          user: { 
+            id: user.id, 
+            email: user.email, 
+            name: user.user_metadata?.name || 'Alen Parmar', 
+            username: user.user_metadata?.username || 'alenparmar', 
+            user_metadata: user.user_metadata || {} 
+          }
+        })
         
         console.log('✅ Owner added to members list')
       } else {
         console.log('✅ Owner already found in members list')
+        // Ensure the existing owner has user data
+        if (!ownerInMembers.user) {
+          ownerInMembers.user = {
+            id: user.id,
+            email: user.email,
+            name: user.user_metadata?.name || 'Alen Parmar',
+            username: user.user_metadata?.username || 'alenparmar',
+            user_metadata: user.user_metadata || {}
+          }
+          console.log('✅ Added user data to existing owner member')
+        }
       }
     }
 
