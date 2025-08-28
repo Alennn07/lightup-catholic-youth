@@ -231,6 +231,7 @@ export async function GET(
     }
 
     console.log(`✅ Group details loaded successfully in parallel: ${members.length} members, ${events.length} events, ${posts.length} posts`)
+    console.log('🔍 FINAL CHECK - Members with user data:', JSON.stringify(members.map(m => ({ id: m.id, user_id: m.user_id, user_name: m.user?.name, user_username: m.user?.username })), null, 2))
     
     // Force cache refresh by adding cache-busting headers
     const response = NextResponse.json({ group: completeGroup })
