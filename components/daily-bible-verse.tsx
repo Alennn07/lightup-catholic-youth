@@ -3,40 +3,60 @@
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { BookOpen, Heart, Share2, RefreshCw, Lock } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { Progress } from "@/components/ui/progress"
+import { BookOpen, Heart, Share2, CheckCircle, Flame, Trophy, Star, Calendar, RefreshCw, Lock } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import type { User as SupabaseUser } from "@supabase/supabase-js"
 import { supabase } from "@/lib/supabase"
 import Link from "next/link"
 
-interface BibleVerse {
-  id?: number
-  verse: string
+interface Verse {
+  id: string
+  text: string
   reference: string
+  book: string
+  chapter: number
+  verse: number
+  theme: string
   reflection: string
-  date: string
-  category?: string
-  dayOfWeek?: number
-  timestamp?: string
+  action_prompt: string
+}
+
+interface UserProgress {
+  is_completed: boolean
+  read_at: string | null
+  is_favorited: boolean
+}
+
+interface Stats {
+  reading_streak: number
+  total_completed: number
+  today_date: string
+}
+
+interface DailyVerseData {
+  verse: Verse
+  user_progress: UserProgress
+  stats: Stats
 }
 
 export function DailyBibleVerse() {
-  const [verse, setVerse] = useState<BibleVerse | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
-  const [isLiked, setIsLiked] = useState(false)
+  const [verseData, setVerseData] = useState<DailyVerseData | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [isUpdating, setIsUpdating] = useState(false)
   const [user, setUser] = useState<SupabaseUser | null>(null)
   const [isAuthLoading, setIsAuthLoading] = useState(true)
   const { toast } = useToast()
-  // Using the singleton supabase client from lib/supabase.ts
 
-  // SUPER FAST: Simple auth check
+  // Check authentication
   useEffect(() => {
     const checkAuth = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession()
         setUser(session?.user ?? null)
       } catch (error) {
-        // Continue without auth if there's an error
+        console.error('Auth check error:', error)
       } finally {
         setIsAuthLoading(false)
       }
@@ -45,107 +65,161 @@ export function DailyBibleVerse() {
     checkAuth()
   }, [])
 
-  // SUPER FAST: Show fallback verse immediately
-  useEffect(() => {
-    if (!verse) {
-      setVerse({
-        verse: "For I know the plans I have for you, declares the Lord, plans to prosper you and not to harm you, plans to give you hope and a future.",
-        reference: "Jeremiah 29:11",
-        reflection: "Even when things seem uncertain, God has a plan for your life. Trust in His timing and purpose.",
-        date: new Date().toISOString().split('T')[0]
-      })
-    }
-  }, [verse])
-
-  // Get category display name
-  const getCategoryDisplay = (category?: string) => {
-    if (!category) return ""
-    const categoryMap: { [key: string]: string } = {
-      "identity": "Identity & Self-Worth",
-      "peer-pressure": "Peer Pressure & Standing Strong",
-      "anxiety": "Anxiety & Worry",
-      "friendship": "Friendship & Relationships",
-      "future": "Future & Dreams",
-      "courage": "Courage & Overcoming Fear",
-      "trust": "Faith & Trust",
-      "leadership": "Youth Leadership",
-      "strength": "Inner Strength",
-      "burdens": "Carrying Burdens",
-      "rest": "Finding Rest",
-      "love": "God's Love"
-    }
-    return categoryMap[category] || category
-  }
-
-  // Get day name
-  const getDayName = (dayOfWeek?: number) => {
-    if (dayOfWeek === undefined) return ""
-    const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
-    return days[dayOfWeek]
-  }
-
-  const fetchVerse = async () => {
+  // Fetch today's verse and user progress
+  const fetchDailyVerse = async () => {
+    if (!user) return
+    
     setIsLoading(true)
     try {
-      // Add timeout to prevent hanging
-      const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), 3000) // 3 second timeout
-      
-      const response = await fetch("/api/bible-verse", {
-        signal: controller.signal
-      })
-      
-      clearTimeout(timeoutId)
-      
-      if (!response.ok) throw new Error("Failed to fetch verse")
-      const data = await response.json()
-      setVerse(data)
-    } catch (error) {
-      if (error.name === 'AbortError') {
-        // Show fallback verse on timeout
-        setVerse({
-          verse: "For I know the plans I have for you, declares the Lord, plans to prosper you and not to harm you, plans to give you hope and a future.",
-          reference: "Jeremiah 29:11",
-          reflection: "Even when things seem uncertain, God has a plan for your life. Trust in His timing and purpose.",
-          date: new Date().toISOString().split('T')[0]
-        })
-      } else {
-        toast({
-          title: "Error",
-          description: "Failed to load today's verse. Please try again.",
-          variant: "destructive",
-        })
+      const token = await supabase.auth.getSession()
+      if (!token.data.session?.access_token) {
+        throw new Error('No access token')
       }
+
+      const response = await fetch('/api/daily-bible-verse', {
+        headers: {
+          'Authorization': `Bearer ${token.data.session.access_token}`
+        }
+      })
+
+      if (!response.ok) throw new Error('Failed to fetch verse')
+      
+      const data = await response.json()
+      setVerseData(data)
+    } catch (error) {
+      console.error('Error fetching daily verse:', error)
+      toast({
+        title: "Error",
+        description: "Failed to load today's verse. Please try again.",
+        variant: "destructive",
+      })
     } finally {
       setIsLoading(false)
     }
   }
 
   useEffect(() => {
-    fetchVerse()
-  }, [])
+    if (user && !isAuthLoading) {
+      fetchDailyVerse()
+    }
+  }, [user, isAuthLoading])
 
-  const handleLike = () => {
-    if (!user) {
+  // Handle marking verse as completed
+  const handleMarkCompleted = async () => {
+    if (!user || !verseData) return
+    
+    setIsUpdating(true)
+    try {
+      const token = await supabase.auth.getSession()
+      if (!token.data.session?.access_token) {
+        throw new Error('No access token')
+      }
+
+      const response = await fetch('/api/daily-bible-verse/progress', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token.data.session.access_token}`
+        },
+        body: JSON.stringify({
+          action: 'mark_completed',
+          verse_id: verseData.verse.id
+        })
+      })
+
+      if (!response.ok) throw new Error('Failed to mark as completed')
+      
+      const result = await response.json()
+      
+      // Update local state
+      setVerseData(prev => prev ? {
+        ...prev,
+        user_progress: {
+          ...prev.user_progress,
+          is_completed: true,
+          read_at: new Date().toISOString()
+        },
+        stats: {
+          ...prev.stats,
+          reading_streak: prev.stats.reading_streak + 1,
+          total_completed: prev.stats.total_completed + 1
+        }
+      } : null)
+
       toast({
-        title: "Sign in required",
-        description: "Please sign in to like and save verses",
+        title: "🎉 Verse Completed!",
+        description: `Great job! You've maintained your reading streak for ${verseData.stats.reading_streak + 1} days!`,
+      })
+    } catch (error) {
+      console.error('Error marking verse as completed:', error)
+      toast({
+        title: "Error",
+        description: "Failed to mark verse as completed. Please try again.",
         variant: "destructive",
       })
-      return
+    } finally {
+      setIsUpdating(false)
     }
-
-    setIsLiked(!isLiked)
-    toast({
-      title: isLiked ? "Removed from favorites" : "Added to favorites",
-      description: isLiked ? "Verse removed from your favorites" : "Verse saved to your favorites",
-    })
   }
 
-  const handleShare = async () => {
-    if (!verse) return
+  // Handle toggling favorite
+  const handleToggleFavorite = async () => {
+    if (!user || !verseData) return
+    
+    setIsUpdating(true)
+    try {
+      const token = await supabase.auth.getSession()
+      if (!token.data.session?.access_token) {
+        throw new Error('No access token')
+      }
 
-    const shareText = `"${verse.verse}" - ${verse.reference}\n\n${verse.reflection}`
+      const response = await fetch('/api/daily-bible-verse/progress', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token.data.session.access_token}`
+        },
+        body: JSON.stringify({
+          action: 'toggle_favorite',
+          verse_id: verseData.verse.id,
+          verse_text: verseData.verse.text
+        })
+      })
+
+      if (!response.ok) throw new Error('Failed to toggle favorite')
+      
+      const result = await response.json()
+      
+      // Update local state
+      setVerseData(prev => prev ? {
+        ...prev,
+        user_progress: {
+          ...prev.user_progress,
+          is_favorited: result.is_favorited
+        }
+      } : null)
+
+      toast({
+        title: result.is_favorited ? "❤️ Added to Favorites" : "💔 Removed from Favorites",
+        description: result.is_favorited ? "Verse saved to your favorites" : "Verse removed from your favorites",
+      })
+    } catch (error) {
+      console.error('Error toggling favorite:', error)
+      toast({
+        title: "Error",
+        description: "Failed to update favorite status. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsUpdating(false)
+    }
+  }
+
+  // Handle sharing
+  const handleShare = async () => {
+    if (!verseData) return
+
+    const shareText = `"${verseData.verse.text}" - ${verseData.verse.reference}\n\n${verseData.verse.reflection}\n\n${verseData.verse.action_prompt}`
 
     if (navigator.share) {
       try {
@@ -174,22 +248,21 @@ export function DailyBibleVerse() {
     }
   }
 
-  if (isLoading) {
+  // Loading state
+  if (isLoading || isAuthLoading) {
     return (
-      <div className="bg-gradient-to-br from-amber-50 via-white to-rose-50 min-h-screen">
-        <div className="max-w-4xl mx-auto px-4 py-8">
-          {/* Header */}
-          <div className="text-center mb-12">
+      <div className="bg-gradient-to-br from-amber-50 via-white to-rose-50 rounded-2xl border border-amber-100">
+        <div className="max-w-4xl mx-auto px-6 py-8">
+          <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-amber-400 to-rose-500 rounded-full mb-4 shadow-lg">
               <BookOpen className="h-8 w-8 text-white" />
             </div>
-            <h1 className="text-4xl font-bold text-gray-800 mb-2">Daily Bible Verse</h1>
+            <h2 className="text-3xl font-bold text-gray-800 mb-2">Daily Bible Verse</h2>
             <p className="text-lg text-gray-600">Today's scripture to inspire your faith journey</p>
           </div>
 
-          {/* Loading Skeleton */}
-          <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 text-center">
-            <div className="animate-pulse space-y-4">
+          <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8">
+            <div className="animate-pulse space-y-6">
               <div className="h-6 bg-gray-200 rounded w-3/4 mx-auto"></div>
               <div className="h-5 bg-gray-200 rounded w-1/2 mx-auto"></div>
               <div className="h-4 bg-gray-200 rounded w-1/4 mx-auto"></div>
@@ -205,24 +278,63 @@ export function DailyBibleVerse() {
     )
   }
 
-  if (!verse) {
+  // Not authenticated
+  if (!user) {
     return (
-      <div className="bg-gradient-to-br from-amber-50 via-white to-rose-50 min-h-screen">
-        <div className="max-w-4xl mx-auto px-4 py-8">
-          {/* Header */}
-          <div className="text-center mb-12">
+      <div className="bg-gradient-to-br from-amber-50 via-white to-rose-50 rounded-2xl border border-amber-100">
+        <div className="max-w-4xl mx-auto px-6 py-8">
+          <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-amber-400 to-rose-500 rounded-full mb-4 shadow-lg">
               <BookOpen className="h-8 w-8 text-white" />
             </div>
-            <h1 className="text-4xl font-bold text-gray-800 mb-2">Daily Bible Verse</h1>
+            <h2 className="text-3xl font-bold text-gray-800 mb-2">Daily Bible Verse</h2>
             <p className="text-lg text-gray-600">Today's scripture to inspire your faith journey</p>
           </div>
 
-          {/* Error State */}
+          <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 text-center">
+            <div className="mb-6">
+              <Lock className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">Sign in to Access Daily Verses</h3>
+              <p className="text-gray-600 mb-6">
+                Join us to get personalized daily Bible verses, track your reading progress, and build a daily faith habit.
+              </p>
+            </div>
+
+            <div className="flex justify-center gap-4">
+              <Link href="/auth/sign-in">
+                <Button size="lg" variant="outline" className="border-amber-300 text-amber-600 hover:bg-amber-50">
+                  Sign In
+                </Button>
+              </Link>
+              <Link href="/auth/sign-up">
+                <Button size="lg" className="bg-amber-600 hover:bg-amber-700 text-white">
+                  Join Us
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // No verse data
+  if (!verseData) {
+    return (
+      <div className="bg-gradient-to-br from-amber-50 via-white to-rose-50 rounded-2xl border border-amber-100">
+        <div className="max-w-4xl mx-auto px-6 py-8">
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-amber-400 to-rose-500 rounded-full mb-4 shadow-lg">
+              <BookOpen className="h-8 w-8 text-white" />
+            </div>
+            <h2 className="text-3xl font-bold text-gray-800 mb-2">Daily Bible Verse</h2>
+            <p className="text-lg text-gray-600">Today's scripture to inspire your faith journey</p>
+          </div>
+
           <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 text-center">
             <p className="text-gray-600 mb-6 text-lg">Failed to load today's verse</p>
             <Button
-              onClick={fetchVerse}
+              onClick={fetchDailyVerse}
               variant="outline"
               className="border-amber-300 text-amber-600 hover:bg-amber-50 hover:border-amber-400 font-semibold px-6 py-2 rounded-xl"
             >
@@ -246,126 +358,169 @@ export function DailyBibleVerse() {
           <h2 className="text-3xl font-bold text-gray-800 mb-2">Daily Bible Verse</h2>
           <p className="text-lg text-gray-600">Today's scripture to inspire your faith journey</p>
           
-          {/* Category and Day Badge */}
-          {verse?.category && (
-            <div className="mt-4 flex justify-center items-center gap-3">
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-                {getCategoryDisplay(verse.category)}
-              </span>
-              {verse.dayOfWeek !== undefined && (
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                  {getDayName(verse.dayOfWeek)}
-                </span>
-              )}
+          {/* Theme Badge */}
+          {verseData.verse.theme && (
+            <div className="mt-4">
+              <Badge variant="secondary" className="bg-blue-100 text-blue-800 hover:bg-blue-200">
+                {verseData.verse.theme}
+              </Badge>
             </div>
           )}
+        </div>
+
+        {/* User Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <Card className="text-center">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-center mb-2">
+                <Flame className="h-6 w-6 text-orange-500 mr-2" />
+                <span className="text-2xl font-bold text-gray-800">{verseData.stats.reading_streak}</span>
+              </div>
+              <p className="text-sm text-gray-600">Day Streak</p>
+            </CardContent>
+          </Card>
+
+          <Card className="text-center">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-center mb-2">
+                <Trophy className="h-6 w-6 text-yellow-500 mr-2" />
+                <span className="text-2xl font-bold text-gray-800">{verseData.stats.total_completed}</span>
+              </div>
+              <p className="text-sm text-gray-600">Total Completed</p>
+            </CardContent>
+          </Card>
+
+          <Card className="text-center">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-center mb-2">
+                <Calendar className="h-6 w-6 text-green-500 mr-2" />
+                <span className="text-2xl font-bold text-gray-800">
+                  {new Date(verseData.stats.today_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                </span>
+              </div>
+              <p className="text-sm text-gray-600">Today's Date</p>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Verse Content */}
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
-          <div className="text-center mb-6">
-            <blockquote className="text-xl font-medium text-gray-800 mb-4 leading-relaxed italic">"{verse.verse}"</blockquote>
-            <cite className="text-lg text-amber-600 font-semibold">- {verse.reference}</cite>
-          </div>
-
-          <div className="bg-amber-50 rounded-xl p-6 border border-amber-200 mb-6">
-            <div className="flex items-center gap-2 mb-3">
-              <h4 className="text-lg font-semibold text-amber-800">Today's Reflection</h4>
-              <span className="text-xs text-amber-600 bg-amber-200 px-2 py-1 rounded-full">Youth Focused</span>
+        <Card className="shadow-lg border-0">
+          <CardContent className="p-8">
+            {/* Verse Text */}
+            <div className="text-center mb-8">
+              <blockquote className="text-2xl font-medium text-gray-800 mb-4 leading-relaxed italic">
+                "{verseData.verse.text}"
+              </blockquote>
+              <cite className="text-lg text-amber-600 font-semibold">
+                - {verseData.verse.reference}
+              </cite>
             </div>
-            <p className="text-gray-700 leading-relaxed text-base">{verse.reflection}</p>
-            
-            {/* Action Prompt */}
-            <div className="mt-4 p-4 bg-white rounded-lg border border-amber-200">
-              <p className="text-sm text-amber-700 font-medium mb-2">💭 Take Action Today:</p>
-              <p className="text-sm text-gray-600">
-                {verse.category === 'identity' && "Write down 3 things that make you unique and special."}
-                {verse.category === 'peer-pressure' && "Identify one situation where you can stand up for your faith."}
-                {verse.category === 'anxiety' && "Write down your biggest worry and pray about it for 5 minutes."}
-                {verse.category === 'friendship' && "Reach out to a friend who might be going through a hard time."}
-                {verse.category === 'future' && "Spend 10 minutes dreaming with God about your future."}
-                {verse.category === 'courage' && "Do one thing today that scares you but is good for you."}
-                {verse.category === 'trust' && "Make a decision today and trust God with the outcome."}
-                {verse.category === 'leadership' && "Look for one way to serve or help someone today."}
-                {verse.category === 'strength' && "Identify a challenge and ask God for strength to face it."}
-                {verse.category === 'burdens' && "Write down your biggest burden and give it to God in prayer."}
-                {verse.category === 'rest' && "Take 5 minutes today to be still and breathe deeply."}
-                {verse.category === 'love' && "Show love to someone who is hard to love today."}
-                {!verse.category && "Take a moment to reflect on how this verse applies to your life today."}
-              </p>
+
+            {/* Progress Bar */}
+            <div className="mb-6">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium text-gray-700">Today's Progress</span>
+                <span className="text-sm text-gray-500">
+                  {verseData.user_progress.is_completed ? 'Completed' : 'Not Started'}
+                </span>
+              </div>
+              <Progress 
+                value={verseData.user_progress.is_completed ? 100 : 0} 
+                className="h-2"
+              />
             </div>
-          </div>
 
-          {/* Interactive Buttons */}
-          <div className="flex justify-center gap-4">
-            {user ? (
-              // Authenticated user - can like and share
-              <>
-                <Button
-                  onClick={handleLike}
-                  variant="ghost"
-                  size="lg"
-                  className={`text-amber-600 hover:bg-amber-50 hover:text-amber-700 ${isLiked ? "text-rose-500" : ""}`}
-                >
-                  <Heart className={`h-5 w-5 mr-2 ${isLiked ? "fill-current" : ""}`} />
-                  {isLiked ? "Liked" : "Like"}
-                </Button>
-                <Button 
-                  onClick={handleShare} 
-                  variant="ghost" 
-                  size="lg" 
-                  className="text-amber-600 hover:bg-amber-50 hover:text-amber-700"
-                >
-                  <Share2 className="h-5 w-5 mr-2" />
-                  Share
-                </Button>
-              </>
-            ) : (
-              // Non-authenticated user - show sign-in prompts
-              <>
-                <Button
-                  variant="ghost"
-                  size="lg"
-                  className="text-gray-400 cursor-not-allowed"
-                  disabled
-                >
-                  <Lock className="h-5 w-5 mr-2" />
-                  Like
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  size="lg" 
-                  className="text-gray-400 cursor-not-allowed"
-                  disabled
-                >
-                  <Lock className="h-5 w-5 mr-2" />
-                  Share
-                </Button>
-              </>
-            )}
-          </div>
-
-          {/* Sign-in prompt for non-authenticated users */}
-          {!user && !isAuthLoading && (
-            <div className="mt-6 text-center">
-              <p className="text-gray-500 text-sm mb-3">
-                Sign in to like, save, and share verses
+            {/* Reflection */}
+            <div className="bg-amber-50 rounded-xl p-6 border border-amber-200 mb-6">
+              <div className="flex items-center gap-2 mb-3">
+                <h4 className="text-lg font-semibold text-amber-800">Today's Reflection</h4>
+                <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
+                  Youth Focused
+                </Badge>
+              </div>
+              <p className="text-gray-700 leading-relaxed text-base mb-4">
+                {verseData.verse.reflection}
               </p>
-              <div className="flex justify-center gap-3">
-                <Link href="/auth/sign-in">
-                  <Button size="sm" variant="outline" className="border-amber-300 text-amber-600 hover:bg-amber-50">
-                    Sign In
-                  </Button>
-                </Link>
-                <Link href="/auth/sign-up">
-                  <Button size="sm" className="bg-amber-600 hover:bg-amber-700 text-white">
-                    Join Us
-                  </Button>
-                </Link>
+              
+              {/* Action Prompt */}
+              <div className="p-4 bg-white rounded-lg border border-amber-200">
+                <p className="text-sm text-amber-700 font-medium mb-2 flex items-center gap-2">
+                  <Star className="h-4 w-4" />
+                  Take Action Today:
+                </p>
+                <p className="text-sm text-gray-600">
+                  {verseData.verse.action_prompt}
+                </p>
               </div>
             </div>
-          )}
-        </div>
+
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row justify-center gap-4">
+              {/* Mark as Completed Button */}
+              <Button
+                onClick={handleMarkCompleted}
+                disabled={isUpdating || verseData.user_progress.is_completed}
+                size="lg"
+                className={`${
+                  verseData.user_progress.is_completed 
+                    ? 'bg-green-500 hover:bg-green-600 text-white' 
+                    : 'bg-amber-600 hover:bg-amber-700 text-white'
+                }`}
+              >
+                {verseData.user_progress.is_completed ? (
+                  <>
+                    <CheckCircle className="h-5 w-5 mr-2" />
+                    Completed Today!
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle className="h-5 w-5 mr-2" />
+                    Mark as Completed
+                  </>
+                )}
+              </Button>
+
+              {/* Favorite Button */}
+              <Button
+                onClick={handleToggleFavorite}
+                disabled={isUpdating}
+                variant="outline"
+                size="lg"
+                className={`${
+                  verseData.user_progress.is_favorited
+                    ? 'border-rose-300 text-rose-600 hover:bg-rose-50'
+                    : 'border-amber-300 text-amber-600 hover:bg-amber-50'
+                }`}
+              >
+                <Heart className={`h-5 w-5 mr-2 ${verseData.user_progress.is_favorited ? 'fill-current' : ''}`} />
+                {verseData.user_progress.is_favorited ? 'Favorited' : 'Favorite'}
+              </Button>
+
+              {/* Share Button */}
+              <Button 
+                onClick={handleShare} 
+                variant="outline" 
+                size="lg"
+                className="border-gray-300 text-gray-600 hover:bg-gray-50"
+              >
+                <Share2 className="h-5 w-5 mr-2" />
+                Share
+              </Button>
+            </div>
+
+            {/* Completion Message */}
+            {verseData.user_progress.is_completed && (
+              <div className="mt-6 p-4 bg-green-50 rounded-lg border border-green-200 text-center">
+                <div className="flex items-center justify-center gap-2 text-green-800">
+                  <CheckCircle className="h-5 w-5" />
+                  <span className="font-medium">
+                    Amazing! You've completed today's verse and maintained your {verseData.stats.reading_streak}-day streak! 🎉
+                  </span>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </div>
   )
