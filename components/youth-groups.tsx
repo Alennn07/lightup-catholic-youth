@@ -327,6 +327,9 @@ export default function YouthGroups() {
       }
 
       const data = await response.json()
+      console.log('🔍 FRONTEND DEBUG - API Response:', JSON.stringify(data, null, 2))
+      console.log('🔍 FRONTEND DEBUG - Members data:', JSON.stringify(data.group.members, null, 2))
+      console.log('🔍 FRONTEND DEBUG - First member user:', data.group.members?.[0]?.user)
       setSelectedGroup(data.group)
       setShowGroupDetails(true)
     } catch (error) {
