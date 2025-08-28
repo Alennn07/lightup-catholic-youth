@@ -113,22 +113,32 @@ export async function GET(request: NextRequest) {
       let readingStreak = 0
       let totalCompleted = 0
       
+      console.log('🔍 Step 1: About to call progress API for fresh stats')
       try {
         // Call the progress API to get fresh stats
-        const progressResponse = await fetch(`${process.env.NEXT_PUBLIC_VERCEL_URL || 'http://localhost:3000'}/api/daily-bible-verse/progress`, {
+        const progressUrl = `${process.env.NEXT_PUBLIC_VERCEL_URL || 'http://localhost:3000'}/api/daily-bible-verse/progress`
+        console.log('🔍 Step 2: Calling progress API at:', progressUrl)
+        
+        const progressResponse = await fetch(progressUrl, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`
           }
         })
         
+        console.log('🔍 Step 3: Progress API response status:', progressResponse.status)
+        
         if (progressResponse.ok) {
           const progressData = await progressResponse.json()
+          console.log('🔍 Step 4: Progress API response data:', progressData)
+          
           readingStreak = progressData.stats?.reading_streak || 0
           totalCompleted = progressData.stats?.total_completed || 0
           console.log('✅ Fresh stats from progress API:', { readingStreak, totalCompleted })
         } else {
-          console.log('⚠️ Progress API call failed, using fallback')
+          console.log('⚠️ Progress API call failed with status:', progressResponse.status)
+          const errorText = await progressResponse.text()
+          console.log('⚠️ Progress API error response:', errorText)
         }
       } catch (error) {
         console.log('⚠️ Could not fetch fresh stats:', error)
