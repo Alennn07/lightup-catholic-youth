@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
 
     try {
       // Get today's verse from the existing bible_verses table
-      const { data: todayVerse, error: verseError } = await supabase
+      let { data: todayVerse, error: verseError } = await supabase
         .from('bible_verses')
         .select('*')
         .eq('date', today)
