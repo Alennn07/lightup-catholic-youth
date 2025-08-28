@@ -69,8 +69,7 @@ export async function GET(
           user_id, 
           role, 
           status, 
-          joined_at,
-          user:user_id(id, email, name, username, user_metadata)
+          joined_at
         `)
         .eq('group_id', params.id)
         .eq('status', 'active')
@@ -88,8 +87,7 @@ export async function GET(
           max_attendees, 
           is_public, 
           created_by, 
-          created_at,
-          user:created_by(id, email, name, username, user_metadata)
+          created_at
         `)
         .eq('group_id', params.id)
         .gte('event_date', new Date().toISOString())
@@ -106,8 +104,7 @@ export async function GET(
           post_type, 
           is_public, 
           user_id, 
-          created_at,
-          user:user_id(id, email, name, username, user_metadata)
+          created_at
         `)
         .eq('group_id', params.id)
         .order('created_at', { ascending: false })
@@ -122,29 +119,56 @@ export async function GET(
     ])
 
     // Process results efficiently
-    const members = membersResult.data || []
+    const members: any[] = membersResult.data || []
     const events = eventsResult.data || []
     const posts = postsResult.data || []
     const memberCount = memberCountResult.count || 0
 
-    // Debug: Log what user data we're getting
-    console.log('🔍 Debug - Members data:', JSON.stringify(members, null, 2))
-    console.log('🔍 Debug - First member user data:', members[0]?.user)
+    // Manually fetch user profiles for all members, posts, and events since the foreign key relationships are broken
+    const allUserIds = new Set<string>()
     
-    // Debug: Check if user profiles exist in users table
-    if (members.length > 0) {
-      const firstMemberUserId = members[0].user_id
-      console.log('🔍 Debug - Checking user profile for:', firstMemberUserId)
+    // Collect all user IDs from members, posts, and events
+    members.forEach(member => allUserIds.add(member.user_id))
+    posts.forEach(post => allUserIds.add(post.user_id))
+    events.forEach(event => allUserIds.add(event.created_by))
+    
+    if (allUserIds.size > 0) {
+      const userIdsArray = Array.from(allUserIds)
+      console.log('🔍 Fetching user profiles for all user IDs:', userIdsArray)
       
-      const { data: userProfile, error: profileError } = await supabase
+      const { data: userProfiles, error: profilesError } = await supabase
         .from('users')
-        .select('*')
-        .eq('id', firstMemberUserId)
-        .single()
+        .select('id, email, name, username, user_metadata')
+        .in('id', userIdsArray)
       
-      console.log('🔍 Debug - User profile from users table:', userProfile)
-      console.log('🔍 Debug - Profile error:', profileError)
+      if (profilesError) {
+        console.error('❌ Error fetching user profiles:', profilesError)
+      } else {
+        console.log('✅ User profiles fetched:', userProfiles)
+        
+        // Merge user profiles with member data
+        members.forEach((member: any) => {
+          const userProfile = userProfiles?.find(profile => profile.id === member.user_id)
+          member.user = userProfile || { id: member.user_id, email: null, name: null, username: null, user_metadata: {} }
+        })
+        
+        // Merge user profiles with post data
+        posts.forEach((post: any) => {
+          const userProfile = userProfiles?.find(profile => profile.id === post.user_id)
+          post.user = userProfile || { id: post.user_id, email: null, name: null, username: null, user_metadata: {} }
+        })
+        
+        // Merge user profiles with event data
+        events.forEach((event: any) => {
+          const userProfile = userProfiles?.find(profile => profile.id === event.created_by)
+          event.user = userProfile || { id: event.created_by, email: null, name: null, username: null, user_metadata: {} }
+        })
+      }
     }
+
+    // Debug: Log what user data we're getting
+    console.log('🔍 Debug - Members data after merge:', JSON.stringify(members, null, 2))
+    console.log('🔍 Debug - First member user data:', members[0]?.user)
 
     // Check if user is a member (owners are always members)
     const userMembership = members.find((member: any) => member.user_id === user.id)
