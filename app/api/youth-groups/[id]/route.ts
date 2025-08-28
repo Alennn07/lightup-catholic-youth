@@ -200,16 +200,16 @@ export async function GET(
           console.log('⚠️ Could not add owner to database:', addOwnerError)
         }
         
-        // Always add owner to the members list for this response
-        members.push({
-          id: `temp-owner-${Date.now()}`,
-          group_id: params.id,
-          user_id: user.id,
-          role: 'owner',
-          status: 'active',
-          joined_at: new Date().toISOString(),
-          user: [{ id: user.id, email: user.email, name: user.user_metadata?.name || null, username: user.user_metadata?.username || null, user_metadata: user.user_metadata || {} }]
-        })
+                 // Always add owner to the members list for this response
+         members.push({
+           id: `temp-owner-${Date.now()}`,
+           group_id: params.id,
+           user_id: user.id,
+           role: 'owner',
+           status: 'active',
+           joined_at: new Date().toISOString(),
+           user: { id: user.id, email: user.email, name: user.user_metadata?.name || null, username: user.user_metadata?.username || null, user_metadata: user.user_metadata || {} }
+         })
         
         console.log('✅ Owner added to members list')
       } else {
