@@ -42,24 +42,51 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Action and verse_id are required' }, { status: 400 })
     }
 
-    console.log(`🎯 Action: ${action} for verse: ${verse_id}`)
+    const today = new Date().toISOString().split('T')[0]
+    console.log(`🎯 Action: ${action} for verse: ${verse_id} on ${today}`)
 
     if (action === 'mark_completed') {
-      // For now, just return success since tables don't exist yet
-      console.log('✅ Verse marked as completed (simulated)')
-      return NextResponse.json({ 
-        success: true, 
-        message: 'Verse marked as completed!',
-        note: 'Progress tracking will be enabled once database is fully set up'
-      })
+      // Mark verse as completed for today using real table
+      console.log('✅ Marking verse as completed in database')
+      
+      try {
+        const { data: progress, error: progressError } = await supabase
+          .from('user_verse_progress')
+          .upsert({
+            user_id: user.id,
+            verse_id: verse_id,
+            verse_date: today,
+            is_completed: true,
+            read_at: new Date().toISOString()
+          }, {
+            onConflict: 'user_id,verse_id,verse_date'
+          })
+          .select()
+          .single()
+
+        if (progressError) {
+          console.error('❌ Error marking verse as completed:', progressError)
+          return NextResponse.json({ error: 'Failed to mark verse as completed' }, { status: 500 })
+        }
+
+        console.log('✅ Verse marked as completed successfully in database')
+        return NextResponse.json({ 
+          success: true, 
+          message: 'Verse marked as completed!',
+          progress: progress
+        })
+      } catch (error) {
+        console.error('❌ Error in mark_completed:', error)
+        return NextResponse.json({ error: 'Failed to mark verse as completed' }, { status: 500 })
+      }
 
     } else if (action === 'toggle_favorite') {
-      // For now, just return success since tables don't exist yet
-      console.log('❤️ Favorite toggled (simulated)')
+      // For now, just return success since favorites table doesn't exist yet
+      console.log('❤️ Favorite toggled (simulated - favorites table not ready)')
       return NextResponse.json({ 
         success: true, 
         message: 'Favorite status updated!',
-        note: 'Favorites will be saved once database is fully set up'
+        note: 'Favorites will be saved once favorites table is created'
       })
 
     } else {
@@ -104,19 +131,40 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Authentication failed' }, { status: 401 })
     }
 
-    // For now, return empty data since tables don't exist yet
-    const response = {
-      favorites: [],
-      reading_history: [],
-      stats: {
-        reading_streak: 0,
-        total_completed: 0,
-        favorites_count: 0
-      },
-      note: 'Progress tracking will be enabled once database is fully set up'
+    // Get user's reading history from real table
+    let readingHistory = []
+    let totalCompleted = 0
+    
+    try {
+      const { data: history, error: historyError } = await supabase
+        .from('user_verse_progress')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('is_completed', true)
+        .order('verse_date', { ascending: false })
+        .limit(30)
+
+      if (!historyError) {
+        readingHistory = history || []
+        totalCompleted = history?.length || 0
+      }
+    } catch (error) {
+      console.log('⚠️ Could not fetch reading history:', error)
     }
 
-    console.log('✅ User progress data fetched (simulated)')
+    // For now, return data from real table (no favorites yet)
+    const response = {
+      favorites: [],
+      reading_history: readingHistory,
+      stats: {
+        reading_streak: 0, // We'll add this later
+        total_completed: totalCompleted,
+        favorites_count: 0
+      },
+      note: 'Progress tracking is now live! Favorites coming next.'
+    }
+
+    console.log('✅ User progress data fetched from real database')
     return NextResponse.json(response)
 
   } catch (error: any) {
