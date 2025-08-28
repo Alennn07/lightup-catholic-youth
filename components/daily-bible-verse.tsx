@@ -142,8 +142,17 @@ export function DailyBibleVerse() {
             ...prev.user_progress,
             is_completed: true,
             read_at: new Date().toISOString()
+          },
+          stats: {
+            ...prev.stats,
+            total_completed: (prev.stats.total_completed || 0) + 1
           }
         } : null)
+        
+        // Refresh the daily verse data to get updated stats
+        setTimeout(() => {
+          fetchDailyVerse()
+        }, 500)
       } else {
         toast({
           title: "Error",
