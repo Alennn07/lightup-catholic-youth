@@ -131,6 +131,26 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Authentication failed' }, { status: 401 })
     }
 
+    // Test if table exists and is accessible
+    let tableTest = null
+    try {
+      const { data: testData, error: testError } = await supabase
+        .from('user_verse_progress')
+        .select('count')
+        .limit(1)
+      
+      if (testError) {
+        console.error('❌ Table test failed:', testError)
+        tableTest = { error: testError.message }
+      } else {
+        console.log('✅ Table test successful')
+        tableTest = { success: true }
+      }
+    } catch (error) {
+      console.error('❌ Table test exception:', error)
+      tableTest = { error: 'Table not accessible' }
+    }
+
     // Get user's reading history from real table
     let readingHistory = []
     let totalCompleted = 0
@@ -161,6 +181,7 @@ export async function GET(request: NextRequest) {
         total_completed: totalCompleted,
         favorites_count: 0
       },
+      table_test: tableTest,
       note: 'Progress tracking is now live! Favorites coming next.'
     }
 
