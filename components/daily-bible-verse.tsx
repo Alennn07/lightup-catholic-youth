@@ -381,7 +381,7 @@ export function DailyBibleVerse() {
         </div>
 
         {/* User Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           <Card className="text-center">
             <CardContent className="pt-6">
               <div className="flex items-center justify-center mb-2">
@@ -389,16 +389,6 @@ export function DailyBibleVerse() {
                 <span className="text-2xl font-bold text-gray-800">{verseData.stats.reading_streak}</span>
               </div>
               <p className="text-sm text-gray-600">Day Streak</p>
-            </CardContent>
-          </Card>
-
-          <Card className="text-center">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-center mb-2">
-                <Trophy className="h-6 w-6 text-yellow-500 mr-2" />
-                <span className="text-2xl font-bold text-gray-800">1</span>
-              </div>
-              <p className="text-sm text-gray-600">Total Completed</p>
             </CardContent>
           </Card>
 
