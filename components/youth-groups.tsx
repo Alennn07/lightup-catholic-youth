@@ -308,15 +308,17 @@ export default function YouthGroups() {
 
   const handleViewGroup = async (group: YouthGroup) => {
     try {
+      console.log('🔄 NEW CODE: Fetching group with cache-busting parameter')
       const token = await getAccessToken()
       if (!token) {
         toast({ title: "Authentication Error", description: "Please sign in to view group details.", variant: "destructive" })
         return
       }
 
-      const response = await fetch(`/api/youth-groups/${group.id}`, {
+      const response = await fetch(`/api/youth-groups/${group.id}?t=${Date.now()}`, {
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'Cache-Control': 'no-cache'
         }
       })
 
