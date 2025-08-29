@@ -5,7 +5,12 @@ export const dynamic = 'force-dynamic'
 
 export async function POST(request: NextRequest) {
   try {
-    const { action, verseId } = await request.json()
+    const { action, verse_id, verseId } = await request.json()
+    
+    // Handle both parameter names for compatibility
+    const actualVerseId = verseId || verse_id
+    
+    console.log('🔍 Progress API - Action:', action, 'Verse ID:', actualVerseId)
     
     // Get authorization header
     const authHeader = request.headers.get('authorization')
@@ -29,8 +34,17 @@ export async function POST(request: NextRequest) {
     }
     
     const today = new Date().toISOString().split('T')[0]
+    console.log('📅 Today\'s date:', today, 'User ID:', user.id)
     
     if (action === 'mark_completed') {
+      // Ensure we have a verseId
+      if (!actualVerseId) {
+        console.log('❌ No verseId provided for mark_completed action')
+        return NextResponse.json({ error: 'Verse ID is required' }, { status: 400 })
+      }
+      
+      console.log('✅ Marking verse as completed:', actualVerseId, 'for user:', user.id, 'on date:', today)
+      
       // Check if progress already exists for today
       const { data: existingProgress, error: selectError } = await supabase
         .from('user_verse_progress')
@@ -40,29 +54,42 @@ export async function POST(request: NextRequest) {
         .single()
       
       if (existingProgress) {
+        console.log('🔄 Updating existing progress for today')
         // Update existing progress
         const { error: updateError } = await supabase
           .from('user_verse_progress')
           .update({ 
+            verse_id: actualVerseId, // Use the actual verse ID
             is_completed: true, 
             read_at: new Date().toISOString() 
           })
           .eq('id', existingProgress.id)
         
-        if (updateError) throw updateError
+        if (updateError) {
+          console.log('❌ Update error:', updateError)
+          throw updateError
+        }
+        
+        console.log('✅ Progress updated successfully')
       } else {
+        console.log('🆕 Creating new progress for today')
         // Insert new progress
         const { error: insertError } = await supabase
           .from('user_verse_progress')
           .insert({
             user_id: user.id,
-            verse_id: verseId,
+            verse_id: actualVerseId, // Use the actual verse ID
             verse_date: today,
             is_completed: true,
             read_at: new Date().toISOString()
           })
         
-        if (insertError) throw insertError
+        if (insertError) {
+          console.log('❌ Insert error:', insertError)
+          throw insertError
+        }
+        
+        console.log('✅ Progress created successfully')
       }
       
       return NextResponse.json({ success: true, message: 'Verse marked as completed' })
@@ -71,7 +98,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
     
   } catch (error: any) {
-    console.error('Progress API error:', error)
+    console.error('❌ Progress API error:', error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
