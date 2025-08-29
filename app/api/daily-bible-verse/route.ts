@@ -29,6 +29,14 @@ export async function GET(request: NextRequest) {
     const today = new Date().toISOString().split('T')[0]
     console.log('📅 Today:', today, 'User:', user.id)
     
+    // Ensure user is not null for TypeScript
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 401 })
+    }
+    
+    // Type assertion since we've already checked user is not null
+    const currentUser = user as NonNullable<typeof user>
+    
     // Get today's verse
     const { data: todayVerse, error: verseError } = await supabase
       .from('bible_verses')
@@ -36,8 +44,10 @@ export async function GET(request: NextRequest) {
       .eq('date', today)
       .single()
     
-    if (verseError || !todayVerse) {
-      console.log('⚠️ No verse for today, using dynamic fallback')
+    // TEMPORARILY: Force fallback for testing new system
+    // TODO: Remove this once we have proper daily verses
+    if (true || verseError || !todayVerse) {
+      console.log('🔄 Using dynamic fallback system for testing')
       
       // Create a dynamic fallback verse based on the date
       const fallbackVerses = [
@@ -125,7 +135,7 @@ export async function GET(request: NextRequest) {
       const { data: progress, error: progressError } = await supabase
         .from('user_progress')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', currentUser.id)
         .eq('verse_date', today)
         .single()
       
@@ -142,7 +152,7 @@ export async function GET(request: NextRequest) {
     const { data: favorite, error: favoriteError } = await supabase
       .from('user_favorites')
       .select('id')
-      .eq('user_id', user.id)
+      .eq('user_id', currentUser.id)
       .eq('verse_reference', todayVerse.reference)
       .single()
     
@@ -163,7 +173,7 @@ export async function GET(request: NextRequest) {
         const { data: prevProgress, error: prevError } = await supabase
           .from('user_progress')
           .select('is_completed')
-          .eq('user_id', user.id)
+          .eq('user_id', currentUser.id)
           .eq('verse_date', checkDateStr)
           .eq('is_completed', true)
           .single()
@@ -185,7 +195,7 @@ export async function GET(request: NextRequest) {
         const { data: yesterdayProgress, error: yesterdayError } = await supabase
           .from('user_progress')
           .select('is_completed')
-          .eq('user_id', user.id)
+          .eq('user_id', currentUser.id)
           .eq('verse_date', yesterdayStr)
           .eq('is_completed', true)
           .single()
@@ -203,7 +213,7 @@ export async function GET(request: NextRequest) {
             const { data: prevProgress, error: prevError } = await supabase
               .from('user_progress')
               .select('is_completed')
-              .eq('user_id', user.id)
+              .eq('user_id', currentUser.id)
               .eq('verse_date', checkDateStr)
               .eq('is_completed', true)
               .single()
