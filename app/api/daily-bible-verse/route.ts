@@ -13,6 +13,10 @@ export async function GET(request: NextRequest) {
     
     const token = authHeader.replace('Bearer ', '')
     
+    // Get client's date from query params as fallback
+    const { searchParams } = new URL(request.url)
+    const clientDate = searchParams.get('date')
+    
     // Create Supabase client
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -26,10 +30,52 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
     }
     
-    // Get today's date
+    // Get today's date - FIX TIMEZONE ISSUE
     const now = new Date()
-    const today = now.toISOString().split('T')[0]
-    console.log('📅 Today:', today, 'User:', user.id, 'Current time:', now.toISOString())
+    
+    // Method 1: Use UTC date (more reliable for server)
+    const utcToday = now.toISOString().split('T')[0]
+    
+    // Method 2: Use local date from client timezone
+    const localToday = now.toLocaleDateString('en-CA') // Returns YYYY-MM-DD format
+    
+    // Method 3: Use Date constructor with local timezone
+    const localDate = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+    const localTodayStr = localDate.toISOString().split('T')[0]
+    
+    // Use the most reliable method (local date)
+    let today = localTodayStr
+    
+    // If client provided a date, use that instead (more reliable)
+    if (clientDate) {
+      console.log('📱 Client provided date:', clientDate)
+      // Validate the date format (should be YYYY-MM-DD)
+      if (/^\d{4}-\d{2}-\d{2}$/.test(clientDate)) {
+        console.log('✅ Using client date instead of server date')
+        // Use client date but validate it's reasonable (not too far in past/future)
+        const clientDateObj = new Date(clientDate)
+        const now = new Date()
+        const diffDays = Math.abs((clientDateObj.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+        
+        if (diffDays <= 7) { // Allow up to 7 days difference
+          console.log('✅ Client date is reasonable, using it')
+          today = clientDate
+        } else {
+          console.log('⚠️ Client date too far from server date, using server date')
+        }
+      } else {
+        console.log('⚠️ Invalid client date format, using server date')
+      }
+    }
+    
+    console.log('📅 Date calculation debug:')
+    console.log('  - Current time:', now.toISOString())
+    console.log('  - UTC today:', utcToday)
+    console.log('  - Local today (en-CA):', localToday)
+    console.log('  - Local today (constructor):', localTodayStr)
+    console.log('  - Client date:', clientDate)
+    console.log('  - Final today:', today)
+    console.log('  - User:', user.id)
     
     // Force fallback system for testing
     console.log('🔄 Using dynamic fallback system for testing')

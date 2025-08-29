@@ -71,7 +71,11 @@ export function DailyBibleVerse() {
         throw new Error('No access token')
       }
 
-      const response = await fetch('/api/daily-bible-verse', {
+      // Get client's current date to send to API
+      const clientDate = new Date().toISOString().split('T')[0]
+      console.log('📱 Client sending date:', clientDate)
+      
+      const response = await fetch(`/api/daily-bible-verse?date=${clientDate}`, {
         headers: {
           'Authorization': `Bearer ${session.access_token}`
         }
