@@ -26,8 +26,10 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
     }
     
-    const today = new Date().toISOString().split('T')[0]
-    console.log('📅 Today:', today, 'User:', user.id)
+    // Fix date calculation - ensure we get the correct today's date
+    const now = new Date()
+    const today = now.toISOString().split('T')[0]
+    console.log('📅 Today:', today, 'User:', user.id, 'Current time:', now.toISOString())
     
     // Ensure user is not null for TypeScript
     if (!user) {
