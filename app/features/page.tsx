@@ -208,45 +208,46 @@ export default function FeaturesPage() {
     
     console.log('🔍 getFeatureHref called with:', featureName, '-> lowerName:', lowerName)
     
-    // EXACT MATCH for Daily Bible Verse first (to avoid confusion)
+    // EXACT MATCHES first (to avoid confusion)
     if (lowerName === 'daily bible verse') {
       console.log('🎯 Daily Bible Verse exact match, returning /daily-bible-verse')
       return "/daily-bible-verse"
     }
     
-    // More specific matching for FaithBot (but exclude Daily Bible Verse)
+    if (lowerName === 'faith journal') {
+      console.log('🎯 Faith Journal exact match, returning /faith-journal')
+      return "/faith-journal"
+    }
+    
+    if (lowerName === 'faith quiz') {
+      console.log('🎯 Faith Quiz exact match, returning /faith-quiz')
+      return "/faith-quiz"
+    }
+    
+    if (lowerName === 'prayer wall') {
+      console.log('🎯 Prayer Wall exact match, returning /prayer-wall')
+      return "/prayer-wall"
+    }
+    
+    if (lowerName === 'youth groups') {
+      console.log('🎯 Youth Groups exact match, returning /youth-groups')
+      return "/youth-groups"
+    }
+    
+    // More specific matching for FaithBot (but exclude other features)
     if (lowerName.includes('faithbot') || lowerName.includes('faith bot') || lowerName.includes('ai')) {
       console.log('🎯 FaithBot detected, returning /faithbot')
       return "/faithbot"
     }
     
-    switch (lowerName) {
-      case 'prayer wall': 
-        console.log('🎯 Prayer Wall detected, returning /prayer-wall')
-        return "/prayer-wall"
-      case 'youth groups': 
-        console.log('🎯 Youth Groups detected, returning /youth-groups')
-        return "/youth-groups"
-      case 'daily bible verse': 
-        console.log('🎯 Daily Bible Verse detected, returning /daily-bible-verse')
-        return "/daily-bible-verse"
-      case 'faithbot': 
-        console.log('🎯 FaithBot detected, returning /faithbot')
-        return "/faithbot"
-
-      case 'faith journal': 
-        console.log('🎯 Faith Journal detected, returning /faith-journal')
-        return "/faith-journal"
-      case 'faith quiz': 
-        console.log('🎯 Faith Quiz detected, returning /faith-quiz')
-        return "/faith-quiz"
-      case 'youth group finder': 
-        console.log('🎯 Youth Group Finder detected, returning /youth-groups')
-        return "/youth-groups"
-      default: 
-        console.log('❌ No match found, returning / (dashboard)')
-        return "/"
+    // Fallback for youth group finder
+    if (lowerName.includes('youth group finder')) {
+      console.log('🎯 Youth Group Finder detected, returning /youth-groups')
+      return "/youth-groups"
     }
+    
+    console.log('❌ No match found, returning / (dashboard)')
+    return "/"
   }
 
   const filteredFeatures = activeTab === "all" 
