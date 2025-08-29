@@ -218,7 +218,13 @@ export default function FeaturesPage() {
     
     console.log('🔍 getFeatureHref called with:', featureName, '-> lowerName:', lowerName)
     
-    // More specific matching for FaithBot
+    // EXACT MATCH for Daily Bible Verse first (to avoid confusion)
+    if (lowerName === 'daily bible verse') {
+      console.log('🎯 Daily Bible Verse exact match, returning /daily-bible-verse')
+      return "/daily-bible-verse"
+    }
+    
+    // More specific matching for FaithBot (but exclude Daily Bible Verse)
     if (lowerName.includes('faithbot') || lowerName.includes('faith bot') || lowerName.includes('ai')) {
       console.log('🎯 FaithBot detected, returning /faithbot')
       return "/faithbot"
