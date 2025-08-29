@@ -7,30 +7,14 @@ export const dynamic = 'force-dynamic'
 
 export async function GET(request: Request, { params }: { params: { category: string } }) {
   try {
-    const cookieStore = await cookies()
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          get(name: string) {
-            return cookieStore.get(name)?.value
-          },
-          set(name: string, value: string, options: any) {
-            cookieStore.set({ name, value, ...options })
-          },
-          remove(name: string, options: any) {
-            cookieStore.set({ name, value: '', ...options })
-          },
-        },
-      }
-    )
-
-    // Check authentication
-    const { data: { session } } = await supabase.auth.getSession()
-    console.log('Session check:', { hasSession: !!session, userId: session?.user?.id })
-    if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    // Get user ID from query parameters instead of session
+    const { searchParams } = new URL(request.url)
+    const userId = searchParams.get('userId')
+    
+    console.log('🔍 Quiz API called with userId:', userId)
+    
+    if (!userId) {
+      return NextResponse.json({ error: "User ID is required" }, { status: 400 })
     }
 
     const { category } = params

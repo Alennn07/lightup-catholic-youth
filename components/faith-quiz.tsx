@@ -515,7 +515,7 @@ export function FaithQuiz() {
 
   const fetchQuestionsForCategory = async (categoryId: string) => {
     try {
-      const response = await fetch(`/api/quiz/${categoryId}`)
+      const response = await fetch(`/api/quiz/${categoryId}?userId=${user?.id}`)
       if (!response.ok) throw new Error('Failed to fetch questions')
       const data = await response.json()
       console.log(`Questions for ${categoryId}:`, data)
