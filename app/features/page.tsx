@@ -51,6 +51,8 @@ export default function FeaturesPage() {
         .order('user_count', { ascending: false })
 
       if (!error && featuresData) {
+        console.log('📊 Raw features data from database:', featuresData)
+        
         const realFeatures: Feature[] = featuresData.map((feature: any) => {
           const href = getFeatureHref(feature.name || '')
           console.log(`🔍 Feature: "${feature.name}" -> Href: "${href}"`)
@@ -66,6 +68,8 @@ export default function FeaturesPage() {
             href: href,
           }
         })
+        
+        console.log('🎯 Final processed features:', realFeatures)
         setFeatures(realFeatures)
       } else {
         // If no real data, show default empty state
