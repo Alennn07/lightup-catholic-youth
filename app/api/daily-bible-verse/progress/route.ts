@@ -95,6 +95,66 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: true, message: 'Verse marked as completed' })
     }
     
+    if (action === 'toggle_favorite') {
+      // Ensure we have a verseId
+      if (!actualVerseId) {
+        console.log('❌ No verseId provided for toggle_favorite action')
+        return NextResponse.json({ error: 'Verse ID is required' }, { status: 400 })
+      }
+      
+      console.log('💖 Toggling favorite for verse:', actualVerseId, 'for user:', user.id)
+      
+      // Check if verse is already favorited
+      const { data: existingFavorite, error: selectError } = await supabase
+        .from('favorite_verses')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('verse_id', actualVerseId)
+        .single()
+      
+      if (existingFavorite) {
+        // Remove from favorites
+        console.log('🗑️ Removing verse from favorites')
+        const { error: deleteError } = await supabase
+          .from('favorite_verses')
+          .delete()
+          .eq('id', existingFavorite.id)
+        
+        if (deleteError) {
+          console.log('❌ Delete error:', deleteError)
+          throw deleteError
+        }
+        
+        console.log('✅ Verse removed from favorites')
+        return NextResponse.json({ 
+          success: true, 
+          message: 'Verse removed from favorites',
+          is_favorited: false
+        })
+      } else {
+        // Add to favorites
+        console.log('❤️ Adding verse to favorites')
+        const { error: insertError } = await supabase
+          .from('favorite_verses')
+          .insert({
+            user_id: user.id,
+            verse_id: actualVerseId
+          })
+        
+        if (insertError) {
+          console.log('❌ Insert error:', insertError)
+          throw insertError
+        }
+        
+        console.log('✅ Verse added to favorites')
+        return NextResponse.json({ 
+          success: true, 
+          message: 'Verse added to favorites',
+          is_favorited: true
+        })
+      }
+    }
+    
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
     
   } catch (error: any) {
