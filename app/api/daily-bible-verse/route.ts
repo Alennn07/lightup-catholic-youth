@@ -26,283 +26,155 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
     }
     
-    // Fix date calculation - ensure we get the correct today's date
+    // Get today's date
     const now = new Date()
     const today = now.toISOString().split('T')[0]
     console.log('📅 Today:', today, 'User:', user.id, 'Current time:', now.toISOString())
     
-    // Ensure user is not null for TypeScript
-    if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 401 })
-    }
+    // Force fallback system for testing
+    console.log('🔄 Using dynamic fallback system for testing')
     
-    // Type assertion since we've already checked user is not null
-    const currentUser = user as NonNullable<typeof user>
-    
-    // Get today's verse
-    const { data: todayVerse, error: verseError } = await supabase
-      .from('bible_verses')
-      .select('*')
-      .eq('date', today)
-      .single()
-    
-    // TEMPORARILY: Force fallback for testing new system
-    // TODO: Remove this once we have proper daily verses
-    if (true || verseError || !todayVerse) {
-      console.log('🔄 Using dynamic fallback system for testing')
-      
-      // Create a dynamic fallback verse based on the date
-      const fallbackVerses = [
-        {
-          id: 'Proverbs 17:17',
-          text: 'A friend loves at all times, and a brother is born for a time of adversity.',
-          reference: 'Proverbs 17:17',
-          book: 'Proverbs',
-          chapter: 17,
-          verse: 17,
-          theme: 'Friendship',
-          reflection: 'True friends stick with you through good times and bad. They celebrate your victories and pick you up when you fall.',
-          action_prompt: 'Take a moment to pray about this verse.'
-        },
-        {
-          id: 'Philippians 4:13',
-          text: 'I can do all things through Christ who strengthens me.',
-          reference: 'Philippians 4:13',
-          book: 'Philippians',
-          chapter: 4,
-          verse: 13,
-          theme: 'Strength',
-          reflection: 'God gives us the strength to face any challenge. When you feel weak, remember that Christ is your source of power.',
-          action_prompt: 'Reflect on a challenge you\'re facing and pray for God\'s strength.'
-        },
-        {
-          id: 'Jeremiah 29:11',
-          text: 'For I know the plans I have for you, declares the Lord, plans to prosper you and not to harm you, plans to give you hope and a future.',
-          reference: 'Jeremiah 29:11',
-          book: 'Jeremiah',
-          chapter: 29,
-          verse: 11,
-          theme: 'Hope',
-          reflection: 'God has a beautiful plan for your life. Even when things seem uncertain, trust that He is working for your good.',
-          action_prompt: 'Write down one thing you\'re hopeful about and thank God for it.'
-        },
-        {
-          id: 'Psalm 119:105',
-          text: 'Your word is a lamp to my feet and a light to my path.',
-          reference: 'Psalm 119:105',
-          book: 'Psalm',
-          chapter: 119,
-          verse: 105,
-          theme: 'Guidance',
-          reflection: 'God\'s Word illuminates our path and shows us the way forward. Let Scripture guide your decisions today.',
-          action_prompt: 'Read a favorite Bible verse and let it guide your actions today.'
-        },
-        {
-          id: 'Matthew 28:19-20',
-          text: 'Go therefore and make disciples of all nations, baptizing them in the name of the Father and of the Son and of the Holy Spirit, teaching them to observe all that I have commanded you.',
-          reference: 'Matthew 28:19-20',
-          book: 'Matthew',
-          chapter: 28,
-          verse: 19,
-          theme: 'Mission',
-          reflection: 'Jesus calls us to share our faith with others. Look for opportunities to be a witness for Christ today.',
-          action_prompt: 'Pray for one person you can share God\'s love with today.'
-        }
-      ]
-      
-      // Select verse based on day of month for variety
-      const dayOfMonth = new Date(today).getDate()
-      const selectedVerse = fallbackVerses[dayOfMonth % fallbackVerses.length]
-      
-             // For fallback system, ALWAYS start fresh each day
-       // This ensures the button shows "Mark as Completed" not "Completed Today!"
-       let isCompleted = false
-       let readAt = null
-       
-       console.log('🆕 Fallback system - Starting fresh each day')
-      
-             // Calculate reading streak for fallback system
-       let readingStreak = 0
-       
-       console.log('🔍 Fallback: Starting streak calculation for user:', currentUser.id)
-      
-      // Always check yesterday first to see if we have a streak to maintain
-      const yesterday = new Date(today)
-      yesterday.setDate(yesterday.getDate() - 1)
-      const yesterdayStr = yesterday.toISOString().split('T')[0]
-      
-      try {
-        // Check if user completed yesterday
-        const { data: yesterdayProgress, error: yesterdayError } = await supabase
-          .from('user_progress')
-          .select('is_completed')
-          .eq('user_id', currentUser.id)
-          .eq('verse_date', yesterdayStr)
-          .eq('is_completed', true)
-          .single()
-        
-        if (!yesterdayError && yesterdayProgress?.is_completed) {
-          // User completed yesterday, so they have a streak to maintain
-          readingStreak = 1
-          
-          // Count backwards from day before yesterday to build the streak
-          let checkDate = new Date(yesterday)
-          checkDate.setDate(checkDate.getDate() - 1)
-          
-          while (true) {
-            const checkDateStr = checkDate.toISOString().split('T')[0]
-            const { data: prevProgress, error: prevError } = await supabase
-              .from('user_progress')
-              .select('is_completed')
-              .eq('user_id', currentUser.id)
-              .eq('verse_date', checkDateStr)
-              .eq('is_completed', true)
-              .single()
-            
-            if (prevError || !prevProgress) {
-              break
-            }
-            
-            readingStreak++
-            checkDate.setDate(checkDate.getDate() - 1)
-          }
-        }
-      } catch (error) {
-        // No progress yesterday, streak is 0
-        console.log('📅 No progress yesterday, streak reset to 0')
+    // Create dynamic fallback verses
+    const fallbackVerses = [
+      {
+        id: 'Proverbs 17:17',
+        text: 'A friend loves at all times, and a brother is born for a time of adversity.',
+        reference: 'Proverbs 17:17',
+        book: 'Proverbs',
+        chapter: 17,
+        verse: 17,
+        theme: 'Friendship',
+        reflection: 'True friends stick with you through good times and bad. They celebrate your victories and pick you up when you fall.',
+        action_prompt: 'Take a moment to pray about this verse.'
+      },
+      {
+        id: 'Philippians 4:13',
+        text: 'I can do all things through Christ who strengthens me.',
+        reference: 'Philippians 4:13',
+        book: 'Philippians',
+        chapter: 4,
+        verse: 13,
+        theme: 'Strength',
+        reflection: 'God gives us the strength to face any challenge. When you feel weak, remember that Christ is your source of power.',
+        action_prompt: 'Reflect on a challenge you\'re facing and pray for God\'s strength.'
+      },
+      {
+        id: 'Jeremiah 29:11',
+        text: 'For I know the plans I have for you, declares the Lord, plans to prosper you and not to harm you, plans to give you hope and a future.',
+        reference: 'Jeremiah 29:11',
+        book: 'Jeremiah',
+        chapter: 29,
+        verse: 11,
+        theme: 'Hope',
+        reflection: 'God has a beautiful plan for your life. Even when things seem uncertain, trust that He is working for your good.',
+        action_prompt: 'Write down one thing you\'re hopeful about and thank God for it.'
+      },
+      {
+        id: 'Psalm 119:105',
+        text: 'Your word is a lamp to my feet and a light to my path.',
+        reference: 'Psalm 119:105',
+        book: 'Psalm',
+        chapter: 119,
+        verse: 105,
+        theme: 'Guidance',
+        reflection: 'God\'s Word illuminates our path and shows us the way forward. Let Scripture guide your decisions today.',
+        action_prompt: 'Read a favorite Bible verse and let it guide your actions today.'
+      },
+      {
+        id: 'Matthew 28:19-20',
+        text: 'Go therefore and make disciples of all nations, baptizing them in the name of the Father and of the Son and of the Holy Spirit, teaching them to observe all that I have commanded you.',
+        reference: 'Matthew 28:19-20',
+        book: 'Matthew',
+        chapter: 28,
+        verse: 19,
+        theme: 'Mission',
+        reflection: 'Jesus calls us to share our faith with others. Look for opportunities to be a witness for Christ today.',
+        action_prompt: 'Pray for one person you can share God\'s love with today.'
       }
-      
-      // DON'T add to streak if completed today - streak should only show previous days
-      // The streak will be updated when they actually complete today's verse
-      console.log('📊 Fallback system - Yesterday completed:', readingStreak > 0, 'Today completed:', isCompleted, 'Base streak:', readingStreak)
-      
-      return NextResponse.json({
-        verse: selectedVerse,
-        user_progress: {
-          is_completed: isCompleted,
-          read_at: readAt,
-          is_favorited: false
-        },
-        stats: {
-          reading_streak: readingStreak,
-          today_date: today
-        }
-      })
-    }
+    ]
     
-    // Get user's progress for today - ALWAYS start fresh each day
+    // Select verse based on day of month
+    const dayOfMonth = new Date(today).getDate()
+    const selectedVerse = fallbackVerses[dayOfMonth % fallbackVerses.length]
+    
+    // ALWAYS start fresh each day
     let isCompleted = false
     let readAt = null
+    console.log('🆕 Starting fresh each day - isCompleted:', isCompleted)
     
-    // Check if user already completed today (in case they refresh the page)
-    try {
-      const { data: progress, error: progressError } = await supabase
-        .from('user_progress')
-        .select('*')
-        .eq('user_id', currentUser.id)
-        .eq('verse_date', today)
-        .single()
-      
-      if (!progressError && progress) {
-        isCompleted = progress.is_completed || false
-        readAt = progress.completed_at || null
-      }
-    } catch (error) {
-      // No progress for today yet, which is expected for a new day
-      console.log('🆕 New day - no progress yet')
-    }
+    // SIMPLE STREAK CALCULATION
+    console.log('🔍 Starting SIMPLE streak calculation for user:', user.id)
     
-    // Check if user has favorited this verse
-    const { data: favorite, error: favoriteError } = await supabase
-      .from('user_favorites')
-      .select('id')
-      .eq('user_id', currentUser.id)
-      .eq('verse_reference', todayVerse.reference)
-      .single()
-    
-    const isFavorited = !favoriteError && favorite ? true : false
-    
-    // Calculate reading streak - simplified and fixed logic
-    let readingStreak = 0
-    
-    // Always check yesterday first to see if we have a streak to maintain
+    // Step 1: Calculate yesterday's date
     const yesterday = new Date(today)
     yesterday.setDate(yesterday.getDate() - 1)
     const yesterdayStr = yesterday.toISOString().split('T')[0]
     
-    try {
-      // Check if user completed yesterday
-      const { data: yesterdayProgress, error: yesterdayError } = await supabase
-        .from('user_progress')
-        .select('is_completed')
-        .eq('user_id', currentUser.id)
-        .eq('verse_date', yesterdayStr)
-        .eq('is_completed', true)
-        .single()
+    console.log('📅 Today:', today, 'Yesterday:', yesterdayStr)
+    
+    // Step 2: Check if user completed yesterday
+    const { data: yesterdayProgress, error: yesterdayError } = await supabase
+      .from('user_progress')
+      .select('is_completed')
+      .eq('user_id', user.id)
+      .eq('verse_date', yesterdayStr)
+      .eq('is_completed', true)
+      .single()
+    
+    console.log('📊 Yesterday progress query result:', { yesterdayProgress, yesterdayError })
+    
+    let readingStreak = 0
+    
+    // Step 3: If yesterday completed, start streak at 1
+    if (yesterdayProgress && yesterdayProgress.is_completed) {
+      readingStreak = 1
+      console.log('✅ Yesterday completed! Starting streak at 1')
       
-      if (!yesterdayError && yesterdayProgress?.is_completed) {
-        // User completed yesterday, so they have a streak to maintain
-        readingStreak = 1
+      // Step 4: Count backwards for consecutive days
+      let checkDate = new Date(yesterday)
+      checkDate.setDate(checkDate.getDate() - 1)
+      
+      while (true) {
+        const checkDateStr = checkDate.toISOString().split('T')[0]
+        console.log('🔍 Checking previous day:', checkDateStr)
         
-        // Count backwards from day before yesterday to build the streak
-        let checkDate = new Date(yesterday)
-        checkDate.setDate(checkDate.getDate() - 1)
+        const { data: prevProgress, error: prevError } = await supabase
+          .from('user_progress')
+          .select('is_completed')
+          .eq('user_id', user.id)
+          .eq('verse_date', checkDateStr)
+          .eq('is_completed', true)
+          .single()
         
-        while (true) {
-          const checkDateStr = checkDate.toISOString().split('T')[0]
-          const { data: prevProgress, error: prevError } = await supabase
-            .from('user_progress')
-            .select('is_completed')
-            .eq('user_id', currentUser.id)
-            .eq('verse_date', checkDateStr)
-            .eq('is_completed', true)
-            .single()
-          
-          if (prevError || !prevProgress) {
-            break
-          }
-          
-          readingStreak++
-          checkDate.setDate(checkDate.getDate() - 1)
+        if (prevError || !prevProgress || !prevProgress.is_completed) {
+          console.log('🛑 No more consecutive completions found at:', checkDateStr)
+          break
         }
+        
+        readingStreak++
+        console.log('📈 Found consecutive completion at:', checkDateStr, 'Streak now:', readingStreak)
+        checkDate.setDate(checkDate.getDate() - 1)
       }
-    } catch (error) {
-      // No progress yesterday, streak is 0
-      console.log('📅 No progress yesterday, streak reset to 0')
+    } else {
+      console.log('❌ Yesterday not completed. Streak starts at 0')
+      readingStreak = 0
     }
     
-    // DON'T add to streak if completed today - streak should only show previous days
-    // The streak will be updated when they actually complete today's verse
-    console.log('📊 Streak calculation - Yesterday completed:', readingStreak > 0, 'Today completed:', isCompleted, 'Base streak:', readingStreak)
+    console.log('📊 FINAL STREAK RESULT:', readingStreak)
     
-    // Prepare response
-    const response = {
-      verse: {
-        id: todayVerse.reference,
-        text: todayVerse.verse,
-        reference: todayVerse.reference,
-        book: todayVerse.reference.split(' ')[0],
-        chapter: parseInt(todayVerse.reference.split(' ')[1]?.split(':')[0]) || 1,
-        verse: parseInt(todayVerse.reference.split(' ')[1]?.split(':')[1]) || 1,
-        theme: todayVerse.theme,
-        reflection: todayVerse.reflection,
-        action_prompt: 'Take a moment to pray about this verse.'
-      },
+    // Return response
+    return NextResponse.json({
+      verse: selectedVerse,
       user_progress: {
         is_completed: isCompleted,
         read_at: readAt,
-        is_favorited: isFavorited
+        is_favorited: false
       },
       stats: {
         reading_streak: readingStreak,
         today_date: today
       }
-    }
-    
-    console.log('✅ Daily Bible verse data prepared successfully')
-    console.log('📊 User stats - Streak:', readingStreak, 'Completed:', isCompleted)
-    
-    return NextResponse.json(response)
+    })
     
   } catch (error: any) {
     console.error('❌ Error in GET /api/daily-bible-verse:', error)
