@@ -112,15 +112,93 @@ export async function GET(request: NextRequest) {
       const dayOfMonth = new Date(today).getDate()
       const selectedVerse = fallbackVerses[dayOfMonth % fallbackVerses.length]
       
+      // For fallback system, we need to check user progress and calculate streak
+      // Get user's progress for today
+      let isCompleted = false
+      let readAt = null
+      
+      try {
+        const { data: progress, error: progressError } = await supabase
+          .from('user_progress')
+          .select('*')
+          .eq('user_id', currentUser.id)
+          .eq('verse_date', today)
+          .single()
+        
+        if (!progressError && progress) {
+          isCompleted = progress.is_completed || false
+          readAt = progress.completed_at || null
+        }
+      } catch (error) {
+        // No progress for today yet, which is expected for a new day
+        console.log('🆕 New day - no progress yet')
+      }
+      
+      // Calculate reading streak for fallback system
+      let readingStreak = 0
+      
+      // Always check yesterday first to see if we have a streak to maintain
+      const yesterday = new Date(today)
+      yesterday.setDate(yesterday.getDate() - 1)
+      const yesterdayStr = yesterday.toISOString().split('T')[0]
+      
+      try {
+        // Check if user completed yesterday
+        const { data: yesterdayProgress, error: yesterdayError } = await supabase
+          .from('user_progress')
+          .select('is_completed')
+          .eq('user_id', currentUser.id)
+          .eq('verse_date', yesterdayStr)
+          .eq('is_completed', true)
+          .single()
+        
+        if (!yesterdayError && yesterdayProgress?.is_completed) {
+          // User completed yesterday, so they have a streak to maintain
+          readingStreak = 1
+          
+          // Count backwards from day before yesterday to build the streak
+          let checkDate = new Date(yesterday)
+          checkDate.setDate(checkDate.getDate() - 1)
+          
+          while (true) {
+            const checkDateStr = checkDate.toISOString().split('T')[0]
+            const { data: prevProgress, error: prevError } = await supabase
+              .from('user_progress')
+              .select('is_completed')
+              .eq('user_id', currentUser.id)
+              .eq('verse_date', checkDateStr)
+              .eq('is_completed', true)
+              .single()
+            
+            if (prevError || !prevProgress) {
+              break
+            }
+            
+            readingStreak++
+            checkDate.setDate(checkDate.getDate() - 1)
+          }
+        }
+      } catch (error) {
+        // No progress yesterday, streak is 0
+        console.log('📅 No progress yesterday, streak reset to 0')
+      }
+      
+      // If completed today, add 1 to the streak
+      if (isCompleted) {
+        readingStreak++
+      }
+      
+      console.log('📊 Fallback system - Yesterday completed:', readingStreak > 0, 'Today completed:', isCompleted, 'Total streak:', readingStreak)
+      
       return NextResponse.json({
         verse: selectedVerse,
         user_progress: {
-          is_completed: false,
-          read_at: null,
+          is_completed: isCompleted,
+          read_at: readAt,
           is_favorited: false
         },
         stats: {
-          reading_streak: 0,
+          reading_streak: readingStreak,
           today_date: today
         }
       })
@@ -158,79 +236,61 @@ export async function GET(request: NextRequest) {
     
     const isFavorited = !favoriteError && favorite ? true : false
     
-    // Calculate reading streak - only count consecutive completed days
+    // Calculate reading streak - simplified and fixed logic
     let readingStreak = 0
     
-    if (isCompleted) {
-      readingStreak = 1
+    // Always check yesterday first to see if we have a streak to maintain
+    const yesterday = new Date(today)
+    yesterday.setDate(yesterday.getDate() - 1)
+    const yesterdayStr = yesterday.toISOString().split('T')[0]
+    
+    try {
+      // Check if user completed yesterday
+      const { data: yesterdayProgress, error: yesterdayError } = await supabase
+        .from('user_progress')
+        .select('is_completed')
+        .eq('user_id', currentUser.id)
+        .eq('verse_date', yesterdayStr)
+        .eq('is_completed', true)
+        .single()
       
-      // Count consecutive days backwards from yesterday
-      let checkDate = new Date(today)
-      checkDate.setDate(checkDate.getDate() - 1)
-      
-      while (true) {
-        const checkDateStr = checkDate.toISOString().split('T')[0]
-        const { data: prevProgress, error: prevError } = await supabase
-          .from('user_progress')
-          .select('is_completed')
-          .eq('user_id', currentUser.id)
-          .eq('verse_date', checkDateStr)
-          .eq('is_completed', true)
-          .single()
+      if (!yesterdayError && yesterdayProgress?.is_completed) {
+        // User completed yesterday, so they have a streak to maintain
+        readingStreak = 1
         
-        if (prevError || !prevProgress) {
-          break
-        }
-        
-        readingStreak++
+        // Count backwards from day before yesterday to build the streak
+        let checkDate = new Date(yesterday)
         checkDate.setDate(checkDate.getDate() - 1)
-      }
-    } else {
-      // If not completed today, check if they completed yesterday to maintain streak
-      const yesterday = new Date(today)
-      yesterday.setDate(yesterday.getDate() - 1)
-      const yesterdayStr = yesterday.toISOString().split('T')[0]
-      
-      try {
-        const { data: yesterdayProgress, error: yesterdayError } = await supabase
-          .from('user_progress')
-          .select('is_completed')
-          .eq('user_id', currentUser.id)
-          .eq('verse_date', yesterdayStr)
-          .eq('is_completed', true)
-          .single()
         
-        if (!yesterdayError && yesterdayProgress?.is_completed) {
-          // User completed yesterday, so they have a streak to maintain
-          readingStreak = 1
+        while (true) {
+          const checkDateStr = checkDate.toISOString().split('T')[0]
+          const { data: prevProgress, error: prevError } = await supabase
+            .from('user_progress')
+            .select('is_completed')
+            .eq('user_id', currentUser.id)
+            .eq('verse_date', checkDateStr)
+            .eq('is_completed', true)
+            .single()
           
-          // Count backwards from day before yesterday
-          let checkDate = new Date(yesterday)
-          checkDate.setDate(checkDate.getDate() - 1)
-          
-          while (true) {
-            const checkDateStr = checkDate.toISOString().split('T')[0]
-            const { data: prevProgress, error: prevError } = await supabase
-              .from('user_progress')
-              .select('is_completed')
-              .eq('user_id', currentUser.id)
-              .eq('verse_date', checkDateStr)
-              .eq('is_completed', true)
-              .single()
-            
-            if (prevError || !prevProgress) {
-              break
-            }
-            
-            readingStreak++
-            checkDate.setDate(checkDate.getDate() - 1)
+          if (prevError || !prevProgress) {
+            break
           }
+          
+          readingStreak++
+          checkDate.setDate(checkDate.getDate() - 1)
         }
-      } catch (error) {
-        // No progress yesterday, streak is 0
-        console.log('📅 No progress yesterday, streak reset to 0')
       }
+    } catch (error) {
+      // No progress yesterday, streak is 0
+      console.log('📅 No progress yesterday, streak reset to 0')
     }
+    
+    // If completed today, add 1 to the streak
+    if (isCompleted) {
+      readingStreak++
+    }
+    
+    console.log('📊 Streak calculation - Yesterday completed:', readingStreak > 0, 'Today completed:', isCompleted, 'Total streak:', readingStreak)
     
     // Prepare response
     const response = {
