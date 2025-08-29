@@ -78,14 +78,14 @@ export function FaithBot() {
 
   const quickQuestions = [
     "Hi there! 👋",
-    "Write me a script for a youth video about hope",
-    "Can you give me a prayer for exams?",
-    "Give me 5 hidden treasures of the Bible",
+    "hru?",
+    "yo gimme 5 bible secrets lol",
+    "make script abt hope vid rn",
+    "pray for exams plz",
+    "sup bro write a caption abt faith",
     "What is the Eucharist?",
     "How do I pray the rosary?",
-    "Create a reflection on trusting God",
-    "What are the sacraments?",
-    "Who is Mary?"
+    "What are the sacraments?"
   ]
 
   const handleQuickQuestion = (question: string) => {
@@ -102,7 +102,7 @@ export function FaithBot() {
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-4">FaithBot AI Assistant</h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Your friendly AI companion for Catholic faith questions, prayers, creative content, and spiritual guidance. Ask anything about Catholicism, get custom prayers, or create inspiring content!
+            Your Catholic ChatGPT! Understands slang, casual chat, and creates inspiring content. Ask anything about faith, get custom prayers, create videos, or just chat - I get you! 🙏✨
           </p>
         </div>
 

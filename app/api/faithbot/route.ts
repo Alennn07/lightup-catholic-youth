@@ -1,5 +1,50 @@
 import { NextResponse } from "next/server"
 
+// Slang translation system for Catholic ChatGPT-like behavior
+function translateSlang(input: string): string {
+  const slangMap: Record<string, string> = {
+    "hru": "how are you",
+    "wsp": "what's up",
+    "sup": "what's up",
+    "abt": "about",
+    "btw": "by the way",
+    "gimme": "give me",
+    "idk": "i don't know",
+    "rn": "right now",
+    "vid": "video",
+    "pls": "please",
+    "plz": "please",
+    "u": "you",
+    "thx": "thank you",
+    "ty": "thank you",
+    "bro": "brother",
+    "yo": "hello",
+    "lol": "laughing",
+    "omg": "oh my goodness",
+    "tbh": "to be honest",
+    "imo": "in my opinion",
+    "fyi": "for your information",
+    "asap": "as soon as possible",
+    "bff": "best friend forever",
+    "smh": "shaking my head",
+    "nvm": "never mind",
+    "jk": "just kidding",
+    "ttyl": "talk to you later",
+    "brb": "be right back",
+    "afk": "away from keyboard"
+  }
+  
+  let translated = input.toLowerCase()
+  
+  // Replace slang with proper words
+  for (const [slang, meaning] of Object.entries(slangMap)) {
+    const regex = new RegExp(`\\b${slang}\\b`, 'gi')
+    translated = translated.replace(regex, meaning)
+  }
+  
+  return translated
+}
+
 // Enhanced FaithBot AI Personality and Capabilities
 const enhancedResponses: Record<string, string> = {
   // Greetings and casual conversation
@@ -12,6 +57,19 @@ const enhancedResponses: Record<string, string> = {
   "video": "Creating faith-centered content is one of my favorite things! 🎥✨ I can help you with youth video scripts, short reflections, or inspiring messages. Just tell me the topic and length you need. For example: 'Write a 1-minute video script about God's love' or 'Create a reflection on prayer.' What's your vision? 🌟",
   "sermon": "I'd be honored to help you with sermon ideas and reflections! ⛪✨ I can provide outlines, key points, Bible verses, and creative angles for your message. Just tell me the topic, audience, and length you need. What would you like to preach about? 🙏",
   "reflection": "Reflections are beautiful ways to deepen our faith! 💭✨ I can create personal reflections, group discussion starters, or meditative pieces on any faith topic. Just tell me what you'd like to reflect on - for example: 'Give me a reflection on trusting God' or 'Create a reflection for youth group.' What's on your heart? 💙",
+  
+  // New youth-friendly responses matching the examples
+  "hru": "I'm blessed 🙏 thanks for asking! How are you? Remember Psalm 118:24: *'This is the day the Lord has made; let us rejoice and be glad in it.'* 🌟",
+  "how are you": "I'm blessed 🙏 thanks for asking! How are you? Remember Psalm 118:24: *'This is the day the Lord has made; let us rejoice and be glad in it.'* 🌟",
+  "how r u": "I'm blessed 🙏 thanks for asking! How are you? Remember Psalm 118:24: *'This is the day the Lord has made; let us rejoice and be glad in it.'* 🌟",
+  
+  "yo gimme 5 bible secrets lol": "Sure thing 😇 Here are 5 treasures in Scripture:\n1. God speaks even in silence (1 Kings 19:12).\n2. Every angel rejoices when one sinner repents (Luke 15:10).\n3. The Eucharist was foreshadowed in manna (Exodus 16).\n4. Mary's 'yes' changed the world (Luke 1:38).\n5. Your name is written in God's book of life (Rev 20:12). 🙌",
+  
+  "make script abt hope vid rn": "Here's a 60-sec reel 🎥:\n\n🎬 Hook: 'Ever feel like life's too heavy to carry?'\n💡 Body: 'Even in darkness, God lights a way. The cross looked like defeat, but it became victory. That's hope — not wishful thinking, but trust in Jesus who never leaves.'\n📖 Verse: Romans 15:13\n🙌 CTA: 'So when life feels heavy, whisper: *Jesus, You are my hope.*'",
+  
+  "pray for exams plz": "Of course ✨ Here's a short prayer:\n'Lord Jesus, calm my mind and help me do my best. Remind me that wisdom comes from You. Amen.' 📖 James 1:5",
+  
+  "sup bro write a caption abt faith": "Sure 🙌 Here's one:\n'Faith isn't about seeing everything — it's about trusting the One who sees it all. ✨ Hebrews 11:1'",
   
   // Enhanced Bible insights
   "secrets": "The Bible is full of amazing treasures waiting to be discovered! 💎✨ I can share inspiring insights, hidden meanings, and beautiful truths from Scripture. Just ask me something like: 'Give me 5 hidden treasures of the Bible' or 'What are some amazing facts about Jesus' miracles?' What would you like to explore? 📖",
@@ -267,107 +325,78 @@ Those long lists of names aren't boring - they're treasure maps! They show God's
 *"For the word of God is living and active, sharper than any two-edged sword." - Hebrews 4:12* 🌟`
 }
 
-// Enhanced intelligent response generator
+// Enhanced intelligent response generator with slang understanding
 function generateIntelligentResponse(query: string): string {
   const lowerQuery = query.toLowerCase()
+  const translatedQuery = translateSlang(lowerQuery)
   
-  // Check for creative content requests
-  if (lowerQuery.includes('script') || lowerQuery.includes('video')) {
+  // Check for casual greetings and slang
+  if (lowerQuery.includes('hru') || lowerQuery.includes('how r u') || lowerQuery.includes('how are u')) {
+    return "I'm blessed 🙏 thanks for asking! How are you? Remember Psalm 118:24: *'This is the day the Lord has made; let us rejoice and be glad in it.'* 🌟"
+  }
+  
+  if (lowerQuery.includes('wsp') || lowerQuery.includes('sup') || lowerQuery.includes('whats up')) {
+    return "Not much, just here to help you grow in faith! 😄 I'm FaithBot, your Catholic companion. I'm ready to answer questions, explain teachings, create content, or just have a friendly chat about Catholicism. What's on your mind? 💭"
+  }
+  
+  if (lowerQuery.includes('yo') || lowerQuery.includes('hey bro') || lowerQuery.includes('hey bro')) {
+    return "Yo! 👋 What's up? I'm FaithBot, your Catholic AI buddy. Ready to help you with faith questions, create some content, or just chat? What do you need? 🙏✨"
+  }
+  
+  // Check for creative content requests with casual language
+  if (lowerQuery.includes('script') || lowerQuery.includes('vid') || lowerQuery.includes('video')) {
     if (lowerQuery.includes('hope')) return generateYouthVideoScript('hope')
     if (lowerQuery.includes('prayer')) return generateYouthVideoScript('prayer')
     if (lowerQuery.includes('love')) return generateYouthVideoScript('love')
-    return generateYouthVideoScript('faith', '2 minutes')
+    return "Sure thing! 🎬 I can create awesome scripts for you. Just tell me the topic and length - like 'make script abt hope vid rn' or 'gimme a 2-min script about prayer'. What do you want? 🚀"
   }
   
-  if (lowerQuery.includes('sermon') || lowerQuery.includes('reflection')) {
-    return "I'd love to help you create inspiring content! 🎬✨ I can provide sermon outlines, reflection ideas, and creative angles for your message. Just tell me the topic, audience, and length you need. What would you like to preach or reflect on? 🙏"
+  if (lowerQuery.includes('sermon') || lowerQuery.includes('reflection') || lowerQuery.includes('caption')) {
+    return "I'd love to help you create inspiring content! 🎬✨ I can provide sermon outlines, reflection ideas, social media captions, and creative angles for your message. Just tell me the topic, audience, and length you need. What would you like to create? 🙏"
   }
   
-  // Check for prayer requests
-  if (lowerQuery.includes('prayer') || lowerQuery.includes('pray')) {
-    if (lowerQuery.includes('exam')) return generatePrayer('exams')
-    if (lowerQuery.includes('anxiety') || lowerQuery.includes('worried')) return generatePrayer('anxiety')
+  // Check for prayer requests with casual language
+  if (lowerQuery.includes('pray') || lowerQuery.includes('prayer') || lowerQuery.includes('plz') || lowerQuery.includes('pls')) {
+    if (lowerQuery.includes('exam') || lowerQuery.includes('test')) return generatePrayer('exams')
+    if (lowerQuery.includes('anxiety') || lowerQuery.includes('worried') || lowerQuery.includes('stress')) return generatePrayer('anxiety')
     if (lowerQuery.includes('thank') || lowerQuery.includes('gratitude')) return generatePrayer('gratitude')
     if (lowerQuery.includes('heal') || lowerQuery.includes('sick')) return generatePrayer('healing')
     return generatePrayer('your situation')
   }
   
-  // Check for Bible treasure requests
-  if (lowerQuery.includes('secret') || lowerQuery.includes('treasure') || lowerQuery.includes('hidden')) {
-    if (lowerQuery.includes('bible') || lowerQuery.includes('5') || lowerQuery.includes('scripture')) {
+  // Check for Bible treasure requests with casual language
+  if (lowerQuery.includes('secret') || lowerQuery.includes('treasure') || lowerQuery.includes('hidden') || lowerQuery.includes('gimme')) {
+    if (lowerQuery.includes('bible') || lowerQuery.includes('5') || lowerQuery.includes('scripture') || lowerQuery.includes('scripture')) {
       return generateBibleTreasures()
     }
-    return "I'd love to share amazing Bible treasures with you! 💎✨ Just ask me something like: 'Give me 5 hidden treasures of the Bible' or 'What are some amazing facts about Jesus' miracles?' What would you like to discover? 📖"
+    return "I'd love to share amazing Bible treasures with you! 💎✨ Just ask me something like: 'gimme 5 hidden treasures of the Bible' or 'yo what are some amazing facts about Jesus' miracles?' What would you like to discover? 📖"
   }
   
-  // Check for greeting patterns
-  if (lowerQuery.includes('hello') || lowerQuery.includes('hi') || lowerQuery.includes('hey')) {
-    return "Hello there! 👋 I'm FaithBot, your Catholic faith companion. I'm here to help you learn about Catholicism, answer questions, create inspiring content, or just chat! What would you like to know about today? 🙏✨"
+  // Check for casual faith questions
+  if (lowerQuery.includes('faith') || lowerQuery.includes('believe') || lowerQuery.includes('god')) {
+    return "Great question about faith! 🙏 Let's be real - faith isn't about having all the answers. It's about trusting the One who does. God loves you exactly where you are, and He's always ready to help you grow closer to Him. What specific aspect of faith would you like to explore? I'd love to help! ✨"
   }
   
-  // Check for how are you variations
-  if (lowerQuery.includes('how') && (lowerQuery.includes('are') || lowerQuery.includes('r')) && (lowerQuery.includes('you') || lowerQuery.includes('u'))) {
-    return "I'm doing great, thank you for asking! 😊 I'm excited to help you learn about Catholic faith today. I can answer questions, create content, write prayers, and share Bible insights! How are you doing? What would you like to explore? 🙏💙"
-  }
-  
-  // Check for what's up variations
-  if (lowerQuery.includes('what') && (lowerQuery.includes('up') || lowerQuery.includes('s up'))) {
-    return "Not much, just here to help you grow in faith! 😄 I'm FaithBot, your Catholic companion. I'm ready to answer questions, explain teachings, create content, or just have a friendly chat about Catholicism. What's on your mind? 💭"
-  }
-  
-  // Check for emotional states
-  if (lowerQuery.includes('sad') || lowerQuery.includes('unhappy') || lowerQuery.includes('down')) {
-    return "I'm so sorry you're feeling sad. 😔 Remember that God loves you deeply and is always with you, even in difficult times. Prayer can be a great comfort - try talking to God about how you feel. Would you like me to help you write a prayer for your situation or share some comforting Bible verses? 🙏💙"
+  // Check for emotional states with casual language
+  if (lowerQuery.includes('sad') || lowerQuery.includes('down') || lowerQuery.includes('struggling')) {
+    return "I'm so sorry you're going through a tough time 😔 Here's the deal - God loves you deeply and is always with you, even in the darkest moments. Jesus said, 'Come to me, all you who are weary and burdened, and I will give you rest' (Matthew 11:28). That's a promise you can count on! Would you like me to help you write a prayer for your situation? 🙏💙"
   }
   
   if (lowerQuery.includes('worried') || lowerQuery.includes('anxious') || lowerQuery.includes('stress')) {
-    return "I understand that worry can be really challenging. 😔 Remember what Jesus said: 'Do not worry about tomorrow' (Matthew 6:34). God is in control and He cares for you. Prayer and trust in God can help ease your worries. Would you like me to help you write a prayer for peace or share some encouraging Scripture? 🙏✨"
+    return "I get it - worry can be really challenging 😔 Quick reminder: Jesus said 'Do not worry about tomorrow' (Matthew 6:34). God is in control and He cares for you deeply. Prayer and trust in God can help ease your worries. Want me to help you write a prayer for peace? 🙏✨"
   }
   
-  if (lowerQuery.includes('confused') || lowerQuery.includes('unsure') || lowerQuery.includes('dont know')) {
-    return "It's totally okay to feel confused! 😊 Faith can be complex, and it's normal to have questions. I'm here to help clarify things and explain Catholic teachings in simple terms. What are you confused about? Let's figure it out together! 🤔💭"
-  }
-  
-  // Check for help requests
-  if (lowerQuery.includes('help') || lowerQuery.includes('need') || lowerQuery.includes('assist')) {
+  // Check for help requests with casual language
+  if (lowerQuery.includes('help') || lowerQuery.includes('need') || lowerQuery.includes('idk')) {
     return "I'm here to help you! 💙 Whether it's with your faith, prayers, understanding Catholic teachings, creative content, or just someone to talk to, I'm ready to assist. I can even help you create youth videos, sermons, reflections, and prayers! What kind of help do you need? I want to support you in any way I can! 🙏"
   }
   
-  // Check for Catholic topics
-  if (lowerQuery.includes('catholic') || lowerQuery.includes('church') || lowerQuery.includes('faith')) {
-    return "Great question about Catholicism! 🙏 The Catholic Church is the oldest Christian denomination, founded by Jesus Christ and guided by the Holy Spirit. We have rich traditions, beautiful sacraments, and a deep history of saints and teachings. What specific aspect of Catholic faith would you like to learn about? I'd love to help you explore! ✨"
+  // Check for random/weird stuff - gently redirect
+  if (lowerQuery.includes('random') || lowerQuery.includes('weird') || lowerQuery.includes('strange')) {
+    return "That's interesting! 🤔 While I might not have a specific answer for that, I'd love to help you explore something meaningful about your faith! Here are some cool things we could talk about:\n\n✨ **Faith Questions**: About sacraments, saints, prayers\n🎬 **Creative Content**: Youth video scripts, sermon ideas\n🙏 **Personal Growth**: Prayer guidance, spiritual advice\n💎 **Bible Insights**: Hidden treasures and amazing facts\n\nWhat interests you most? I'm here to help you grow spiritually! 🙏💙"
   }
   
-  if (lowerQuery.includes('jesus') || lowerQuery.includes('christ')) {
-    return "Jesus Christ is the center of our Catholic faith! ✝️ He's the Son of God who came to earth to save us from sin. Jesus taught us about God's love, performed miracles, died on the Cross for our sins, and rose from the dead on Easter. He's our Savior and the way to eternal life! What would you like to know about Jesus? 🙏💙"
-  }
-  
-  if (lowerQuery.includes('god') || lowerQuery.includes('father')) {
-    return "God is our loving Father in Heaven! 👑 He created everything, loves us unconditionally, and wants us to be close to Him. God is all-powerful, all-knowing, and all-loving. He sent Jesus to save us and gives us the Holy Spirit to guide us. God is always listening to our prayers and wants what's best for us! 🙏✨"
-  }
-  
-  if (lowerQuery.includes('pray') || lowerQuery.includes('prayer')) {
-    return "Prayer is simply talking to God like a friend! 💬💝 It's not about fancy words - it's about opening your heart to God. You can pray anywhere, anytime! Types of prayer include: 1) Adoration (praising God), 2) Contrition (saying sorry), 3) Thanksgiving (thanking God), and 4) Supplication (asking for help). The Our Father is Jesus' perfect prayer template. Prayer is like a phone call to Heaven - God always answers, even if it's not how we expect! 📞✨"
-  }
-  
-  if (lowerQuery.includes('sin') || lowerQuery.includes('wrong') || lowerQuery.includes('bad')) {
-    return "Sin is when we choose to do what we know is wrong, or fail to do what we know is right. 😔 But here's the good news: God's mercy is infinite! Jesus died to forgive our sins, and we can always turn back to God through prayer and the Sacrament of Reconciliation (confession). God never stops loving us, no matter what we've done! 🙏💙"
-  }
-  
-  if (lowerQuery.includes('heaven') || lowerQuery.includes('eternal') || lowerQuery.includes('afterlife')) {
-    return "Heaven is our eternal home with God! 🌟 It's where we'll be perfectly happy, in God's presence forever. We get there by living a good life, following Jesus' teachings, and receiving God's grace through the sacraments. Heaven isn't earned - it's a gift from God's love! What would you like to know about getting to Heaven? 🙏✨"
-  }
-  
-  if (lowerQuery.includes('love') || lowerQuery.includes('care') || lowerQuery.includes('kind')) {
-    return "Love is at the heart of Catholic faith! 💖 God IS love, and He created us to love Him and each other. Jesus said the two greatest commandments are: 'Love God with all your heart' and 'Love your neighbor as yourself.' Love means putting others first, being kind, forgiving, and serving. It's not just a feeling - it's a choice to do what's best for others! 🙏💙"
-  }
-  
-  // Check for general questions
-  if (lowerQuery.includes('why') || lowerQuery.includes('what') || lowerQuery.includes('how') || lowerQuery.includes('when') || lowerQuery.includes('where')) {
-    return "That's a great question! 🤔 While I don't have a specific answer for that, I'd love to help you learn about Catholic faith! Here are some things I can do:\n\n✨ **Answer Questions**: About sacraments, saints, prayers, and Catholic teachings\n🎬 **Create Content**: Youth video scripts, sermon ideas, reflections\n🙏 **Write Prayers**: For any situation or need\n💎 **Share Bible Insights**: Hidden treasures and meaningful truths\n⛪ **Explain Faith**: Catholic traditions and practices\n\nWhat interests you most? I'm here to help you grow in your faith! 🙏💙"
-  }
-  
-  // Default intelligent response
+  // Default youth-friendly response
   return "That's interesting! 🤔 I'm FaithBot, your Catholic faith companion, and I'm here to help you learn and grow spiritually. I can answer questions about Catholic teachings, create inspiring content, write prayers, share Bible insights, and much more! What would you like to explore? Here are some ideas:\n\n🎬 **Create Content**: 'Write me a script for a youth video about hope'\n🙏 **Get Prayers**: 'Can you give me a prayer for exams?'\n💎 **Discover Bible**: 'Give me 5 hidden treasures of the Bible'\n⛪ **Learn Faith**: 'What is the Eucharist?'\n\nWhat would you like to know about Catholicism? 🙏✨"
 }
 
@@ -379,8 +408,9 @@ export async function POST(request: Request) {
     await new Promise((resolve) => setTimeout(resolve, 800))
 
     const query = message.toLowerCase().trim()
+    const translatedQuery = translateSlang(query)
 
-    // First try to find an exact or close match
+    // First try to find an exact or close match in original query
     for (const [keyword, response] of Object.entries(enhancedResponses)) {
       // Check for exact match first
       if (query === keyword) {
@@ -407,8 +437,8 @@ export async function POST(request: Request) {
       }
     }
 
-    // If no match found, generate an intelligent response
-    const intelligentResponse = generateIntelligentResponse(query)
+    // If no match found, generate an intelligent response using slang translation
+    const intelligentResponse = generateIntelligentResponse(translatedQuery)
     
     return NextResponse.json({
       response: intelligentResponse,
