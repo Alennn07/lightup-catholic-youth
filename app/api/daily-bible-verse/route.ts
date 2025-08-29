@@ -3,8 +3,13 @@ import { createClient } from '@supabase/supabase-js'
 
 export const dynamic = 'force-dynamic'
 
+// 🚀 COMPLETELY NEW API - VERSION 3.0 - FORCE VERCEL DEPLOY
 export async function GET(request: NextRequest) {
   try {
+    console.log('🚀 NEW API V3.0 DEPLOYED - This should work now!')
+    console.log('📅 Deployment timestamp:', new Date().toISOString())
+    console.log('🔧 This is the COMPLETELY REBUILT version!')
+    
     // Get authorization header
     const authHeader = request.headers.get('authorization')
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
