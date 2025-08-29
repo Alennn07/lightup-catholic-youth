@@ -33,25 +33,29 @@ export async function GET(request: Request, { params }: { params: { category: st
       return NextResponse.json({ error: "Invalid category" }, { status: 400 })
     }
 
-    // Get questions for the category
-    const { data: questions, error } = await supabase
-      .from('quiz_questions')
-      .select('*')
-      .eq('category', category)
-      .order('id')
+    // Try to get questions from database, but always fallback to defaults
+    let questions = null
+    let dbError = null
+    
+    try {
+      const { data, error } = await supabase
+        .from('quiz_questions')
+        .select('*')
+        .eq('category', category)
+        .order('id')
+      
+      questions = data
+      dbError = error
+    } catch (error) {
+      console.error('Database connection error:', error)
+      dbError = error
+    }
 
-    if (error) {
-      console.error('Error fetching questions:', error)
-      console.error('Error details:', error.message, error.details, error.hint)
-      
-      // Check if it's a table not found error
-      if (error.message && error.message.includes('relation "quiz_questions" does not exist')) {
-        console.log('Quiz questions table does not exist, using default questions')
-        const defaultQuestions = getDefaultQuestions(category)
-        return NextResponse.json({ questions: defaultQuestions })
-      }
-      
-      return NextResponse.json({ error: "Failed to fetch questions from database" }, { status: 500 })
+    // If database fails or no questions, use defaults
+    if (dbError || !questions || questions.length === 0) {
+      console.log('Using default questions for category:', category)
+      const defaultQuestions = getDefaultQuestions(category)
+      return NextResponse.json({ questions: defaultQuestions })
     }
 
     // If no questions in database, return default questions
