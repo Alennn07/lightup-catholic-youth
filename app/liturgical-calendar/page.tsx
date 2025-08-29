@@ -1,7 +1,7 @@
 "use client"
 
 import { Navigation } from "@/components/navigation"
-import { LiturgicalCalendar } from "@/components/liturgical-calendar"
+import LiturgicalCalendar from "@/components/liturgical-calendar"
 
 export default function LiturgicalCalendarPage() {
   return (
