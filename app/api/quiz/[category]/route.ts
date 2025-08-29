@@ -57,15 +57,26 @@ export async function GET(request: Request, { params }: { params: { category: st
 
     if (error) {
       console.error('Error fetching questions:', error)
-      return NextResponse.json({ error: "Failed to fetch questions" }, { status: 500 })
+      console.error('Error details:', error.message, error.details, error.hint)
+      
+      // Check if it's a table not found error
+      if (error.message && error.message.includes('relation "quiz_questions" does not exist')) {
+        console.log('Quiz questions table does not exist, using default questions')
+        const defaultQuestions = getDefaultQuestions(category)
+        return NextResponse.json({ questions: defaultQuestions })
+      }
+      
+      return NextResponse.json({ error: "Failed to fetch questions from database" }, { status: 500 })
     }
 
     // If no questions in database, return default questions
     if (!questions || questions.length === 0) {
+      console.log('No questions found in database for category:', category, 'using default questions')
       const defaultQuestions = getDefaultQuestions(category)
       return NextResponse.json({ questions: defaultQuestions })
     }
 
+    console.log(`Found ${questions.length} questions for category:`, category)
     return NextResponse.json({ questions })
   } catch (error) {
     console.error('Quiz questions API error:', error)
