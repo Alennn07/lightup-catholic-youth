@@ -20,6 +20,7 @@ import {
   Home
 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import { useAuth } from "@/contexts/auth-context"
 
 interface QuizQuestion {
   id: number
@@ -353,6 +354,7 @@ const quizQuestions: Record<string, QuizQuestion[]> = {
 }
 
 export function FaithQuiz() {
+  const { user } = useAuth()
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null)
