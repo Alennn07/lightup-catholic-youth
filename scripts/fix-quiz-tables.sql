@@ -1,11 +1,12 @@
--- Create essential quiz tables for Faith Quiz feature
--- Run this in your Supabase SQL editor
+-- Fix Quiz Tables - Drop and recreate with correct field names
+-- Run this in your Supabase SQL editor to fix the field name mismatch
 
--- Enable UUID extension if not already enabled
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+-- Drop existing tables to recreate them properly
+DROP TABLE IF EXISTS quiz_progress CASCADE;
+DROP TABLE IF EXISTS quiz_questions CASCADE;
 
 -- Quiz Progress Table - Tracks user performance across categories
-CREATE TABLE IF NOT EXISTS quiz_progress (
+CREATE TABLE quiz_progress (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     user_id UUID NOT NULL,
     category VARCHAR(50) NOT NULL,
@@ -22,13 +23,13 @@ CREATE TABLE IF NOT EXISTS quiz_progress (
     UNIQUE(user_id, category)
 );
 
--- Quiz Questions Table - Stores all quiz questions
-CREATE TABLE IF NOT EXISTS quiz_questions (
+-- Quiz Questions Table - Stores all quiz questions with correct field names
+CREATE TABLE quiz_questions (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     category VARCHAR(50) NOT NULL,
     question TEXT NOT NULL,
     options TEXT[] NOT NULL,
-    correctAnswer INTEGER NOT NULL,
+    correctAnswer INTEGER NOT NULL, -- This matches the frontend expectation
     explanation TEXT NOT NULL,
     difficulty VARCHAR(20) DEFAULT 'Medium',
     tags TEXT[],
@@ -37,9 +38,9 @@ CREATE TABLE IF NOT EXISTS quiz_questions (
 );
 
 -- Create indexes for better performance
-CREATE INDEX IF NOT EXISTS idx_quiz_progress_user_id ON quiz_progress(user_id);
-CREATE INDEX IF NOT EXISTS idx_quiz_progress_category ON quiz_progress(category);
-CREATE INDEX IF NOT EXISTS idx_quiz_questions_category ON quiz_questions(category);
+CREATE INDEX idx_quiz_progress_user_id ON quiz_progress(user_id);
+CREATE INDEX idx_quiz_progress_category ON quiz_progress(category);
+CREATE INDEX idx_quiz_questions_category ON quiz_questions(category);
 
 -- Insert sample questions for Faith Fundamentals category
 INSERT INTO quiz_questions (category, question, options, correctAnswer, explanation, difficulty, tags) VALUES
@@ -116,4 +117,4 @@ INSERT INTO quiz_questions (category, question, options, correctAnswer, explanat
  ARRAY['jesus', 'birth', 'bethlehem', 'bible']);
 
 -- Success message
-SELECT 'Quiz tables created successfully with sample questions!' as status;
+SELECT 'Quiz tables fixed successfully with correct field names!' as status;
