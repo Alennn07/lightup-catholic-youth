@@ -67,9 +67,12 @@ export function DailyBibleVerse() {
         throw new Error('No access token')
       }
 
-      // Get client's current date
-      const clientDate = new Date().toISOString().split('T')[0]
+      // Get client's current date - FIX TIMEZONE ISSUE
+      const now = new Date()
+      const clientDate = now.toLocaleDateString('en-CA') // Returns YYYY-MM-DD format
       console.log('📱 Client sending date:', clientDate)
+      console.log('📱 Client local time:', now.toLocaleString())
+      console.log('📱 Client timezone:', Intl.DateTimeFormat().resolvedOptions().timeZone)
       
       const response = await fetch(`/api/daily-bible-verse?date=${clientDate}`, {
         headers: {
