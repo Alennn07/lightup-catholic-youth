@@ -212,21 +212,42 @@ export default function FeaturesPage() {
   const getFeatureHref = (featureName: string) => {
     const lowerName = featureName.toLowerCase()
     
+    console.log('🔍 getFeatureHref called with:', featureName, '-> lowerName:', lowerName)
+    
     // More specific matching for FaithBot
     if (lowerName.includes('faithbot') || lowerName.includes('faith bot') || lowerName.includes('ai')) {
+      console.log('🎯 FaithBot detected, returning /faithbot')
       return "/faithbot"
     }
     
     switch (lowerName) {
-      case 'prayer wall': return "/prayer-wall"
-      case 'youth groups': return "/youth-groups"
-      case 'daily bible verse': return "/daily-bible-verse"
-      case 'faithbot': return "/faithbot"
-      case 'parish calendar': return "/parish-calendar"
-      case 'faith journal': return "/faith-journal"
-      case 'faith quiz': return "/faith-quiz"
-      case 'youth group finder': return "/youth-groups"
-      default: return "/"
+      case 'prayer wall': 
+        console.log('🎯 Prayer Wall detected, returning /prayer-wall')
+        return "/prayer-wall"
+      case 'youth groups': 
+        console.log('🎯 Youth Groups detected, returning /youth-groups')
+        return "/youth-groups"
+      case 'daily bible verse': 
+        console.log('🎯 Daily Bible Verse detected, returning /daily-bible-verse')
+        return "/daily-bible-verse"
+      case 'faithbot': 
+        console.log('🎯 FaithBot detected, returning /faithbot')
+        return "/faithbot"
+      case 'parish calendar': 
+        console.log('🎯 Parish Calendar detected, returning /parish-calendar')
+        return "/parish-calendar"
+      case 'faith journal': 
+        console.log('🎯 Faith Journal detected, returning /faith-journal')
+        return "/faith-journal"
+      case 'faith quiz': 
+        console.log('🎯 Faith Quiz detected, returning /faith-quiz')
+        return "/faith-quiz"
+      case 'youth group finder': 
+        console.log('🎯 Youth Group Finder detected, returning /youth-groups')
+        return "/youth-groups"
+      default: 
+        console.log('❌ No match found, returning / (dashboard)')
+        return "/"
     }
   }
 
