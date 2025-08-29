@@ -97,13 +97,55 @@ export async function GET(request: NextRequest) {
     const dayOfMonth = new Date(today).getDate()
     const selectedVerse = fallbackVerses[dayOfMonth % fallbackVerses.length]
     
-    // ALWAYS start fresh each day
+    // Check if user already completed today's verse
     let isCompleted = false
     let readAt = null
-    console.log('🆕 Starting fresh each day - isCompleted:', isCompleted)
+    
+    try {
+      const { data: todayProgress, error: todayError } = await supabase
+        .from('user_progress')
+        .select('is_completed, completed_at')
+        .eq('user_id', user.id)
+        .eq('verse_date', today)
+        .eq('is_completed', true)
+        .single()
+      
+      if (!todayError && todayProgress) {
+        isCompleted = true
+        readAt = todayProgress.completed_at
+        console.log('✅ User already completed today\'s verse at:', readAt)
+      } else {
+        console.log('🆕 User has not completed today\'s verse yet')
+      }
+    } catch (error) {
+      console.log('🆕 No progress for today yet (expected for new day)')
+    }
+    
+    console.log('🆕 Current completion status - isCompleted:', isCompleted, 'readAt:', readAt)
     
     // SIMPLE STREAK CALCULATION
     console.log('🔍 Starting SIMPLE streak calculation for user:', user.id)
+    
+    // DEBUG: Check what's in the database
+    console.log('🔍 DEBUG: Checking database structure...')
+    
+    // Check if user_progress table exists and has data
+    const { data: allProgress, error: progressError } = await supabase
+      .from('user_progress')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('verse_date', { ascending: false })
+      .limit(5)
+    
+    console.log('📊 All user progress (last 5):', { allProgress, progressError })
+    
+    // Check table structure
+    const { data: tableInfo, error: tableError } = await supabase
+      .from('user_progress')
+      .select('*')
+      .limit(1)
+    
+    console.log('📋 Table structure sample:', { tableInfo, tableError })
     
     // Step 1: Calculate yesterday's date
     const yesterday = new Date(today)
