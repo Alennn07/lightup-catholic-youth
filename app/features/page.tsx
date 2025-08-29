@@ -225,6 +225,11 @@ export default function FeaturesPage() {
       return "/faith-quiz"
     }
     
+    if (lowerName === 'liturgical calendar') {
+      console.log('🎯 Liturgical Calendar exact match, returning /liturgical-calendar')
+      return "/liturgical-calendar"
+    }
+    
     if (lowerName === 'prayer wall') {
       console.log('🎯 Prayer Wall exact match, returning /prayer-wall')
       return "/prayer-wall"
