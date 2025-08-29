@@ -21,6 +21,7 @@ import {
 import { useAuth } from "@/contexts/auth-context"
 import { useToast } from "@/hooks/use-toast"
 import Link from "next/link"
+import { Navigation } from "@/components/navigation"
 
 export default function SettingsPage() {
   const { user, isLoading } = useAuth()
@@ -183,8 +184,9 @@ export default function SettingsPage() {
   const userCreatedAt = user?.created_at ? new Date(user.created_at).toLocaleDateString() : "Unknown"
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 p-6">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      <Navigation />
+      <div className="max-w-4xl mx-auto pt-24">
         <div className="flex items-center gap-4 mb-8">
           <Link href="/dashboard">
             <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-900 hover:bg-gray-100">

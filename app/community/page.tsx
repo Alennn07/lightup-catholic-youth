@@ -1,6 +1,7 @@
 "use client"
 
 import { Navigation } from "@/components/navigation"
+import { BackToTop } from "@/components/back-to-top"
 import { SimpleFooter } from "@/components/simple-footer"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -931,6 +932,7 @@ export default function CommunityPage() {
         </div>
       )}
 
+      <BackToTop />
       <SimpleFooter />
     </div>
   )

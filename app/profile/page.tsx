@@ -11,6 +11,7 @@ import { User, Calendar, MapPin, Building, ArrowLeft, Save, Edit } from "lucide-
 import { useAuth } from "@/contexts/auth-context"
 import { useToast } from "@/hooks/use-toast"
 import { Navigation } from "@/components/navigation"
+import { BackToTop } from "@/components/back-to-top"
 
 export default function ProfilePage() {
   const { user, updateProfile, isLoading } = useAuth()
@@ -412,6 +413,8 @@ export default function ProfilePage() {
           </Card>
         </div>
       </div>
+      
+      <BackToTop />
     </div>
   )
 }

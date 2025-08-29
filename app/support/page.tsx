@@ -1,6 +1,7 @@
 "use client"
 
 import { Navigation } from "@/components/navigation"
+import { BackToTop } from "@/components/back-to-top"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -283,6 +284,8 @@ export default function SupportPage() {
           </Tabs>
         </div>
       </main>
+      
+      <BackToTop />
     </div>
   )
 }

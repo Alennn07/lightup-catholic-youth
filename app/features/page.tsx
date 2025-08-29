@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { Navigation } from "@/components/navigation"
+import { BackToTop } from "@/components/back-to-top"
 import { FeatureCard } from "@/components/feature-card"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -449,6 +450,8 @@ export default function FeaturesPage() {
           </Tabs>
         </motion.div>
       </div>
+      
+      <BackToTop />
     </div>
   )
 }

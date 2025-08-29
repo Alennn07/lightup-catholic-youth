@@ -1,6 +1,7 @@
 "use client"
 
 import { Navigation } from "@/components/navigation"
+import { BackToTop } from "@/components/back-to-top"
 import { SimpleFooter } from "@/components/simple-footer"
 import { Card, CardContent } from "@/components/ui/card"
 import { Heart, Users, Globe, Shield } from "lucide-react"
@@ -100,6 +101,7 @@ export default function AboutPage() {
         </div>
       </div>
 
+      <BackToTop />
       <SimpleFooter />
     </div>
   )
