@@ -78,14 +78,14 @@ export function FaithBot() {
 
   const quickQuestions = [
     "Hi there! 👋",
+    "Write me a script for a youth video about hope",
+    "Can you give me a prayer for exams?",
+    "Give me 5 hidden treasures of the Bible",
     "What is the Eucharist?",
     "How do I pray the rosary?",
+    "Create a reflection on trusting God",
     "What are the sacraments?",
-    "Who is Mary?",
-    "What is Lent?",
-    "What is Mass?",
-    "What is prayer?",
-    "Who are the saints?"
+    "Who is Mary?"
   ]
 
   const handleQuickQuestion = (question: string) => {
@@ -102,7 +102,7 @@ export function FaithBot() {
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-4">FaithBot AI Assistant</h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Your friendly AI companion for Catholic faith questions. Ask anything about Catholicism, prayers, saints, and more!
+            Your friendly AI companion for Catholic faith questions, prayers, creative content, and spiritual guidance. Ask anything about Catholicism, get custom prayers, or create inspiring content!
           </p>
         </div>
 
@@ -214,23 +214,23 @@ export function FaithBot() {
               <BookOpen className="h-6 w-6 text-white" />
             </div>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">Biblical Knowledge</h3>
-            <p className="text-gray-600">Get answers about Bible stories, verses, and teachings</p>
+            <p className="text-gray-600">Get answers about Bible stories, verses, and discover hidden treasures</p>
           </div>
           
           <div className="text-center p-6 bg-white rounded-xl shadow-md border border-gray-200">
             <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4">
               <Heart className="h-6 w-6 text-white" />
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Prayer Guidance</h3>
-            <p className="text-gray-600">Learn about different prayers and how to pray</p>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Prayer & Guidance</h3>
+            <p className="text-gray-600">Get custom prayers for any situation and spiritual guidance</p>
           </div>
           
           <div className="text-center p-6 bg-white rounded-xl shadow-md border border-gray-200">
             <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4">
               <MessageCircle className="h-6 w-6 text-white" />
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Faith Conversations</h3>
-            <p className="text-gray-600">Have meaningful discussions about your faith journey</p>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Creative Content</h3>
+            <p className="text-gray-600">Create youth video scripts, sermons, and inspiring reflections</p>
           </div>
         </div>
       </div>
