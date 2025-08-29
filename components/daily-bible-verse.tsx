@@ -145,10 +145,8 @@ export function DailyBibleVerse() {
           }
         } : null)
         
-        // Fetch fresh data to get the real streak
-        setTimeout(() => {
-          fetchDailyVerse()
-        }, 500)
+        // REMOVED: No more auto-refresh that causes loops
+        // The local state change above will update the UI immediately
         
       } else {
         toast({
@@ -202,7 +200,7 @@ export function DailyBibleVerse() {
           duration: 3000,
         })
         
-        // Toggle local state
+        // Toggle local state immediately
         setVerseData(prev => prev ? {
           ...prev,
           user_progress: {
@@ -211,10 +209,8 @@ export function DailyBibleVerse() {
           }
         } : null)
         
-        // Fetch fresh data to get updated stats
-        setTimeout(() => {
-          fetchDailyVerse()
-        }, 500)
+        // REMOVED: No more auto-refresh that causes the loop
+        // The local state change above will update the UI immediately
         
       } else {
         toast({
