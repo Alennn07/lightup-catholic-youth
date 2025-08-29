@@ -265,7 +265,7 @@ export function DailyBibleVerse() {
                 <Calendar className="h-6 w-6 text-green-500" />
               </div>
               <div className="text-lg font-bold text-gray-800">
-                {new Date(verseData.stats.today_date).toLocaleDateString('en-US', { 
+                {new Date().toLocaleDateString('en-US', { 
                   month: 'short', 
                   day: 'numeric' 
                 })}

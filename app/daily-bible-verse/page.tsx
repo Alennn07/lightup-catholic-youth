@@ -2,6 +2,7 @@
 
 import { DailyBibleVerse } from "@/components/daily-bible-verse"
 import { Navigation } from "@/components/navigation"
+import { BackToTop } from "@/components/back-to-top"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
@@ -31,6 +32,8 @@ export default function DailyBibleVersePage() {
         </div>
         <DailyBibleVerse />
       </div>
+      
+      <BackToTop />
     </div>
   )
 }
