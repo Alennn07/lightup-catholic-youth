@@ -56,6 +56,7 @@ export default function FeaturesPage() {
         const realFeatures: Feature[] = featuresData.map((feature: any) => {
           const href = getFeatureHref(feature.name || '')
           console.log(`🔍 Feature: "${feature.name}" -> Href: "${href}"`)
+          console.log(`📍 Raw feature data:`, feature)
           return {
             id: feature.id,
             name: feature.name || '',
