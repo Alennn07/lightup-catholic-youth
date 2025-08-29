@@ -112,30 +112,17 @@ export async function GET(request: NextRequest) {
       const dayOfMonth = new Date(today).getDate()
       const selectedVerse = fallbackVerses[dayOfMonth % fallbackVerses.length]
       
-      // For fallback system, we need to check user progress and calculate streak
-      // Get user's progress for today
-      let isCompleted = false
-      let readAt = null
+             // For fallback system, ALWAYS start fresh each day
+       // This ensures the button shows "Mark as Completed" not "Completed Today!"
+       let isCompleted = false
+       let readAt = null
+       
+       console.log('🆕 Fallback system - Starting fresh each day')
       
-      try {
-        const { data: progress, error: progressError } = await supabase
-          .from('user_progress')
-          .select('*')
-          .eq('user_id', currentUser.id)
-          .eq('verse_date', today)
-          .single()
-        
-        if (!progressError && progress) {
-          isCompleted = progress.is_completed || false
-          readAt = progress.completed_at || null
-        }
-      } catch (error) {
-        // No progress for today yet, which is expected for a new day
-        console.log('🆕 New day - no progress yet')
-      }
-      
-      // Calculate reading streak for fallback system
-      let readingStreak = 0
+             // Calculate reading streak for fallback system
+       let readingStreak = 0
+       
+       console.log('🔍 Fallback: Starting streak calculation for user:', currentUser.id)
       
       // Always check yesterday first to see if we have a streak to maintain
       const yesterday = new Date(today)
