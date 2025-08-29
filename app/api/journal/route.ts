@@ -16,7 +16,7 @@ export async function GET(request: Request) {
 
     console.log(`🔍 Fetching journal entries for user: ${userId}`)
 
-    let query = supabase.from("journal_entries").select("*").eq("user_id", userId).order("date", { ascending: false })
+    let query = supabase.from("journal_entries").select("*").eq("user_id", userId).order("entry_date", { ascending: false })
 
     if (search) {
       query = query.or(`title.ilike.%${search}%,content.ilike.%${search}%`)
@@ -56,7 +56,7 @@ export async function POST(request: Request) {
       .from("journal_entries")
       .insert({
         ...body,
-        date: body.date || new Date().toISOString().split("T")[0],
+        entry_date: body.date || new Date().toISOString().split("T")[0],
       })
       .select()
       .single()

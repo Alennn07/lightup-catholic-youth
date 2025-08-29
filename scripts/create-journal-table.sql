@@ -1,27 +1,30 @@
 -- Create journal_entries table for Faith Journal feature
 -- Run this in your Supabase SQL editor
 
+-- First, drop the table if it exists to avoid conflicts
+DROP TABLE IF EXISTS journal_entries CASCADE;
+
 -- Enable UUID extension if not already enabled
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- Create journal_entries table
-CREATE TABLE IF NOT EXISTS journal_entries (
+CREATE TABLE journal_entries (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NOT NULL,
     title VARCHAR(255),
     content TEXT NOT NULL,
     mood VARCHAR(50),
     tags TEXT[],
-    date DATE NOT NULL,
+    entry_date DATE NOT NULL,
     is_private BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Create indexes for better performance
-CREATE INDEX IF NOT EXISTS idx_journal_entries_user_id ON journal_entries(user_id);
-CREATE INDEX IF NOT EXISTS idx_journal_entries_date ON journal_entries(date);
-CREATE INDEX IF NOT EXISTS idx_journal_entries_mood ON journal_entries(mood);
+CREATE INDEX idx_journal_entries_user_id ON journal_entries(user_id);
+CREATE INDEX idx_journal_entries_date ON journal_entries(entry_date);
+CREATE INDEX idx_journal_entries_mood ON journal_entries(mood);
 
 -- Create function for updating timestamps
 CREATE OR REPLACE FUNCTION update_journal_updated_at()

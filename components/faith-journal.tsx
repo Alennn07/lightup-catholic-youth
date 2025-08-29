@@ -16,13 +16,13 @@ import { useAuth } from "@/contexts/auth-context"
 import { format } from "date-fns"
 
 interface JournalEntry {
-  id: number
+  id: string
   user_id: string
   title: string
   content: string
   mood: string
   tags: string[]
-  date: string
+  entry_date: string
   created_at: string
   updated_at: string
 }
@@ -110,7 +110,7 @@ export function FaithJournal() {
           .split(",")
           .map((tag) => tag.trim())
           .filter(Boolean),
-        date: formData.date,
+        entry_date: formData.date,
       }
 
       let response
@@ -166,7 +166,7 @@ export function FaithJournal() {
       content: entry.content,
       mood: entry.mood,
       tags: entry.tags.join(", "),
-      date: entry.date,
+              entry_date: entry.entry_date,
     })
     setIsDialogOpen(true)
   }
@@ -403,7 +403,7 @@ export function FaithJournal() {
                         <div className="flex items-center gap-4 text-sm text-gray-600">
                           <div className="flex items-center gap-2">
                             <Calendar className="h-4 w-4 text-amber-500" />
-                            {format(new Date(entry.date), "MMM dd, yyyy")}
+                            {format(new Date(entry.entry_date), "MMM dd, yyyy")}
                           </div>
                           <div className="flex items-center gap-2 text-amber-600">
                             <span className="text-lg">{moodInfo.icon}</span>
