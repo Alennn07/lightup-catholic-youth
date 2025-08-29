@@ -5,6 +5,9 @@ export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
   try {
+    // 🚀 DEPLOYMENT MARKER: Force Vercel redeploy - v2.0
+    console.log('🚀 API Version 2.0 - Timezone fix deployed!')
+    
     // Get authorization header
     const authHeader = request.headers.get('authorization')
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -261,6 +264,12 @@ export async function GET(request: NextRequest) {
       stats: {
         reading_streak: readingStreak,
         today_date: today
+      }
+    }, {
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
       }
     })
     
