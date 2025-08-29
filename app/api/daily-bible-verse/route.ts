@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
     console.log('📅 Fetching verse for date:', today)
 
     try {
-      // Get today's verse from the existing bible_verses table
+      // Get today's verse from the bible_verses table
       let { data: todayVerse, error: verseError } = await supabase
         .from('bible_verses')
         .select('*')
@@ -48,18 +48,20 @@ export async function GET(request: NextRequest) {
         .single()
 
       if (verseError || !todayVerse) {
-        console.log('⚠️ No verse for today, using fallback')
+        console.log('⚠️ No verse for today, trying to get a verse for any recent date')
         
-        // Fallback: Get a random verse from existing table
-        const { data: fallbackVerse, error: fallbackError } = await supabase
+        // Try to get a verse from the last 7 days
+        const { data: recentVerse, error: recentError } = await supabase
           .from('bible_verses')
           .select('*')
-          .order('RANDOM()')
+          .gte('date', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
+          .lte('date', today)
+          .order('date', { ascending: false })
           .limit(1)
           .single()
         
-        if (fallbackError || !fallbackVerse) {
-          console.log('⚠️ No verses in table, using hardcoded fallback')
+        if (recentError || !recentVerse) {
+          console.log('⚠️ No recent verses found, using fallback')
           
           // Hardcoded fallback verse
           const fallbackResponse = {
@@ -89,87 +91,80 @@ export async function GET(request: NextRequest) {
           return NextResponse.json(fallbackResponse)
         }
         
-        todayVerse = fallbackVerse
+        todayVerse = recentVerse
       }
 
-      // Test database connection and table access
-      console.log('🔍 Testing database connection...')
-      try {
-        const { data: testData, error: testError } = await supabase
-          .from('user_verse_progress')
-          .select('count')
-          .limit(1)
-        
-        if (testError) {
-          console.log('⚠️ Database table test failed:', testError)
-        } else {
-          console.log('✅ Database table accessible')
-        }
-      } catch (error) {
-        console.log('⚠️ Database connection test failed:', error)
-      }
+      console.log('✅ Found verse for date:', todayVerse.date, 'Reference:', todayVerse.reference)
 
-      // Get fresh stats from progress API
-      let readingStreak = 0
+      // Get user's progress for today
+      let userProgress = null
+      let isFavorited = false
       
-      console.log('🔍 Step 1: About to call progress API for fresh stats')
       try {
-        // Call the progress API to get fresh stats using relative path
-        const progressUrl = '/api/daily-bible-verse/progress'
-        console.log('🔍 Step 2: Calling progress API at:', progressUrl)
+        const { data: progress, error: progressError } = await supabase
+          .from('user_verse_progress')
+          .select('*')
+          .eq('user_id', user.id)
+          .eq('verse_date', today)
+          .single()
         
-        // Get the base URL from the request
-        const baseUrl = request.nextUrl.origin
-        const fullProgressUrl = `${baseUrl}${progressUrl}`
-        console.log('🔍 Step 2b: Full progress API URL:', fullProgressUrl)
-        
-        const progressResponse = await fetch(fullProgressUrl, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        })
-        
-        console.log('🔍 Step 3: Progress API response status:', progressResponse.status)
-        
-        if (progressResponse.ok) {
-          const progressData = await progressResponse.json()
-          console.log('🔍 Step 4: Progress API response data:', progressData)
-          
-          readingStreak = progressData.stats?.reading_streak || 0
-          console.log('✅ Fresh streak from progress API:', readingStreak)
-        } else {
-          console.log('⚠️ Progress API call failed with status:', progressResponse.status)
-          const errorText = await progressResponse.text()
-          console.log('⚠️ Progress API error response:', errorText)
+        if (!progressError && progress) {
+          userProgress = progress
+          console.log('✅ Found user progress for today')
         }
       } catch (error) {
-        console.log('⚠️ Could not fetch fresh stats:', error)
+        console.log('⚠️ No user progress found for today')
       }
 
-      // Try to check if user has favorited this verse
+      // Check if user has favorited this verse
       try {
         const { data: favorite, error: favoriteError } = await supabase
           .from('favorite_verses')
           .select('id')
           .eq('user_id', user.id)
-          .eq('verse_id', todayVerse.reference) // Use reference as verse_id
+          .eq('verse_id', todayVerse.reference)
           .single()
         
         if (!favoriteError) {
           isFavorited = !!favorite
         }
       } catch (error) {
-        console.log('⚠️ Favorites table not ready yet')
+        console.log('⚠️ Favorites check failed')
       }
 
-      // Prepare the response using the existing table structure
+      // Get fresh stats from progress API
+      let readingStreak = 0
+      
+      console.log('🔍 Getting fresh stats from progress API')
+      try {
+        const baseUrl = request.nextUrl.origin
+        const progressUrl = `${baseUrl}/api/daily-bible-verse/progress`
+        
+        const progressResponse = await fetch(progressUrl, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        })
+        
+        if (progressResponse.ok) {
+          const progressData = await progressResponse.json()
+          readingStreak = progressData.stats?.reading_streak || 0
+          console.log('✅ Fresh streak from progress API:', readingStreak)
+        } else {
+          console.log('⚠️ Progress API call failed, using default streak')
+        }
+      } catch (error) {
+        console.log('⚠️ Could not fetch fresh stats, using default streak')
+      }
+
+      // Prepare the response using the database verse
       const response = {
         verse: {
-          id: todayVerse.reference, // Use reference as ID
-          text: todayVerse.verse, // Use 'verse' column
-          reference: todayVerse.reference, // Use 'reference' column
-          book: todayVerse.reference.split(' ')[0], // Extract book from reference
+          id: todayVerse.reference,
+          text: todayVerse.verse,
+          reference: todayVerse.reference,
+          book: todayVerse.reference.split(' ')[0],
           chapter: parseInt(todayVerse.reference.split(' ')[1]?.split(':')[0]) || 1,
           verse: parseInt(todayVerse.reference.split(' ')[1]?.split(':')[1]) || 1,
           theme: todayVerse.theme || 'Faith',
@@ -183,13 +178,13 @@ export async function GET(request: NextRequest) {
         },
         stats: {
           reading_streak: readingStreak,
-          total_completed: 0, // Removed total_completed
+          total_completed: 0,
           today_date: today
         }
       }
 
       console.log('✅ Daily Bible verse data prepared successfully')
-      console.log('📊 User stats - Streak:', readingStreak, 'Total:', 0) // Removed total_completed
+      console.log('📊 User stats - Streak:', readingStreak, 'Date:', today)
 
       return NextResponse.json(response)
 
