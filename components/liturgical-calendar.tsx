@@ -5,6 +5,7 @@ import { motion } from "framer-motion"
 import { Calendar, Star, Clock, MapPin } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import Link from "next/link"
 
 interface LiturgicalEvent {
   id: string
@@ -475,12 +476,19 @@ export default function LiturgicalCalendar() {
                 celebrating His life, death, and resurrection in the rhythm of the seasons.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <button className="px-8 py-3 bg-white text-purple-600 rounded-lg font-semibold hover:bg-gray-100 transition-colors duration-200">
+                <Link 
+                  href="/liturgical-calendar/seasons"
+                  className="px-8 py-3 bg-white text-purple-600 rounded-lg font-semibold hover:bg-gray-100 transition-colors duration-200 inline-block text-center"
+                >
                   Learn More About Seasons
-                </button>
-                <button className="px-8 py-3 border-2 border-white text-white rounded-lg font-semibold hover:bg-white hover:text-purple-600 transition-colors duration-200">
+                </Link>
+                <a 
+                  href="/liturgical-calendar.ics"
+                  download="liturgical-calendar-2025.ics"
+                  className="px-8 py-3 border-2 border-white text-white rounded-lg font-semibold hover:bg-white hover:text-purple-600 transition-colors duration-200 inline-block text-center"
+                >
                   Download Calendar
-                </button>
+                </a>
               </div>
             </CardContent>
           </Card>

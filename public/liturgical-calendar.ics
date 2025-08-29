@@ -1,0 +1,159 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//LightUp Catholic Youth//Liturgical Calendar//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Liturgical Calendar 2025
+X-WR-CALDESC:Catholic Liturgical Calendar for 2025
+
+BEGIN:VEVENT
+UID:advent-1-2025@lightup-catholic-youth.com
+DTSTART;VALUE=DATE:20251130
+DTEND;VALUE=DATE:20251201
+SUMMARY:First Sunday of Advent
+DESCRIPTION:The beginning of the liturgical year and preparation for Christmas. Light the first candle of the Advent wreath.
+CATEGORIES:Advent
+COLOR:purple
+END:VEVENT
+
+BEGIN:VEVENT
+UID:immaculate-conception-2025@lightup-catholic-youth.com
+DTSTART;VALUE=DATE:20251208
+DTEND;VALUE=DATE:20251209
+SUMMARY:Immaculate Conception
+DESCRIPTION:Solemnity of the Immaculate Conception of the Blessed Virgin Mary. A holy day of obligation.
+CATEGORIES:Feast
+COLOR:blue
+END:VEVENT
+
+BEGIN:VEVENT
+UID:gaudete-sunday-2025@lightup-catholic-youth.com
+DTSTART;VALUE=DATE:20251214
+DTEND;VALUE=DATE:20251215
+SUMMARY:Gaudete Sunday
+DESCRIPTION:Third Sunday of Advent - Rejoice! The pink candle is lit on the Advent wreath.
+CATEGORIES:Advent
+COLOR:pink
+END:VEVENT
+
+BEGIN:VEVENT
+UID:christmas-eve-2025@lightup-catholic-youth.com
+DTSTART;VALUE=DATE:20251224
+DTEND;VALUE=DATE:20251225
+SUMMARY:Christmas Eve
+DESCRIPTION:Vigil of the Nativity of the Lord. Prepare for the celebration of Christ's birth.
+CATEGORIES:Advent
+COLOR:purple
+END:VEVENT
+
+BEGIN:VEVENT
+UID:christmas-day-2025@lightup-catholic-youth.com
+DTSTART;VALUE=DATE:20251225
+DTEND;VALUE=DATE:20251226
+SUMMARY:Christmas Day
+DESCRIPTION:The Nativity of Our Lord Jesus Christ. A holy day of obligation.
+CATEGORIES:Christmas
+COLOR:red
+END:VEVENT
+
+BEGIN:VEVENT
+UID:holy-family-2025@lightup-catholic-youth.com
+DTSTART;VALUE=DATE:20251229
+DTEND;VALUE=DATE:20251230
+SUMMARY:Feast of the Holy Family
+DESCRIPTION:Celebration of Jesus, Mary, and Joseph as a family. Model for all families.
+CATEGORIES:Christmas
+COLOR:blue
+END:VEVENT
+
+BEGIN:VEVENT
+UID:epiphany-2026@lightup-catholic-youth.com
+DTSTART;VALUE=DATE:20260106
+DTEND;VALUE=DATE:20260107
+SUMMARY:Epiphany of the Lord
+DESCRIPTION:The manifestation of Christ to the Magi. The end of the Christmas season.
+CATEGORIES:Christmas
+COLOR:gold
+END:VEVENT
+
+BEGIN:VEVENT
+UID:ash-wednesday-2026@lightup-catholic-youth.com
+DTSTART;VALUE=DATE:20260218
+DTEND;VALUE=DATE:20260219
+SUMMARY:Ash Wednesday
+DESCRIPTION:Beginning of Lent. A day of fasting and abstinence. Receive ashes as a sign of repentance.
+CATEGORIES:Lent
+COLOR:purple
+END:VEVENT
+
+BEGIN:VEVENT
+UID:palm-sunday-2026@lightup-catholic-youth.com
+DTSTART;VALUE=DATE:20260329
+DTEND;VALUE=DATE:20260330
+SUMMARY:Palm Sunday
+DESCRIPTION:Commemoration of Jesus' triumphal entry into Jerusalem. Begin Holy Week.
+CATEGORIES:Lent
+COLOR:red
+END:VEVENT
+
+BEGIN:VEVENT
+UID:easter-sunday-2026@lightup-catholic-youth.com
+DTSTART;VALUE=DATE:20260405
+DTEND;VALUE=DATE:20260406
+SUMMARY:Easter Sunday
+DESCRIPTION:The Resurrection of Our Lord Jesus Christ. The most important feast of the year.
+CATEGORIES:Easter
+COLOR:white
+END:VEVENT
+
+BEGIN:VEVENT
+UID:pentecost-2026@lightup-catholic-youth.com
+DTSTART;VALUE=DATE:20260524
+DTEND;VALUE=DATE:20260525
+SUMMARY:Pentecost Sunday
+DESCRIPTION:The descent of the Holy Spirit upon the Apostles. The birthday of the Church.
+CATEGORIES:Easter
+COLOR:red
+END:VEVENT
+
+BEGIN:VEVENT
+UID:corpus-christi-2026@lightup-catholic-youth.com
+DTSTART;VALUE=DATE:20260607
+DTEND;VALUE=DATE:20260608
+SUMMARY:Corpus Christi
+DESCRIPTION:Solemnity of the Most Holy Body and Blood of Christ. Celebration of the Eucharist.
+CATEGORIES:Feast
+COLOR:white
+END:VEVENT
+
+BEGIN:VEVENT
+UID:assumption-2026@lightup-catholic-youth.com
+DTSTART;VALUE=DATE:20260815
+DTEND;VALUE=DATE:20260816
+SUMMARY:Assumption of Mary
+DESCRIPTION:The bodily assumption of the Blessed Virgin Mary into heaven. A holy day of obligation.
+CATEGORIES:Feast
+COLOR:white
+END:VEVENT
+
+BEGIN:VEVENT
+UID:all-saints-2026@lightup-catholic-youth.com
+DTSTART;VALUE=DATE:20261101
+DTEND;VALUE=DATE:20261102
+SUMMARY:All Saints Day
+DESCRIPTION:Celebration of all the saints in heaven. A holy day of obligation.
+CATEGORIES:Feast
+COLOR:white
+END:VEVENT
+
+BEGIN:VEVENT
+UID:christ-king-2026@lightup-catholic-youth.com
+DTSTART;VALUE=DATE:20261123
+DTEND;VALUE=DATE:20261124
+SUMMARY:Christ the King
+DESCRIPTION:Solemnity of Our Lord Jesus Christ, King of the Universe. End of Ordinary Time.
+CATEGORIES:Ordinary Time
+COLOR:white
+END:VEVENT
+
+END:VCALENDAR
