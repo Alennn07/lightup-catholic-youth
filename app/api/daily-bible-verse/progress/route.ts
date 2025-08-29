@@ -5,12 +5,9 @@ export const dynamic = 'force-dynamic'
 
 export async function POST(request: NextRequest) {
   try {
-    const { action, verse_id, verseId } = await request.json()
+    const { action, verse_id } = await request.json()
     
-    // Handle both parameter names for compatibility
-    const actualVerseId = verseId || verse_id
-    
-    console.log('🔍 Progress API - Action:', action, 'Verse ID:', actualVerseId)
+    console.log('🔍 Progress API - Action:', action, 'Verse ID:', verse_id)
     
     // Get authorization header
     const authHeader = request.headers.get('authorization')
@@ -37,24 +34,21 @@ export async function POST(request: NextRequest) {
     console.log('📅 Today:', today, 'User:', user.id)
     
     if (action === 'mark_completed') {
-      // Ensure we have a verseId
-      if (!actualVerseId) {
-        console.log('❌ No verseId provided for mark_completed action')
+      if (!verse_id) {
         return NextResponse.json({ error: 'Verse ID is required' }, { status: 400 })
       }
       
-      console.log('✅ Marking verse as completed:', actualVerseId, 'for user:', user.id, 'on date:', today)
+      console.log('✅ Marking verse as completed:', verse_id)
       
       // Check if progress already exists for today
-      const { data: existingProgress, error: selectError } = await supabase
+      const { data: existingProgress } = await supabase
         .from('user_progress')
-        .select('*')
+        .select('id')
         .eq('user_id', user.id)
         .eq('verse_date', today)
         .single()
       
       if (existingProgress) {
-        console.log('🔄 Updating existing progress for today')
         // Update existing progress
         const { error: updateError } = await supabase
           .from('user_progress')
@@ -64,14 +58,9 @@ export async function POST(request: NextRequest) {
           })
           .eq('id', existingProgress.id)
         
-        if (updateError) {
-          console.log('❌ Update error:', updateError)
-          throw updateError
-        }
-        
+        if (updateError) throw updateError
         console.log('✅ Progress updated successfully')
       } else {
-        console.log('🆕 Creating new progress for today')
         // Insert new progress
         const { error: insertError } = await supabase
           .from('user_progress')
@@ -82,81 +71,17 @@ export async function POST(request: NextRequest) {
             completed_at: new Date().toISOString()
           })
         
-        if (insertError) {
-          console.log('❌ Insert error:', insertError)
-          throw insertError
-        }
-        
+        if (insertError) throw insertError
         console.log('✅ Progress created successfully')
       }
       
       return NextResponse.json({ success: true, message: 'Verse marked as completed' })
     }
     
-    if (action === 'toggle_favorite') {
-      // Ensure we have a verseId
-      if (!actualVerseId) {
-        console.log('❌ No verseId provided for toggle_favorite action')
-        return NextResponse.json({ error: 'Verse ID is required' }, { status: 400 })
-      }
-      
-      console.log('🔍 Toggling favorite for verse:', actualVerseId, 'user:', user.id)
-      
-      // Check if already favorited
-      const { data: existingFavorite, error: selectError } = await supabase
-        .from('user_favorites')
-        .select('id')
-        .eq('user_id', user.id)
-        .eq('verse_reference', actualVerseId)
-        .single()
-      
-      if (existingFavorite) {
-        // Remove from favorites
-        console.log('🗑️ Removing from favorites')
-        const { error: deleteError } = await supabase
-          .from('user_favorites')
-          .delete()
-          .eq('id', existingFavorite.id)
-        
-        if (deleteError) {
-          console.log('❌ Delete error:', deleteError)
-          throw deleteError
-        }
-        
-        console.log('✅ Removed from favorites')
-        return NextResponse.json({ 
-          success: true, 
-          message: 'Removed from favorites',
-          is_favorited: false
-        })
-      } else {
-        // Add to favorites
-        console.log('❤️ Adding to favorites')
-        const { error: insertError } = await supabase
-          .from('user_favorites')
-          .insert({
-            user_id: user.id,
-            verse_reference: actualVerseId
-          })
-        
-        if (insertError) {
-          console.log('❌ Insert error:', insertError)
-          throw insertError
-        }
-        
-        console.log('✅ Added to favorites')
-        return NextResponse.json({ 
-          success: true, 
-          message: 'Added to favorites',
-          is_favorited: true
-        })
-      }
-    }
-    
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
     
   } catch (error: any) {
-    console.error('❌ Error in POST /api/daily-bible-verse/progress:', error)
+    console.error('❌ Error in Progress API:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

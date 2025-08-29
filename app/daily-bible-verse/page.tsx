@@ -32,7 +32,6 @@ export default function DailyBibleVersePage() {
         </div>
         <DailyBibleVerse />
       </div>
-      
       <BackToTop />
     </div>
   )

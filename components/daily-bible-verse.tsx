@@ -7,19 +7,15 @@ import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { BookOpen, Heart, Share2, CheckCircle, Flame, Calendar, Star } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
-import type { User as SupabaseUser } from "@supabase/supabase-js"
 import { supabase } from "@/lib/supabase"
 
 interface Verse {
   id: string
   text: string
   reference: string
-  book: string
-  chapter: number
-  verse: number
   theme: string
   reflection: string
-  action_prompt: string
+  action: string
 }
 
 interface UserProgress {
@@ -43,7 +39,7 @@ export function DailyBibleVerse() {
   const [verseData, setVerseData] = useState<DailyVerseData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isUpdating, setIsUpdating] = useState(false)
-  const [user, setUser] = useState<SupabaseUser | null>(null)
+  const [user, setUser] = useState<any>(null)
   const { toast } = useToast()
 
   // Check authentication
@@ -71,7 +67,7 @@ export function DailyBibleVerse() {
         throw new Error('No access token')
       }
 
-      // Get client's current date to send to API
+      // Get client's current date
       const clientDate = new Date().toISOString().split('T')[0]
       console.log('📱 Client sending date:', clientDate)
       
@@ -154,59 +150,6 @@ export function DailyBibleVerse() {
       toast({
         title: "Error",
         description: "Failed to mark as completed. Please try again.",
-        variant: "destructive",
-      })
-    } finally {
-      setIsUpdating(false)
-    }
-  }
-
-  const handleToggleFavorite = async () => {
-    if (!user || !verseData || isUpdating) return
-    
-    setIsUpdating(true)
-    try {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session?.access_token) {
-        throw new Error('No access token')
-      }
-
-      const response = await fetch('/api/daily-bible-verse/progress', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`
-        },
-        body: JSON.stringify({
-          action: 'toggle_favorite',
-          verse_id: verseData.verse.reference
-        })
-      })
-
-      if (!response.ok) throw new Error('Failed to toggle favorite')
-      
-      const result = await response.json()
-      console.log('✅ Toggle favorite result:', result)
-      
-      // Update local state
-      setVerseData(prev => prev ? {
-        ...prev,
-        user_progress: {
-          ...prev.user_progress,
-          is_favorited: result.is_favorited
-        }
-      } : null)
-      
-      toast({
-        title: result.is_favorited ? "Added to favorites!" : "Removed from favorites!",
-        description: result.message,
-      })
-      
-    } catch (error) {
-      console.error('Error toggling favorite:', error)
-      toast({
-        title: "Error",
-        description: "Failed to toggle favorite. Please try again.",
         variant: "destructive",
       })
     } finally {
@@ -319,7 +262,7 @@ export function DailyBibleVerse() {
           {/* Action Prompt */}
           <div className="text-center">
             <p className="text-gray-700 mb-4">
-              <strong>Take Action Today:</strong> {verseData.verse.action_prompt}
+              <strong>Take Action Today:</strong> {verseData.verse.action}
             </p>
           </div>
 
@@ -338,18 +281,9 @@ export function DailyBibleVerse() {
               {verseData.user_progress.is_completed ? 'Completed Today!' : 'Mark as Completed'}
             </Button>
 
-            <Button
-              onClick={handleToggleFavorite}
-              disabled={isUpdating}
-              variant={verseData.user_progress.is_favorited ? 'default' : 'outline'}
-              className={`flex items-center gap-2 ${
-                verseData.user_progress.is_favorited 
-                  ? 'bg-red-600 hover:bg-red-700' 
-                  : 'border-red-300 text-red-600 hover:bg-red-50'
-              }`}
-            >
+            <Button variant="outline" className="flex items-center gap-2">
               <Heart className="h-4 w-4" />
-              {verseData.user_progress.is_favorited ? 'Favorited' : 'Favorite'}
+              Favorite
             </Button>
 
             <Button variant="outline" className="flex items-center gap-2">
