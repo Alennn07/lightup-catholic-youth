@@ -51,17 +51,21 @@ export default function FeaturesPage() {
         .order('user_count', { ascending: false })
 
       if (!error && featuresData) {
-        const realFeatures: Feature[] = featuresData.map((feature: any) => ({
-          id: feature.id,
-          name: feature.name || '',
-          description: feature.description || '',
-          category: feature.category || 'Community',
-          userCount: feature.user_count || 0,
-          rating: feature.rating || 0,
-          icon: getIconForFeature(feature.name || ''),
-          color: getColorForFeature(feature.name || ''),
-          href: getFeatureHref(feature.name || ''),
-        }))
+        const realFeatures: Feature[] = featuresData.map((feature: any) => {
+          const href = getFeatureHref(feature.name || '')
+          console.log(`🔍 Feature: "${feature.name}" -> Href: "${href}"`)
+          return {
+            id: feature.id,
+            name: feature.name || '',
+            description: feature.description || '',
+            category: feature.category || 'Community',
+            userCount: feature.user_count || 0,
+            rating: feature.rating || 0,
+            icon: getIconForFeature(feature.name || ''),
+            color: getColorForFeature(feature.name || ''),
+            href: href,
+          }
+        })
         setFeatures(realFeatures)
       } else {
         // If no real data, show default empty state
@@ -164,7 +168,14 @@ export default function FeaturesPage() {
   }
 
   const getIconForFeature = (featureName: string) => {
-    switch (featureName.toLowerCase()) {
+    const lowerName = featureName.toLowerCase()
+    
+    // More specific matching for FaithBot
+    if (lowerName.includes('faithbot') || lowerName.includes('faith bot') || lowerName.includes('ai')) {
+      return MessageCircle
+    }
+    
+    switch (lowerName) {
       case 'prayer wall': return Heart
       case 'youth groups': return Users2
       case 'daily bible verse': return BookOpen
@@ -178,7 +189,14 @@ export default function FeaturesPage() {
   }
 
   const getColorForFeature = (featureName: string) => {
-    switch (featureName.toLowerCase()) {
+    const lowerName = featureName.toLowerCase()
+    
+    // More specific matching for FaithBot
+    if (lowerName.includes('faithbot') || lowerName.includes('faith bot') || lowerName.includes('ai')) {
+      return "from-purple-500 to-pink-500"
+    }
+    
+    switch (lowerName) {
       case 'prayer wall': return "from-pink-500 to-rose-500"
       case 'youth groups': return "from-blue-500 to-cyan-500"
       case 'daily bible verse': return "from-green-500 to-emerald-500"
@@ -192,7 +210,14 @@ export default function FeaturesPage() {
   }
 
   const getFeatureHref = (featureName: string) => {
-    switch (featureName.toLowerCase()) {
+    const lowerName = featureName.toLowerCase()
+    
+    // More specific matching for FaithBot
+    if (lowerName.includes('faithbot') || lowerName.includes('faith bot') || lowerName.includes('ai')) {
+      return "/faithbot"
+    }
+    
+    switch (lowerName) {
       case 'prayer wall': return "/prayer-wall"
       case 'youth groups': return "/youth-groups"
       case 'daily bible verse': return "/daily-bible-verse"
