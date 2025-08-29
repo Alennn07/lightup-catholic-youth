@@ -36,15 +36,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    // Get initial session with timeout
-    const sessionPromise = supabase.auth.getSession()
-    const timeoutPromise = new Promise((resolve) => setTimeout(resolve, 2000))
-    
-    Promise.race([sessionPromise, timeoutPromise]).then((result) => {
-      if (result && 'data' in result) {
-        const { data: { session } } = result
-        setSupabaseUser(session?.user ?? null)
+    // Get initial session
+    const getInitialSession = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession()
+        console.log('🔐 Initial session check:', { hasSession: !!session, userId: session?.user?.id, error })
+        
         if (session?.user) {
+          setSupabaseUser(session.user)
           // Set basic user without profile fetch
           const basicUser = {
             id: session.user.id,
@@ -58,14 +57,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             updated_at: new Date().toISOString(),
           }
           setUser(basicUser)
+          console.log('👤 User set from session:', basicUser)
+        } else {
+          console.log('❌ No initial session found')
+          setSupabaseUser(null)
+          setUser(null)
         }
-        setIsLoading(false)
-      } else {
-        // Timeout reached, set loading to false
-        console.log("Session check timeout, setting loading to false")
+      } catch (error) {
+        console.error('🚨 Error getting initial session:', error)
+      } finally {
         setIsLoading(false)
       }
-    })
+    }
+
+    getInitialSession()
 
     // Listen for auth changes
     const {
