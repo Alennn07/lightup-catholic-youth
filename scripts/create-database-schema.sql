@@ -172,8 +172,7 @@ INSERT INTO features (name, description, category, icon, color, user_count, rati
 ('FaithBot AI', 'Get answers to your faith questions with our AI-powered assistant.', 'Spiritual', 'message-circle', 'from-purple-500 to-pink-500', 0, 0),
 
 ('Faith Journal', 'Reflect on your spiritual journey with personal journaling.', 'Personal', 'pen-tool', 'from-orange-500 to-red-500', 0, 0),
-('Faith Quiz', 'Test your knowledge and learn more about your faith.', 'Educational', 'zap', 'from-yellow-500 to-orange-500', 0, 0),
-('Liturgical Calendar', 'Follow the Church''s liturgical seasons and feast days.', 'Spiritual', 'calendar', 'from-rose-500 to-pink-500', 0, 0)
+('Faith Quiz', 'Test your knowledge and learn more about your faith.', 'Educational', 'zap', 'from-yellow-500 to-orange-500', 0, 0)
 ON CONFLICT DO NOTHING;
 
 -- Insert default apps for comparison
