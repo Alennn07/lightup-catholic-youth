@@ -10,10 +10,10 @@ export default function YouthGroupsPage() {
     <div className="container mx-auto px-4 py-8">
       {/* Go Back Button */}
       <div className="mb-6">
-        <Link href="/dashboard">
+        <Link href="/features">
           <Button variant="outline" className="flex items-center gap-2">
             <ArrowLeft className="h-4 w-4" />
-            Go Back to Dashboard
+            Back to Features
           </Button>
         </Link>
       </div>
