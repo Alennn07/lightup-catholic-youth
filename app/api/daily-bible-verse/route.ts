@@ -183,12 +183,9 @@ export async function GET(request: NextRequest) {
         console.log('📅 No progress yesterday, streak reset to 0')
       }
       
-      // If completed today, add 1 to the streak
-      if (isCompleted) {
-        readingStreak++
-      }
-      
-      console.log('📊 Fallback system - Yesterday completed:', readingStreak > 0, 'Today completed:', isCompleted, 'Total streak:', readingStreak)
+      // DON'T add to streak if completed today - streak should only show previous days
+      // The streak will be updated when they actually complete today's verse
+      console.log('📊 Fallback system - Yesterday completed:', readingStreak > 0, 'Today completed:', isCompleted, 'Base streak:', readingStreak)
       
       return NextResponse.json({
         verse: selectedVerse,
@@ -285,12 +282,9 @@ export async function GET(request: NextRequest) {
       console.log('📅 No progress yesterday, streak reset to 0')
     }
     
-    // If completed today, add 1 to the streak
-    if (isCompleted) {
-      readingStreak++
-    }
-    
-    console.log('📊 Streak calculation - Yesterday completed:', readingStreak > 0, 'Today completed:', isCompleted, 'Total streak:', readingStreak)
+    // DON'T add to streak if completed today - streak should only show previous days
+    // The streak will be updated when they actually complete today's verse
+    console.log('📊 Streak calculation - Yesterday completed:', readingStreak > 0, 'Today completed:', isCompleted, 'Base streak:', readingStreak)
     
     // Prepare response
     const response = {
