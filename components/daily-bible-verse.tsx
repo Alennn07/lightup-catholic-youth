@@ -130,13 +130,17 @@ export function DailyBibleVerse() {
       const result = await response.json()
       console.log('✅ Marked as completed:', result)
       
-      // Update local state
+      // Update local state with completion and increment streak
       setVerseData(prev => prev ? {
         ...prev,
         user_progress: {
           ...prev.user_progress,
           is_completed: true,
           read_at: new Date().toISOString()
+        },
+        stats: {
+          ...prev.stats,
+          reading_streak: (prev.stats.reading_streak || 0) + 1
         }
       } : null)
       
@@ -144,9 +148,6 @@ export function DailyBibleVerse() {
         title: "Success!",
         description: "Verse marked as completed!",
       })
-      
-      // Refresh to get updated streak
-      setTimeout(() => fetchDailyVerse(), 500)
       
     } catch (error) {
       console.error('Error marking as completed:', error)
