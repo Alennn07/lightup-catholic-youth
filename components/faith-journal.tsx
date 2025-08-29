@@ -13,7 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { BookOpen, Plus, Search, Edit, Trash2, Calendar } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { useAuth } from "@/contexts/auth-context"
-import { format } from "date-fns"
+import { format, formatDistanceToNow, isAfter, subDays } from "date-fns"
 
 interface JournalEntry {
   id: string
@@ -40,6 +40,7 @@ export function FaithJournal() {
     mood: "",
     tags: "",
     date: new Date().toISOString().split("T")[0],
+    entry_date: new Date().toISOString().split("T")[0],
   })
   const { toast } = useToast()
   const { user } = useAuth()
@@ -91,6 +92,7 @@ export function FaithJournal() {
       mood: "",
       tags: "",
       date: new Date().toISOString().split("T")[0],
+      entry_date: new Date().toISOString().split("T")[0],
     })
     setEditingEntry(null)
   }
@@ -166,12 +168,13 @@ export function FaithJournal() {
       content: entry.content,
       mood: entry.mood,
       tags: entry.tags.join(", "),
-              entry_date: entry.entry_date,
+      date: entry.entry_date,
+      entry_date: entry.entry_date,
     })
     setIsDialogOpen(true)
   }
 
-  const handleDelete = async (entryId: number) => {
+  const handleDelete = async (entryId: string) => {
     try {
       const response = await fetch(`/api/journal/${entryId}`, {
         method: "DELETE",
@@ -195,6 +198,17 @@ export function FaithJournal() {
 
   const getMoodInfo = (mood: string) => {
     return moods.find((m) => m.value === mood) || moods[0]
+  }
+
+  const getRelativeTime = (dateString: string) => {
+    const date = new Date(dateString)
+    const cutoffDate = subDays(new Date(), 15)
+    
+    if (isAfter(date, cutoffDate)) {
+      return formatDistanceToNow(date, { addSuffix: true })
+    } else {
+      return format(date, "MMM dd, yyyy")
+    }
   }
 
   if (!user) {
@@ -400,16 +414,25 @@ export function FaithJournal() {
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex-1">
                         <h3 className="font-bold text-gray-800 text-xl mb-2">{entry.title}</h3>
-                        <div className="flex items-center gap-4 text-sm text-gray-600">
-                          <div className="flex items-center gap-2">
-                            <Calendar className="h-4 w-4 text-amber-500" />
-                            {format(new Date(entry.entry_date), "MMM dd, yyyy")}
-                          </div>
-                          <div className="flex items-center gap-2 text-amber-600">
-                            <span className="text-lg">{moodInfo.icon}</span>
-                            <span className="font-medium">{moodInfo.label}</span>
-                          </div>
-                        </div>
+                                                 <div className="flex items-center gap-4 text-sm text-gray-600">
+                           <div className="flex items-center gap-2">
+                             <Calendar className="h-4 w-4 text-amber-500" />
+                             <span>Created: {format(new Date(entry.entry_date), "MMM dd, yyyy")}</span>
+                             {entry.updated_at !== entry.created_at && (
+                               <>
+                                 <span className="text-gray-400">•</span>
+                                 <span className="flex items-center gap-1 text-blue-600">
+                                   <Edit className="h-3 w-3" />
+                                   Updated: {getRelativeTime(entry.updated_at)}
+                                 </span>
+                               </>
+                             )}
+                           </div>
+                           <div className="flex items-center gap-2 text-amber-600">
+                             <span className="text-lg">{moodInfo.icon}</span>
+                             <span className="font-medium">{moodInfo.label}</span>
+                           </div>
+                         </div>
                       </div>
                       <div className="flex gap-2">
                         <Button
