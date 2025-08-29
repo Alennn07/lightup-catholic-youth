@@ -110,10 +110,14 @@ export async function GET(request: NextRequest) {
         
         if (!progressError && progress) {
           userProgress = progress
-          console.log('✅ Found user progress for today')
+          console.log('✅ Found user progress for today:', progress.is_completed)
+        } else {
+          console.log('ℹ️ No user progress found for today, user has not completed')
+          userProgress = { is_completed: false, read_at: null }
         }
       } catch (error) {
-        console.log('⚠️ No user progress found for today')
+        console.log('⚠️ Progress check failed, defaulting to not completed')
+        userProgress = { is_completed: false, read_at: null }
       }
 
       // Check if user has favorited this verse
