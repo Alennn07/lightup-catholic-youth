@@ -3,64 +3,6 @@ import { createClient } from '@supabase/supabase-js'
 
 export const dynamic = 'force-dynamic'
 
-export async function GET(request: NextRequest) {
-  try {
-    // Get authorization header
-    const authHeader = request.headers.get('authorization')
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-    
-    const token = authHeader.replace('Bearer ', '')
-    
-    // Create Supabase client with service role for admin operations
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!,
-      { auth: { autoRefreshToken: false, persistSession: false } }
-    )
-    
-    // Verify the token and get user
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
-    }
-    
-    console.log('🔍 Progress API GET - User ID:', user.id)
-    
-    // Get user's reading streak using the SQL function
-    let readingStreak = 0
-    try {
-      const { data: streakData, error: streakError } = await supabase
-        .rpc('get_user_reading_streak', { user_uuid: user.id })
-      
-      if (!streakError && streakData !== null) {
-        readingStreak = streakData
-        console.log('✅ Reading streak from function:', readingStreak)
-      } else {
-        console.log('⚠️ Streak function error:', streakError)
-      }
-    } catch (error) {
-      console.log('⚠️ Streak calculation failed:', error)
-    }
-    
-    // Return the stats
-    const response = {
-      stats: {
-        reading_streak: readingStreak,
-        today_date: new Date().toISOString().split('T')[0]
-      }
-    }
-    
-    console.log('✅ Progress API GET response:', response)
-    return NextResponse.json(response)
-    
-  } catch (error: any) {
-    console.error('❌ Error in GET /api/daily-bible-verse/progress:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
-  }
-}
-
 export async function POST(request: NextRequest) {
   try {
     const { action, verse_id, verseId } = await request.json()
@@ -78,7 +20,7 @@ export async function POST(request: NextRequest) {
     
     const token = authHeader.replace('Bearer ', '')
     
-    // Create Supabase client with service role for admin operations
+    // Create Supabase client
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!,
@@ -92,7 +34,7 @@ export async function POST(request: NextRequest) {
     }
     
     const today = new Date().toISOString().split('T')[0]
-    console.log('📅 Today\'s date:', today, 'User ID:', user.id)
+    console.log('📅 Today:', today, 'User:', user.id)
     
     if (action === 'mark_completed') {
       // Ensure we have a verseId
@@ -105,7 +47,7 @@ export async function POST(request: NextRequest) {
       
       // Check if progress already exists for today
       const { data: existingProgress, error: selectError } = await supabase
-        .from('user_verse_progress')
+        .from('user_progress')
         .select('*')
         .eq('user_id', user.id)
         .eq('verse_date', today)
@@ -115,11 +57,10 @@ export async function POST(request: NextRequest) {
         console.log('🔄 Updating existing progress for today')
         // Update existing progress
         const { error: updateError } = await supabase
-          .from('user_verse_progress')
+          .from('user_progress')
           .update({ 
-            verse_id: actualVerseId, // Use the actual verse ID
             is_completed: true, 
-            read_at: new Date().toISOString() 
+            completed_at: new Date().toISOString() 
           })
           .eq('id', existingProgress.id)
         
@@ -133,13 +74,12 @@ export async function POST(request: NextRequest) {
         console.log('🆕 Creating new progress for today')
         // Insert new progress
         const { error: insertError } = await supabase
-          .from('user_verse_progress')
+          .from('user_progress')
           .insert({
             user_id: user.id,
-            verse_id: actualVerseId, // Use the actual verse ID
             verse_date: today,
             is_completed: true,
-            read_at: new Date().toISOString()
+            completed_at: new Date().toISOString()
           })
         
         if (insertError) {
@@ -160,21 +100,21 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Verse ID is required' }, { status: 400 })
       }
       
-      console.log('💖 Toggling favorite for verse:', actualVerseId, 'for user:', user.id)
+      console.log('🔍 Toggling favorite for verse:', actualVerseId, 'user:', user.id)
       
-      // Check if verse is already favorited
+      // Check if already favorited
       const { data: existingFavorite, error: selectError } = await supabase
-        .from('favorite_verses')
+        .from('user_favorites')
         .select('id')
         .eq('user_id', user.id)
-        .eq('verse_id', actualVerseId)
+        .eq('verse_reference', actualVerseId)
         .single()
       
       if (existingFavorite) {
         // Remove from favorites
-        console.log('🗑️ Removing verse from favorites')
+        console.log('🗑️ Removing from favorites')
         const { error: deleteError } = await supabase
-          .from('favorite_verses')
+          .from('user_favorites')
           .delete()
           .eq('id', existingFavorite.id)
         
@@ -183,20 +123,20 @@ export async function POST(request: NextRequest) {
           throw deleteError
         }
         
-        console.log('✅ Verse removed from favorites')
+        console.log('✅ Removed from favorites')
         return NextResponse.json({ 
           success: true, 
-          message: 'Verse removed from favorites',
+          message: 'Removed from favorites',
           is_favorited: false
         })
       } else {
         // Add to favorites
-        console.log('❤️ Adding verse to favorites')
+        console.log('❤️ Adding to favorites')
         const { error: insertError } = await supabase
-          .from('favorite_verses')
+          .from('user_favorites')
           .insert({
             user_id: user.id,
-            verse_id: actualVerseId
+            verse_reference: actualVerseId
           })
         
         if (insertError) {
@@ -204,10 +144,10 @@ export async function POST(request: NextRequest) {
           throw insertError
         }
         
-        console.log('✅ Verse added to favorites')
+        console.log('✅ Added to favorites')
         return NextResponse.json({ 
           success: true, 
-          message: 'Verse added to favorites',
+          message: 'Added to favorites',
           is_favorited: true
         })
       }
@@ -216,7 +156,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
     
   } catch (error: any) {
-    console.error('❌ Progress API error:', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    console.error('❌ Error in POST /api/daily-bible-verse/progress:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
