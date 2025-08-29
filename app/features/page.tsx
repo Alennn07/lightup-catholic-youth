@@ -118,17 +118,7 @@ export default function FeaturesPage() {
             color: "from-purple-500 to-pink-500",
             href: "/faithbot",
           },
-          {
-            id: "parish-calendar",
-            name: "Parish Calendar",
-            description: "Stay updated with local parish events and activities.",
-            category: "Community",
-            userCount: 0,
-            rating: 0,
-            icon: Calendar,
-            color: "from-indigo-500 to-purple-500",
-            href: "/parish-calendar",
-          },
+
           {
             id: "faith-journal",
             name: "Faith Journal",
@@ -184,7 +174,7 @@ export default function FeaturesPage() {
       case 'youth groups': return Users2
       case 'daily bible verse': return BookOpen
       case 'faithbot': return MessageCircle
-      case 'parish calendar': return Calendar
+
       case 'faith journal': return PenTool
       case 'faith quiz': return Zap
       case 'youth group finder': return MapPin
@@ -205,7 +195,7 @@ export default function FeaturesPage() {
       case 'youth groups': return "from-blue-500 to-cyan-500"
       case 'daily bible verse': return "from-green-500 to-emerald-500"
       case 'faithbot': return "from-purple-500 to-pink-500"
-      case 'parish calendar': return "from-indigo-500 to-purple-500"
+
       case 'faith journal': return "from-orange-500 to-red-500"
       case 'faith quiz': return "from-yellow-500 to-orange-500"
       case 'youth group finder': return "from-teal-500 to-green-500"
@@ -243,9 +233,7 @@ export default function FeaturesPage() {
       case 'faithbot': 
         console.log('🎯 FaithBot detected, returning /faithbot')
         return "/faithbot"
-      case 'parish calendar': 
-        console.log('🎯 Parish Calendar detected, returning /parish-calendar')
-        return "/parish-calendar"
+
       case 'faith journal': 
         console.log('🎯 Faith Journal detected, returning /faith-journal')
         return "/faith-journal"

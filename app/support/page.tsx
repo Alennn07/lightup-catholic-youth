@@ -113,20 +113,7 @@ export default function SupportPage() {
                   </CardContent>
                 </Card>
 
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-2">
-                      <Calendar className="w-6 h-6 text-indigo-600" />
-                    </div>
-                    <CardTitle className="text-lg">Parish Calendar</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-gray-600 mb-4">
-                      Stay updated with parish events, masses, and special celebrations.
-                    </p>
-                    <Button variant="outline" size="sm" className="border-gray-400 text-gray-700 hover:bg-gray-50 hover:border-gray-500 bg-white">View Calendar</Button>
-                  </CardContent>
-                </Card>
+
 
                 <Card className="hover:shadow-lg transition-shadow">
                   <CardHeader>

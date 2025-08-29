@@ -170,7 +170,7 @@ INSERT INTO features (name, description, category, icon, color, user_count, rati
 ('Youth Groups', 'Discover and connect with Catholic youth groups in your area.', 'Community', 'users', 'from-blue-500 to-cyan-500', 0, 0),
 ('Daily Bible Verse', 'Start each day with inspiring scripture and thoughtful reflections.', 'Spiritual', 'book-open', 'from-green-500 to-emerald-500', 0, 0),
 ('FaithBot AI', 'Get answers to your faith questions with our AI-powered assistant.', 'Spiritual', 'message-circle', 'from-purple-500 to-pink-500', 0, 0),
-('Parish Calendar', 'Stay updated with local parish events and activities.', 'Community', 'calendar', 'from-indigo-500 to-purple-500', 0, 0),
+
 ('Faith Journal', 'Reflect on your spiritual journey with personal journaling.', 'Personal', 'pen-tool', 'from-orange-500 to-red-500', 0, 0),
 ('Faith Quiz', 'Test your knowledge and learn more about your faith.', 'Educational', 'zap', 'from-yellow-500 to-orange-500', 0, 0),
 ('Liturgical Calendar', 'Follow the Church''s liturgical seasons and feast days.', 'Spiritual', 'calendar', 'from-rose-500 to-pink-500', 0, 0)
