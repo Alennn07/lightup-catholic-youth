@@ -134,6 +134,7 @@ export function DailyBibleVerse() {
           description: result.message,
           duration: 3000,
         })
+        
         // Update local state to show as completed
         setVerseData(prev => prev ? {
           ...prev,
@@ -141,14 +142,14 @@ export function DailyBibleVerse() {
             ...prev.user_progress,
             is_completed: true,
             read_at: new Date().toISOString()
-          },
-          stats: {
-            ...prev.stats,
-            reading_streak: (prev.stats.reading_streak || 0) + 1
           }
         } : null)
         
-        // REMOVED: No more auto-refresh that causes the loop
+        // Fetch fresh data to get the real streak
+        setTimeout(() => {
+          fetchDailyVerse()
+        }, 500)
+        
       } else {
         toast({
           title: "Error",
@@ -200,6 +201,7 @@ export function DailyBibleVerse() {
           description: result.message,
           duration: 3000,
         })
+        
         // Toggle local state
         setVerseData(prev => prev ? {
           ...prev,
@@ -208,6 +210,12 @@ export function DailyBibleVerse() {
             is_favorited: !prev.user_progress.is_favorited
           }
         } : null)
+        
+        // Fetch fresh data to get updated stats
+        setTimeout(() => {
+          fetchDailyVerse()
+        }, 500)
+        
       } else {
         toast({
           title: "Error",
