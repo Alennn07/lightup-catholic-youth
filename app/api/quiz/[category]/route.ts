@@ -28,6 +28,7 @@ export async function GET(request: Request, { params }: { params: { category: st
 
     // Check authentication
     const { data: { session } } = await supabase.auth.getSession()
+    console.log('Session check:', { hasSession: !!session, userId: session?.user?.id })
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
@@ -77,6 +78,7 @@ export async function GET(request: Request, { params }: { params: { category: st
     }
 
     console.log(`Found ${questions.length} questions for category:`, category)
+    console.log('Sample question data:', questions[0])
     return NextResponse.json({ questions })
   } catch (error) {
     console.error('Quiz questions API error:', error)
