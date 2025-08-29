@@ -25,12 +25,7 @@ const featuredItems = [
     description: "Start each day with God's word",
     color: "from-green-500 to-emerald-500",
   },
-  {
-    icon: Calendar,
-    title: "Parish Events",
-    description: "Stay updated with local activities",
-    color: "from-purple-500 to-violet-500",
-  },
+
   {
     icon: BrainCircuit,
     title: "FaithBot AI",
