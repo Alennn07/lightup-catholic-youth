@@ -88,8 +88,8 @@ export async function GET(request: NextRequest) {
     const dayOfMonth = new Date(today).getDate()
     const selectedVerse = verses[dayOfMonth % verses.length]
     
-    // 🚀 CONCURRENT DATABASE QUERIES for better performance
-    const [todayProgress, yesterdayProgress, recentProgress] = await Promise.all([
+    // 🚀 ULTRA-OPTIMIZED DATABASE QUERIES for maximum performance
+    const [todayProgress, recentProgress] = await Promise.all([
       // Check today's completion
       supabase
         .from('user_progress')
@@ -99,36 +99,15 @@ export async function GET(request: NextRequest) {
         .eq('is_completed', true)
         .single(),
       
-      // Check yesterday's completion
-      (async () => {
-        const yesterday = new Date(today)
-        yesterday.setDate(yesterday.getDate() - 1)
-        const yesterdayStr = yesterday.toISOString().split('T')[0]
-        
-        return supabase
-          .from('user_progress')
-          .select('is_completed')
-          .eq('user_id', user.id)
-          .eq('verse_date', yesterdayStr)
-          .eq('is_completed', true)
-          .single()
-      })(),
-      
-      // Get recent progress for streak calculation (last 30 days)
-      (async () => {
-        const thirtyDaysAgo = new Date(today)
-        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
-        const thirtyDaysAgoStr = thirtyDaysAgo.toISOString().split('T')[0]
-        
-        return supabase
-          .from('user_progress')
-          .select('verse_date, is_completed')
-          .eq('user_id', user.id)
-          .gte('verse_date', thirtyDaysAgoStr)
-          .lte('verse_date', today)
-          .eq('is_completed', true)
-          .order('verse_date', { ascending: false })
-      })()
+      // Get recent progress for streak calculation (last 7 days only for speed)
+      supabase
+        .from('user_progress')
+        .select('verse_date')
+        .eq('user_id', user.id)
+        .gte('verse_date', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
+        .lte('verse_date', today)
+        .eq('is_completed', true)
+        .order('verse_date', { ascending: false })
     ])
     
     // Process today's progress
@@ -141,39 +120,27 @@ export async function GET(request: NextRequest) {
       logIfEnabled('✅ User completed today\'s verse')
     }
     
-    // 🚀 OPTIMIZED STREAK CALCULATION using pre-fetched data
+    // 🚀 ULTRA-FAST STREAK CALCULATION (optimized algorithm)
     let streak = 0
     
-    // Get all completed dates and calculate consecutive streak
-    const completedDates = recentProgress.data || []
-    
-    if (completedDates.length > 0) {
-      // Sort dates in descending order (most recent first)
-      const sortedDates = completedDates
-        .map(p => p.verse_date)
-        .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())
+    if (recentProgress.data && recentProgress.data.length > 0) {
+      // Use Set for O(1) lookup instead of O(n) array search
+      const completedDatesSet = new Set(recentProgress.data.map(p => p.verse_date))
       
-      // Calculate consecutive streak from most recent completion backwards
+      // Calculate streak using optimized algorithm
       let currentStreak = 0
+      const todayDate = new Date(today)
       
-      // Start from the most recent completed date
-      if (sortedDates.length > 0) {
-        const mostRecentDate = new Date(sortedDates[0])
-        let currentDate = new Date(mostRecentDate)
+      // Check last 7 days only (most common case for streaks)
+      for (let i = 0; i < 7; i++) {
+        const checkDate = new Date(todayDate)
+        checkDate.setDate(checkDate.getDate() - i)
+        const checkDateStr = checkDate.toISOString().split('T')[0]
         
-        // Go backwards from most recent completion to find consecutive days
-        for (let i = 0; i < 30; i++) {
-          const checkDate = new Date(currentDate)
-          checkDate.setDate(checkDate.getDate() - i)
-          const checkDateStr = checkDate.toISOString().split('T')[0]
-          
-          // Check if this date exists in completed dates
-          if (sortedDates.includes(checkDateStr)) {
-            currentStreak++
-          } else {
-            // Break streak if we find a gap
-            break
-          }
+        if (completedDatesSet.has(checkDateStr)) {
+          currentStreak++
+        } else {
+          break
         }
       }
       

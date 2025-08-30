@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { logIfEnabled } from '@/lib/performance-monitor'
+import { logIfEnabled, logPerformanceIfEnabled } from '@/lib/performance-monitor'
 
 export const dynamic = 'force-dynamic'
 
 export async function POST(request: NextRequest) {
+  const startTime = Date.now()
+  
   try {
     const { action, date } = await request.json()
     
@@ -18,11 +20,14 @@ export async function POST(request: NextRequest) {
     
     const token = authHeader.replace('Bearer ', '')
     
-    // Create Supabase client
+    // Create Supabase client with optimized settings
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!,
-      { auth: { autoRefreshToken: false, persistSession: false } }
+      { 
+        auth: { autoRefreshToken: false, persistSession: false },
+        db: { schema: 'public' }
+      }
     )
     
     // Verify the token and get user
@@ -38,46 +43,28 @@ export async function POST(request: NextRequest) {
     if (action === 'mark_completed') {
       logIfEnabled(`✅ Marking verse as completed for date: ${targetDate}`)
       
-      // Check if progress already exists for the target date
-      const { data: existingProgress } = await supabase
+      // 🚀 OPTIMIZED: Single upsert operation instead of check-then-insert/update
+      const { error: upsertError } = await supabase
         .from('user_progress')
-        .select('id')
-        .eq('user_id', user.id)
-        .eq('verse_date', targetDate)
-        .single()
+        .upsert({
+          user_id: user.id,
+          verse_date: targetDate,
+          is_completed: true,
+          completed_at: new Date().toISOString()
+        }, {
+          onConflict: 'user_id,verse_date' // Use composite key for conflict resolution
+        })
       
-      if (existingProgress) {
-        // Update existing progress
-        const { error: updateError } = await supabase
-          .from('user_progress')
-          .update({ 
-            is_completed: true, 
-            completed_at: new Date().toISOString() 
-          })
-          .eq('id', existingProgress.id)
-        
-        if (updateError) {
-          logIfEnabled(`❌ Error updating progress: ${updateError.message}`, 'error')
-          throw updateError
-        }
-        logIfEnabled('✅ Progress updated successfully')
-      } else {
-        // Insert new progress
-        const { error: insertError } = await supabase
-          .from('user_progress')
-          .insert({
-            user_id: user.id,
-            verse_date: targetDate,
-            is_completed: true,
-            completed_at: new Date().toISOString()
-          })
-        
-        if (insertError) {
-          logIfEnabled(`❌ Error creating progress: ${insertError.message}`, 'error')
-          throw insertError
-        }
-        logIfEnabled('✅ Progress created successfully')
+      if (upsertError) {
+        logIfEnabled(`❌ Error upserting progress: ${upsertError.message}`, 'error')
+        throw upsertError
       }
+      
+      logIfEnabled('✅ Progress upserted successfully')
+      
+      const endTime = Date.now()
+      const totalDuration = endTime - startTime
+      logPerformanceIfEnabled('Progress API - Mark Completed', totalDuration)
       
       return NextResponse.json({ 
         success: true, 
@@ -89,7 +76,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
     
   } catch (error: any) {
-    logIfEnabled(`❌ Error in Progress API: ${error.message || 'Unknown error'}`, 'error')
+    const endTime = Date.now()
+    const totalDuration = endTime - startTime
+    
+    logIfEnabled(`❌ Error in Progress API after ${totalDuration}ms: ${error.message || 'Unknown error'}`, 'error')
+    logPerformanceIfEnabled('Progress API - Error', totalDuration)
+    
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
