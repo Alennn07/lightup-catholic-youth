@@ -44,11 +44,11 @@ export async function GET(request: Request) {
     }
 
     // 🚀 FIX: Use environment variable for redirect URL in production
-    let redirectUrl = requestUrl.origin + '/dashboard'
+    let redirectUrl = requestUrl.origin + '/'
     
     // Check if we're in production and use environment variable if available
     if (process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_SITE_URL) {
-      redirectUrl = process.env.NEXT_PUBLIC_SITE_URL + '/dashboard'
+      redirectUrl = process.env.NEXT_PUBLIC_SITE_URL + '/'
       console.log('🚀 Using production redirect URL:', redirectUrl)
     } else {
       console.log('🔧 Using development redirect URL:', redirectUrl)
