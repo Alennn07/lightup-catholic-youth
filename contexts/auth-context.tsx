@@ -287,8 +287,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       if (error) throw error
       
-      Google OAuth will redirect to the callback URL
-      The user profile will be fetched in the callback
+      // Google OAuth will redirect to the callback URL
+      // The user profile will be fetched in the callback
       console.log('✅ Google OAuth initiated successfully')
       
     } catch (error: any) {
