@@ -144,32 +144,41 @@ export async function GET(request: NextRequest) {
     // 🚀 OPTIMIZED STREAK CALCULATION using pre-fetched data
     let streak = 0
     
-    if (yesterdayProgress.data?.is_completed) {
-      // Use the pre-fetched recent progress data for faster streak calculation
-      const completedDates = recentProgress.data || []
-      
-      // Sort dates and find consecutive streak
+    // Get all completed dates and calculate consecutive streak
+    const completedDates = recentProgress.data || []
+    
+    if (completedDates.length > 0) {
+      // Sort dates in descending order (most recent first)
       const sortedDates = completedDates
         .map(p => p.verse_date)
         .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())
       
-      // Calculate streak from sorted dates
+      // Calculate consecutive streak from most recent completion backwards
       let currentStreak = 0
-      let currentDate = new Date(today)
       
-      for (const dateStr of sortedDates) {
-        const date = new Date(dateStr)
-        const diffDays = Math.floor((currentDate.getTime() - date.getTime()) / (1000 * 60 * 60 * 24))
+      // Start from the most recent completed date
+      if (sortedDates.length > 0) {
+        const mostRecentDate = new Date(sortedDates[0])
+        let currentDate = new Date(mostRecentDate)
         
-        if (diffDays === currentStreak) {
-          currentStreak++
-        } else {
-          break
+        // Go backwards from most recent completion to find consecutive days
+        for (let i = 0; i < 30; i++) {
+          const checkDate = new Date(currentDate)
+          checkDate.setDate(checkDate.getDate() - i)
+          const checkDateStr = checkDate.toISOString().split('T')[0]
+          
+          // Check if this date exists in completed dates
+          if (sortedDates.includes(checkDateStr)) {
+            currentStreak++
+          } else {
+            // Break streak if we find a gap
+            break
+          }
         }
       }
       
       streak = currentStreak
-      logIfEnabled(`📊 Calculated streak: ${streak} from pre-fetched data`)
+      logIfEnabled(`📊 Calculated streak: ${streak} consecutive days`)
     }
     
     const endTime = Date.now()
