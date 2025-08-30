@@ -269,16 +269,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       console.log('📡 Calling Supabase Google OAuth...')
       
-      // 🚀 FIX: Use environment variable for redirect URL in production
-      let redirectUrl = `${window.location.origin}/auth/callback`
-      
-      // Check if we're in production and use environment variable if available
-      if (process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_SITE_URL) {
-        redirectUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`
-        console.log('🚀 Using production redirect URL:', redirectUrl)
-      } else {
-        console.log('🔧 Using development redirect URL:', redirectUrl)
-      }
+      let redirectUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`
+      console.log('🚀 Using production redirect URL:', redirectUrl)
       
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
