@@ -271,7 +271,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       let redirectUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`
       console.log('🚀 Using production redirect URL:', redirectUrl)  
-      
+       
       // const { data, error } = await supabase.auth.signInWithOAuth({
       //   provider: 'google',
       //   options: {
