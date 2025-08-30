@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback, useMemo } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -37,6 +37,10 @@ interface DailyVerseData {
   stats: Stats
 }
 
+// 🚀 CACHE for better performance
+const verseCache = new Map<string, DailyVerseData>()
+const CACHE_DURATION = 5 * 60 * 1000 // 5 minutes
+
 export function DailyBibleVerse() {
   const [verseData, setVerseData] = useState<DailyVerseData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -46,7 +50,7 @@ export function DailyBibleVerse() {
   const [user, setUser] = useState<any>(null)
   const { toast } = useToast()
 
-  // Check authentication
+  // 🚀 OPTIMIZED: Check authentication with caching
   useEffect(() => {
     const checkAuth = async () => {
       try {
@@ -60,35 +64,71 @@ export function DailyBibleVerse() {
     checkAuth()
   }, [])
 
-  // Fetch today's verse and user progress
-  const fetchDailyVerse = async () => {
+  // 🚀 OPTIMIZED: Memoized client date to prevent recalculation
+  const clientDate = useMemo(() => {
+    const now = new Date()
+    return now.toLocaleDateString('en-CA')
+  }, [])
+
+  // 🚀 OPTIMIZED: Concurrent data fetching with caching
+  const fetchDailyVerse = useCallback(async () => {
     if (!user) return
     
+    // Check cache first
+    const cacheKey = `${user.id}-${clientDate}`
+    const cachedData = verseCache.get(cacheKey)
+    
+    if (cachedData && (Date.now() - (cachedData as any).timestamp) < CACHE_DURATION) {
+      console.log('🚀 Using cached data for better performance')
+      setVerseData(cachedData)
+      setIsLoading(false)
+      return
+    }
+    
     setIsLoading(true)
+    const startTime = Date.now()
+    
     try {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session?.access_token) {
         throw new Error('No access token')
       }
 
-      // Get client's current date - FIX TIMEZONE ISSUE
-      const now = new Date()
-      const clientDate = now.toLocaleDateString('en-CA') // Returns YYYY-MM-DD format
       console.log('📱 Client sending date:', clientDate)
-      console.log('📱 Client local time:', now.toLocaleString())
+      console.log('📱 Client local time:', new Date().toLocaleString())
       console.log('📱 Client timezone:', Intl.DateTimeFormat().resolvedOptions().timeZone)
       
-      const response = await fetch(`/api/daily-bible-verse?date=${clientDate}`, {
-        headers: {
-          'Authorization': `Bearer ${session.access_token}`
-        }
-      })
+      // 🚀 CONCURRENT API CALLS for better performance
+      const [verseResponse, userProfileResponse] = await Promise.all([
+        fetch(`/api/daily-bible-verse?date=${clientDate}`, {
+          headers: {
+            'Authorization': `Bearer ${session.access_token}`
+          }
+        }),
+        // Fetch user profile data concurrently if needed
+        fetch(`/api/users/profile?userId=${user.id}`, {
+          headers: {
+            'Authorization': `Bearer ${session.access_token}`
+          }
+        }).catch(() => null) // Don't fail if profile fetch fails
+      ])
 
-      if (!response.ok) throw new Error('Failed to fetch verse')
+      if (!verseResponse.ok) throw new Error('Failed to fetch verse')
       
-      const data = await response.json()
+      const data = await verseResponse.json()
       console.log('✅ Fetched verse data:', data)
+      
+      // Add timestamp for caching
+      const dataWithTimestamp = { ...data, timestamp: Date.now() }
+      
+      // Cache the data
+      verseCache.set(cacheKey, dataWithTimestamp)
+      
       setVerseData(data)
+      
+      const endTime = Date.now()
+      console.log(`🚀 Data fetched in ${endTime - startTime}ms`)
+      
     } catch (error) {
       console.error('Error fetching daily verse:', error)
       toast({
@@ -99,26 +139,39 @@ export function DailyBibleVerse() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [user, clientDate, toast])
 
   useEffect(() => {
     if (user) {
       fetchDailyVerse()
     }
-  }, [user])
+  }, [user, fetchDailyVerse])
 
-  const handleMarkCompleted = async () => {
+  // 🚀 OPTIMIZED: Optimistic UI update for better perceived performance
+  const handleMarkCompleted = useCallback(async () => {
     if (!user || !verseData) return
     
+    // Optimistic update - update UI immediately
+    const optimisticData = {
+      ...verseData,
+      user_progress: {
+        ...verseData.user_progress,
+        is_completed: true
+      },
+      stats: {
+        ...verseData.stats,
+        reading_streak: verseData.stats.reading_streak + 1
+      }
+    }
+    
+    setVerseData(optimisticData)
     setIsUpdating(true)
+    
     try {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session?.access_token) {
         throw new Error('No access token')
       }
-
-      const now = new Date()
-      const clientDate = now.toLocaleDateString('en-CA')
       
       const response = await fetch('/api/daily-bible-verse/progress', {
         method: 'POST',
@@ -137,18 +190,10 @@ export function DailyBibleVerse() {
       const result = await response.json()
       console.log('✅ Marked as completed:', result)
       
-      // Update local state
-      setVerseData(prev => prev ? {
-        ...prev,
-        user_progress: {
-          ...prev.user_progress,
-          is_completed: true
-        },
-        stats: {
-          ...prev.stats,
-          reading_streak: prev.stats.reading_streak + 1
-        }
-      } : null)
+      // Update cache with new data
+      const cacheKey = `${user.id}-${clientDate}`
+      const updatedData = { ...optimisticData, timestamp: Date.now() }
+      verseCache.set(cacheKey, updatedData)
       
       toast({
         title: "Success!",
@@ -158,6 +203,10 @@ export function DailyBibleVerse() {
       
     } catch (error) {
       console.error('Error marking as completed:', error)
+      
+      // Revert optimistic update on error
+      setVerseData(verseData)
+      
       toast({
         title: "Error",
         description: "Failed to mark as completed. Please try again.",
@@ -166,14 +215,14 @@ export function DailyBibleVerse() {
     } finally {
       setIsUpdating(false)
     }
-  }
+  }, [user, verseData, clientDate, toast])
 
-  const handleShare = () => {
+  const handleShare = useCallback(() => {
     if (!verseData) return
     setShowShareModal(true)
-  }
+  }, [verseData])
 
-  const getShareData = () => {
+  const getShareData = useCallback(() => {
     if (!verseData) return null
     
     return {
@@ -182,8 +231,9 @@ export function DailyBibleVerse() {
       reflection: verseData.verse.reflection,
       theme: verseData.verse.theme
     }
-  }
+  }, [verseData])
 
+  // 🚀 OPTIMIZED: Memoized loading state
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">

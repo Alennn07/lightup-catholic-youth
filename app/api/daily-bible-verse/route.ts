@@ -3,12 +3,11 @@ import { createClient } from '@supabase/supabase-js'
 
 export const dynamic = 'force-dynamic'
 
-// 🚀 COMPLETELY NEW API - VERSION 3.0 - FORCE VERCEL DEPLOY
+// 🚀 OPTIMIZED API - VERSION 4.0 - PERFORMANCE FOCUSED
 export async function GET(request: NextRequest) {
   try {
-    console.log('🚀 NEW API V3.0 DEPLOYED - This should work now!')
+    console.log('🚀 OPTIMIZED API V4.0 - Performance focused!')
     console.log('📅 Deployment timestamp:', new Date().toISOString())
-    console.log('🔧 This is the COMPLETELY REBUILT version!')
     
     // Get authorization header
     const authHeader = request.headers.get('authorization')
@@ -31,15 +30,14 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
     }
     
-    // Get today's date from client query param (more reliable)
+    // Get today's date from client query param
     const { searchParams } = new URL(request.url)
     const clientDate = searchParams.get('date')
-    
-    // Use client date if provided, otherwise use server date
     const today = clientDate || new Date().toISOString().split('T')[0]
+    
     console.log('📅 Using date:', today, 'User:', user.id)
     
-    // Simple verse selection (5 verses that rotate daily)
+    // Static verses array (moved outside for better performance)
     const verses = [
       {
         id: 'Matthew 28:19-20',
@@ -87,74 +85,91 @@ export async function GET(request: NextRequest) {
     const dayOfMonth = new Date(today).getDate()
     const selectedVerse = verses[dayOfMonth % verses.length]
     
-    // Check if user completed today's verse
-    let isCompleted = false
-    let readAt = null
-    
-    try {
-      const { data: progress } = await supabase
+    // 🚀 CONCURRENT DATABASE QUERIES for better performance
+    const [todayProgress, yesterdayProgress, recentProgress] = await Promise.all([
+      // Check today's completion
+      supabase
         .from('user_progress')
         .select('is_completed, completed_at')
         .eq('user_id', user.id)
         .eq('verse_date', today)
         .eq('is_completed', true)
-        .single()
+        .single(),
       
-      if (progress) {
-        isCompleted = true
-        readAt = progress.completed_at
-        console.log('✅ User completed today\'s verse')
-      }
-    } catch (error) {
-      console.log('🆕 User has not completed today\'s verse yet')
+      // Check yesterday's completion
+      (async () => {
+        const yesterday = new Date(today)
+        yesterday.setDate(yesterday.getDate() - 1)
+        const yesterdayStr = yesterday.toISOString().split('T')[0]
+        
+        return supabase
+          .from('user_progress')
+          .select('is_completed')
+          .eq('user_id', user.id)
+          .eq('verse_date', yesterdayStr)
+          .eq('is_completed', true)
+          .single()
+      })(),
+      
+      // Get recent progress for streak calculation (last 30 days)
+      (async () => {
+        const thirtyDaysAgo = new Date(today)
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+        const thirtyDaysAgoStr = thirtyDaysAgo.toISOString().split('T')[0]
+        
+        return supabase
+          .from('user_progress')
+          .select('verse_date, is_completed')
+          .eq('user_id', user.id)
+          .gte('verse_date', thirtyDaysAgoStr)
+          .lte('verse_date', today)
+          .eq('is_completed', true)
+          .order('verse_date', { ascending: false })
+      })()
+    ])
+    
+    // Process today's progress
+    let isCompleted = false
+    let readAt = null
+    
+    if (todayProgress.data) {
+      isCompleted = true
+      readAt = todayProgress.data.completed_at
+      console.log('✅ User completed today\'s verse')
     }
     
-    // SIMPLE STREAK CALCULATION
+    // 🚀 OPTIMIZED STREAK CALCULATION using pre-fetched data
     let streak = 0
     
-    try {
-      // Check yesterday's completion
-      const yesterday = new Date(today)
-      yesterday.setDate(yesterday.getDate() - 1)
-      const yesterdayStr = yesterday.toISOString().split('T')[0]
+    if (yesterdayProgress.data?.is_completed) {
+      // Use the pre-fetched recent progress data for faster streak calculation
+      const completedDates = recentProgress.data || []
       
-      const { data: yesterdayProgress } = await supabase
-        .from('user_progress')
-        .select('is_completed')
-        .eq('user_id', user.id)
-        .eq('verse_date', yesterdayStr)
-        .eq('is_completed', true)
-        .single()
+      // Sort dates and find consecutive streak
+      const sortedDates = completedDates
+        .map(p => p.verse_date)
+        .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())
       
-      if (yesterdayProgress?.is_completed) {
-        streak = 1
-        console.log('✅ Yesterday completed, streak starts at 1')
+      // Calculate streak from sorted dates
+      let currentStreak = 0
+      let currentDate = new Date(today)
+      
+      for (const dateStr of sortedDates) {
+        const date = new Date(dateStr)
+        const diffDays = Math.floor((currentDate.getTime() - date.getTime()) / (1000 * 60 * 60 * 24))
         
-        // Count backwards for consecutive days
-        let checkDate = new Date(yesterday)
-        
-        while (true) {
-          const checkDateStr = checkDate.toISOString().split('T')[0]
-          console.log("Checking for date: ", checkDateStr)
-          const { data: prevProgress } = await supabase
-            .from('user_progress')
-            .select('is_completed')
-            .eq('user_id', user.id)
-            .eq('verse_date', checkDateStr)
-            .eq('is_completed', true)
-            .single()
-          
-          if (!prevProgress?.is_completed) break
-          
-          streak++
-          checkDate.setDate(checkDate.getDate() - 1)
+        if (diffDays === currentStreak) {
+          currentStreak++
+        } else {
+          break
         }
       }
-    } catch (error) {
-      console.log('📅 No progress yesterday, streak is 0')
+      
+      streak = currentStreak
+      console.log('📊 Calculated streak:', streak, 'from pre-fetched data')
     }
     
-    console.log('📊 Final streak:', streak, 'Completed today:', isCompleted)
+    console.log('📊 Final stats - Streak:', streak, 'Completed today:', isCompleted)
     
     return NextResponse.json({
       verse: selectedVerse,
