@@ -269,8 +269,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       console.log('📡 Calling Supabase Google OAuth...')
       
-      let redirectUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`
-      console.log('🚀 Using production redirect URL:', redirectUrl)  
+      // 🚀 FIX: Always use current domain for redirect (works in both dev and production)
+      const currentDomain = window.location.origin
+      const redirectUrl = `${currentDomain}/auth/callback`
+      console.log('🚀 Using current domain redirect URL:', redirectUrl)
        
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
