@@ -269,10 +269,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       console.log('📡 Calling Supabase Google OAuth...')
       
-      // 🚀 FIX: Always use current domain for redirect (works in both dev and production)
-      const currentDomain = window.location.origin
-      const redirectUrl = `${currentDomain}/auth/callback`
-      console.log('🚀 Using current domain redirect URL:', redirectUrl)
+      // 🚀 FIX: Force production redirect URL to prevent localhost redirects
+      let redirectUrl
+      if (window.location.hostname === 'localhost') {
+        // Development: use localhost
+        redirectUrl = 'http://localhost:3000/auth/callback'
+        console.log('🔧 Development mode - using localhost redirect')
+      } else {
+        // Production: force production domain
+        redirectUrl = 'https://lightup-catholic-youth.vercel.app/auth/callback'
+        console.log('🚀 Production mode - forcing production redirect URL:', redirectUrl)
+      }
        
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
