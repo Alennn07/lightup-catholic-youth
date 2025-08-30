@@ -111,6 +111,7 @@ const getShareData = useCallback(() => {
 - **Real-time Metrics**: Track API response times
 - **Bottleneck Detection**: Identify slow operations
 - **Performance Analytics**: Detailed breakdown by endpoint
+- **Environment Control**: Turn logging on/off via environment variables
 
 ```typescript
 // 🚀 Performance monitoring
@@ -120,6 +121,10 @@ const result = await measureAsync(
   () => fetchDailyVerse(),
   'Daily Verse Fetch'
 )
+
+// 🎯 Environment variable control
+// ENABLE_PERFORMANCE_MONITORING=true
+// ENABLE_PERFORMANCE_LOGGING=true
 ```
 
 ## 📊 Expected Performance Results
@@ -187,6 +192,23 @@ performanceMonitor.logSummary()
 const stats = performanceMonitor.getStats()
 console.log('Average response time:', stats.averageResponseTime)
 ```
+
+### **🎯 Environment Variable Control**
+```bash
+# Enable/disable performance monitoring
+ENABLE_PERFORMANCE_MONITORING=true
+ENABLE_PERFORMANCE_LOGGING=true
+
+# Control specific logging categories
+ENABLE_API_LOGGING=true
+ENABLE_FRONTEND_LOGGING=true
+ENABLE_CACHE_LOGGING=true
+
+# Debug mode (overrides other settings)
+DEBUG_MODE=false
+```
+
+**See `ENVIRONMENT_VARIABLES.md` for complete configuration options.**
 
 ## 🚨 Troubleshooting
 

@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast"
 import { supabase } from "@/lib/supabase"
 import { generateShareImage, downloadImage } from "@/lib/generate-share-image"
 import { SharePreviewModal } from "@/components/share-preview-modal"
+import { logIfEnabled, logPerformanceIfEnabled } from "@/lib/performance-monitor"
 
 interface Verse {
   id: string
@@ -74,16 +75,16 @@ export function DailyBibleVerse() {
   const fetchDailyVerse = useCallback(async () => {
     if (!user) return
     
-    // Check cache first
-    const cacheKey = `${user.id}-${clientDate}`
-    const cachedData = verseCache.get(cacheKey)
-    
-    if (cachedData && (Date.now() - (cachedData as any).timestamp) < CACHE_DURATION) {
-      console.log('🚀 Using cached data for better performance')
-      setVerseData(cachedData)
-      setIsLoading(false)
-      return
-    }
+          // Check cache first
+      const cacheKey = `${user.id}-${clientDate}`
+      const cachedData = verseCache.get(cacheKey)
+      
+      if (cachedData && (Date.now() - (cachedData as any).timestamp) < CACHE_DURATION) {
+        logIfEnabled('🚀 Using cached data for better performance')
+        setVerseData(cachedData)
+        setIsLoading(false)
+        return
+      }
     
     setIsLoading(true)
     const startTime = Date.now()
@@ -94,9 +95,9 @@ export function DailyBibleVerse() {
         throw new Error('No access token')
       }
 
-      console.log('📱 Client sending date:', clientDate)
-      console.log('📱 Client local time:', new Date().toLocaleString())
-      console.log('📱 Client timezone:', Intl.DateTimeFormat().resolvedOptions().timeZone)
+      logIfEnabled(`📱 Client sending date: ${clientDate}`)
+      logIfEnabled(`📱 Client local time: ${new Date().toLocaleString()}`)
+      logIfEnabled(`📱 Client timezone: ${Intl.DateTimeFormat().resolvedOptions().timeZone}`)
       
       // 🚀 CONCURRENT API CALLS for better performance
       const [verseResponse, userProfileResponse] = await Promise.all([
@@ -116,7 +117,7 @@ export function DailyBibleVerse() {
       if (!verseResponse.ok) throw new Error('Failed to fetch verse')
       
       const data = await verseResponse.json()
-      console.log('✅ Fetched verse data:', data)
+      logIfEnabled(`✅ Fetched verse data: ${JSON.stringify(data).substring(0, 100)}...`)
       
       // Add timestamp for caching
       const dataWithTimestamp = { ...data, timestamp: Date.now() }
@@ -127,10 +128,12 @@ export function DailyBibleVerse() {
       setVerseData(data)
       
       const endTime = Date.now()
-      console.log(`🚀 Data fetched in ${endTime - startTime}ms`)
+      const duration = endTime - startTime
+      logPerformanceIfEnabled('Daily Verse Fetch', duration)
       
     } catch (error) {
-      console.error('Error fetching daily verse:', error)
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+      logIfEnabled(`Error fetching daily verse: ${errorMessage}`, 'error')
       toast({
         title: "Error",
         description: "Failed to load today's verse. Please try again.",
@@ -188,7 +191,7 @@ export function DailyBibleVerse() {
       if (!response.ok) throw new Error('Failed to mark as completed')
       
       const result = await response.json()
-      console.log('✅ Marked as completed:', result)
+      logIfEnabled(`✅ Marked as completed: ${JSON.stringify(result).substring(0, 100)}...`)
       
       // Update cache with new data
       const cacheKey = `${user.id}-${clientDate}`
@@ -202,7 +205,8 @@ export function DailyBibleVerse() {
       })
       
     } catch (error) {
-      console.error('Error marking as completed:', error)
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+      logIfEnabled(`Error marking as completed: ${errorMessage}`, 'error')
       
       // Revert optimistic update on error
       setVerseData(verseData)

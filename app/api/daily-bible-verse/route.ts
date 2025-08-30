@@ -1,13 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { logIfEnabled, logPerformanceIfEnabled } from '@/lib/performance-monitor'
 
 export const dynamic = 'force-dynamic'
 
 // 🚀 OPTIMIZED API - VERSION 4.0 - PERFORMANCE FOCUSED
 export async function GET(request: NextRequest) {
+  const startTime = Date.now()
+  
   try {
-    console.log('🚀 OPTIMIZED API V4.0 - Performance focused!')
-    console.log('📅 Deployment timestamp:', new Date().toISOString())
+    logIfEnabled('🚀 OPTIMIZED API V4.0 - Performance focused!')
+    logIfEnabled(`📅 Deployment timestamp: ${new Date().toISOString()}`)
     
     // Get authorization header
     const authHeader = request.headers.get('authorization')
@@ -35,7 +38,7 @@ export async function GET(request: NextRequest) {
     const clientDate = searchParams.get('date')
     const today = clientDate || new Date().toISOString().split('T')[0]
     
-    console.log('📅 Using date:', today, 'User:', user.id)
+    logIfEnabled(`📅 Using date: ${today}, User: ${user.id}`)
     
     // Static verses array (moved outside for better performance)
     const verses = [
@@ -135,7 +138,7 @@ export async function GET(request: NextRequest) {
     if (todayProgress.data) {
       isCompleted = true
       readAt = todayProgress.data.completed_at
-      console.log('✅ User completed today\'s verse')
+      logIfEnabled('✅ User completed today\'s verse')
     }
     
     // 🚀 OPTIMIZED STREAK CALCULATION using pre-fetched data
@@ -166,10 +169,14 @@ export async function GET(request: NextRequest) {
       }
       
       streak = currentStreak
-      console.log('📊 Calculated streak:', streak, 'from pre-fetched data')
+      logIfEnabled(`📊 Calculated streak: ${streak} from pre-fetched data`)
     }
     
-    console.log('📊 Final stats - Streak:', streak, 'Completed today:', isCompleted)
+    const endTime = Date.now()
+    const totalDuration = endTime - startTime
+    
+    logIfEnabled(`📊 Final stats - Streak: ${streak}, Completed today: ${isCompleted}`)
+    logPerformanceIfEnabled('Daily Bible Verse API', totalDuration)
     
     return NextResponse.json({
       verse: selectedVerse,
@@ -185,7 +192,12 @@ export async function GET(request: NextRequest) {
     })
     
   } catch (error: any) {
-    console.error('❌ Error in Daily Bible Verse API:', error)
+    const endTime = Date.now()
+    const totalDuration = endTime - startTime
+    
+    logIfEnabled(`❌ Error in Daily Bible Verse API after ${totalDuration}ms:`, 'error')
+    logIfEnabled(error.message || 'Unknown error', 'error')
+    
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

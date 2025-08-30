@@ -16,9 +16,28 @@ interface PerformanceMetric {
 class PerformanceMonitor {
   private metrics: PerformanceMetric[] = []
   private maxMetrics = 1000 // Keep last 1000 metrics
+  private isEnabled: boolean
+  private isLoggingEnabled: boolean
+
+  constructor() {
+    // Check environment variables for control
+    this.isEnabled = process.env.NODE_ENV === 'development' || 
+                     process.env.ENABLE_PERFORMANCE_MONITORING === 'true'
+    
+    this.isLoggingEnabled = process.env.NODE_ENV === 'development' || 
+                            process.env.ENABLE_PERFORMANCE_LOGGING === 'true'
+    
+    // Log initialization status
+    if (this.isLoggingEnabled) {
+      console.log(`🚀 Performance Monitor: ${this.isEnabled ? 'ENABLED' : 'DISABLED'}`)
+      console.log(`📝 Performance Logging: ${this.isLoggingEnabled ? 'ENABLED' : 'DISABLED'}`)
+    }
+  }
 
   // Start timing an API call
   startTiming(endpoint: string, method: string = 'GET'): string {
+    if (!this.isEnabled) return 'disabled'
+    
     const id = `${endpoint}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
     const metric: PerformanceMetric = {
       endpoint,
@@ -40,6 +59,8 @@ class PerformanceMonitor {
 
   // End timing an API call
   endTiming(id: string, success: boolean = true, error?: string): void {
+    if (!this.isEnabled || id === 'disabled') return
+    
     const metric = this.metrics.find(m => 
       m.endpoint === id.split('-')[0] && 
       m.startTime === parseFloat(id.split('-')[1])
@@ -64,6 +85,19 @@ class PerformanceMonitor {
     errorRate: number
     endpointBreakdown: Record<string, { count: number, avgTime: number, errors: number }>
   } {
+    if (!this.isEnabled) {
+      return {
+        totalCalls: 0,
+        averageResponseTime: 0,
+        slowestEndpoint: '',
+        slowestTime: 0,
+        fastestEndpoint: '',
+        fastestTime: 0,
+        errorRate: 0,
+        endpointBreakdown: {}
+      }
+    }
+
     const completedMetrics = this.metrics.filter(m => m.duration !== undefined)
     
     if (completedMetrics.length === 0) {
@@ -120,26 +154,35 @@ class PerformanceMonitor {
 
   // Get slow queries (above threshold)
   getSlowQueries(threshold: number = 1000): PerformanceMetric[] {
+    if (!this.isEnabled) return []
     return this.metrics.filter(m => (m.duration || 0) > threshold)
   }
 
   // Get recent metrics
   getRecentMetrics(limit: number = 50): PerformanceMetric[] {
+    if (!this.isEnabled) return []
     return this.metrics.slice(-limit).reverse()
   }
 
   // Clear metrics
   clearMetrics(): void {
+    if (!this.isEnabled) return
     this.metrics = []
   }
 
   // Export metrics for analysis
   exportMetrics(): string {
+    if (!this.isEnabled) return 'Performance monitoring is disabled'
     return JSON.stringify(this.metrics, null, 2)
   }
 
   // Log performance summary to console
   logSummary(): void {
+    if (!this.isEnabled || !this.isLoggingEnabled) {
+      console.log('🚀 Performance Monitor is disabled')
+      return
+    }
+    
     const stats = this.getStats()
     
     console.group('🚀 Performance Monitor Summary')
@@ -157,6 +200,16 @@ class PerformanceMonitor {
     
     console.groupEnd()
   }
+
+  // Check if monitoring is enabled
+  isMonitoringEnabled(): boolean {
+    return this.isEnabled
+  }
+
+  // Check if logging is enabled
+  getLoggingEnabled(): boolean {
+    return this.isLoggingEnabled
+  }
 }
 
 // Create global instance
@@ -171,6 +224,10 @@ export function measurePerformance<T extends any[], R>(
   const originalMethod = descriptor.value
 
   descriptor.value = async function (...args: T): Promise<R> {
+    if (!performanceMonitor.isMonitoringEnabled()) {
+      return await originalMethod.apply(this, args)
+    }
+
     const startTime = performance.now()
     const startDate = new Date()
     
@@ -179,11 +236,13 @@ export function measurePerformance<T extends any[], R>(
       const endTime = performance.now()
       const duration = endTime - startTime
       
-      console.log(`🚀 ${propertyKey} completed in ${duration.toFixed(2)}ms`)
-      
-      // Log slow operations
-      if (duration > 1000) {
-        console.warn(`⚠️  Slow operation detected: ${propertyKey} took ${duration.toFixed(2)}ms`)
+      if (performanceMonitor.getLoggingEnabled()) {
+        console.log(`🚀 ${propertyKey} completed in ${duration.toFixed(2)}ms`)
+        
+        // Log slow operations
+        if (duration > 1000) {
+          console.warn(`⚠️  Slow operation detected: ${propertyKey} took ${duration.toFixed(2)}ms`)
+        }
       }
       
       return result
@@ -191,7 +250,9 @@ export function measurePerformance<T extends any[], R>(
       const endTime = performance.now()
       const duration = endTime - startTime
       
-      console.error(`❌ ${propertyKey} failed after ${duration.toFixed(2)}ms:`, error)
+      if (performanceMonitor.getLoggingEnabled()) {
+        console.error(`❌ ${propertyKey} failed after ${duration.toFixed(2)}ms:`, error)
+      }
       throw error
     }
   }
@@ -204,6 +265,10 @@ export async function measureAsync<T>(
   operation: () => Promise<T>,
   operationName: string = 'Operation'
 ): Promise<T> {
+  if (!performanceMonitor.isMonitoringEnabled()) {
+    return await operation()
+  }
+
   const startTime = performance.now()
   
   try {
@@ -211,10 +276,12 @@ export async function measureAsync<T>(
     const endTime = performance.now()
     const duration = endTime - startTime
     
-    console.log(`🚀 ${operationName} completed in ${duration.toFixed(2)}ms`)
-    
-    if (duration > 1000) {
-      console.warn(`⚠️  Slow operation detected: ${operationName} took ${duration.toFixed(2)}ms`)
+    if (performanceMonitor.getLoggingEnabled()) {
+      console.log(`🚀 ${operationName} completed in ${duration.toFixed(2)}ms`)
+      
+      if (duration > 1000) {
+        console.warn(`⚠️  Slow operation detected: ${operationName} took ${duration.toFixed(2)}ms`)
+      }
     }
     
     return result
@@ -222,7 +289,9 @@ export async function measureAsync<T>(
     const endTime = performance.now()
     const duration = endTime - startTime
     
-    console.error(`❌ ${operationName} failed after ${duration.toFixed(2)}ms:`, error)
+    if (performanceMonitor.getLoggingEnabled()) {
+      console.error(`❌ ${operationName} failed after ${duration.toFixed(2)}ms:`, error)
+    }
     throw error
   }
 }
@@ -232,6 +301,10 @@ export function measureSync<T>(
   operation: () => T,
   operationName: string = 'Operation'
 ): T {
+  if (!performanceMonitor.isMonitoringEnabled()) {
+    return operation()
+  }
+
   const startTime = performance.now()
   
   try {
@@ -239,10 +312,12 @@ export function measureSync<T>(
     const endTime = performance.now()
     const duration = endTime - startTime
     
-    console.log(`🚀 ${operationName} completed in ${duration.toFixed(2)}ms`)
-    
-    if (duration > 100) {
-      console.warn(`⚠️  Slow sync operation detected: ${operationName} took ${duration.toFixed(2)}ms`)
+    if (performanceMonitor.getLoggingEnabled()) {
+      console.log(`🚀 ${operationName} completed in ${duration.toFixed(2)}ms`)
+      
+      if (duration > 100) {
+        console.warn(`⚠️  Slow sync operation detected: ${operationName} took ${duration.toFixed(2)}ms`)
+      }
     }
     
     return result
@@ -250,7 +325,36 @@ export function measureSync<T>(
     const endTime = performance.now()
     const duration = endTime - startTime
     
-    console.error(`❌ ${operationName} failed after ${duration.toFixed(2)}ms:`, error)
+    if (performanceMonitor.getLoggingEnabled()) {
+      console.error(`❌ ${operationName} failed after ${duration.toFixed(2)}ms:`, error)
+    }
     throw error
+  }
+}
+
+// Utility function to log conditionally
+export function logIfEnabled(message: string, level: 'log' | 'warn' | 'error' = 'log'): void {
+  if (performanceMonitor.getLoggingEnabled()) {
+    switch (level) {
+      case 'warn':
+        console.warn(message)
+        break
+      case 'error':
+        console.error(message)
+        break
+      default:
+        console.log(message)
+    }
+  }
+}
+
+// Utility function to log performance data conditionally
+export function logPerformanceIfEnabled(operationName: string, duration: number): void {
+  if (performanceMonitor.getLoggingEnabled()) {
+    console.log(`🚀 ${operationName} completed in ${duration.toFixed(2)}ms`)
+    
+    if (duration > 1000) {
+      console.warn(`⚠️  Slow operation detected: ${operationName} took ${duration.toFixed(2)}ms`)
+    }
   }
 }
