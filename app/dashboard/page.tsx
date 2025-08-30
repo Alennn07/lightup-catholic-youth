@@ -40,8 +40,8 @@ export default function DashboardPage() {
 
   // SUPER FAST: Calculate user display name instantly
   const userDisplayName = useMemo(() => {
-    return user?.user_metadata?.name || user?.email?.split('@')[0] || 'User'
-  }, [user?.user_metadata?.name, user?.email])
+    return user?.name || user?.email?.split('@')[0] || 'User'
+  }, [user?.name, user?.email])
 
   // SUPER FAST: Set basic stats immediately
   useEffect(() => {
@@ -183,10 +183,12 @@ export default function DashboardPage() {
           </Card>
         </div>
 
-        {/* Daily Bible Verse Section */}
-        <div className="mb-8">
-          <DailyBibleVerse />
-        </div>
+        {/* Daily Bible Verse Section - Only show when user is signed in */}
+        {user && (
+          <div className="mb-8">
+            <DailyBibleVerse />
+          </div>
+        )}
 
         {/* Footer */}
         <div className="text-center pt-12 border-t border-gray-100">
