@@ -437,6 +437,126 @@ export async function POST(request: Request) {
       }
     }
 
+    // Check for specific question patterns first
+    if (query.includes('who is jesus') || query.includes('who is the lord') || query.includes('who is lord')) {
+      return NextResponse.json({
+        response: "Jesus is the Son of God and our Savior! ✝️✨ He's the second Person of the Holy Trinity - fully God and fully human. Jesus came to earth to save us from our sins by dying on the Cross and rising from the dead. He's our Lord, our King, and our best friend! Jesus said 'I am the way, the truth, and the life' (John 14:6). He loves you more than you can imagine and wants to have a personal relationship with you! 🙏💖",
+        timestamp: new Date().toISOString(),
+      })
+    }
+
+    if (query.includes('what is the eucharist') || query.includes('eucharist')) {
+      return NextResponse.json({
+        response: enhancedResponses["what is the eucharist"],
+        timestamp: new Date().toISOString(),
+      })
+    }
+
+    if (query.includes('how do i pray the rosary') || query.includes('rosary')) {
+      return NextResponse.json({
+        response: enhancedResponses["how do i pray the rosary"],
+        timestamp: new Date().toISOString(),
+      })
+    }
+
+    if (query.includes('what are the sacraments') || query.includes('sacraments')) {
+      return NextResponse.json({
+        response: enhancedResponses["what are the sacraments"],
+        timestamp: new Date().toISOString(),
+      })
+    }
+
+    if (query.includes('who is mary') || query.includes('mary')) {
+      return NextResponse.json({
+        response: enhancedResponses["who is mary"],
+        timestamp: new Date().toISOString(),
+      })
+    }
+
+    if (query.includes('what is lent') || query.includes('lent')) {
+      return NextResponse.json({
+        response: enhancedResponses["what is lent"],
+        timestamp: new Date().toISOString(),
+      })
+    }
+
+    if (query.includes('who is the pope') || query.includes('pope')) {
+      return NextResponse.json({
+        response: enhancedResponses["who is the pope"],
+        timestamp: new Date().toISOString(),
+      })
+    }
+
+    if (query.includes('what is mass') || query.includes('mass')) {
+      return NextResponse.json({
+        response: enhancedResponses["what is mass"],
+        timestamp: new Date().toISOString(),
+      })
+    }
+
+    if (query.includes('what is confession') || query.includes('confession')) {
+      return NextResponse.json({
+        response: enhancedResponses["what is confession"],
+        timestamp: new Date().toISOString(),
+      })
+    }
+
+    if (query.includes('what is advent') || query.includes('advent')) {
+      return NextResponse.json({
+        response: enhancedResponses["what is advent"],
+        timestamp: new Date().toISOString(),
+      })
+    }
+
+    if (query.includes('what is easter') || query.includes('easter')) {
+      return NextResponse.json({
+        response: enhancedResponses["what is easter"],
+        timestamp: new Date().toISOString(),
+      })
+    }
+
+    if (query.includes('what is holy week') || query.includes('holy week')) {
+      return NextResponse.json({
+        response: enhancedResponses["what is holy week"],
+        timestamp: new Date().toISOString(),
+      })
+    }
+
+    if (query.includes('what is prayer') || query.includes('prayer')) {
+      return NextResponse.json({
+        response: enhancedResponses["what is prayer"],
+        timestamp: new Date().toISOString(),
+      })
+    }
+
+    if (query.includes('who are the saints') || query.includes('saints')) {
+      return NextResponse.json({
+        response: enhancedResponses["who are the saints"],
+        timestamp: new Date().toISOString(),
+      })
+    }
+
+    if (query.includes('what is the bible') || query.includes('bible')) {
+      return NextResponse.json({
+        response: enhancedResponses["what is the bible"],
+        timestamp: new Date().toISOString(),
+      })
+    }
+
+    if (query.includes('what is grace') || query.includes('grace')) {
+      return NextResponse.json({
+        response: enhancedResponses["what is grace"],
+        timestamp: new Date().toISOString(),
+      })
+    }
+
+    if (query.includes('what is the church') || query.includes('church')) {
+      return NextResponse.json({
+        response: enhancedResponses["what is the church"],
+        timestamp: new Date().toISOString(),
+      })
+    }
+
     // If no match found, generate an intelligent response using slang translation
     const intelligentResponse = generateIntelligentResponse(translatedQuery)
     
