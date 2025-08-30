@@ -132,10 +132,10 @@ export async function GET(request: NextRequest) {
         
         // Count backwards for consecutive days
         let checkDate = new Date(yesterday)
-        checkDate.setDate(checkDate.getDate() - 1)
         
         while (true) {
           const checkDateStr = checkDate.toISOString().split('T')[0]
+          console.log("Checking for date: ", checkDateStr)
           const { data: prevProgress } = await supabase
             .from('user_progress')
             .select('is_completed')

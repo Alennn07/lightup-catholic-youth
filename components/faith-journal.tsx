@@ -53,7 +53,7 @@ export function FaithJournal() {
     { value: "contemplative", label: "Contemplative", icon: "🤔", color: "text-indigo-400" },
     { value: "struggling", label: "Struggling", icon: "😔", color: "text-orange-400" },
     { value: "anxious", label: "Anxious", icon: "😰", color: "text-red-400" },
-    { value: "sad", label: "Sad", icon: "😢", color: "text-gray-400" },
+    { value: "sad", label: "Sad", icon: "😢", color: "text-muted-foreground" },
   ]
 
   const fetchEntries = async () => {
@@ -213,7 +213,7 @@ export function FaithJournal() {
 
   if (!user) {
     return (
-      <div className="bg-gradient-to-br from-amber-50 via-white to-rose-50 min-h-screen">
+      <div className="bg-gradient-to-br from-amber-50/50 via-background to-rose-50/50 min-h-screen">
         <div className="max-w-6xl mx-auto px-4 py-8">
           {/* Header */}
           <div className="text-center mb-12">
@@ -225,9 +225,9 @@ export function FaithJournal() {
           </div>
 
           {/* Sign In Required */}
-          <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 text-center">
-            <BookOpen className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-600 text-lg mb-4">Please sign in to access your faith journal</p>
+          <div className="bg-card rounded-2xl shadow-lg border border-border p-8 text-center">
+            <BookOpen className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+            <p className="text-muted-foreground text-lg mb-4">Please sign in to access your faith journal</p>
             <Button className="bg-gradient-to-r from-amber-500 to-rose-500 hover:from-amber-600 hover:to-rose-600 text-white font-semibold px-6 py-2 rounded-xl">
               Sign In
             </Button>
@@ -239,31 +239,31 @@ export function FaithJournal() {
 
   if (isLoading) {
     return (
-      <div className="bg-gradient-to-br from-amber-50 via-white to-rose-50 min-h-screen">
+      <div className="bg-gradient-to-br from-amber-50/50 via-background to-rose-50/50 min-h-screen">
         <div className="max-w-6xl mx-auto px-4 py-8">
           {/* Header */}
           <div className="text-center mb-12">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-amber-400 to-rose-500 rounded-full mb-4 shadow-lg">
               <BookOpen className="h-8 w-8 text-white" />
             </div>
-            <h1 className="text-4xl font-bold text-gray-800 mb-2">Faith Journal</h1>
-            <p className="text-lg text-gray-600">Reflect on your faith journey</p>
+            <h1 className="text-4xl font-bold text-foreground mb-2">Faith Journal</h1>
+            <p className="text-lg text-muted-foreground">Reflect on your faith journey</p>
           </div>
 
           {/* Loading Skeleton */}
           <div className="space-y-6">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="animate-pulse bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+              <div key={i} className="animate-pulse bg-card rounded-2xl shadow-lg border border-border p-6">
                 <div className="flex justify-between items-start mb-4">
                   <div className="space-y-3 flex-1">
-                    <div className="h-6 bg-gray-200 rounded w-3/4"></div>
-                    <div className="h-5 bg-gray-200 rounded w-1/2"></div>
+                    <div className="h-6 bg-muted rounded w-3/4"></div>
+                    <div className="h-5 bg-muted rounded w-1/2"></div>
                   </div>
-                  <div className="h-7 bg-gray-200 rounded w-20"></div>
+                  <div className="h-7 bg-muted rounded w-20"></div>
                 </div>
                 <div className="space-y-3">
-                  <div className="h-4 bg-gray-200 rounded"></div>
-                  <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+                  <div className="h-4 bg-muted rounded"></div>
+                  <div className="h-4 bg-muted rounded w-5/6"></div>
                 </div>
               </div>
             ))}
@@ -274,15 +274,15 @@ export function FaithJournal() {
   }
 
   return (
-    <div className="bg-gradient-to-br from-amber-50 via-white to-rose-50 min-h-screen">
+    <div className="bg-gradient-to-br from-amber-50/50 via-background to-rose-50/50 min-h-screen">
       <div className="max-w-6xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="text-center mb-12">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-amber-400 to-rose-500 rounded-full mb-4 shadow-lg">
             <BookOpen className="h-8 w-8 text-white" />
           </div>
-          <h1 className="text-4xl font-bold text-gray-800 mb-2">Faith Journal</h1>
-          <p className="text-lg text-gray-600">Reflect on your faith journey</p>
+          <h1 className="text-4xl font-bold text-foreground mb-2">Faith Journal</h1>
+          <p className="text-lg text-muted-foreground">Reflect on your faith journey</p>
         </div>
 
         {/* New Entry Button */}
@@ -298,27 +298,27 @@ export function FaithJournal() {
                 New Journal Entry
               </Button>
             </DialogTrigger>
-            <DialogContent className="bg-white border-gray-200 text-gray-900 max-w-2xl">
+            <DialogContent className="bg-card border-border text-foreground max-w-2xl">
               <DialogHeader>
-                <DialogTitle className="text-gray-800">{editingEntry ? "Edit Journal Entry" : "New Journal Entry"}</DialogTitle>
+                <DialogTitle className="text-foreground">{editingEntry ? "Edit Journal Entry" : "New Journal Entry"}</DialogTitle>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <Input
                   placeholder="Entry title..."
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  className="bg-gray-50 border-gray-200 text-gray-900 placeholder:text-gray-500 focus:bg-white focus:border-amber-400 focus:ring-amber-400"
+                  className="bg-muted border-border text-foreground placeholder:text-muted-foreground focus:bg-background focus:border-amber-400 focus:ring-amber-400"
                   required
                 />
 
                 <div className="grid grid-cols-2 gap-4">
                   <Select value={formData.mood} onValueChange={(value) => setFormData({ ...formData, mood: value })}>
-                    <SelectTrigger className="bg-gray-50 border-gray-200 text-gray-900 focus:bg-white focus:border-amber-400 focus:ring-amber-400">
+                    <SelectTrigger className="bg-muted border-border text-foreground focus:bg-background focus:border-amber-400 focus:ring-amber-400">
                       <SelectValue placeholder="How are you feeling?" />
                     </SelectTrigger>
-                    <SelectContent className="bg-white border-gray-200">
+                    <SelectContent className="bg-background border-border">
                       {moods.map((mood) => (
-                        <SelectItem key={mood.value} value={mood.value} className="text-gray-900">
+                        <SelectItem key={mood.value} value={mood.value} className="text-foreground">
                           <span className="flex items-center gap-2">
                             <span>{mood.icon}</span>
                             {mood.label}
@@ -332,7 +332,7 @@ export function FaithJournal() {
                     type="date"
                     value={formData.date}
                     onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                    className="bg-gray-50 border-gray-200 text-gray-900 focus:bg-white focus:border-amber-400 focus:ring-amber-400"
+                    className="bg-muted border-border text-foreground focus:bg-background focus:border-amber-400 focus:ring-amber-400"
                     required
                   />
                 </div>
@@ -341,7 +341,7 @@ export function FaithJournal() {
                   placeholder="Write about your faith journey, prayers, reflections, or anything on your heart..."
                   value={formData.content}
                   onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                  className="bg-gray-50 border-gray-200 text-gray-900 placeholder:text-gray-500 focus:bg-white focus:border-amber-400 focus:ring-amber-400 min-h-[200px] resize-none"
+                  className="bg-muted border-border text-foreground placeholder:text-muted-foreground focus:bg-background focus:border-amber-400 focus:ring-amber-400 min-h-[200px] resize-none"
                   required
                 />
 
@@ -349,7 +349,7 @@ export function FaithJournal() {
                   placeholder="Tags (comma separated, e.g., prayer, mass, reflection)"
                   value={formData.tags}
                   onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
-                  className="bg-gray-50 border-gray-200 text-gray-900 placeholder:text-gray-500 focus:bg-white focus:border-amber-400 focus:ring-amber-400"
+                  className="bg-muted border-border text-foreground placeholder:text-muted-foreground focus:bg-background focus:border-amber-400 focus:ring-amber-400"
                 />
 
                 <div className="flex gap-3 pt-2">
@@ -374,7 +374,7 @@ export function FaithJournal() {
                     type="button"
                     variant="outline"
                     onClick={() => setIsDialogOpen(false)}
-                    className="border-gray-400 text-gray-700 hover:bg-gray-50 hover:border-gray-500 bg-white font-medium px-6 py-2 rounded-xl"
+                    className="border-border text-foreground hover:bg-muted hover:border-border bg-background font-medium px-6 py-2 rounded-xl"
                   >
                     Cancel
                   </Button>
@@ -385,23 +385,23 @@ export function FaithJournal() {
         </div>
 
         {/* Search and Entries */}
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+        <div className="bg-card rounded-2xl shadow-lg border border-border p-6">
           <div className="relative mb-6">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search your entries..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 bg-gray-50 border-gray-200 text-gray-900 placeholder:text-gray-500 focus:bg-white focus:border-amber-400 focus:ring-amber-400"
+              className="pl-10 bg-muted border-border text-foreground placeholder:text-muted-foreground focus:bg-background focus:border-amber-400 focus:ring-amber-400"
             />
           </div>
 
           <div className="space-y-6">
             {entries.length === 0 ? (
               <div className="text-center py-16">
-                <BookOpen className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-600 text-lg mb-2">No journal entries yet</p>
-                <p className="text-gray-500">Start documenting your faith journey</p>
+                <BookOpen className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground text-lg mb-2">No journal entries yet</p>
+                <p className="text-muted-foreground">Start documenting your faith journey</p>
               </div>
             ) : (
               entries.map((entry) => {
@@ -409,18 +409,18 @@ export function FaithJournal() {
                 return (
                   <div
                     key={entry.id}
-                    className="bg-gray-50 rounded-xl p-6 border border-gray-200 hover:shadow-md transition-all duration-300"
+                    className="bg-muted/50 rounded-xl p-6 border border-border hover:shadow-md transition-all duration-300"
                   >
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex-1">
-                        <h3 className="font-bold text-gray-800 text-xl mb-2">{entry.title}</h3>
-                                                 <div className="flex items-center gap-4 text-sm text-gray-600">
+                        <h3 className="font-bold text-foreground text-xl mb-2">{entry.title}</h3>
+                                                 <div className="flex items-center gap-4 text-sm text-muted-foreground">
                            <div className="flex items-center gap-2">
                              <Calendar className="h-4 w-4 text-amber-500" />
                              <span>Created: {format(new Date(entry.entry_date), "MMM dd, yyyy")}</span>
                              {entry.updated_at !== entry.created_at && (
                                <>
-                                 <span className="text-gray-400">•</span>
+                                 <span className="text-muted-foreground">•</span>
                                  <span className="flex items-center gap-1 text-blue-600">
                                    <Edit className="h-3 w-3" />
                                    Updated: {getRelativeTime(entry.updated_at)}
@@ -439,7 +439,7 @@ export function FaithJournal() {
                           onClick={() => handleEdit(entry)}
                           size="sm"
                           variant="ghost"
-                          className="text-amber-600 hover:text-amber-700 hover:bg-amber-50"
+                          className="text-amber-600 hover:text-amber-700 hover:bg-amber-50 dark:hover:bg-amber-950"
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
@@ -447,14 +447,14 @@ export function FaithJournal() {
                           onClick={() => handleDelete(entry.id)}
                           size="sm"
                           variant="ghost"
-                          className="text-red-500 hover:text-red-600 hover:bg-red-50"
+                          className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
                     </div>
 
-                    <p className="text-gray-700 text-base leading-relaxed mb-4 line-clamp-3">{entry.content}</p>
+                    <p className="text-foreground text-base leading-relaxed mb-4 line-clamp-3">{entry.content}</p>
 
                     {entry.tags.length > 0 && (
                       <div className="flex flex-wrap gap-2">

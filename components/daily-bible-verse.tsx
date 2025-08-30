@@ -104,7 +104,7 @@ export function DailyBibleVerse() {
   }, [user])
 
   const handleMarkCompleted = async () => {
-    if (!user || !verseData || isUpdating) return
+    if (!user || !verseData) return
     
     setIsUpdating(true)
     try {
@@ -113,6 +113,9 @@ export function DailyBibleVerse() {
         throw new Error('No access token')
       }
 
+      const now = new Date()
+      const clientDate = now.toLocaleDateString('en-CA')
+      
       const response = await fetch('/api/daily-bible-verse/progress', {
         method: 'POST',
         headers: {
@@ -121,7 +124,7 @@ export function DailyBibleVerse() {
         },
         body: JSON.stringify({
           action: 'mark_completed',
-          verse_id: verseData.verse.reference
+          date: clientDate
         })
       })
 
@@ -130,23 +133,23 @@ export function DailyBibleVerse() {
       const result = await response.json()
       console.log('✅ Marked as completed:', result)
       
-      // Update local state with completion and increment streak
+      // Update local state
       setVerseData(prev => prev ? {
         ...prev,
         user_progress: {
           ...prev.user_progress,
-          is_completed: true,
-          read_at: new Date().toISOString()
+          is_completed: true
         },
         stats: {
           ...prev.stats,
-          reading_streak: (prev.stats.reading_streak || 0) + 1
+          reading_streak: prev.stats.reading_streak + 1
         }
       } : null)
       
       toast({
         title: "Success!",
-        description: "Verse marked as completed!",
+        description: "Verse marked as completed. Great job!",
+        variant: "default",
       })
       
     } catch (error) {
@@ -166,7 +169,7 @@ export function DailyBibleVerse() {
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading today's verse...</p>
+          <p className="text-muted-foreground">Loading today's verse...</p>
         </div>
       </div>
     )
@@ -175,7 +178,7 @@ export function DailyBibleVerse() {
   if (!verseData) {
     return (
       <div className="text-center py-8">
-        <p className="text-gray-600">No verse available today.</p>
+        <p className="text-muted-foreground">No verse available today.</p>
       </div>
     )
   }
@@ -187,10 +190,10 @@ export function DailyBibleVerse() {
           <div className="flex items-center justify-center mb-4">
             <BookOpen className="h-12 w-12 text-purple-600" />
           </div>
-          <CardTitle className="text-3xl font-bold text-gray-800 mb-2">
+          <CardTitle className="text-3xl font-bold text-foreground mb-2">
             Daily Bible Verse
           </CardTitle>
-          <p className="text-gray-600 text-lg">
+          <p className="text-muted-foreground text-lg">
             Today's scripture to inspire your faith journey
           </p>
           <Badge variant="secondary" className="mt-3">
@@ -205,29 +208,29 @@ export function DailyBibleVerse() {
               <div className="flex items-center justify-center mb-2">
                 <Flame className="h-6 w-6 text-orange-500" />
               </div>
-              <div className="text-2xl font-bold text-gray-800">
+              <div className="text-2xl font-bold text-foreground">
                 {verseData.stats.reading_streak}
               </div>
-              <div className="text-sm text-gray-600">Day Streak</div>
+              <div className="text-sm text-muted-foreground">Day Streak</div>
             </Card>
             
             <Card className="text-center p-4">
               <div className="flex items-center justify-center mb-2">
                 <Calendar className="h-6 w-6 text-green-500" />
               </div>
-              <div className="text-lg font-bold text-gray-800">
+              <div className="text-lg font-bold text-foreground">
                 {new Date().toLocaleDateString('en-US', { 
                   month: 'short', 
                   day: 'numeric' 
                 })}
               </div>
-              <div className="text-sm text-gray-600">Today's Date</div>
+              <div className="text-sm text-muted-foreground">Today's Date</div>
             </Card>
           </div>
 
           {/* Bible Verse */}
           <div className="text-center mb-6">
-            <blockquote className="text-2xl italic text-gray-800 mb-4 leading-relaxed">
+            <blockquote className="text-2xl italic text-foreground mb-4 leading-relaxed">
               "{verseData.verse.text}"
             </blockquote>
             <cite className="text-lg text-orange-600 font-semibold">
@@ -238,8 +241,8 @@ export function DailyBibleVerse() {
           {/* Progress Bar */}
           <div className="space-y-2">
             <div className="flex justify-between items-center">
-              <span className="text-sm font-medium text-gray-700">Today's Progress</span>
-              <span className="text-sm text-gray-600">
+              <span className="text-sm font-medium text-foreground">Today's Progress</span>
+              <span className="text-sm text-muted-foreground">
                 {verseData.user_progress.is_completed ? 'Completed' : 'Not Started'}
               </span>
             </div>
@@ -250,14 +253,14 @@ export function DailyBibleVerse() {
           </div>
 
           {/* Reflection */}
-          <Card className="bg-yellow-50 border-yellow-200">
+          <Card className="bg-accent/50 border-accent">
             <CardContent className="p-4">
               <div className="flex items-center gap-2 mb-2">
                 <Star className="h-4 w-4 text-yellow-600" />
-                <span className="text-sm font-medium text-yellow-800">Today's Reflection</span>
+                <span className="text-sm font-medium text-accent-foreground">Today's Reflection</span>
                 <Badge variant="secondary" className="text-xs">Youth Focused</Badge>
               </div>
-              <p className="text-gray-700 leading-relaxed">
+              <p className="text-foreground leading-relaxed">
                 {verseData.verse.reflection}
               </p>
             </CardContent>
@@ -265,7 +268,7 @@ export function DailyBibleVerse() {
 
           {/* Action Prompt */}
           <div className="text-center">
-            <p className="text-gray-700 mb-4">
+            <p className="text-foreground mb-4">
               <strong>Take Action Today:</strong> {verseData.verse.action}
             </p>
           </div>
@@ -298,8 +301,8 @@ export function DailyBibleVerse() {
 
           {/* Success Message */}
           {verseData.user_progress.is_completed && (
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
-              <div className="flex items-center justify-center gap-2 text-green-800">
+            <div className="bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-lg p-4 text-center">
+              <div className="flex items-center justify-center gap-2 text-green-800 dark:text-green-200">
                 <CheckCircle className="h-5 w-5" />
                 <span className="font-medium">
                   Amazing! You've completed today's verse and maintained your {verseData.stats.reading_streak}-day streak! 🎉

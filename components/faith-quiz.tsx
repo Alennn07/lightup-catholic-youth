@@ -541,17 +541,17 @@ export function FaithQuiz() {
 
   if (!selectedCategory) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-16">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50/50 via-background to-purple-50/50 py-16">
         <div className="container mx-auto px-4">
           {/* Header */}
           <div className="text-center mb-12">
             <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full mb-6 shadow-lg">
               <Brain className="h-10 w-10 text-white" />
             </div>
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
+            <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
               Faith Challenge
             </h1>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
               Test your knowledge of the Catholic faith with fun, interactive quizzes! 
               Choose a category and challenge yourself to learn more about your faith.
             </p>
@@ -569,10 +569,10 @@ export function FaithQuiz() {
                   <div className={`w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br ${category.color} flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
                     <category.icon className="h-8 w-8 text-white" />
                   </div>
-                  <CardTitle className="text-xl font-bold text-gray-800 mb-2">
+                  <CardTitle className="text-xl font-bold text-foreground mb-2">
                     {category.name}
                   </CardTitle>
-                  <p className="text-gray-600 text-sm mb-3">
+                  <p className="text-muted-foreground text-sm mb-3">
                     {category.description}
                   </p>
                   <div className="flex items-center justify-between text-sm">
@@ -602,20 +602,20 @@ export function FaithQuiz() {
 
           {/* Stats */}
           <div className="text-center">
-            <div className="inline-flex items-center space-x-8 bg-white rounded-2xl px-8 py-6 shadow-lg">
+            <div className="inline-flex items-center space-x-8 bg-card rounded-2xl px-8 py-6 shadow-lg">
               <div>
                 <div className="text-3xl font-bold text-blue-600">{Object.keys(quizQuestions).length}</div>
-                <div className="text-gray-600">Quiz Categories</div>
+                <div className="text-muted-foreground">Quiz Categories</div>
               </div>
-              <div className="w-px h-12 bg-gray-200"></div>
+              <div className="w-px h-12 bg-border"></div>
               <div>
                 <div className="text-3xl font-bold text-purple-600">{Object.values(quizQuestions).flat().length}</div>
-                <div className="text-gray-600">Total Questions</div>
+                <div className="text-muted-foreground">Total Questions</div>
               </div>
-              <div className="w-px h-12 bg-gray-200"></div>
+              <div className="w-px h-12 bg-border"></div>
               <div>
                 <div className="text-3xl font-bold text-green-600">∞</div>
-                <div className="text-gray-600">Learning Fun</div>
+                <div className="text-muted-foreground">Learning Fun</div>
               </div>
             </div>
           </div>
@@ -626,7 +626,7 @@ export function FaithQuiz() {
 
   if (showResult) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-16">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50/50 via-background to-purple-50/50 py-16">
         <div className="container mx-auto px-4">
           <div className="max-w-2xl mx-auto text-center">
             {/* Result Header */}
@@ -644,10 +644,10 @@ export function FaithQuiz() {
                   <Heart className="h-12 w-12 text-white" />
                 )}
               </div>
-              <h1 className="text-4xl font-bold text-gray-800 mb-4">
+              <h1 className="text-4xl font-bold text-foreground mb-4">
                 Quiz Complete!
               </h1>
-              <p className="text-xl text-gray-600 mb-6">
+              <p className="text-xl text-muted-foreground mb-6">
                 {getScoreMessage()}
               </p>
             </div>
@@ -658,11 +658,11 @@ export function FaithQuiz() {
                 <div className="text-6xl font-bold text-blue-600 mb-4">
                   {score}/{currentQuestions.length}
                 </div>
-                <div className="text-2xl text-gray-600 mb-6">
+                <div className="text-2xl text-muted-foreground mb-6">
                   {Math.round((score / currentQuestions.length) * 100)}%
                 </div>
                 <Progress value={(score / currentQuestions.length) * 100} className="h-3 mb-6" />
-                <div className="text-gray-500">
+                <div className="text-muted-foreground">
                   {score >= currentQuestions.length * 0.8 ? "Perfect score! You're amazing!" :
                    score >= currentQuestions.length * 0.6 ? "Great job! Keep learning!" :
                    "Good effort! Every question is a learning opportunity!"}
@@ -697,7 +697,7 @@ export function FaithQuiz() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-16">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50/50 via-background to-purple-50/50 py-16">
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto">
           {/* Quiz Header */}
@@ -706,23 +706,23 @@ export function FaithQuiz() {
               <Button 
                 variant="ghost" 
                 onClick={resetQuiz}
-                className="mr-4 text-gray-600 hover:text-gray-800"
+                className="mr-4 text-muted-foreground hover:text-foreground"
               >
                 <Home className="h-5 w-5 mr-2" />
                 Back to Categories
               </Button>
               <div className="text-center">
-                <h1 className="text-3xl font-bold text-gray-800 mb-2">
+                <h1 className="text-3xl font-bold text-foreground mb-2">
                   {quizCategories.find(c => c.id === selectedCategory)?.name}
                 </h1>
-                <p className="text-gray-600">
+                <p className="text-muted-foreground">
                   Question {currentQuestionIndex + 1} of {currentQuestions.length}
                 </p>
               </div>
             </div>
             
             {/* Progress Bar */}
-            <div className="w-full bg-gray-200 rounded-full h-3 mb-6">
+            <div className="w-full bg-muted rounded-full h-3 mb-6">
               <div 
                 className="bg-gradient-to-r from-blue-500 to-purple-600 h-3 rounded-full transition-all duration-300"
                 style={{ width: `${((currentQuestionIndex + 1) / currentQuestions.length) * 100}%` }}
@@ -731,9 +731,9 @@ export function FaithQuiz() {
 
             {/* Timer */}
             <div className="mb-6">
-              <div className="inline-flex items-center space-x-2 bg-white px-4 py-2 rounded-full shadow-md">
+              <div className="inline-flex items-center space-x-2 bg-card px-4 py-2 rounded-full shadow-md">
                 <div className={`w-3 h-3 rounded-full ${timeLeft > 10 ? 'bg-green-500' : timeLeft > 5 ? 'bg-yellow-500' : 'bg-red-500'} animate-pulse`}></div>
-                <span className="font-mono text-lg font-bold text-gray-700">
+                <span className="font-mono text-lg font-bold text-foreground">
                   {timeLeft}s
                 </span>
               </div>
@@ -744,7 +744,7 @@ export function FaithQuiz() {
           <Card className="mb-8">
             <CardContent className="p-8">
               <div className="text-center mb-8">
-                <h2 className="text-2xl font-semibold text-gray-800 leading-relaxed mb-6">
+                <h2 className="text-2xl font-semibold text-foreground leading-relaxed mb-6">
                   {currentQuestion.question}
                 </h2>
               </div>
@@ -782,9 +782,9 @@ export function FaithQuiz() {
                             <XCircle className="h-5 w-5" />
                           )
                         ) : (
-                          <span className="text-sm font-bold text-gray-600">
-                            {String.fromCharCode(65 + index)}
-                          </span>
+                                                  <span className="text-sm font-bold text-foreground">
+                          {String.fromCharCode(65 + index)}
+                        </span>
                         )}
                       </div>
                       <span className="flex-1">{option}</span>
@@ -805,22 +805,22 @@ export function FaithQuiz() {
 
           {/* Score Display */}
           <div className="text-center">
-            <div className="inline-flex items-center space-x-6 bg-white rounded-2xl px-6 py-4 shadow-lg">
+            <div className="inline-flex items-center space-x-6 bg-card rounded-2xl px-6 py-4 shadow-lg">
               <div>
                 <div className="text-2xl font-bold text-blue-600">{score}</div>
-                <div className="text-gray-600">Correct</div>
+                <div className="text-muted-foreground">Correct</div>
               </div>
-              <div className="w-px h-8 bg-gray-200"></div>
+              <div className="w-px h-8 bg-border"></div>
               <div>
-                <div className="text-2xl font-bold text-gray-400">{currentQuestionIndex - score}</div>
-                <div className="text-gray-600">Incorrect</div>
+                <div className="text-2xl font-bold text-muted-foreground">{currentQuestionIndex - score}</div>
+                <div className="text-muted-foreground">Incorrect</div>
               </div>
-              <div className="w-px h-8 bg-gray-200"></div>
+              <div className="w-px h-8 bg-border"></div>
               <div>
                 <div className="text-2xl font-bold text-purple-600">
                   {Math.round((score / (currentQuestionIndex + 1)) * 100)}%
                 </div>
-                <div className="text-gray-600">Accuracy</div>
+                <div className="text-muted-foreground">Accuracy</div>
               </div>
             </div>
           </div>
