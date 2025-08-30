@@ -272,23 +272,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       let redirectUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`
       console.log('🚀 Using production redirect URL:', redirectUrl)  
        
-      // const { data, error } = await supabase.auth.signInWithOAuth({
-      //   provider: 'google',
-      //   options: {
-      //     redirectTo: redirectUrl,
-      //     queryParams: {
-      //       access_type: 'offline',
-      //       prompt: 'consent',
-      //     }
-      //   }
-      // })
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: redirectUrl,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          }
+        }
+      })
       
-      // console.log('📡 Supabase Google OAuth response:', { data, error })
+      console.log('📡 Supabase Google OAuth response:', { data, error })
       
-      // if (error) throw error
+      if (error) throw error
       
-      // Google OAuth will redirect to the callback URL
-      // The user profile will be fetched in the callback
+      Google OAuth will redirect to the callback URL
+      The user profile will be fetched in the callback
       console.log('✅ Google OAuth initiated successfully')
       
     } catch (error: any) {
