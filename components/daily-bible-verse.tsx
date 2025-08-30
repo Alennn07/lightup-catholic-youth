@@ -8,6 +8,8 @@ import { Progress } from "@/components/ui/progress"
 import { BookOpen, Heart, Share2, CheckCircle, Flame, Calendar, Star } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { supabase } from "@/lib/supabase"
+import { generateShareImage, downloadImage } from "@/lib/generate-share-image"
+import { SharePreviewModal } from "@/components/share-preview-modal"
 
 interface Verse {
   id: string
@@ -39,6 +41,8 @@ export function DailyBibleVerse() {
   const [verseData, setVerseData] = useState<DailyVerseData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isUpdating, setIsUpdating] = useState(false)
+  const [isSharing, setIsSharing] = useState(false)
+  const [showShareModal, setShowShareModal] = useState(false)
   const [user, setUser] = useState<any>(null)
   const { toast } = useToast()
 
@@ -161,6 +165,22 @@ export function DailyBibleVerse() {
       })
     } finally {
       setIsUpdating(false)
+    }
+  }
+
+  const handleShare = () => {
+    if (!verseData) return
+    setShowShareModal(true)
+  }
+
+  const getShareData = () => {
+    if (!verseData) return null
+    
+    return {
+      verse: verseData.verse.text,
+      reference: verseData.verse.reference,
+      reflection: verseData.verse.reflection,
+      theme: verseData.verse.theme
     }
   }
 
@@ -293,7 +313,11 @@ export function DailyBibleVerse() {
               Favorite
             </Button>
 
-            <Button variant="outline" className="flex items-center gap-2">
+            <Button 
+              variant="outline" 
+              className="flex items-center gap-2"
+              onClick={handleShare}
+            >
               <Share2 className="h-4 w-4" />
               Share
             </Button>
@@ -312,6 +336,13 @@ export function DailyBibleVerse() {
           )}
         </CardContent>
       </Card>
+
+      {/* Share Preview Modal */}
+      <SharePreviewModal
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        data={getShareData()}
+      />
     </div>
   )
 }
