@@ -17,6 +17,7 @@ interface AuthContextType {
   isLoading: boolean
   updateProfile: (data: Partial<User>) => Promise<void>
   getAccessToken: () => Promise<string | null>
+  refreshUserData: () => Promise<void> // 🚀 NEW: Add refresh function to interface
 }
 
 interface RegisterData {
@@ -98,8 +99,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setIsLoading(false)
     })
 
-    return () => subscription.unsubscribe()
-  }, [])
+    // 🚀 NEW: Listen for window focus to refresh user data
+    const handleWindowFocus = () => {
+      if (user?.id) {
+        logIfEnabled('🪟 Window focused, refreshing user data...')
+        refreshUserData()
+      }
+    }
+
+    window.addEventListener('focus', handleWindowFocus)
+
+    return () => {
+      subscription.unsubscribe()
+      window.removeEventListener('focus', handleWindowFocus)
+    }
+  }, [user?.id]) // Add user?.id as dependency to avoid stale closure
 
   const fetchUserProfile = async (userId: string) => {
     console.log('👤 Fetching user profile for:', userId)
@@ -561,6 +575,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!user) return
 
     try {
+      logIfEnabled(`🔄 Updating profile with data: ${JSON.stringify(data)}`)
+      
       // Remove undefined values to avoid database errors
       const cleanData = Object.fromEntries(
         Object.entries(data).filter(([_, value]) => value !== undefined && value !== null)
@@ -589,30 +605,55 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       const { profile } = await response.json()
       
+      logIfEnabled(`✅ Profile update successful: ${JSON.stringify(profile)}`)
+      
       // Update local user state with the returned profile data
       setUser(profile)
       
+      // Also update supabaseUser metadata to keep them in sync
+      if (supabaseUser) {
+        try {
+          const { error: updateError } = await supabase.auth.updateUser({
+            data: {
+              name: profile.name,
+              username: profile.username,
+              age: profile.age,
+              parish: profile.parish,
+              diocese: profile.diocese,
+            }
+          })
+          
+          if (updateError) {
+            logIfEnabled(`⚠️ Warning: Could not update Supabase user metadata: ${updateError.message}`, 'warn')
+          } else {
+            logIfEnabled('✅ Supabase user metadata updated successfully')
+          }
+        } catch (metadataError) {
+          logIfEnabled(`⚠️ Warning: Failed to update Supabase metadata: ${metadataError instanceof Error ? metadataError.message : 'Unknown error'}`, 'warn')
+        }
+      }
+      
       return profile
     } catch (error) {
-      console.error('❌ Profile update failed:', error)
+      logIfEnabled(`❌ Profile update failed: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error')
       throw error
     }
   }
 
   const getAccessToken = async (): Promise<string | null> => {
     try {
-      console.log('🔑 Getting access token...')
+      logIfEnabled('🔑 Getting access token...')
       
       // First try to get the current session
       const { data: { session }, error: sessionError } = await supabase.auth.getSession()
       
       if (sessionError) {
-        console.error('❌ Session error:', sessionError)
+        logIfEnabled(`❌ Session error: ${sessionError.message}`, 'error')
         return null
       }
       
       if (session?.access_token) {
-        console.log('✅ Access token found in session')
+        logIfEnabled('✅ Access token found in session')
         return session.access_token
       }
       
@@ -620,7 +661,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { data: { user }, error: userError } = await supabase.auth.getUser()
       
       if (userError) {
-        console.error('❌ User error:', userError)
+        logIfEnabled(`❌ User error: ${userError.message}`, 'error')
         return null
       }
       
@@ -629,21 +670,57 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const { data: { session: refreshedSession }, error: refreshError } = await supabase.auth.refreshSession()
         
         if (refreshError) {
-          console.error('❌ Refresh error:', refreshError)
+          logIfEnabled(`❌ Refresh error: ${refreshError.message}`, 'error')
           return null
         }
         
         if (refreshedSession?.access_token) {
-          console.log('✅ Access token refreshed')
+          logIfEnabled('✅ Access token refreshed')
           return refreshedSession.access_token
         }
       }
       
-      console.log('❌ No access token available')
+      logIfEnabled('❌ No access token available')
       return null
     } catch (error) {
-      console.error('❌ Error getting access token:', error)
+      logIfEnabled(`❌ Error getting access token: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error')
       return null
+    }
+  }
+
+  // 🚀 NEW: Function to refresh user data from database
+  const refreshUserData = async () => {
+    if (!user?.id) return
+    
+    try {
+      logIfEnabled('🔄 Refreshing user data from database...')
+      
+      const accessToken = await getAccessToken()
+      if (!accessToken) {
+        logIfEnabled('❌ No access token available for refresh')
+        return
+      }
+      
+      // Fetch fresh user data from the API
+      const response = await fetch('/api/users/profile', {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+        },
+      })
+      
+      if (!response.ok) {
+        logIfEnabled(`❌ Failed to refresh user data: ${response.status}`)
+        return
+      }
+      
+      const { profile } = await response.json()
+      
+      if (profile) {
+        logIfEnabled(`✅ User data refreshed: ${JSON.stringify(profile)}`)
+        setUser(profile)
+      }
+    } catch (error) {
+      logIfEnabled(`❌ Error refreshing user data: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error')
     }
   }
 
@@ -659,6 +736,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         isLoading,
         updateProfile,
         getAccessToken,
+        refreshUserData, // 🚀 NEW: Add refresh function to context
       }}
     >
       {children}
