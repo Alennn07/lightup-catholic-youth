@@ -1,15 +1,15 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
+import { logIfEnabled } from "@/lib/performance-monitor"
 
 // Force this route to be dynamic since it uses request.url
 export const dynamic = 'force-dynamic'
 
 export async function GET(request: Request) {
-  let requestUrl: URL
+  const requestUrl = new URL(request.url)
   
   try {
-    requestUrl = new URL(request.url)
     const code = requestUrl.searchParams.get('code')
 
     if (code) {
@@ -35,12 +35,12 @@ export async function GET(request: Request) {
       const { data, error } = await supabase.auth.exchangeCodeForSession(code)
       
       if (error) {
-        console.error('Auth callback error:', error)
+        logIfEnabled(`Auth callback error: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error')
         // Redirect to sign-in with error
         return NextResponse.redirect(requestUrl.origin + '/auth/sign-in?error=auth_failed')
       }
       
-      console.log('Auth callback successful:', data)
+      logIfEnabled(`Auth callback successful: ${JSON.stringify(data)}`)
     }
 
     // 🚀 FIX: Use environment variable for redirect URL in production
@@ -49,16 +49,16 @@ export async function GET(request: Request) {
     // Check if we're in production and use environment variable if available
     if (process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_SITE_URL) {
       redirectUrl = process.env.NEXT_PUBLIC_SITE_URL + '/'
-      console.log('🚀 Using production redirect URL:', redirectUrl)
+      logIfEnabled(`🚀 Using production redirect URL: ${redirectUrl}`)
     } else {
-      console.log('🔧 Using development redirect URL:', redirectUrl)
+      logIfEnabled(`🔧 Using development redirect URL: ${redirectUrl}`)
     }
     
-    console.log('Redirecting to:', redirectUrl)
+    logIfEnabled(`Redirecting to: ${redirectUrl}`)
     
     return NextResponse.redirect(redirectUrl)
   } catch (error) {
-    console.error('Callback route error:', error)
+    logIfEnabled(`Callback route error: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error')
     
     // Create a fallback URL if requestUrl is not available
     let fallbackOrigin = 'http://localhost:3000'

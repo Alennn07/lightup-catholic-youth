@@ -20,18 +20,26 @@ class PerformanceMonitor {
   private isLoggingEnabled: boolean
 
   constructor() {
-    // Check environment variables for control
-    this.isEnabled = process.env.NODE_ENV === 'development' || 
-                     process.env.ENABLE_PERFORMANCE_MONITORING === 'true'
+    this.isEnabled = this.checkIfEnabled('ENABLE_PERFORMANCE_MONITORING')
+    this.isLoggingEnabled = this.checkIfEnabled('ENABLE_PERFORMANCE_LOGGING')
     
-    this.isLoggingEnabled = process.env.NODE_ENV === 'development' || 
-                            process.env.ENABLE_PERFORMANCE_LOGGING === 'true'
-    
-    // Log initialization status
-    if (this.isLoggingEnabled) {
+    // Use direct console.log for initialization to avoid infinite loops
+    if (this.isEnabled) {
       console.log(`🚀 Performance Monitor: ${this.isEnabled ? 'ENABLED' : 'DISABLED'}`)
       console.log(`📝 Performance Logging: ${this.isLoggingEnabled ? 'ENABLED' : 'DISABLED'}`)
     }
+  }
+
+  private checkIfEnabled(envVarName: string): boolean {
+    const envVarValue = process.env[envVarName]
+    return envVarValue === 'true' || envVarValue === '1' || envVarValue === 'development'
+  }
+
+  disable() {
+    this.isEnabled = false
+    this.isLoggingEnabled = false
+    // Use direct console.log to avoid infinite loops
+    console.log('🚀 Performance Monitor is disabled')
   }
 
   // Start timing an API call
@@ -186,6 +194,7 @@ class PerformanceMonitor {
     const stats = this.getStats()
     
     console.group('🚀 Performance Monitor Summary')
+    // Use direct console.log to avoid infinite loops
     console.log(`📊 Total API Calls: ${stats.totalCalls}`)
     console.log(`⏱️  Average Response Time: ${stats.averageResponseTime.toFixed(2)}ms`)
     console.log(`🐌 Slowest Endpoint: ${stats.slowestEndpoint} (${stats.slowestTime.toFixed(2)}ms)`)
@@ -194,6 +203,7 @@ class PerformanceMonitor {
     
     console.group('📈 Endpoint Breakdown')
     Object.entries(stats.endpointBreakdown).forEach(([endpoint, data]) => {
+      // Use direct console.log to avoid infinite loops
       console.log(`${endpoint}: ${data.count} calls, ${data.avgTime.toFixed(2)}ms avg, ${data.errors} errors`)
     })
     console.groupEnd()
@@ -237,10 +247,12 @@ export function measurePerformance<T extends any[], R>(
       const duration = endTime - startTime
       
       if (performanceMonitor.getLoggingEnabled()) {
+        // Use direct console.log to avoid infinite loops
         console.log(`🚀 ${propertyKey} completed in ${duration.toFixed(2)}ms`)
         
         // Log slow operations
         if (duration > 1000) {
+          // Use direct console.warn to avoid infinite loops
           console.warn(`⚠️  Slow operation detected: ${propertyKey} took ${duration.toFixed(2)}ms`)
         }
       }
@@ -251,6 +263,7 @@ export function measurePerformance<T extends any[], R>(
       const duration = endTime - startTime
       
       if (performanceMonitor.getLoggingEnabled()) {
+        // Use direct console.error to avoid infinite loops
         console.error(`❌ ${propertyKey} failed after ${duration.toFixed(2)}ms:`, error)
       }
       throw error
@@ -277,9 +290,11 @@ export async function measureAsync<T>(
     const duration = endTime - startTime
     
     if (performanceMonitor.getLoggingEnabled()) {
+      // Use direct console.log to avoid infinite loops
       console.log(`🚀 ${operationName} completed in ${duration.toFixed(2)}ms`)
       
       if (duration > 1000) {
+        // Use direct console.warn to avoid infinite loops
         console.warn(`⚠️  Slow operation detected: ${operationName} took ${duration.toFixed(2)}ms`)
       }
     }
@@ -290,6 +305,7 @@ export async function measureAsync<T>(
     const duration = endTime - startTime
     
     if (performanceMonitor.getLoggingEnabled()) {
+      // Use direct console.error to avoid infinite loops
       console.error(`❌ ${operationName} failed after ${duration.toFixed(2)}ms:`, error)
     }
     throw error
@@ -313,9 +329,11 @@ export function measureSync<T>(
     const duration = endTime - startTime
     
     if (performanceMonitor.getLoggingEnabled()) {
+      // Use direct console.log to avoid infinite loops
       console.log(`🚀 ${operationName} completed in ${duration.toFixed(2)}ms`)
       
       if (duration > 100) {
+        // Use direct console.warn to avoid infinite loops
         console.warn(`⚠️  Slow sync operation detected: ${operationName} took ${duration.toFixed(2)}ms`)
       }
     }
@@ -326,6 +344,7 @@ export function measureSync<T>(
     const duration = endTime - startTime
     
     if (performanceMonitor.getLoggingEnabled()) {
+      // Use direct console.error to avoid infinite loops
       console.error(`❌ ${operationName} failed after ${duration.toFixed(2)}ms:`, error)
     }
     throw error
@@ -351,9 +370,11 @@ export function logIfEnabled(message: string, level: 'log' | 'warn' | 'error' = 
 // Utility function to log performance data conditionally
 export function logPerformanceIfEnabled(operationName: string, duration: number): void {
   if (performanceMonitor.getLoggingEnabled()) {
+    // Use direct console.log to avoid infinite loops
     console.log(`🚀 ${operationName} completed in ${duration.toFixed(2)}ms`)
     
     if (duration > 1000) {
+      // Use direct console.warn to avoid infinite loops
       console.warn(`⚠️  Slow operation detected: ${operationName} took ${duration.toFixed(2)}ms`)
     }
   }

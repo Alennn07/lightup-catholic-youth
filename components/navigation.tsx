@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Heart, Menu, X, ChevronDown, User, LogOut, Settings, LayoutDashboard } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useAuth } from "@/contexts/auth-context"
+import { logIfEnabled } from "@/lib/performance-monitor"
 
 export function Navigation() {
   const [isOpen, setIsOpen] = useState(false)
@@ -14,7 +15,7 @@ export function Navigation() {
 
   // Force re-render when user data changes
   useEffect(() => {
-    console.log('Navigation: User data updated:', user)
+    logIfEnabled(`Navigation: User data updated: ${JSON.stringify(user)}`)
   }, [user])
 
   const toggleMenu = () => setIsOpen(!isOpen)
@@ -38,7 +39,7 @@ export function Navigation() {
       await logout()
       setIsProfileOpen(false)
     } catch (error) {
-      console.error("Error signing out:", error)
+      logIfEnabled(`Error signing out: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error')
     }
   }
 

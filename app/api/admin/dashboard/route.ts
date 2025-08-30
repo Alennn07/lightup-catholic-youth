@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr"
 import { cookies } from "next/headers"
 import { NextResponse } from "next/server"
+import { logIfEnabled } from "@/lib/performance-monitor"
 
 // Force this route to be dynamic since it uses request.url
 export const dynamic = 'force-dynamic'
@@ -99,7 +100,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json({ dashboard })
   } catch (error) {
-    console.error("Admin dashboard API error:", error)
+    logIfEnabled(`Admin dashboard API error: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error')
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }

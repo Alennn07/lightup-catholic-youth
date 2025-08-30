@@ -14,6 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Heart, Mail, Lock, ArrowLeft, Eye, EyeOff, Sparkles } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { useAuth } from "@/contexts/auth-context"
+import { logIfEnabled } from "@/lib/performance-monitor"
 
 export default function SignInPage() {
   const [email, setEmail] = useState("")
@@ -27,19 +28,19 @@ export default function SignInPage() {
   // Redirect if already logged in
   useEffect(() => {
     if (user && !isLoading) {
-      console.log('User already logged in, redirecting to dashboard...')
+      logIfEnabled('User already logged in, redirecting to dashboard...')
       router.push('/dashboard')
     }
   }, [user, isLoading, router])
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log('Starting sign-in process...')
+    logIfEnabled('Starting sign-in process...')
 
     try {
-      console.log('Calling login function...')
+      logIfEnabled('Calling login function...')
       await login(email, password)
-      console.log('Login successful!')
+      logIfEnabled('Login successful!')
       
       // Success notification
       toast({
@@ -49,9 +50,9 @@ export default function SignInPage() {
       })
 
       // The redirect will happen automatically via useEffect above
-      console.log('Login complete, redirect should happen automatically')
+      logIfEnabled('Login complete, redirect should happen automatically')
     } catch (error: any) {
-      console.error('Sign-in error:', error)
+      logIfEnabled(`Sign-in error: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error')
       
       // Handle specific error types
       let errorTitle = "Sign in failed"
@@ -90,7 +91,7 @@ export default function SignInPage() {
         variant: "default",
       })
     } catch (error: any) {
-      console.error('Google sign-in error:', error)
+      logIfEnabled(`Google sign-in error: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error')
       toast({
         title: "Google sign-in failed",
         description: error.message || "Please try again or use email sign-in.",

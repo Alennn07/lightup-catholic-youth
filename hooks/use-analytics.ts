@@ -1,5 +1,6 @@
 import { useCallback, useRef } from 'react'
 import { useAuth } from '@/contexts/auth-context'
+import { logIfEnabled } from "@/lib/performance-monitor"
 
 interface ActivityData {
   [key: string]: any
@@ -40,7 +41,7 @@ export function useAnalytics() {
       }
     } catch (error) {
       if (error.name !== 'AbortError') {
-        console.error('Error tracking activity:', error)
+        logIfEnabled(`Error tracking activity: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error')
       }
       // Continue without analytics if there's an error
     }

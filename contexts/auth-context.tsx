@@ -5,6 +5,7 @@ import { createContext, useContext, useState, useEffect } from "react"
 import { supabase } from "@/lib/supabase"
 import type { User as SupabaseUser } from "@supabase/supabase-js"
 import type { User } from "@/lib/supabase"
+import { logIfEnabled } from "@/lib/performance-monitor"
 
 interface AuthContextType {
   user: User | null
@@ -40,7 +41,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const getInitialSession = async () => {
       try {
         const { data: { session }, error } = await supabase.auth.getSession()
-        console.log('🔐 Initial session check:', { hasSession: !!session, userId: session?.user?.id, error })
+        logIfEnabled(`🔐 Initial session check: ${JSON.stringify({ hasSession: !!session, userId: session?.user?.id, error: error?.message })}`)
         
         if (session?.user) {
           setSupabaseUser(session.user)
@@ -57,14 +58,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             updated_at: new Date().toISOString(),
           }
           setUser(basicUser)
-          console.log('👤 User set from session:', basicUser)
+          logIfEnabled(`👤 User set from session: ${JSON.stringify(basicUser)}`)
         } else {
-          console.log('❌ No initial session found')
+          logIfEnabled('❌ No initial session found')
           setSupabaseUser(null)
           setUser(null)
         }
       } catch (error) {
-        console.error('🚨 Error getting initial session:', error)
+        logIfEnabled(`🚨 Error getting initial session: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error')
       } finally {
         setIsLoading(false)
       }
@@ -218,16 +219,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const login = async (email: string, password: string) => {
-    console.log('🔐 Login function started')
+    logIfEnabled('🔐 Login function started')
     setIsLoading(true)
     try {
-      console.log('📡 Calling Supabase auth...')
+      logIfEnabled('📡 Calling Supabase auth...')
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
       
-      console.log('📡 Supabase auth response:', { data, error })
+      logIfEnabled(`📡 Supabase auth response: ${JSON.stringify({ hasUser: !!data.user, error: error?.message })}`)
       
       if (error) {
         // Handle wrong password (email notification removed for now)
@@ -236,7 +237,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       // If login successful, set user immediately without profile fetch
       if (data.user) {
-        console.log('✅ Auth successful, setting user...')
+        logIfEnabled('✅ Auth successful, setting user...')
         // Create a basic user object from auth data
         const basicUser = {
           id: data.user.id,
@@ -251,27 +252,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
         setUser(basicUser)
         setSupabaseUser(data.user)
-        console.log('✅ User set successfully')
+        logIfEnabled('✅ User set successfully')
       }
       
       // Set loading to false on successful login
       setIsLoading(false)
       
     } catch (error: any) {
-      console.error('❌ Login error:', error)
+      logIfEnabled(`❌ Login error: ${error.message || 'Unknown error'}`, 'error')
       setIsLoading(false)
       throw new Error(error.message || "Login failed")
     }
   }
 
-  const signInWithGoogle = async () => {
-    console.log('🔐 Google sign-in started')
+    const signInWithGoogle = async () => {
+    logIfEnabled('🔐 Google sign-in started')
     try {
-      console.log('📡 Calling Supabase Google OAuth...')
+      logIfEnabled('📡 Calling Supabase Google OAuth...')
       
       let redirectUrl = process.env.NEXT_PUBLIC_SITE_URL + '/auth/callback'
-      console.log('🚀 Using redirect URL:', redirectUrl)
-      
+      logIfEnabled(`🚀 Using redirect URL: ${redirectUrl}`)
+       
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
@@ -283,16 +284,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       })
       
-      console.log('📡 Supabase Google OAuth response:', { data, error })
+      logIfEnabled(`📡 Supabase Google OAuth response: ${JSON.stringify({ data: !!data, error: error?.message })}`)
       
       if (error) throw error
       
       // Google OAuth will redirect to the callback URL
       // The user profile will be fetched in the callback
-      console.log('✅ Google OAuth initiated successfully')
+      logIfEnabled('✅ Google OAuth initiated successfully')
       
     } catch (error: any) {
-      console.error('❌ Google sign-in error:', error)
+      logIfEnabled(`❌ Google sign-in error: ${error.message || 'Unknown error'}`, 'error')
       throw new Error(error.message || "Google sign-in failed")
     }
   }

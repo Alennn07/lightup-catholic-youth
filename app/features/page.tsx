@@ -21,6 +21,7 @@ import {
   Zap
 } from "lucide-react"
 import { supabase } from "@/lib/supabase"
+import { logIfEnabled } from "@/lib/performance-monitor"
 
 interface Feature {
   id: string
@@ -52,12 +53,12 @@ export default function FeaturesPage() {
         .order('user_count', { ascending: false })
 
       if (!error && featuresData) {
-        console.log('📊 Raw features data from database:', featuresData)
+        logIfEnabled(`📊 Raw features data from database: ${JSON.stringify(featuresData)}`)
         
         const realFeatures: Feature[] = featuresData.map((feature: any) => {
           const href = getFeatureHref(feature.name || '')
-          console.log(`🔍 Feature: "${feature.name}" -> Href: "${href}"`)
-          console.log(`📍 Raw feature data:`, feature)
+          logIfEnabled(`🔍 Feature: "${feature.name}" -> Href: "${href}"`)
+          logIfEnabled(`📍 Raw feature data: ${JSON.stringify(feature)}`)
           return {
             id: feature.id,
             name: feature.name || '',
@@ -71,7 +72,7 @@ export default function FeaturesPage() {
           }
         })
         
-        console.log('🎯 Final processed features:', realFeatures)
+        logIfEnabled(`🎯 Final processed features: ${JSON.stringify(realFeatures)}`)
         setFeatures(realFeatures)
       } else {
         // If no real data, show default empty state
@@ -157,7 +158,7 @@ export default function FeaturesPage() {
         ])
       }
     } catch (error) {
-      console.error('Error fetching features:', error)
+      logIfEnabled(`Error fetching features: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error')
     } finally {
       setIsLoading(false)
     }
@@ -208,52 +209,52 @@ export default function FeaturesPage() {
   const getFeatureHref = (featureName: string) => {
     const lowerName = featureName.toLowerCase()
     
-    console.log('🔍 getFeatureHref called with:', featureName, '-> lowerName:', lowerName)
+    logIfEnabled(`🔍 getFeatureHref called with: ${featureName} -> lowerName: ${lowerName}`)
     
     // EXACT MATCHES first (to avoid confusion)
     if (lowerName === 'daily bible verse') {
-      console.log('🎯 Daily Bible Verse exact match, returning /daily-bible-verse')
+      logIfEnabled('🎯 Daily Bible Verse exact match, returning /daily-bible-verse')
       return "/daily-bible-verse"
     }
     
     if (lowerName === 'faith journal') {
-      console.log('🎯 Faith Journal exact match, returning /faith-journal')
+      logIfEnabled('🎯 Faith Journal exact match, returning /faith-journal')
       return "/faith-journal"
     }
     
     if (lowerName === 'faith quiz') {
-      console.log('🎯 Faith Quiz exact match, returning /faith-quiz')
+      logIfEnabled('🎯 Faith Quiz exact match, returning /faith-quiz')
       return "/faith-quiz"
     }
     
     if (lowerName === 'liturgical calendar') {
-      console.log('🎯 Liturgical Calendar exact match, returning /liturgical-calendar')
+      logIfEnabled('🎯 Liturgical Calendar exact match, returning /liturgical-calendar')
       return "/liturgical-calendar"
     }
     
     if (lowerName === 'prayer wall') {
-      console.log('🎯 Prayer Wall exact match, returning /prayer-wall')
+      logIfEnabled('🎯 Prayer Wall exact match, returning /prayer-wall')
       return "/prayer-wall"
     }
     
     if (lowerName === 'youth groups') {
-      console.log('🎯 Youth Groups exact match, returning /youth-groups')
+      logIfEnabled('🎯 Youth Groups exact match, returning /youth-groups')
       return "/youth-groups"
     }
     
     // More specific matching for FaithBot (but exclude other features)
     if (lowerName.includes('faithbot') || lowerName.includes('faith bot') || lowerName.includes('ai')) {
-      console.log('🎯 FaithBot detected, returning /faithbot')
+      logIfEnabled('🎯 FaithBot detected, returning /faithbot')
       return "/faithbot"
     }
     
     // Fallback for youth group finder
     if (lowerName.includes('youth group finder')) {
-      console.log('🎯 Youth Group Finder detected, returning /youth-groups')
+      logIfEnabled('🎯 Youth Group Finder detected, returning /youth-groups')
       return "/youth-groups"
     }
     
-    console.log('❌ No match found, returning / (dashboard)')
+    logIfEnabled('❌ No match found, returning / (dashboard)')
     return "/"
   }
 

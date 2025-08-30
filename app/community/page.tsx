@@ -12,6 +12,7 @@ import { useAuth } from "@/contexts/auth-context"
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Heart, Users, BookOpen, MessageCircle, Calendar, Music, ArrowRight, MapPin, Clock, Star, Globe, Church, Cross, Lightbulb, Award, TrendingUp, Bookmark, Share2, ThumbsUp, MessageSquare, Plus, CheckCircle } from "lucide-react"
+import { logIfEnabled } from "@/lib/performance-monitor"
 
 const communityStats = [
   { label: "Active Members", value: "2,847", icon: Users, color: "text-blue-600" },
@@ -192,8 +193,8 @@ export default function CommunityPage() {
         }
       }
     } catch (error) {
-      console.error('Error fetching events:', error)
-      // Keep using local events if backend fails
+      logIfEnabled(`Error fetching events: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error')
+      setEvents([])
     } finally {
       setIsLoadingEvents(false)
     }

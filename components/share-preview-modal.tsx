@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Download, Share2, X } from "lucide-react"
 import { generateShareImage, downloadImage, type ShareImageData } from "@/lib/generate-share-image"
 import { useToast } from "@/hooks/use-toast"
+import { logIfEnabled } from "@/lib/performance-monitor"
 
 interface SharePreviewModalProps {
   isOpen: boolean
@@ -34,7 +35,12 @@ export function SharePreviewModal({ isOpen, onClose, data }: SharePreviewModalPr
       const url = URL.createObjectURL(imageBlob)
       setPreviewUrl(url)
     } catch (error) {
-      console.error('Error generating preview:', error)
+      logIfEnabled(`Error generating preview: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error')
+      toast({
+        title: "Error",
+        description: "Failed to generate preview. Please try again.",
+        variant: "destructive",
+      })
     } finally {
       setIsGenerating(false)
     }
@@ -55,7 +61,7 @@ export function SharePreviewModal({ isOpen, onClose, data }: SharePreviewModalPr
         variant: "default",
       })
     } catch (error) {
-      console.error('Error downloading image:', error)
+      logIfEnabled(`Error downloading image: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error')
       toast({
         title: "Error",
         description: "Failed to download image. Please try again.",

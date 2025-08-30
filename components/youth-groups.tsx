@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Search, Users, MapPin, Calendar, Plus, Settings, MessageSquare, Heart, X, Edit, Trash2, Globe } from 'lucide-react'
+import { logIfEnabled } from "@/lib/performance-monitor"
 
 interface YouthGroup {
   id: string
@@ -121,13 +122,13 @@ export default function YouthGroups() {
       setLoading(true)
       const token = await getAccessToken()
       if (!token) {
-        console.log('❌ No access token available')
+        logIfEnabled('❌ No access token available')
         setLoading(false)
         setIsPageLoading(false)
         return
       }
 
-      console.log('🚀 fetchGroups started')
+      logIfEnabled('🚀 fetchGroups started')
       const response = await fetch('/api/youth-groups', {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -141,7 +142,7 @@ export default function YouthGroups() {
       const data = await response.json()
       setGroups(data.groups || [])
     } catch (error: any) {
-      console.error('❌ Error fetching groups:', error)
+      logIfEnabled(`❌ Error fetching groups: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error')
       toast({ title: "Error", description: error.message || "Failed to fetch groups", variant: "destructive" })
     } finally {
       setLoading(false)
@@ -154,7 +155,7 @@ export default function YouthGroups() {
       setLoadingGroupDetails(true)
       const token = await getAccessToken()
       if (!token) {
-        console.log('❌ No access token available')
+        logIfEnabled('❌ No access token available')
         setLoadingGroupDetails(false)
         return
       }
@@ -181,7 +182,7 @@ export default function YouthGroups() {
         )
       )
     } catch (error: any) {
-      console.error('❌ Error fetching group details:', error)
+      logIfEnabled(`❌ Error fetching group details: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error')
       toast({ title: "Error", description: error.message || "Failed to fetch group details", variant: "destructive" })
     } finally {
       setLoadingGroupDetails(false)
@@ -216,7 +217,7 @@ export default function YouthGroups() {
       // Refresh groups to update membership status
     fetchGroups()
     } catch (error: any) {
-      console.error('Error joining group:', error)
+      logIfEnabled(`Error joining group: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error')
       toast({ title: "Error", description: error.message || "Failed to join group.", variant: "destructive" })
     }
   }
@@ -249,7 +250,7 @@ export default function YouthGroups() {
       // Refresh groups to update membership status
       fetchGroups()
     } catch (error: any) {
-      console.error('Error leaving group:', error)
+      logIfEnabled(`Error leaving group: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error')
       toast({ title: "Error", description: error.message || "Failed to leave group.", variant: "destructive" })
     }
   }
@@ -301,14 +302,14 @@ export default function YouthGroups() {
       // Refresh groups
       fetchGroups()
     } catch (error: any) {
-      console.error('Error creating group:', error)
+      logIfEnabled(`Error creating group: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error')
       toast({ title: "Error", description: error.message || "Failed to create group.", variant: "destructive" })
     }
   }
 
   const handleViewGroup = async (group: YouthGroup) => {
     try {
-      console.log('🔄 NEW CODE: Fetching group with cache-busting parameter')
+      logIfEnabled('🔄 NEW CODE: Fetching group with cache-busting parameter')
       const token = await getAccessToken()
       if (!token) {
         toast({ title: "Authentication Error", description: "Please sign in to view group details.", variant: "destructive" })
@@ -330,7 +331,7 @@ export default function YouthGroups() {
       setSelectedGroup(data.group)
       setShowGroupDetails(true)
     } catch (error) {
-      console.error('Error fetching group details:', error)
+      logIfEnabled(`Error fetching group details: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error')
       toast({ title: "Error", description: "Failed to load group details.", variant: "destructive" })
     }
   }
@@ -382,7 +383,7 @@ export default function YouthGroups() {
           ))
         }
         
-        console.log('✅ Member removed and UI updated smoothly')
+        logIfEnabled('✅ Member removed and UI updated smoothly')
       } else {
       toast({
           title: "Error",
@@ -391,7 +392,7 @@ export default function YouthGroups() {
         })
       }
           } catch (error) {
-        console.error('Error removing member:', error)
+        logIfEnabled(`Error removing member: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error')
         toast({
           title: "Error",
           description: "Failed to remove member",
@@ -445,12 +446,12 @@ export default function YouthGroups() {
           ))
         }
         
-        console.log('✅ Event deleted and UI updated smoothly')
+        logIfEnabled('✅ Event deleted and UI updated smoothly')
       } else {
         toast({ title: "Error", description: data.error || "Failed to delete event", variant: "destructive" })
       }
     } catch (error: any) {
-      console.error('Error deleting event:', error)
+      logIfEnabled(`Error deleting event: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error')
       toast({ title: "Error", description: error.message || "Failed to delete event.", variant: "destructive" })
     }
   }
@@ -498,12 +499,12 @@ export default function YouthGroups() {
           ))
         }
         
-        console.log('✅ Post deleted and UI updated smoothly')
+        logIfEnabled('✅ Post deleted and UI updated smoothly')
       } else {
         toast({ title: "Error", description: data.error || "Failed to delete post", variant: "destructive" })
       }
     } catch (error: any) {
-      console.error('Error deleting post:', error)
+      logIfEnabled(`Error deleting post: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error')
       toast({ title: "Error", description: error.message || "Failed to delete post.", variant: "destructive" })
     }
   }
@@ -568,7 +569,7 @@ export default function YouthGroups() {
           ))
         }
         
-        console.log('✅ Member added and UI updated smoothly')
+        logIfEnabled('✅ Member added and UI updated smoothly')
       } else {
       toast({
           title: "Error",
@@ -577,7 +578,7 @@ export default function YouthGroups() {
         })
       }
     } catch (error) {
-      console.error('Error adding member:', error)
+      logIfEnabled(`Error adding member: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error')
       toast({
         title: "Error",
         description: "Failed to add member",
@@ -643,10 +644,10 @@ export default function YouthGroups() {
           events: [...(prev.events || []), newEvent]
         } : null)
         
-        console.log('✅ Event created and UI updated smoothly')
+        logIfEnabled('✅ Event created and UI updated smoothly')
       }
     } catch (error: any) {
-      console.error('Error creating event:', error)
+      logIfEnabled(`Error creating event: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error')
       toast({ title: "Error", description: error.message || "Failed to create event.", variant: "destructive" })
     }
   }
@@ -702,10 +703,10 @@ export default function YouthGroups() {
           posts: [...(prev.posts || []), newPost]
         } : null)
         
-        console.log('✅ Post created and UI updated smoothly')
+        logIfEnabled('✅ Post created and UI updated smoothly')
       }
     } catch (error: any) {
-      console.error('Error creating post:', error)
+      logIfEnabled(`Error creating post: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error')
       toast({ title: "Error", description: error.message || "Failed to create post.", variant: "destructive" })
     }
   }
@@ -738,7 +739,7 @@ export default function YouthGroups() {
       // Refresh groups
       fetchGroups()
     } catch (error: any) {
-      console.error('Error toggling event visibility:', error)
+      logIfEnabled(`Error toggling event visibility: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error')
       toast({ title: "Error", description: error.message || "Failed to toggle event visibility.", variant: "destructive" })
     }
   }
@@ -771,7 +772,7 @@ export default function YouthGroups() {
       // Refresh groups
       fetchGroups()
     } catch (error: any) {
-      console.error('Error toggling post visibility:', error)
+      logIfEnabled(`Error toggling post visibility: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error')
       toast({ title: "Error", description: error.message || "Failed to toggle post visibility.", variant: "destructive" })
     }
   }
@@ -807,7 +808,7 @@ export default function YouthGroups() {
         fetchGroupDetails(selectedGroup.id)
       }
     } catch (error: any) {
-      console.error('Error updating event:', error)
+      logIfEnabled(`Error updating event: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error')
       toast({ title: "Error", description: error.message || "Failed to update event.", variant: "destructive" })
     }
   }
@@ -854,7 +855,7 @@ export default function YouthGroups() {
         setIsEditingGroupName(false)
         setEditingGroupName('')
         
-        console.log('✅ Group name updated and UI refreshed smoothly')
+        logIfEnabled('✅ Group name updated and UI refreshed smoothly')
       } else {
         toast({
           title: "Error",
@@ -863,7 +864,7 @@ export default function YouthGroups() {
         })
       }
     } catch (error) {
-      console.error('Error updating group name:', error)
+      logIfEnabled(`Error updating group name: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error')
       toast({
         title: "Error",
         description: "Failed to update group name",

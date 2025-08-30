@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Check, X, Star, Users, TrendingUp } from "lucide-react"
 import { supabase } from "@/lib/supabase"
+import { logIfEnabled } from "@/lib/performance-monitor"
 
 interface App {
   id: string
@@ -73,7 +74,8 @@ export default function FeatureComparison() {
         ])
       }
     } catch (error) {
-      console.error('Error fetching apps:', error)
+      logIfEnabled(`Error fetching apps: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error')
+      setApps([])
     } finally {
       setIsLoading(false)
     }

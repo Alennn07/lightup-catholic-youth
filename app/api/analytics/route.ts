@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr"
 import { cookies } from "next/headers"
 import { NextResponse } from "next/server"
+import { logIfEnabled } from "@/lib/performance-monitor"
 
 // Force this route to be dynamic since it uses request.url
 export const dynamic = 'force-dynamic'
@@ -54,13 +55,13 @@ export async function POST(request: Request) {
     })
 
     if (error) {
-      console.error("Error tracking analytics:", error)
+      logIfEnabled(`Error tracking analytics: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error')
       return NextResponse.json({ error: "Failed to track event" }, { status: 500 })
     }
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error("Analytics API error:", error)
+    logIfEnabled(`Analytics API error: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error')
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }
@@ -116,13 +117,13 @@ export async function GET(request: Request) {
     const { data: analytics, error } = await query
 
     if (error) {
-      console.error("Error fetching analytics:", error)
+      logIfEnabled(`Error fetching analytics: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error')
       return NextResponse.json({ error: "Failed to fetch analytics" }, { status: 500 })
     }
 
     return NextResponse.json({ analytics })
   } catch (error) {
-    console.error("Analytics fetch API error:", error)
+    logIfEnabled(`Analytics fetch API error: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error')
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }

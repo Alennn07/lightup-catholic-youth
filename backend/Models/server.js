@@ -19,5 +19,13 @@ app.get("/", (req, res) => {
 });
 
 // Server
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+const PORT = process.env.PORT || 5000
+
+// Environment-controlled logging
+const shouldLog = process.env.ENABLE_BACKEND_LOGGING === 'true' || process.env.NODE_ENV === 'development'
+
+app.listen(PORT, () => {
+  if (shouldLog) {
+    console.log(`🚀 Server running on port ${PORT}`)
+  }
+})

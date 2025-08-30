@@ -21,6 +21,7 @@ import {
 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { useAuth } from "@/contexts/auth-context"
+import { logIfEnabled } from "@/lib/performance-monitor"
 
 interface QuizQuestion {
   id: number
@@ -398,10 +399,10 @@ export function FaithQuiz() {
       if (questions && questions.length > 0) {
         // Update the questions state if you want to use API questions
         // For now, we'll keep using the hardcoded questions
-        console.log(`Loaded ${questions.length} questions for ${categoryId}`)
+        logIfEnabled(`Loaded ${questions.length} questions for ${categoryId}`)
       }
     } catch (error) {
-      console.error('Failed to fetch questions:', error)
+      logIfEnabled(`Failed to fetch questions: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error')
       // Continue with hardcoded questions as fallback
     }
   }
@@ -466,11 +467,11 @@ export function FaithQuiz() {
       const response = await fetch('/api/quiz')
       if (!response.ok) throw new Error('Failed to fetch quiz data')
       const data = await response.json()
-      console.log('Quiz data fetched:', data)
+      logIfEnabled('Quiz data fetched:', data)
       // You can use this data to show user progress, achievements, etc.
       return data
     } catch (error) {
-      console.error('Error fetching quiz data:', error)
+      logIfEnabled(`Error fetching quiz data: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error')
       toast({
         title: "Error",
         description: "Failed to load quiz data. Please try again.",
@@ -496,7 +497,7 @@ export function FaithQuiz() {
       
       if (!response.ok) throw new Error('Failed to save results')
       const data = await response.json()
-      console.log('Quiz results saved:', data)
+      logIfEnabled('Quiz results saved:', data)
       
       // Show success message
       toast({
@@ -506,7 +507,7 @@ export function FaithQuiz() {
       
       return data
     } catch (error) {
-      console.error('Error saving results:', error)
+      logIfEnabled(`Error saving results: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error')
       toast({
         title: "Error",
         description: "Failed to save quiz results. Please try again.",
@@ -520,10 +521,10 @@ export function FaithQuiz() {
       const response = await fetch(`/api/quiz/${categoryId}?userId=${user?.id}`)
       if (!response.ok) throw new Error('Failed to fetch questions')
       const data = await response.json()
-      console.log(`Questions for ${categoryId}:`, data)
+      logIfEnabled(`Questions for ${categoryId}:`, data)
       return data.questions
     } catch (error) {
-      console.error('Error fetching questions:', error)
+      logIfEnabled(`Error fetching questions: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error')
       toast({
         title: "Error",
         description: "Failed to load quiz questions. Please try again.",

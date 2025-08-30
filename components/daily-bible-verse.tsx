@@ -58,7 +58,7 @@ export function DailyBibleVerse() {
         const { data: { session } } = await supabase.auth.getSession()
         setUser(session?.user ?? null)
       } catch (error) {
-        console.error('Auth check error:', error)
+        logIfEnabled(`Auth check error: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error')
       }
     }
 

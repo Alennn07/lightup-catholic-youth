@@ -15,6 +15,7 @@ import { Heart, Plus, Send, Users, Clock } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { useAuth } from "@/contexts/auth-context"
 import { formatDistanceToNow } from "date-fns"
+import { logIfEnabled } from "@/lib/performance-monitor"
 
 interface PrayerRequest {
   id: string  // Changed from number to string (UUID)
@@ -147,19 +148,19 @@ export function PrayerWall() {
       }
 
       const { prayerCount } = await response.json()
-      console.log('🔄 API Response - prayerCount:', prayerCount)
-      console.log('🔄 Current requests state:', requests)
-      console.log('🔄 Updating request ID:', requestId)
+      logIfEnabled(`🔄 API Response - prayerCount: ${prayerCount}`)
+      logIfEnabled(`🔄 Current requests state: ${JSON.stringify(requests.map(req => ({ id: req.id, prayer_count: req.prayer_count })))}`)
+      logIfEnabled(`🔄 Updating request ID: ${requestId}`)
 
       setRequests(requests.map((req) => {
         if (req.id === requestId) {
-          console.log('🔄 Updating request:', req.id, 'from', req.prayer_count, 'to', prayerCount)
+          logIfEnabled(`🔄 Updating request: ${req.id} from ${req.prayer_count} to ${prayerCount}`)
           return { ...req, prayer_count: prayerCount }
         }
         return req
       }))
 
-      console.log('🔄 State updated, new requests:', requests.map(req => ({ id: req.id, prayer_count: req.prayer_count })))
+      logIfEnabled(`🔄 State updated, new requests: ${JSON.stringify(requests.map(req => ({ id: req.id, prayer_count: req.prayer_count })))}`)
 
       toast({
         title: "Prayer added",
