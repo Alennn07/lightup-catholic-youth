@@ -13,6 +13,22 @@ Create a `.env.local` file in your project root with these variables:
 ENABLE_PERFORMANCE_MONITORING=true
 ENABLE_PERFORMANCE_LOGGING=true
 ENABLE_API_LOGGING=true
+
+# 🚀 Site Configuration
+NEXT_PUBLIC_SITE_URL=https://your-domain.vercel.app
+```
+
+## 🚀 Site Configuration
+
+### **NEXT_PUBLIC_SITE_URL**
+- **Default**: `http://localhost:3000` (development)
+- **Purpose**: Set the production site URL for OAuth redirects
+- **Values**: Your production domain (e.g., `https://your-app.vercel.app`)
+- **Impact**: Fixes Google OAuth redirect issues in production
+- **Critical**: Must be set for production OAuth to work
+
+```bash
+NEXT_PUBLIC_SITE_URL=https://your-domain.vercel.app
 ```
 
 ## 🎯 Core Performance Variables
@@ -321,6 +337,12 @@ Check if logging is working:
 - Check `ENABLE_PERFORMANCE_MONITORING` is `true`
 - Verify environment variables are loaded
 - Check for JavaScript errors in console
+
+### **OAuth Redirect Issues (Google Sign-In)**
+- Verify `NEXT_PUBLIC_SITE_URL` is set to your production domain
+- Check Google Cloud Console OAuth redirect URIs include production URL
+- Ensure environment variables are deployed to Vercel
+- Restart development server after changing environment variables
 
 ---
 

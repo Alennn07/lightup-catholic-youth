@@ -43,8 +43,17 @@ export async function GET(request: Request) {
       console.log('Auth callback successful:', data)
     }
 
-    // URL to redirect to after sign in process completes
-    const redirectUrl = requestUrl.origin + '/dashboard'
+    // 🚀 FIX: Use environment variable for redirect URL in production
+    let redirectUrl = requestUrl.origin + '/dashboard'
+    
+    // Check if we're in production and use environment variable if available
+    if (process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_SITE_URL) {
+      redirectUrl = process.env.NEXT_PUBLIC_SITE_URL + '/dashboard'
+      console.log('🚀 Using production redirect URL:', redirectUrl)
+    } else {
+      console.log('🔧 Using development redirect URL:', redirectUrl)
+    }
+    
     console.log('Redirecting to:', redirectUrl)
     
     return NextResponse.redirect(redirectUrl)
