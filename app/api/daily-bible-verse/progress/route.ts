@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { logIfEnabled } from '@/lib/performance-monitor'
 
 export const dynamic = 'force-dynamic'
 
 export async function POST(request: NextRequest) {
   try {
-    const { action, verse_id } = await request.json()
+    const { action, date } = await request.json()
     
-    console.log('🔍 Progress API - Action:', action, 'Verse ID:', verse_id)
+    logIfEnabled(`🔍 Progress API - Action: ${action}, Date: ${date}`)
     
     // Get authorization header
     const authHeader = request.headers.get('authorization')
@@ -30,22 +31,19 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
     }
     
-    const today = new Date().toISOString().split('T')[0]
-    console.log('📅 Today:', today, 'User:', user.id)
+    // Use provided date or default to today
+    const targetDate = date || new Date().toISOString().split('T')[0]
+    logIfEnabled(`📅 Target date: ${targetDate}, User: ${user.id}`)
     
     if (action === 'mark_completed') {
-      if (!verse_id) {
-        return NextResponse.json({ error: 'Verse ID is required' }, { status: 400 })
-      }
+      logIfEnabled(`✅ Marking verse as completed for date: ${targetDate}`)
       
-      console.log('✅ Marking verse as completed:', verse_id)
-      
-      // Check if progress already exists for today
+      // Check if progress already exists for the target date
       const { data: existingProgress } = await supabase
         .from('user_progress')
         .select('id')
         .eq('user_id', user.id)
-        .eq('verse_date', today)
+        .eq('verse_date', targetDate)
         .single()
       
       if (existingProgress) {
@@ -58,30 +56,40 @@ export async function POST(request: NextRequest) {
           })
           .eq('id', existingProgress.id)
         
-        if (updateError) throw updateError
-        console.log('✅ Progress updated successfully')
+        if (updateError) {
+          logIfEnabled(`❌ Error updating progress: ${updateError.message}`, 'error')
+          throw updateError
+        }
+        logIfEnabled('✅ Progress updated successfully')
       } else {
         // Insert new progress
         const { error: insertError } = await supabase
           .from('user_progress')
           .insert({
             user_id: user.id,
-            verse_date: today,
+            verse_date: targetDate,
             is_completed: true,
             completed_at: new Date().toISOString()
           })
         
-        if (insertError) throw insertError
-        console.log('✅ Progress created successfully')
+        if (insertError) {
+          logIfEnabled(`❌ Error creating progress: ${insertError.message}`, 'error')
+          throw insertError
+        }
+        logIfEnabled('✅ Progress created successfully')
       }
       
-      return NextResponse.json({ success: true, message: 'Verse marked as completed' })
+      return NextResponse.json({ 
+        success: true, 
+        message: 'Verse marked as completed',
+        date: targetDate
+      })
     }
     
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
     
   } catch (error: any) {
-    console.error('❌ Error in Progress API:', error)
+    logIfEnabled(`❌ Error in Progress API: ${error.message || 'Unknown error'}`, 'error')
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
