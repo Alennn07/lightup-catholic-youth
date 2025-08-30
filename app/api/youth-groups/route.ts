@@ -1,150 +1,127 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { logIfEnabled, logPerformanceIfEnabled } from '@/lib/performance-monitor'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
   const startTime = Date.now()
+  
   try {
-    console.log('🚀 GET /api/youth-groups - Starting request')
+    logIfEnabled('🚀 GET /api/youth-groups - Starting request')
+    
     const authHeader = request.headers.get('authorization')
     const token = authHeader?.replace('Bearer ', '')
     if (!token) {
-      console.log('❌ No authorization token provided')
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    let supabase: any
-    try {
-      supabase = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.SUPABASE_SERVICE_ROLE_KEY!,
-        { auth: { autoRefreshToken: false, persistSession: false } }
-      )
-      console.log('✅ Supabase client created successfully')
-    } catch (clientError: any) {
-      console.error('❌ Error creating Supabase client:', clientError)
-      return NextResponse.json({ error: 'Database connection failed' }, { status: 500 })
+    // Create Supabase client with optimized settings
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      { 
+        auth: { autoRefreshToken: false, persistSession: false },
+        db: { schema: 'public' }
+      }
+    )
+
+    // Verify user authentication
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
     }
 
-    let user: any
-    try {
-      const { data: { user: authUser }, error: authError } = await supabase.auth.getUser(token)
-      if (authError || !authUser) {
-        console.log('❌ Auth error:', authError)
-        return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
-      }
-      user = authUser
-      console.log('✅ User authenticated:', user.id)
-    } catch (authError: any) {
-      console.error('❌ Error verifying user:', authError)
-      return NextResponse.json({ error: 'Authentication failed' }, { status: 401 })
-    }
+    // 🚀 OPTIMIZED: Single efficient query with proper indexing
+    const { data: groups, error: groupsError } = await supabase
+      .from('youth_groups')
+      .select(`
+        id, 
+        name, 
+        description, 
+        parish, 
+        city, 
+        state, 
+        country, 
+        meeting_time, 
+        age_range, 
+        max_members, 
+        is_public, 
+        is_active, 
+        owner_id, 
+        created_at
+      `)
+      .eq('is_active', true)
+      .order('created_at', { ascending: false })
+      .limit(10) // Increased limit for better UX
 
-    // First, check if the youth_groups table exists and get basic info
-    try {
-      console.log('🔍 Checking if youth_groups table exists...')
-      const { data: tableCheck, error: tableError } = await supabase
-        .from('youth_groups')
-        .select('id, name')
-        .limit(1)
-      
-      if (tableError) {
-        console.error('❌ Table check failed:', tableError)
-        if (tableError.code === '42P01') { // Table doesn't exist
-          return NextResponse.json({ 
-            error: 'Youth groups table not found. Please run the database setup script first.',
-            details: 'The youth_groups table does not exist in your database.'
-          }, { status: 500 })
-        }
-        return NextResponse.json({ error: 'Database table error', details: tableError.message }, { status: 500 })
-      }
-      console.log('✅ Table check passed, found rows:', tableCheck?.length || 0)
-    } catch (tableCheckError: any) {
-      console.error('❌ Table check exception:', tableCheckError)
+    if (groupsError) {
+      logIfEnabled(`❌ Error fetching groups: ${groupsError.message}`, 'error')
       return NextResponse.json({ 
-        error: 'Database connection error',
-        details: tableCheckError.message 
+        error: 'Failed to fetch groups',
+        details: groupsError.message 
       }, { status: 500 })
     }
 
-    // ULTRA-FAST LOADING: Get only essential data, no member counts initially
-    console.log('🚀 ULTRA-FAST LOADING: Fetching minimal data...')
-    let { data: groups, error: groupsError } = await supabase
-      .from('youth_groups')
-      .select('id, name, description, parish, city, state, country, meeting_time, age_range, max_members, is_public, is_active, owner_id, created_at')
-      .eq('is_active', true)
-      .order('created_at', { ascending: false })
-      .limit(5) // Reduced to 5 groups for faster loading
-
-    if (groupsError) {
-      console.error('❌ Error with ultra-fast loading query:', groupsError)
-      
-      // Fallback to simple query
-      console.log('🔍 Trying simple query...')
-      const { data: simpleGroups, error: simpleError } = await supabase
-        .from('youth_groups')
-        .select('id, name, description, parish, city, state, country, meeting_time, age_range, max_members, is_public, is_active, owner_id, created_at')
-        .eq('is_active', true)
-        .order('created_at', { ascending: false })
-        .limit(5)
-      
-      if (simpleError) {
-        console.error('❌ Even simple query failed:', simpleError)
-        return NextResponse.json({ 
-          error: 'Failed to fetch groups',
-          details: simpleError.message 
-        }, { status: 500 })
-      }
-      
-      console.log('✅ Simple query succeeded, filtering in code...')
-      // Filter in code instead of database
-      groups = simpleGroups.filter((group: any) => 
-        group.is_public || 
-        (group.owner_id === user.id) // Simple owner check
-      )
-    } else {
-      console.log('✅ Ultra-fast loading query succeeded')
-    }
-
     if (!groups || groups.length === 0) {
-      console.log('ℹ️ No groups found, returning empty array')
+      const endTime = Date.now()
+      const totalDuration = endTime - startTime
+      logPerformanceIfEnabled('Youth Groups API - Empty Result', totalDuration)
+      
       return NextResponse.json({ groups: [] })
     }
 
-    console.log(`✅ Found ${groups.length} groups, processing...`)
-
-    // Check user membership for each group
-    const userMemberships = await supabase
+    // 🚀 OPTIMIZED: Batch fetch user memberships in single query
+    const { data: userMemberships } = await supabase
       .from('group_members')
-      .select('group_id')
+      .select('group_id, role, status')
       .eq('user_id', user.id)
       .eq('status', 'active')
 
-    // FAST PROCESSING: Add basic info with proper membership check
-    const groupsWithBasicInfo = groups.map((group: any) => {
-      const isMember = group.owner_id === user.id || 
-        (userMemberships.data || []).some(member => member.group_id === group.id)
+    // Create lookup map for O(1) membership checks
+    const membershipMap = new Map(
+      (userMemberships || []).map(member => [member.group_id, member])
+    )
+
+    // 🚀 FAST PROCESSING: Process groups with membership info
+    const groupsWithInfo = groups.map((group) => {
+      const membership = membershipMap.get(group.id)
+      const isOwner = group.owner_id === user.id
       
       return {
         ...group,
-        member_count: 0, // Will be loaded on demand if needed
-        user_role: null, // Will be loaded on demand if needed
-        user_status: null, // Will be loaded on demand if needed
-        is_member: isMember,
-        is_owner: group.owner_id === user.id
+        member_count: 0, // Load on demand if needed
+        user_role: membership?.role || null,
+        user_status: membership?.status || null,
+        is_member: isOwner || !!membership,
+        is_owner: isOwner
       }
     })
 
-    const loadTime = Date.now() - startTime
-    console.log(`✅ Ultra-fast loading completed in ${loadTime}ms: ${groupsWithBasicInfo.length} groups`)
-    return NextResponse.json({ 
-      groups: groupsWithBasicInfo,
-      loadTime: `${loadTime}ms`
+    const endTime = Date.now()
+    const totalDuration = endTime - startTime
+    logPerformanceIfEnabled('Youth Groups API - GET', totalDuration)
+    
+    logIfEnabled(`✅ Youth groups fetched successfully in ${totalDuration}ms: ${groupsWithInfo.length} groups`)
+    
+    // Add cache headers for better performance
+    const response = NextResponse.json({ 
+      groups: groupsWithInfo,
+      loadTime: `${totalDuration}ms`
     })
+    
+    // Cache for 2 minutes to reduce repeated API calls
+    response.headers.set('Cache-Control', 'private, max-age=120')
+    
+    return response
 
   } catch (error: any) {
-    console.error('❌ Unexpected error in GET /api/youth-groups:', error)
+    const endTime = Date.now()
+    const totalDuration = endTime - startTime
+    
+    logIfEnabled(`❌ Error in Youth Groups API after ${totalDuration}ms: ${error.message || 'Unknown error'}`, 'error')
+    logPerformanceIfEnabled('Youth Groups API - Error', totalDuration)
+    
     return NextResponse.json({ 
       error: 'Internal server error',
       details: error.message || 'Unknown error occurred'

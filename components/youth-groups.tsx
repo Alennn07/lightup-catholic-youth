@@ -12,7 +12,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Search, Users, MapPin, Calendar, Plus, Settings, MessageSquare, Heart, X, Edit, Trash2, Globe } from 'lucide-react'
+import { Search, Users, MapPin, Calendar, Plus, Settings, MessageSquare, Heart, X, Edit, Trash2, Globe, RefreshCw } from 'lucide-react'
 import { logIfEnabled } from "@/lib/performance-monitor"
 
 interface YouthGroup {
@@ -873,6 +873,11 @@ export default function YouthGroups() {
     }
   }
 
+  const handleRefresh = () => {
+    fetchGroups()
+    setLoading(true)
+  }
+
   const filteredGroups = groups.filter(group => {
     const matchesSearch = group.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          group.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -915,175 +920,186 @@ export default function YouthGroups() {
         <div>
           <h1 className="text-3xl font-bold text-foreground">Youth Groups</h1>
           <p className="text-muted-foreground">Connect with Catholic youth in your area</p>
-      </div>
+        </div>
         {user && (
-          <Dialog open={showCreateForm} onOpenChange={setShowCreateForm}>
-            <DialogTrigger asChild>
-              <Button className="flex items-center gap-2">
-                <Plus className="h-4 w-4" />
-                Create Group
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>Create New Youth Group</DialogTitle>
-                <DialogDescription>
-                  Start a new youth group to bring young Catholics together in faith and fellowship.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="name">Group Name *</Label>
-                    <Input
-                      id="name"
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      placeholder="Enter group name"
-                    />
+          <div className="flex items-center gap-2">
+            <Button 
+              variant="outline" 
+              onClick={handleRefresh} 
+              disabled={loading}
+              className="flex items-center gap-2"
+            >
+              <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+              Refresh
+            </Button>
+            <Dialog open={showCreateForm} onOpenChange={setShowCreateForm}>
+              <DialogTrigger asChild>
+                <Button className="flex items-center gap-2">
+                  <Plus className="h-4 w-4" />
+                  Create Group
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>Create New Youth Group</DialogTitle>
+                  <DialogDescription>
+                    Start a new youth group to bring young Catholics together in faith and fellowship.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="name">Group Name *</Label>
+                      <Input
+                        id="name"
+                        value={formData.name}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        placeholder="Enter group name"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="parish">Parish</Label>
+                      <Input
+                        id="parish"
+                        value={formData.parish}
+                        onChange={(e) => setFormData({ ...formData, parish: e.target.value })}
+                        placeholder="Enter parish name"
+                      />
+                    </div>
                   </div>
                   <div>
-                    <Label htmlFor="parish">Parish</Label>
-                    <Input
-                      id="parish"
-                      value={formData.parish}
-                      onChange={(e) => setFormData({ ...formData, parish: e.target.value })}
-                      placeholder="Enter parish name"
+                    <Label htmlFor="description">Description *</Label>
+                    <Textarea
+                      id="description"
+                      value={formData.description}
+                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                      placeholder="Describe your group's purpose and activities"
+                      rows={3}
+                      />
+                    </div>
+                  <div>
+                    <Label htmlFor="mission_statement">Mission Statement</Label>
+                    <Textarea
+                      id="mission_statement"
+                      value={formData.mission_statement}
+                      onChange={(e) => setFormData({ ...formData, mission_statement: e.target.value })}
+                      placeholder="What is your group's mission?"
+                      rows={2}
+                      />
+                    </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <Label htmlFor="city">City</Label>
+                      <Input
+                        id="city"
+                        value={formData.city}
+                        onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                        placeholder="City"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="state">State</Label>
+                      <Input
+                        id="state"
+                        value={formData.state}
+                        onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+                        placeholder="State"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="country">Country</Label>
+                      <Input
+                        id="country"
+                        value={formData.country}
+                        onChange={(e) => setFormData({ ...formData, country: e.target.value })}
+                        placeholder="Country"
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="meeting_location">Meeting Location</Label>
+                      <Input
+                        id="meeting_location"
+                        value={formData.meeting_location}
+                        onChange={(e) => setFormData({ ...formData, meeting_location: e.target.value })}
+                        placeholder="Where does your group meet?"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="meeting_time">Meeting Time</Label>
+                      <Input
+                        id="meeting_time"
+                        value={formData.meeting_time}
+                        onChange={(e) => setFormData({ ...formData, meeting_time: e.target.value })}
+                        placeholder="e.g., Every Sunday 6:00 PM"
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <Label htmlFor="meeting_frequency">Frequency</Label>
+                      <Select value={formData.meeting_frequency} onValueChange={(value) => setFormData({ ...formData, meeting_frequency: value })}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select frequency" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="weekly">Weekly</SelectItem>
+                          <SelectItem value="bi-weekly">Bi-weekly</SelectItem>
+                          <SelectItem value="monthly">Monthly</SelectItem>
+                          <SelectItem value="quarterly">Quarterly</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label htmlFor="age_range">Age Range</Label>
+                      <Select value={formData.age_range} onValueChange={(value) => setFormData({ ...formData, age_range: value })}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select age range" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="13-18">13-18</SelectItem>
+                          <SelectItem value="18-25">18-25</SelectItem>
+                          <SelectItem value="13-25">13-25</SelectItem>
+                          <SelectItem value="16-22">16-22</SelectItem>
+                          <SelectItem value="18-35">18-35</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label htmlFor="max_members">Max Members</Label>
+                      <Input
+                        id="max_members"
+                        type="number"
+                        value={formData.max_members}
+                        onChange={(e) => setFormData({ ...formData, max_members: parseInt(e.target.value) || 50 })}
+                        min="1"
+                        max="100"
                     />
+                  </div>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                          <input
+                            type="checkbox"
+                      id="is_public"
+                      checked={formData.is_public}
+                      onChange={(e) => setFormData({ ...formData, is_public: e.target.checked })}
+                      className="rounded"
+                    />
+                    <Label htmlFor="is_public">Make this group public (anyone can join)</Label>
+                    </div>
+                  <div className="flex justify-end gap-2">
+                    <Button variant="outline" onClick={() => setShowCreateForm(false)}>
+                      Cancel
+                    </Button>
+                    <Button onClick={handleCreateGroup} disabled={!formData.name || !formData.description}>
+                      Create Group
+                    </Button>
                   </div>
                 </div>
-                <div>
-                  <Label htmlFor="description">Description *</Label>
-                  <Textarea
-                    id="description"
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    placeholder="Describe your group's purpose and activities"
-                    rows={3}
-                    />
-                  </div>
-                <div>
-                  <Label htmlFor="mission_statement">Mission Statement</Label>
-                  <Textarea
-                    id="mission_statement"
-                    value={formData.mission_statement}
-                    onChange={(e) => setFormData({ ...formData, mission_statement: e.target.value })}
-                    placeholder="What is your group's mission?"
-                    rows={2}
-                    />
-                  </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <Label htmlFor="city">City</Label>
-                    <Input
-                      id="city"
-                      value={formData.city}
-                      onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                      placeholder="City"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="state">State</Label>
-                    <Input
-                      id="state"
-                      value={formData.state}
-                      onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-                      placeholder="State"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="country">Country</Label>
-                    <Input
-                      id="country"
-                      value={formData.country}
-                      onChange={(e) => setFormData({ ...formData, country: e.target.value })}
-                      placeholder="Country"
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="meeting_location">Meeting Location</Label>
-                    <Input
-                      id="meeting_location"
-                      value={formData.meeting_location}
-                      onChange={(e) => setFormData({ ...formData, meeting_location: e.target.value })}
-                      placeholder="Where does your group meet?"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="meeting_time">Meeting Time</Label>
-                    <Input
-                      id="meeting_time"
-                      value={formData.meeting_time}
-                      onChange={(e) => setFormData({ ...formData, meeting_time: e.target.value })}
-                      placeholder="e.g., Every Sunday 6:00 PM"
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <Label htmlFor="meeting_frequency">Frequency</Label>
-                    <Select value={formData.meeting_frequency} onValueChange={(value) => setFormData({ ...formData, meeting_frequency: value })}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select frequency" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="weekly">Weekly</SelectItem>
-                        <SelectItem value="bi-weekly">Bi-weekly</SelectItem>
-                        <SelectItem value="monthly">Monthly</SelectItem>
-                        <SelectItem value="quarterly">Quarterly</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label htmlFor="age_range">Age Range</Label>
-                    <Select value={formData.age_range} onValueChange={(value) => setFormData({ ...formData, age_range: value })}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select age range" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="13-18">13-18</SelectItem>
-                        <SelectItem value="18-25">18-25</SelectItem>
-                        <SelectItem value="13-25">13-25</SelectItem>
-                        <SelectItem value="16-22">16-22</SelectItem>
-                        <SelectItem value="18-35">18-35</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label htmlFor="max_members">Max Members</Label>
-                    <Input
-                      id="max_members"
-                      type="number"
-                      value={formData.max_members}
-                      onChange={(e) => setFormData({ ...formData, max_members: parseInt(e.target.value) || 50 })}
-                      min="1"
-                      max="100"
-                  />
-                </div>
-                </div>
-                <div className="flex items-center space-x-2">
-                        <input
-                          type="checkbox"
-                    id="is_public"
-                    checked={formData.is_public}
-                    onChange={(e) => setFormData({ ...formData, is_public: e.target.checked })}
-                    className="rounded"
-                  />
-                  <Label htmlFor="is_public">Make this group public (anyone can join)</Label>
-                  </div>
-                <div className="flex justify-end gap-2">
-                  <Button variant="outline" onClick={() => setShowCreateForm(false)}>
-                    Cancel
-                  </Button>
-                  <Button onClick={handleCreateGroup} disabled={!formData.name || !formData.description}>
-                    Create Group
-                  </Button>
-                </div>
-              </div>
-            </DialogContent>
-          </Dialog>
+              </DialogContent>
+            </Dialog>
+          </div>
         )}
       </div>
 
