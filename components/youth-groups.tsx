@@ -108,18 +108,35 @@ export default function YouthGroups() {
   const [editingGroupName, setEditingGroupName] = useState('')
   const [isPageLoading, setIsPageLoading] = useState(true)
 
-  useEffect(() => {
-    if (user) {
-      fetchGroups()
-    } else {
-      setLoading(false)
-    }
-  }, [user])
+  // 🚀 OPTIMIZED: Add caching to prevent unnecessary re-fetches
+  const [lastFetchTime, setLastFetchTime] = useState<number>(0)
+  const [isInitialized, setIsInitialized] = useState(false)
 
-  const fetchGroups = async () => {
+  useEffect(() => {
+    if (user && !isInitialized) {
+      fetchGroups()
+      setIsInitialized(true)
+    } else if (!user) {
+      setLoading(false)
+      setIsInitialized(false)
+    }
+  }, [user, isInitialized])
+
+  // 🚀 OPTIMIZED: Smart fetch with caching
+  const fetchGroups = async (forceRefresh = false) => {
     try {
+      // Check if we should skip fetch (cache is still valid)
+      const now = Date.now()
+      const cacheValidTime = 2 * 60 * 1000 // 2 minutes cache
+      
+      if (!forceRefresh && now - lastFetchTime < cacheValidTime && groups.length > 0) {
+        logIfEnabled('✅ Using cached youth groups data')
+        return
+      }
+
       setIsPageLoading(true)
       setLoading(true)
+      
       const token = await getAccessToken()
       if (!token) {
         logIfEnabled('❌ No access token available')
@@ -131,7 +148,8 @@ export default function YouthGroups() {
       logIfEnabled('🚀 fetchGroups started')
       const response = await fetch('/api/youth-groups', {
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'Cache-Control': 'max-age=120' // Use browser cache
         }
       })
 
@@ -141,6 +159,9 @@ export default function YouthGroups() {
 
       const data = await response.json()
       setGroups(data.groups || [])
+      setLastFetchTime(now)
+      
+      logIfEnabled(`✅ Youth groups fetched successfully in ${data.loadTime || 'unknown'}ms`)
     } catch (error: any) {
       logIfEnabled(`❌ Error fetching groups: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error')
       toast({ title: "Error", description: error.message || "Failed to fetch groups", variant: "destructive" })
@@ -214,11 +235,11 @@ export default function YouthGroups() {
       const data = await response.json()
       toast({ title: "Success", description: data.message })
       
-      // Refresh groups to update membership status
-    fetchGroups()
+            // Refresh groups to update membership status
+      fetchGroups(true) // Force refresh to get updated data
     } catch (error: any) {
-      logIfEnabled(`Error joining group: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error')
-      toast({ title: "Error", description: error.message || "Failed to join group.", variant: "destructive" })
+      logIfEnabled(`❌ Error joining group: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error')
+      toast({ title: "Error", description: error.message || "Failed to join group", variant: "destructive" })
     }
   }
 
@@ -248,12 +269,14 @@ export default function YouthGroups() {
       toast({ title: "Success", description: data.message })
       
       // Refresh groups to update membership status
-      fetchGroups()
+      fetchGroups(true) // Force refresh to get updated data
     } catch (error: any) {
-      logIfEnabled(`Error leaving group: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error')
-      toast({ title: "Error", description: error.message || "Failed to leave group.", variant: "destructive" })
+      logIfEnabled(`❌ Error leaving group: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error')
+      toast({ title: "Error", description: error.message || "Failed to leave group", variant: "destructive" })
     }
   }
+
+
 
   const handleCreateGroup = async () => {
     try {

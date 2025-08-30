@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { logIfEnabled, logPerformanceIfEnabled } from '@/lib/performance-monitor'
 
 export const dynamic = 'force-dynamic'
 
@@ -8,6 +9,7 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   const startTime = Date.now()
+  
   try {
     const { id: groupId } = params
     const { email } = await request.json()
@@ -23,19 +25,23 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    // Create Supabase client with optimized settings
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!,
-      { auth: { autoRefreshToken: false, persistSession: false } }
+      { 
+        auth: { autoRefreshToken: false, persistSession: false },
+        db: { schema: 'public' }
+      }
     )
 
-    // FAST AUTH: Quick user verification
+    // 🚀 OPTIMIZED: Quick user verification
     const { data: { user: currentUser }, error: authError } = await supabase.auth.getUser(token)
     if (authError || !currentUser) {
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
     }
 
-    // FAST OWNER CHECK: Quick group ownership verification
+    // 🚀 OPTIMIZED: Quick group ownership verification
     const { data: group, error: groupError } = await supabase
       .from('youth_groups')
       .select('owner_id')
@@ -50,9 +56,10 @@ export async function POST(
       return NextResponse.json({ error: 'Only group owners can add members' }, { status: 403 })
     }
 
-    // ULTRA-FAST USER LOOKUP: Use proper Supabase auth method
+    // 🚀 OPTIMIZED: Use proper Supabase auth method for user lookup
     const { data: targetUser, error: userError } = await supabase.auth.admin.listUsers()
     if (userError) {
+      logIfEnabled(`❌ Error listing users: ${userError.message}`, 'error')
       return NextResponse.json({ error: 'Failed to find user' }, { status: 500 })
     }
 
@@ -61,7 +68,7 @@ export async function POST(
       return NextResponse.json({ error: 'User with this email not found' }, { status: 404 })
     }
 
-    // FAST DUPLICATE CHECK: Quick membership check
+    // 🚀 OPTIMIZED: Quick membership check
     const { data: existingMember } = await supabase
       .from('group_members')
       .select('id')
@@ -73,7 +80,7 @@ export async function POST(
       return NextResponse.json({ error: 'User is already a member of this group' }, { status: 400 })
     }
 
-    // FAST INSERT: Add member with minimal data
+    // 🚀 OPTIMIZED: Add member with minimal data
     const { data: newMember, error: insertError } = await supabase
       .from('group_members')
       .insert({
@@ -87,22 +94,30 @@ export async function POST(
       .single()
 
     if (insertError) {
-      console.error('Error adding member:', insertError)
+      logIfEnabled(`❌ Error adding member: ${insertError.message}`, 'error')
       return NextResponse.json({ error: 'Failed to add member' }, { status: 500 })
     }
 
-    const totalTime = Date.now() - startTime
-    console.log(`✅ Member added in ${totalTime}ms`)
+    const endTime = Date.now()
+    const totalDuration = endTime - startTime
+    logPerformanceIfEnabled('Youth Groups Members API - POST', totalDuration)
+    
+    logIfEnabled(`✅ Member added successfully in ${totalDuration}ms`)
     
     return NextResponse.json({ 
       success: true, 
       message: 'Member added successfully',
       member: newMember,
-      loadTime: `${totalTime}ms`
+      loadTime: `${totalDuration}ms`
     })
 
   } catch (error: any) {
-    console.error('Error in POST /api/youth-groups/[id]/members:', error)
+    const endTime = Date.now()
+    const totalDuration = endTime - startTime
+    
+    logIfEnabled(`❌ Error in Youth Groups Members API after ${totalDuration}ms: ${error.message || 'Unknown error'}`, 'error')
+    logPerformanceIfEnabled('Youth Groups Members API - Error', totalDuration)
+    
     return NextResponse.json({ 
       error: 'Internal server error',
       details: error.message 

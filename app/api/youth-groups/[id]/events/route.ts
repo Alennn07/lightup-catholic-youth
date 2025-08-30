@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { logIfEnabled, logPerformanceIfEnabled } from '@/lib/performance-monitor'
 
 export const dynamic = 'force-dynamic'
 
@@ -7,67 +8,79 @@ export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  const startTime = Date.now()
+  
   try {
-    console.log('🚀 GET /api/youth-groups/[id]/events - Starting request for group:', params.id)
+    logIfEnabled(`🚀 GET /api/youth-groups/[id]/events - Starting request for group: ${params.id}`)
     
     const authHeader = request.headers.get('authorization')
     const token = authHeader?.replace('Bearer ', '')
     
     if (!token) {
-      console.log('❌ No authorization token provided')
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    // Create Supabase client with optimized settings
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!,
-      { auth: { autoRefreshToken: false, persistSession: false } }
+      { 
+        auth: { autoRefreshToken: false, persistSession: false },
+        db: { schema: 'public' }
+      }
     )
 
-    let user: any
-    try {
-      const { data: { user: authUser }, error: authError } = await supabase.auth.getUser(token)
-      if (authError || !authUser) {
-        console.log('❌ Auth error:', authError)
-        return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
-      }
-      user = authUser
-      console.log('✅ User authenticated:', user.id)
-    } catch (authError: any) {
-      console.error('❌ Error verifying user:', authError)
-      return NextResponse.json({ error: 'Authentication failed' }, { status: 401 })
+    // Verify user authentication
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
     }
 
-    // Check if user is a member of this group
-    const { data: membership } = await supabase
-      .from('group_members')
-      .select('role, status')
-      .eq('group_id', params.id)
-      .eq('user_id', user.id)
-      .single()
+    // 🚀 OPTIMIZED: Check membership and fetch events in parallel
+    const [membershipResult, eventsResult] = await Promise.all([
+      supabase
+        .from('group_members')
+        .select('role, status')
+        .eq('group_id', params.id)
+        .eq('user_id', user.id)
+        .single(),
+      supabase
+        .from('group_events')
+        .select('id, title, description, event_date, location, max_attendees, is_public, created_by, created_at')
+        .eq('group_id', params.id)
+        .order('event_date', { ascending: true })
+        .limit(20) // Limit to prevent excessive data
+    ])
 
+    const membership = membershipResult.data
     if (!membership || membership.status !== 'active') {
-      console.log('❌ User is not a member of this group')
       return NextResponse.json({ error: 'Access denied' }, { status: 403 })
     }
 
-    // Get group events
-    const { data: events, error: eventsError } = await supabase
-      .from('group_events')
-      .select('*')
-      .eq('group_id', params.id)
-      .order('event_date', { ascending: true })
-
-    if (eventsError) {
-      console.error('❌ Error fetching events:', eventsError)
+    if (eventsResult.error) {
+      logIfEnabled(`❌ Error fetching events: ${eventsResult.error.message}`, 'error')
       return NextResponse.json({ error: 'Failed to fetch events' }, { status: 500 })
     }
 
-    console.log('✅ Successfully fetched events')
-    return NextResponse.json({ events: events || [] })
+    const endTime = Date.now()
+    const totalDuration = endTime - startTime
+    logPerformanceIfEnabled('Youth Groups Events API - GET', totalDuration)
+    
+    logIfEnabled(`✅ Successfully fetched ${eventsResult.data?.length || 0} events in ${totalDuration}ms`)
+    
+    // Add cache headers for better performance
+    const response = NextResponse.json({ events: eventsResult.data || [] })
+    response.headers.set('Cache-Control', 'private, max-age=60') // Cache for 1 minute
+    
+    return response
 
   } catch (error: any) {
-    console.error('❌ Unexpected error in GET /api/youth-groups/[id]/events:', error)
+    const endTime = Date.now()
+    const totalDuration = endTime - startTime
+    
+    logIfEnabled(`❌ Error in Youth Groups Events API after ${totalDuration}ms: ${error.message || 'Unknown error'}`, 'error')
+    logPerformanceIfEnabled('Youth Groups Events API - Error', totalDuration)
+    
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

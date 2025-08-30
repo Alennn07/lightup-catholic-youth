@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { logIfEnabled, logPerformanceIfEnabled } from '@/lib/performance-monitor'
 
 export const dynamic = 'force-dynamic'
 
@@ -7,39 +8,35 @@ export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  const startTime = Date.now()
+  
   try {
-    console.log('🚀 GET /api/youth-groups/[id] - Starting request for group:', params.id)
+    logIfEnabled(`🚀 GET /api/youth-groups/[id] - Starting request for group: ${params.id}`)
     
     const authHeader = request.headers.get('authorization')
     const token = authHeader?.replace('Bearer ', '')
     
     if (!token) {
-      console.log('❌ No authorization token provided')
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    // Create Supabase client with optimized settings
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!,
-      { auth: { autoRefreshToken: false, persistSession: false } }
+      { 
+        auth: { autoRefreshToken: false, persistSession: false },
+        db: { schema: 'public' }
+      }
     )
 
-    let user: any
-    try {
-      const { data: { user: authUser }, error: authError } = await supabase.auth.getUser(token)
-      if (authError || !authUser) {
-        console.log('❌ Auth error:', authError)
-        return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
-      }
-      user = authUser
-      console.log('✅ User authenticated:', user.id)
-    } catch (authError: any) {
-      console.error('❌ Error verifying user:', authError)
-      return NextResponse.json({ error: 'Authentication failed' }, { status: 401 })
+    // Verify user authentication
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
     }
 
-    // Get the group with simple query (no complex joins)
-    console.log('🔍 Fetching group details...')
+    // 🚀 OPTIMIZED: Single efficient query for group details
     const { data: group, error: groupError } = await supabase
       .from('youth_groups')
       .select('id, name, description, mission_statement, parish, diocese, city, state, country, meeting_location, meeting_time, meeting_frequency, age_range, max_members, is_public, is_active, owner_id, created_at, updated_at')
@@ -48,69 +45,41 @@ export async function GET(
       .single()
 
     if (groupError || !group) {
-      console.error('❌ Error fetching group:', groupError)
+      logIfEnabled(`❌ Error fetching group: ${groupError?.message || 'Group not found'}`, 'error')
       return NextResponse.json({ 
         error: 'Group not found or access denied',
         details: groupError?.message || 'Group does not exist'
       }, { status: 404 })
     }
 
-    console.log('✅ Group fetched successfully')
-
-    // Fetch all related data in parallel for maximum speed
-    console.log('🔍 Fetching related data in parallel...')
+    // 🚀 OPTIMIZED: Parallel queries for maximum performance
     const [membersResult, eventsResult, postsResult, memberCountResult] = await Promise.all([
-      // Get group members with user details
+      // Get group members with minimal data
       supabase
         .from('group_members')
-        .select(`
-          id, 
-          group_id, 
-          user_id, 
-          role, 
-          status, 
-          joined_at
-        `)
+        .select('id, group_id, user_id, role, status, joined_at')
         .eq('group_id', params.id)
         .eq('status', 'active')
         .order('joined_at', { ascending: true }),
 
-      // Get group events (simplified, only upcoming)
+      // Get upcoming events only (limit to 5)
       supabase
         .from('group_events')
-        .select(`
-          id, 
-          title, 
-          description, 
-          event_date, 
-          location, 
-          max_attendees, 
-          is_public, 
-          created_by, 
-          created_at
-        `)
+        .select('id, title, description, event_date, location, max_attendees, is_public, created_by, created_at')
         .eq('group_id', params.id)
         .gte('event_date', new Date().toISOString())
         .order('event_date', { ascending: true })
         .limit(5),
 
-      // Get group posts (simplified, only recent)
+      // Get recent posts only (limit to 10)
       supabase
         .from('group_posts')
-        .select(`
-          id, 
-          title, 
-          content, 
-          post_type, 
-          is_public, 
-          user_id, 
-          created_at
-        `)
+        .select('id, title, content, post_type, is_public, user_id, created_at')
         .eq('group_id', params.id)
         .order('created_at', { ascending: false })
         .limit(10),
 
-      // Get member count (single query)
+      // Get member count efficiently
       supabase
         .from('group_members')
         .select('*', { count: 'exact', head: true })
@@ -124,124 +93,67 @@ export async function GET(
     const posts = postsResult.data || []
     const memberCount = memberCountResult.count || 0
 
-    // Manually fetch user profiles for all members, posts, and events since the foreign key relationships are broken
+    // 🚀 OPTIMIZED: Batch fetch user profiles in single query
     const allUserIds = new Set<string>()
-    
-    // Collect all user IDs from members, posts, and events
     members.forEach(member => allUserIds.add(member.user_id))
     posts.forEach(post => allUserIds.add(post.user_id))
     events.forEach(event => allUserIds.add(event.created_by))
     
     if (allUserIds.size > 0) {
       const userIdsArray = Array.from(allUserIds)
-      console.log('🔍 Fetching user profiles for all user IDs:', userIdsArray)
-      
-      const { data: userProfiles, error: profilesError } = await supabase
+      const { data: userProfiles } = await supabase
         .from('users')
         .select('id, email, name, username, user_metadata')
         .in('id', userIdsArray)
       
-      if (profilesError) {
-        console.error('❌ Error fetching user profiles:', profilesError)
-      } else {
-        console.log('✅ User profiles fetched:', userProfiles)
+      if (userProfiles) {
+        // Create lookup map for O(1) user profile access
+        const userProfileMap = new Map(
+          userProfiles.map(profile => [profile.id, profile])
+        )
         
-                 // Merge user profiles with member data
-         members.forEach((member: any) => {
-           const userProfile = userProfiles?.find(profile => profile.id === member.user_id)
-           if (userProfile) {
-             member.user = {
-               id: userProfile.id,
-               email: userProfile.email,
-               name: userProfile.name,
-               username: userProfile.username,
-               user_metadata: userProfile.user_metadata
-             }
-           } else {
-             member.user = { id: member.user_id, email: null, name: null, username: null, user_metadata: {} }
-           }
-         })
+        // Merge user profiles efficiently
+        members.forEach((member: any) => {
+          const userProfile = userProfileMap.get(member.user_id)
+          member.user = userProfile || { id: member.user_id, email: null, name: null, username: null, user_metadata: {} }
+        })
         
-        // Merge user profiles with post data
         posts.forEach((post: any) => {
-          const userProfile = userProfiles?.find(profile => profile.id === post.user_id)
+          const userProfile = userProfileMap.get(post.user_id)
           post.user = userProfile || { id: post.user_id, email: null, name: null, username: null, user_metadata: {} }
         })
         
-        // Merge user profiles with event data
         events.forEach((event: any) => {
-          const userProfile = userProfiles?.find(profile => profile.id === event.created_by)
+          const userProfile = userProfileMap.get(event.created_by)
           event.user = userProfile || { id: event.created_by, email: null, name: null, username: null, user_metadata: {} }
         })
       }
     }
 
-    // Debug: Log what user data we're getting
-    console.log('🔍 Debug - Members data after merge:', JSON.stringify(members, null, 2))
-    console.log('🔍 Debug - First member user data:', members[0]?.user)
-
-    // Check if user is a member (owners are always members)
+    // Check user membership efficiently
     const userMembership = members.find((member: any) => member.user_id === user.id)
     const isMember = !!userMembership || group.owner_id === user.id
     const userRole = userMembership?.role || (group.owner_id === user.id ? 'owner' : null)
     
-        // ALWAYS ensure owner is in members list and has user data
-    if (group.owner_id === user.id) {
-      console.log('🔧 Ensuring owner is in members list')
-      
-      // Check if owner is already in members
-      const ownerInMembers = members.find(member => member.user_id === user.id)
-      
-      if (!ownerInMembers) {
-        console.log('🔧 Owner not found in members, adding automatically')
-        
-        // Try to add to database first
-        const { error: addOwnerError } = await supabase
-          .from('group_members')
-          .insert([{
-            group_id: params.id,
-            user_id: user.id,
-            role: 'owner',
-            status: 'active',
-            joined_at: new Date().toISOString()
-          }])
-        
-        if (addOwnerError) {
-          console.log('⚠️ Could not add owner to database:', addOwnerError)
-        }
-        
-        // Always add owner to the members list for this response
-        members.push({
-          id: `temp-owner-${Date.now()}`,
-          group_id: params.id,
-          user_id: user.id,
-          role: 'owner',
-          status: 'active',
-          joined_at: new Date().toISOString(),
-          user: { 
-            id: user.id, 
-            email: user.email, 
-            name: user.user_metadata?.name || 'Alen Parmar', 
-            username: user.user_metadata?.username || 'alenparmar', 
-            user_metadata: user.user_metadata || {} 
-          }
-        })
-        
-        console.log('✅ Owner added to members list')
-      } else {
-        console.log('✅ Owner already found in members list')
-        // Ensure the existing owner has user data
-        if (!ownerInMembers.user) {
-          ownerInMembers.user = {
-            id: user.id,
-            email: user.email,
-            name: user.user_metadata?.name || 'Alen Parmar',
-            username: user.user_metadata?.username || 'alenparmar',
-            user_metadata: user.user_metadata || {}
-          }
-          console.log('✅ Added user data to existing owner member')
-        }
+    // Ensure owner is in members list
+    if (group.owner_id === user.id && !userMembership) {
+      const ownerProfile = {
+        id: user.id,
+        email: user.email,
+        name: user.user_metadata?.name || 'Unknown',
+        username: user.user_metadata?.username || 'unknown',
+        user_metadata: user.user_metadata || {}
       }
+      
+      members.push({
+        id: `temp-owner-${Date.now()}`,
+        group_id: params.id,
+        user_id: user.id,
+        role: 'owner',
+        status: 'active',
+        joined_at: new Date().toISOString(),
+        user: ownerProfile
+      })
     }
 
     // Build the complete group object
@@ -250,26 +162,31 @@ export async function GET(
       members,
       events,
       posts,
-      member_count: members.length, // Use actual members array length
+      member_count: memberCount,
       is_member: isMember,
       user_role: userRole,
-      is_owner: group.owner_id === user.id,
-      _timestamp: Date.now() // Add timestamp to force refresh
+      is_owner: group.owner_id === user.id
     }
 
-    console.log(`✅ Group details loaded successfully in parallel: ${members.length} members, ${events.length} events, ${posts.length} posts`)
-    console.log('🔍 FINAL CHECK - Members with user data:', JSON.stringify(members.map(m => ({ id: m.id, user_id: m.user_id, user_name: m.user?.name, user_username: m.user?.username })), null, 2))
+    const endTime = Date.now()
+    const totalDuration = endTime - startTime
+    logPerformanceIfEnabled('Youth Group Details API - GET', totalDuration)
     
-    // Force cache refresh by adding cache-busting headers
+    logIfEnabled(`✅ Group details loaded successfully in ${totalDuration}ms: ${members.length} members, ${events.length} events, ${posts.length} posts`)
+    
+    // Add cache headers for better performance
     const response = NextResponse.json({ group: completeGroup })
-    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate')
-    response.headers.set('Pragma', 'no-cache')
-    response.headers.set('Expires', '0')
+    response.headers.set('Cache-Control', 'private, max-age=60') // Cache for 1 minute
     
     return response
 
   } catch (error: any) {
-    console.error('❌ Unexpected error in GET /api/youth-groups/[id]:', error)
+    const endTime = Date.now()
+    const totalDuration = endTime - startTime
+    
+    logIfEnabled(`❌ Error in Youth Group Details API after ${totalDuration}ms: ${error.message || 'Unknown error'}`, 'error')
+    logPerformanceIfEnabled('Youth Group Details API - Error', totalDuration)
+    
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
