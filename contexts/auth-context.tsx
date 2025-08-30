@@ -36,6 +36,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [supabaseUser, setSupabaseUser] = useState<SupabaseUser | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [lastRefreshTime, setLastRefreshTime] = useState(0)
 
   useEffect(() => {
     // Get initial session
@@ -99,11 +100,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setIsLoading(false)
     })
 
-    // 🚀 NEW: Listen for window focus to refresh user data
+    // 🚀 OPTIMIZED: Listen for window focus to refresh user data only when needed
     const handleWindowFocus = () => {
       if (user?.id) {
-        logIfEnabled('🪟 Window focused, refreshing user data...')
-        refreshUserData()
+        // Only refresh if it's been more than 5 minutes since last refresh
+        const now = Date.now()
+        const refreshInterval = 5 * 60 * 1000 // 5 minutes
+        
+        if (now - lastRefreshTime > refreshInterval) {
+          logIfEnabled('🪟 Window focused, refreshing user data after 5+ minutes...')
+          setLastRefreshTime(now)
+          refreshUserData()
+        } else {
+          logIfEnabled('🪟 Window focused, skipping refresh (refreshed recently)')
+        }
       }
     }
 
