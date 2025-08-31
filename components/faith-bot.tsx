@@ -68,7 +68,10 @@ export function FaithBot() {
       const response = await fetch("/api/faithbot", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: inputMessage }),
+        body: JSON.stringify({ 
+          message: inputMessage,
+          conversationHistory: messages.slice(-5) // Send last 5 messages for context
+        }),
       })
 
       console.log("FaithBot Frontend: Response status:", response.status);

@@ -39,9 +39,15 @@ GOAL:
 Be a trustworthy Catholic bro online — helping users grow in faith, smile through struggles, and stay close to God 🙏🔥
 `;
 
-// Enhanced prompt builder with greeting rules
-function buildPrompt(userMessage: string): string {
+// Enhanced prompt builder with conversation context
+function buildPrompt(userMessage: string, conversationHistory: any[] = []): string {
+  const contextInfo = conversationHistory.length > 0 
+    ? `\nCONVERSATION HISTORY: ${conversationHistory.map(msg => `${msg.sender}: ${msg.content}`).join('\n')}`
+    : '\nCONVERSATION HISTORY: This is the first message.';
+
   return `${FAITHBOT_PERSONALITY}
+
+${contextInfo}
 
 USER MESSAGE: ${userMessage}
 
@@ -92,8 +98,9 @@ export async function POST(request: Request) {
     console.log("FaithBot: POST request received - AI VERSION - TESTING CACHE CLEAR");
     
     // Parse request
-    const { message } = await request.json();
+    const { message, conversationHistory } = await request.json();
     console.log("FaithBot: Message received:", message);
+    console.log("FaithBot: Conversation history:", conversationHistory);
     
     if (!message || typeof message !== 'string') {
       return NextResponse.json(
@@ -117,8 +124,8 @@ export async function POST(request: Request) {
       );
     }
 
-    // Build the prompt with FaithBot personality
-    const prompt = buildPrompt(message.trim());
+    // Build the prompt with FaithBot personality and conversation history
+    const prompt = buildPrompt(message.trim(), conversationHistory || []);
     console.log("FaithBot: Prompt built, length:", prompt.length);
 
     // Call Gemini API with timeout
