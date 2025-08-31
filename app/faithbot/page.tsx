@@ -1,59 +1,52 @@
-"use client";
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+"use client"; // ✅ mark as client component so you can use state/hooks
 
-export function FaithBot() {
-  const [messages, setMessages] = useState<{ role: "user" | "bot"; text: string }[]>([]);
-  const [input, setInput] = useState("");
+import { useState } from "react";
+
+export default function FaithBotPage() {
+  const [message, setMessage] = useState("");
+  const [reply, setReply] = useState("");
   const [loading, setLoading] = useState(false);
 
   const sendMessage = async () => {
-    if (!input.trim()) return;
-    const userMessage = { role: "user" as const, text: input };
-    setMessages([...messages, userMessage]);
-    setInput("");
     setLoading(true);
-
     try {
       const res = await fetch("/api/faithbot", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: input }),
+        body: JSON.stringify({ message }),
       });
+
       const data = await res.json();
-      setMessages((prev) => [...prev, { role: "bot", text: data.reply }]);
+      setReply(data.reply);
     } catch (err) {
-      setMessages((prev) => [...prev, { role: "bot", text: "⚠️ Error reaching FaithBot. Try again!" }]);
+      setReply("⚠️ Something went wrong, bro. Try again!");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="max-w-xl mx-auto bg-white p-6 rounded-2xl shadow-lg">
-      <div className="h-96 overflow-y-auto border-b mb-4 p-2 space-y-2">
-        {messages.map((msg, i) => (
-          <div
-            key={i}
-            className={`p-2 rounded-lg ${
-              msg.role === "user" ? "bg-blue-100 text-right" : "bg-purple-100 text-left"
-            }`}
-          >
-            {msg.text}
-          </div>
-        ))}
-      </div>
-      <div className="flex gap-2">
-        <Input
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="Ask FaithBot anything..."
-        />
-        <Button onClick={sendMessage} disabled={loading}>
-          {loading ? "..." : "Send"}
-        </Button>
-      </div>
+    <div className="p-6 max-w-xl mx-auto">
+      <h1 className="text-2xl font-bold mb-4">☀️ FaithBot</h1>
+      <textarea
+        className="w-full p-2 border rounded mb-2"
+        rows={3}
+        placeholder="Ask FaithBot anything..."
+        value={message}
+        onChange={(e) => setMessage(e.target.value)}
+      />
+      <button
+        onClick={sendMessage}
+        disabled={loading}
+        className="px-4 py-2 bg-blue-500 text-white rounded"
+      >
+        {loading ? "Thinking..." : "Ask"}
+      </button>
+      {reply && (
+        <div className="mt-4 p-3 bg-gray-100 rounded">
+          <strong>FaithBot:</strong> {reply}
+        </div>
+      )}
     </div>
   );
 }
