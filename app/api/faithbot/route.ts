@@ -45,9 +45,12 @@ function getRandomErrorMessage(): string {
 }
 
 export async function POST(request: Request) {
+  console.log("FaithBot: POST request received");
   try {
     // Parse request
+    console.log("FaithBot: Parsing request body");
     const { message } = await request.json();
+    console.log("FaithBot: Message received:", message);
     
     if (!message || typeof message !== 'string') {
       return NextResponse.json(
@@ -57,7 +60,9 @@ export async function POST(request: Request) {
     }
 
     // Check API key
+    console.log("FaithBot: Checking API key");
     const apiKey = process.env.GEMINI_API_KEY;
+    console.log("FaithBot: API key exists:", !!apiKey);
     if (!apiKey) {
       console.error("FaithBot: Missing GEMINI_API_KEY environment variable");
       return NextResponse.json(
@@ -133,6 +138,9 @@ export async function POST(request: Request) {
 
   } catch (error: unknown) {
     console.error("FaithBot API Error:", error);
+    console.error("FaithBot API Error Type:", typeof error);
+    console.error("FaithBot API Error Message:", (error as Error).message);
+    console.error("FaithBot API Error Stack:", (error as Error).stack);
     
     // Return user-friendly error
     return NextResponse.json({
