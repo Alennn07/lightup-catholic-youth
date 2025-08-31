@@ -108,7 +108,7 @@ export async function POST(request: Request) {
 
     // Return successful response
     return NextResponse.json({
-      reply,
+      response: reply,
       timestamp: new Date().toISOString(),
       success: true
     });
@@ -118,7 +118,7 @@ export async function POST(request: Request) {
     
     // Return user-friendly error
     return NextResponse.json({
-      reply: getRandomErrorMessage(),
+      response: getRandomErrorMessage(),
       timestamp: new Date().toISOString(),
       success: false,
       error: process.env.NODE_ENV === 'development' ? (error as Error).message : undefined
