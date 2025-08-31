@@ -38,6 +38,7 @@ USER MESSAGE: ${userMessage}
 IMPORTANT: If the user asks about current events, dates, papal succession, or Church politics, focus on prayer and faith principles instead of speculation. Stick to established Catholic teachings and encourage consultation with Church authorities.
 
 Respond as FaithBot with the personality described above. Keep it engaging, Catholic-focused, and authentically Gen Z friendly while maintaining accuracy and safety.`;
+}
 
 // Error messages that match FaithBot's personality
 const ERROR_MESSAGES = [
