@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -18,15 +18,20 @@ interface Message {
 }
 
 export function FaithBot() {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "1",
-      content:
-        "Hi there! 👋 Welcome to FaithBot! I'm so happy you're here to learn about Catholic faith. How can I help you today? Feel free to ask me anything about Catholicism, prayers, saints, or just say hello! 🙏✨",
-      sender: "bot",
-      timestamp: new Date().toISOString(),
-    },
-  ])
+  const [messages, setMessages] = useState<Message[]>([])
+  
+  // Initialize messages after component mounts to avoid hydration mismatch
+  useEffect(() => {
+    setMessages([
+      {
+        id: "1",
+        content:
+          "Hi there! 👋 Welcome to FaithBot! I'm so happy you're here to learn about Catholic faith. How can I help you today? Feel free to ask me anything about Catholicism, prayers, saints, or just say hello! 🙏✨",
+        sender: "bot",
+        timestamp: new Date().toISOString(),
+      },
+    ])
+  }, [])
   const [inputMessage, setInputMessage] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const { toast } = useToast()
@@ -163,7 +168,7 @@ export function FaithBot() {
                   >
                     <p className="text-sm">{message.content}</p>
                     <p className="text-xs opacity-70 mt-1">
-                      {new Date(message.timestamp).toLocaleTimeString()}
+                      {typeof window !== 'undefined' ? new Date(message.timestamp).toLocaleTimeString() : message.timestamp}
                     </p>
                   </div>
 
