@@ -45,7 +45,7 @@ function getRandomErrorMessage(): string {
 }
 
 export async function POST(request: Request) {
-  console.log("FaithBot: POST request received");
+  console.log("FaithBot: POST request received - v2");
   try {
     // Parse request
     console.log("FaithBot: Parsing request body");
@@ -63,6 +63,8 @@ export async function POST(request: Request) {
     console.log("FaithBot: Checking API key");
     const apiKey = process.env.GEMINI_API_KEY;
     console.log("FaithBot: API key exists:", !!apiKey);
+    console.log("FaithBot: API key length:", apiKey ? apiKey.length : 0);
+    console.log("FaithBot: API key starts with:", apiKey ? apiKey.substring(0, 10) : "none");
     if (!apiKey) {
       console.error("FaithBot: Missing GEMINI_API_KEY environment variable");
       return NextResponse.json(
