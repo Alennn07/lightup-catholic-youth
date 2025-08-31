@@ -47,15 +47,22 @@ export function FaithBot() {
     setIsLoading(true)
 
     try {
+      console.log("FaithBot Frontend: Sending message:", inputMessage);
+      console.log("FaithBot Frontend: Making API call to /api/faithbot");
+      
       const response = await fetch("/api/faithbot", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: inputMessage }),
       })
 
+      console.log("FaithBot Frontend: Response status:", response.status);
+      console.log("FaithBot Frontend: Response ok:", response.ok);
+
       if (!response.ok) throw new Error("Failed to get response")
 
       const data = await response.json()
+      console.log("FaithBot Frontend: Response data:", data);
 
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -64,14 +71,17 @@ export function FaithBot() {
         timestamp: data.timestamp,
       }
 
+      console.log("FaithBot Frontend: Bot message created:", botMessage);
       setMessages((prev) => [...prev, botMessage])
     } catch (error) {
+      console.error("FaithBot Frontend: Error occurred:", error);
       toast({
         title: "Error",
         description: "Failed to get response from FaithBot",
         variant: "destructive",
       })
     } finally {
+      console.log("FaithBot Frontend: Setting loading to false");
       setIsLoading(false)
     }
   }
