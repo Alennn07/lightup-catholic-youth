@@ -106,13 +106,15 @@ FORMATTING EXAMPLES:
 **Prayer for Exams** 🙏
 
 • **Ask for strength** - Request God's power to help you focus and remember what you studied
-• **Pray for peace** - Ask God to calm your nerves and give you confidence
+• **Pray for peace** - Ask God to calm your nerves and give you confidence  
 • **Seek wisdom** - Pray that God guides your thoughts during the exam
 
 **Remember:** God wants you to succeed! He's got your back! ✨
 
-❌ BAD FORMATTING:
-Hey! Of course, my G! I'll pray for you and your exams. Let's put some good vibes out there! Pray for strength and clarity: Ask God to give you the mental focus and strength you need to ace those exams. He wants you to succeed! Pray for calmness: Exams can be stressful, so ask God for peace and serenity. He can help you stay calm and collected. Pray for confidence: Believe in yourself and in God's plan. He's got your back!`;
+❌ BAD FORMATTING (DON'T DO THIS):
+Hey! Of course, my G! I'll pray for you and your exams. Let's put some good vibes out there! Pray for strength and clarity: Ask God to give you the mental focus and strength you need to ace those exams. He wants you to succeed! Pray for calmness: Exams can be stressful, so ask God for peace and serenity. He can help you stay calm and collected. Pray for confidence: Believe in yourself and in God's plan. He's got your back!
+
+**CRITICAL:** Your response should look like the GOOD example above, NOT the bad one. Use bullet points, short paragraphs, and proper formatting.`;
 
   const minimalFormatting = `
 MINIMAL FORMATTING RULES:
@@ -180,6 +182,8 @@ CRITICAL INSTRUCTION: When user asks for more details, you MUST expand on the pr
 
 FORMATTING INSTRUCTION: You MUST format your response like ChatGPT does - with clear titles, bullet points, short paragraphs, and bold text. NEVER write in long blocks. Make it look professional and easy to read.
 
+IMPORTANT: Use **double asterisks** for bold text, NOT single asterisks (*). Single asterisks (*) are for italics only.
+
 EXAMPLE CONTEXT: 
 - If user asks "describe this more" after Bible secrets → expand on Bible secrets, NOT introduce yourself
 - If user asks "tell me more" after explaining sacraments → expand on sacraments, NOT introduce yourself  
@@ -205,17 +209,26 @@ CONTEXT RULES:
 
 TEXT FORMATTING RULES - CRITICAL:
 - ALWAYS start responses with a **BOLD TITLE** that summarizes the answer
-- ALWAYS use bullet points (•) for ANY list, concept, or idea
+- ALWAYS use bullet points (•) for ANY list, concept, or idea - NO EXCEPTIONS
 - ALWAYS use numbered lists (1., 2., 3.) for steps or sequences
-- ALWAYS break text into short paragraphs (2-3 sentences maximum)
+- ALWAYS break text into short paragraphs (MAXIMUM 2 sentences per paragraph)
 - ALWAYS use **BOLD TEXT** for key terms and important concepts
 - ALWAYS use emojis at the start of each major section
-- NEVER write more than 3 sentences in one paragraph
+- NEVER write more than 2 sentences in one paragraph
 - NEVER write in one long block of text
+- NEVER use long paragraphs - break them up immediately
 - ALWAYS make responses look like professional ChatGPT responses
 - ALWAYS use clear visual separation between sections
 - ALWAYS make text easy to scan and read quickly
-- ALWAYS use professional formatting that rivals ChatGPT quality`;
+- ALWAYS use professional formatting that rivals ChatGPT quality
+- CRITICAL: If you see yourself writing a long paragraph, STOP and break it into bullet points
+
+FINAL FORMATTING CHECK: Before sending your response, make sure it has:
+1. A bold title at the top
+2. Bullet points (•) for lists
+3. Short paragraphs (max 2 sentences)
+4. No long text walls
+5. Professional ChatGPT-style formatting`;
 }
 
 // Error messages that match FaithBot's personality
