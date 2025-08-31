@@ -64,16 +64,25 @@ function getModeInstructions(mode: string, context: string, tone: string, length
   };
 
   const lengthMap: { [key: string]: string } = {
-    'short': 'Keep responses brief (2-3 lines)',
-    'medium': 'Standard length (4-6 lines)',
-    'long': 'Comprehensive responses (7+ lines)'
-  };
+  'short': 'Keep responses brief (2-3 lines)',
+  'medium': 'Standard length (4-6 lines)',
+  'long': 'Comprehensive responses (7+ lines)'
+};
+
+const formatMap: { [key: string]: string } = {
+  'chat': 'Use natural paragraphs, emojis, and casual formatting',
+  'prayer': 'Format as a proper prayer with clear structure and reverence',
+  'bible-study': 'Use bullet points, numbered lists, and clear sections',
+  'sermon-writer': 'Format with headings, bullet points, and sermon structure',
+  'youth-content': 'Use hashtags, bullet points, and social media formatting'
+};
 
   return `
 MODE INSTRUCTIONS: ${modeMap[mode] || modeMap['chat']}
 CONTEXT FOCUS: ${contextMap[context] || contextMap['general']}
 TONE STYLE: ${toneMap[tone] || toneMap['casual']}
-LENGTH REQUIREMENT: ${lengthMap[length] || lengthMap['medium']}`;
+LENGTH REQUIREMENT: ${lengthMap[length] || lengthMap['medium']}
+FORMATTING REQUIREMENT: ${formatMap[mode] || formatMap['chat']}`;
 }
 
 // Enhanced prompt builder with conversation context and advanced features
@@ -130,7 +139,17 @@ CONTEXT RULES:
 - If user asks for more details about something, expand on THAT specific topic ONLY
 - Maintain conversation flow and relevance
 - CRITICAL: When user asks for more details, focus on the previous topic, not yourself
-- UNIVERSAL RULE: This applies to ALL topics - sacraments, saints, prayers, Bible stories, Church teaching, ANYTHING the user was just asking about`;
+- UNIVERSAL RULE: This applies to ALL topics - sacraments, saints, prayers, Bible stories, Church teaching, ANYTHING the user was just asking about
+
+TEXT FORMATTING RULES:
+- ALWAYS organize text with proper paragraphs, bullet points, and structure
+- Use bullet points (•) for lists and key points
+- Use numbered lists (1., 2., 3.) for step-by-step explanations
+- Break long responses into clear paragraphs
+- Use bold text (**text**) for emphasis on important concepts
+- Use emojis strategically to enhance readability
+- NEVER write in one long block of text without organization
+- Make responses easy to read and visually appealing`;
 }
 
 // Error messages that match FaithBot's personality
