@@ -63,6 +63,8 @@ export async function POST(request: Request) {
     console.log("FaithBot: Checking API key");
     const apiKey = process.env.GEMINI_API_KEY;
     console.log("FaithBot: API key exists:", !!apiKey);
+    console.log("FaithBot: API key length:", apiKey ? apiKey.length : 0);
+    console.log("FaithBot: API key starts with:", apiKey ? apiKey.substring(0, 10) : "none");
     
     if (!apiKey) {
       console.error("FaithBot: Missing GEMINI_API_KEY environment variable");
@@ -78,6 +80,22 @@ export async function POST(request: Request) {
 
     // Call Gemini API with timeout
     console.log("FaithBot: Calling Gemini API");
+    console.log("FaithBot: API URL:", `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey.substring(0, 10)}...`);
+    console.log("FaithBot: Request body:", JSON.stringify({
+      contents: [
+        {
+          role: "user",
+          parts: [{ text: prompt.substring(0, 100) + "..." }]
+        }
+      ],
+      generationConfig: {
+        temperature: 0.8,
+        topK: 40,
+        topP: 0.95,
+        maxOutputTokens: 800,
+      }
+    }, null, 2));
+    
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
     
