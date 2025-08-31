@@ -88,15 +88,31 @@ FORMATTING REQUIREMENT: ${formatMap[mode] || formatMap['chat']}`;
 // Get formatting instructions based on mode and formatting preference
 function getFormattingInstructions(mode: string, formatting: string): string {
   const enhancedFormatting = `
-ENHANCED FORMATTING RULES:
-- ALWAYS use bullet points (•) for lists and key concepts
-- ALWAYS use numbered lists (1., 2., 3.) for step-by-step explanations
-- ALWAYS break text into clear, readable paragraphs
-- ALWAYS use bold text (**text**) for emphasis on important terms
-- ALWAYS use emojis strategically to enhance readability
+CRITICAL FORMATTING RULES - YOU MUST FOLLOW THESE:
+- ALWAYS start with a clear title or heading using **BOLD TEXT**
+- ALWAYS use bullet points (•) for ANY list of items, concepts, or ideas
+- ALWAYS use numbered lists (1., 2., 3.) for step-by-step explanations or sequences
+- ALWAYS break text into 2-3 sentence paragraphs maximum
+- ALWAYS use **BOLD TEXT** for key terms, important concepts, and emphasis
+- ALWAYS use emojis at the beginning of each major section
+- NEVER write more than 3 sentences in one paragraph
 - NEVER write in one long block of text
-- Make responses visually appealing and easy to scan
-- Use clear section breaks and spacing`;
+- ALWAYS use clear visual separation between sections
+- ALWAYS make responses look like professional ChatGPT responses
+- ALWAYS use formatting that makes text easy to scan and read quickly
+
+FORMATTING EXAMPLES:
+✅ GOOD FORMATTING:
+**Prayer for Exams** 🙏
+
+• **Ask for strength** - Request God's power to help you focus and remember what you studied
+• **Pray for peace** - Ask God to calm your nerves and give you confidence
+• **Seek wisdom** - Pray that God guides your thoughts during the exam
+
+**Remember:** God wants you to succeed! He's got your back! ✨
+
+❌ BAD FORMATTING:
+Hey! Of course, my G! I'll pray for you and your exams. Let's put some good vibes out there! Pray for strength and clarity: Ask God to give you the mental focus and strength you need to ace those exams. He wants you to succeed! Pray for calmness: Exams can be stressful, so ask God for peace and serenity. He can help you stay calm and collected. Pray for confidence: Believe in yourself and in God's plan. He's got your back!`;
 
   const minimalFormatting = `
 MINIMAL FORMATTING RULES:
@@ -162,6 +178,8 @@ RESPOND AS FAITHBOT: Use the personality above. Be a trustworthy Catholic bro on
 
 CRITICAL INSTRUCTION: When user asks for more details, you MUST expand on the previous topic they were discussing. NEVER give generic responses or introduce yourself. ALWAYS stay on the exact topic they were asking about.
 
+FORMATTING INSTRUCTION: You MUST format your response like ChatGPT does - with clear titles, bullet points, short paragraphs, and bold text. NEVER write in long blocks. Make it look professional and easy to read.
+
 EXAMPLE CONTEXT: 
 - If user asks "describe this more" after Bible secrets → expand on Bible secrets, NOT introduce yourself
 - If user asks "tell me more" after explaining sacraments → expand on sacraments, NOT introduce yourself  
@@ -185,15 +203,19 @@ CONTEXT RULES:
 - CRITICAL: When user asks for more details, focus on the previous topic, not yourself
 - UNIVERSAL RULE: This applies to ALL topics - sacraments, saints, prayers, Bible stories, Church teaching, ANYTHING the user was just asking about
 
-TEXT FORMATTING RULES:
-- ALWAYS organize text with proper paragraphs, bullet points, and structure
-- Use bullet points (•) for lists and key points
-- Use numbered lists (1., 2., 3.) for step-by-step explanations
-- Break long responses into clear paragraphs
-- Use bold text (**text**) for emphasis on important concepts
-- Use emojis strategically to enhance readability
-- NEVER write in one long block of text without organization
-- Make responses easy to read and visually appealing`;
+TEXT FORMATTING RULES - CRITICAL:
+- ALWAYS start responses with a **BOLD TITLE** that summarizes the answer
+- ALWAYS use bullet points (•) for ANY list, concept, or idea
+- ALWAYS use numbered lists (1., 2., 3.) for steps or sequences
+- ALWAYS break text into short paragraphs (2-3 sentences maximum)
+- ALWAYS use **BOLD TEXT** for key terms and important concepts
+- ALWAYS use emojis at the start of each major section
+- NEVER write more than 3 sentences in one paragraph
+- NEVER write in one long block of text
+- ALWAYS make responses look like professional ChatGPT responses
+- ALWAYS use clear visual separation between sections
+- ALWAYS make text easy to scan and read quickly
+- ALWAYS use professional formatting that rivals ChatGPT quality`;
 }
 
 // Error messages that match FaithBot's personality
