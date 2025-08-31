@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -19,6 +19,16 @@ interface Message {
 
 export function FaithBot() {
   const [messages, setMessages] = useState<Message[]>([])
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+  
+  // Auto-scroll to bottom when new messages arrive
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+  }
+  
+  useEffect(() => {
+    scrollToBottom()
+  }, [messages])
   
   // Initialize messages after component mounts to avoid hydration mismatch
   useEffect(() => {
@@ -182,24 +192,27 @@ export function FaithBot() {
                 </div>
               ))}
               
-              {isLoading && (
-                <div className="flex gap-3 justify-start">
-                  <Avatar className="w-8 h-8">
-                    <AvatarFallback className="bg-gradient-to-r from-amber-500 to-rose-500 text-white">
-                      <Bot className="h-5 w-5" />
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="bg-gray-100 text-gray-900 rounded-lg px-4 py-2">
-                    <div className="flex space-x-1">
-                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          </ScrollArea>
+                             {isLoading && (
+                 <div className="flex gap-3 justify-start">
+                   <Avatar className="w-8 h-8">
+                     <AvatarFallback className="bg-gradient-to-r from-amber-500 to-rose-500 text-white">
+                       <Bot className="h-5 w-5" />
+                     </AvatarFallback>
+                   </Avatar>
+                   <div className="bg-gray-100 text-gray-900 rounded-lg px-4 py-2">
+                     <div className="flex space-x-1">
+                       <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                       <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                       <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                     </div>
+                   </div>
+                 </div>
+               )}
+               
+               {/* Auto-scroll anchor */}
+               <div ref={messagesEndRef} />
+             </div>
+           </ScrollArea>
 
           {/* Input */}
           <form onSubmit={handleSendMessage} className="p-4 border-t border-gray-200 bg-gray-50">
