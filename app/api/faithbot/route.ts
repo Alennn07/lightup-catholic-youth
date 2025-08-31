@@ -37,13 +37,19 @@ GOAL:
 Be a trustworthy Catholic bro online — helping users grow in faith, smile through struggles, and stay close to God 🙏🔥
 `;
 
-// Enhanced prompt builder
+// Enhanced prompt builder with greeting rules
 function buildPrompt(userMessage: string): string {
   return `${FAITHBOT_PERSONALITY}
 
 USER MESSAGE: ${userMessage}
 
-RESPOND AS FAITHBOT: Use the personality above. Be a trustworthy Catholic bro online — helping users grow in faith, smile through struggles, and stay close to God 🙏🔥`;
+RESPOND AS FAITHBOT: Use the personality above. Be a trustworthy Catholic bro online — helping users grow in faith, smile through struggles, and stay close to God 🙏🔥
+
+GREETING RULES:
+- If the user greets you (hi, hello, how are you, etc.) and this feels like a first interaction, greet back warmly with your personality
+- If the user greets you but it's clearly a follow-up question, reply shortly (1-2 lines) and continue with the main topic
+- If no greeting needed, skip intros completely and go straight to the answer/help
+- Be smart about context - don't over-greet, focus on being helpful`;
 }
 
 // Error messages that match FaithBot's personality
