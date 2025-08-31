@@ -69,49 +69,67 @@ export async function POST(request: Request) {
     // Build the prompt with FaithBot personality
     const prompt = buildPrompt(message.trim());
 
-    // Call Gemini API
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          contents: [
-            {
-              role: "user",
-              parts: [{ text: prompt }]
-            }
-          ],
-          generationConfig: {
-            temperature: 0.8,
-            topK: 40,
-            topP: 0.95,
-            maxOutputTokens: 800,
-          }
-        })
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error(`Gemini API error: ${response.status}`);
-    }
-
-    const data = await response.json();
+    // Call Gemini API with timeout
+    console.log("FaithBot: Calling Gemini API with key:", apiKey.substring(0, 10) + "...");
+    console.log("FaithBot: Prompt length:", prompt.length);
     
-    if (!data.candidates?.[0]?.content?.parts?.[0]?.text) {
-      throw new Error("Invalid response from Gemini API");
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+    
+    try {
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            contents: [
+              {
+                role: "user",
+                parts: [{ text: prompt }]
+              }
+            ],
+            generationConfig: {
+              temperature: 0.8,
+              topK: 40,
+              topP: 0.95,
+              maxOutputTokens: 800,
+            }
+          }),
+          signal: controller.signal
+        }
+      );
+      
+            clearTimeout(timeoutId);
+      console.log("FaithBot: Gemini API response status:", response.status);
+
+      if (!response.ok) {
+        throw new Error(`Gemini API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      if (!data.candidates?.[0]?.content?.parts?.[0]?.text) {
+        throw new Error("Invalid response from Gemini API");
+      }
+
+      const reply = data.candidates[0].content.parts[0].text;
+
+      // Return successful response
+      return NextResponse.json({
+        response: reply,
+        timestamp: new Date().toISOString(),
+        success: true
+      });
+    } catch (fetchError) {
+      clearTimeout(timeoutId);
+      if (fetchError instanceof Error && fetchError.name === 'AbortError') {
+        throw new Error("Request timed out after 30 seconds");
+      }
+      throw fetchError;
     }
-
-    const reply = data.candidates[0].content.parts[0].text;
-
-    // Return successful response
-    return NextResponse.json({
-      response: reply,
-      timestamp: new Date().toISOString(),
-      success: true
-    });
 
   } catch (error: unknown) {
     console.error("FaithBot API Error:", error);
