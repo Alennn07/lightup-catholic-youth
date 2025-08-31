@@ -46,7 +46,7 @@ function getRandomErrorMessage(): string {
 
 export async function POST(request: Request) {
   try {
-    console.log("FaithBot: POST request received - AI VERSION");
+    console.log("FaithBot: POST request received - AI VERSION - TESTING CACHE CLEAR");
     
     // Parse request
     const { message } = await request.json();
