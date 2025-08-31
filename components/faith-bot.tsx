@@ -26,7 +26,6 @@ export function FaithBot() {
   const [context, setContext] = useState('general')
   const [tone, setTone] = useState('casual')
   const [length, setLength] = useState('medium')
-  const [formatting, setFormatting] = useState('auto') // auto, enhanced, minimal
   const [showAdvanced, setShowAdvanced] = useState(false)
   
   // Auto-scroll to bottom when new messages arrive
@@ -82,8 +81,7 @@ export function FaithBot() {
           mode: mode,
           context: context,
           tone: tone,
-          length: length,
-          formatting: formatting
+          length: length
         }),
       })
 
@@ -204,36 +202,7 @@ export function FaithBot() {
           </div>
         </div>
 
-        {/* Quick Formatting Buttons */}
-        <div className="mb-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Formatting</h3>
-          <div className="flex flex-wrap gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              className="bg-orange-50 border-orange-200 text-orange-700 hover:bg-orange-100"
-              onClick={() => setFormatting('enhanced')}
-            >
-              📝 Enhanced Formatting
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100"
-              onClick={() => setFormatting('minimal')}
-            >
-              ✂️ Minimal Formatting
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100"
-              onClick={() => setFormatting('auto')}
-            >
-              🤖 Auto Formatting
-            </Button>
-          </div>
-        </div>
+
 
         {/* Advanced Controls */}
         <div className="mb-6 bg-white rounded-xl shadow-md border border-gray-200 p-4">
@@ -250,7 +219,7 @@ export function FaithBot() {
           </div>
           
           {showAdvanced && (
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {/* Mode Selection */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Mode</label>
@@ -311,19 +280,7 @@ export function FaithBot() {
                   </select>
                 </div>
 
-                {/* Formatting Selection */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Formatting</label>
-                  <select
-                    value={formatting}
-                    onChange={(e) => setFormatting(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
-                  >
-                    <option value="auto">Auto (Smart)</option>
-                    <option value="enhanced">Enhanced</option>
-                    <option value="minimal">Minimal</option>
-                  </select>
-                </div>
+
               </div>
             )}
         </div>

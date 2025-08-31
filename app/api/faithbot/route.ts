@@ -85,6 +85,44 @@ LENGTH REQUIREMENT: ${lengthMap[length] || lengthMap['medium']}
 FORMATTING REQUIREMENT: ${formatMap[mode] || formatMap['chat']}`;
 }
 
+// Get formatting instructions based on mode and formatting preference
+function getFormattingInstructions(mode: string, formatting: string): string {
+  const enhancedFormatting = `
+ENHANCED FORMATTING RULES:
+- ALWAYS use bullet points (•) for lists and key concepts
+- ALWAYS use numbered lists (1., 2., 3.) for step-by-step explanations
+- ALWAYS break text into clear, readable paragraphs
+- ALWAYS use bold text (**text**) for emphasis on important terms
+- ALWAYS use emojis strategically to enhance readability
+- NEVER write in one long block of text
+- Make responses visually appealing and easy to scan
+- Use clear section breaks and spacing`;
+
+  const minimalFormatting = `
+MINIMAL FORMATTING RULES:
+- Keep formatting simple and clean
+- Use basic paragraphs for readability
+- Minimal use of bullet points
+- Focus on content over formatting`;
+
+  const autoFormatting = `
+AUTO FORMATTING RULES:
+- Let the AI choose the best formatting for the content
+- Balance readability with natural flow
+- Adapt formatting to the mode and content type`;
+
+  switch (formatting) {
+    case 'enhanced':
+      return enhancedFormatting;
+    case 'minimal':
+      return minimalFormatting;
+    case 'auto':
+      return autoFormatting;
+    default:
+      return enhancedFormatting; // Default to enhanced
+  }
+}
+
 // Enhanced prompt builder with conversation context and advanced features
 function buildPrompt(
   userMessage: string, 
@@ -92,7 +130,8 @@ function buildPrompt(
   mode: string = 'chat',
   context: string = 'general',
   tone: string = 'casual',
-  length: string = 'medium'
+  length: string = 'medium',
+  formatting: string = 'enhanced'
 ): string {
   const contextInfo = conversationHistory.length > 0 
     ? `\nCONVERSATION HISTORY: ${conversationHistory.map(msg => `${msg.sender}: ${msg.content}`).join('\n')}`
@@ -100,6 +139,9 @@ function buildPrompt(
 
   // Mode-specific instructions
   const modeInstructions = getModeInstructions(mode, context, tone, length);
+
+  // Formatting instructions based on mode
+  const formattingInstructions = getFormattingInstructions(mode, formatting);
 
   return `${FAITHBOT_PERSONALITY}
 
@@ -109,8 +151,10 @@ MODE: ${mode.toUpperCase()}
 CONTEXT: ${context.toUpperCase()}
 TONE: ${tone.toUpperCase()}
 LENGTH: ${length.toUpperCase()}
+FORMATTING: ${formatting.toUpperCase()}
 
 ${modeInstructions}
+${formattingInstructions}
 
 USER MESSAGE: ${userMessage}
 
@@ -210,7 +254,8 @@ export async function POST(request: Request) {
     }
 
     // Build the prompt with FaithBot personality, conversation history, and mode-specific enhancements
-    const prompt = buildPrompt(message.trim(), conversationHistory || [], mode, context, tone, length);
+    // Always use enhanced formatting for professional, readable responses
+    const prompt = buildPrompt(message.trim(), conversationHistory || [], mode, context, tone, length, 'enhanced');
     console.log("FaithBot: Prompt built, length:", prompt.length);
 
     // Call Gemini API with timeout
