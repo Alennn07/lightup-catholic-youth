@@ -102,7 +102,7 @@ export async function POST(request: Request) {
         }
       );
       
-            clearTimeout(timeoutId);
+      clearTimeout(timeoutId);
       console.log("FaithBot: Gemini API response status:", response.status);
 
       if (!response.ok) {
