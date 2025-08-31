@@ -21,6 +21,13 @@ export function FaithBot() {
   const [messages, setMessages] = useState<Message[]>([])
   const messagesEndRef = useRef<HTMLDivElement>(null)
   
+  // Advanced features state
+  const [mode, setMode] = useState('chat')
+  const [context, setContext] = useState('general')
+  const [tone, setTone] = useState('casual')
+  const [length, setLength] = useState('medium')
+  const [showAdvanced, setShowAdvanced] = useState(false)
+  
   // Auto-scroll to bottom when new messages arrive
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -70,7 +77,11 @@ export function FaithBot() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
           message: inputMessage,
-          conversationHistory: messages.slice(-5) // Send last 5 messages for context
+          conversationHistory: messages.slice(-5), // Send last 5 messages for context
+          mode: mode,
+          context: context,
+          tone: tone,
+          length: length
         }),
       })
 
@@ -150,6 +161,124 @@ export function FaithBot() {
               </Button>
             ))}
           </div>
+        </div>
+
+        {/* Quick Mode Buttons */}
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Modes</h3>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
+              onClick={() => setMode('prayer')}
+            >
+              🙏 Prayer Writer
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="bg-green-50 border-green-200 text-green-700 hover:bg-green-100"
+              onClick={() => setMode('bible-study')}
+            >
+              📖 Bible Study
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100"
+              onClick={() => setMode('sermon-writer')}
+            >
+              🎤 Sermon Writer
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="bg-pink-50 border-pink-200 text-pink-700 hover:bg-pink-100"
+              onClick={() => setMode('youth-content')}
+            >
+              ✨ Youth Content
+            </Button>
+          </div>
+        </div>
+
+        {/* Advanced Controls */}
+        <div className="mb-6 bg-white rounded-xl shadow-md border border-gray-200 p-4">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-gray-900">Advanced Settings</h3>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowAdvanced(!showAdvanced)}
+              className="text-sm"
+            >
+              {showAdvanced ? 'Hide' : 'Show'} Advanced
+            </Button>
+          </div>
+          
+          {showAdvanced && (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {/* Mode Selection */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Mode</label>
+                <select
+                  value={mode}
+                  onChange={(e) => setMode(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+                >
+                  <option value="chat">Chat</option>
+                  <option value="prayer">Prayer Writer</option>
+                  <option value="bible-study">Bible Study</option>
+                  <option value="sermon-writer">Sermon Writer</option>
+                  <option value="youth-content">Youth Content</option>
+                </select>
+              </div>
+
+              {/* Context Selection */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Context</label>
+                <select
+                  value={context}
+                  onChange={(e) => setContext(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+                >
+                  <option value="general">General</option>
+                  <option value="sacramental">Sacramental</option>
+                  <option value="pastoral">Pastoral</option>
+                  <option value="educational">Educational</option>
+                </select>
+              </div>
+
+              {/* Tone Selection */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Tone</label>
+                <select
+                  value={tone}
+                  onChange={(e) => setTone(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+                >
+                  <option value="casual">Casual</option>
+                  <option value="formal">Formal</option>
+                  <option value="encouraging">Encouraging</option>
+                  <option value="reflective">Reflective</option>
+                </select>
+              </div>
+
+              {/* Length Selection */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Length</label>
+                <select
+                  value={length}
+                  onChange={(e) => setLength(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+                >
+                  <option value="short">Short</option>
+                  <option value="medium">Medium</option>
+                  <option value="long">Long</option>
+                </select>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Chat Interface */}

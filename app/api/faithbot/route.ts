@@ -39,15 +39,69 @@ GOAL:
 Be a trustworthy Catholic bro online — helping users grow in faith, smile through struggles, and stay close to God 🙏🔥
 `;
 
-// Enhanced prompt builder with conversation context
-function buildPrompt(userMessage: string, conversationHistory: any[] = []): string {
+// Get mode-specific instructions for advanced features
+function getModeInstructions(mode: string, context: string, tone: string, length: string): string {
+  const modeMap: { [key: string]: string } = {
+    'chat': 'Regular conversation mode - be friendly and helpful',
+    'prayer': 'Prayer writing mode - create personalized prayers for the user',
+    'bible-study': 'Bible study mode - provide deep theological insights and explanations',
+    'sermon-writer': 'Sermon writing mode - help create youth-focused sermons and talks',
+    'youth-content': 'Youth content creation mode - create engaging social media content, captions, and videos'
+  };
+
+  const contextMap: { [key: string]: string } = {
+    'general': 'General Catholic topics and guidance',
+    'sacramental': 'Focus on sacraments, confession, and Church practices',
+    'pastoral': 'Pastoral care and spiritual guidance',
+    'educational': 'Educational content about Catholic doctrine and history'
+  };
+
+  const toneMap: { [key: string]: string } = {
+    'casual': 'Use Gen Z language, emojis, and casual tone',
+    'formal': 'More formal and respectful tone, suitable for presentations',
+    'encouraging': 'Uplifting and motivational tone',
+    'reflective': 'Thoughtful and contemplative tone'
+  };
+
+  const lengthMap: { [key: string]: string } = {
+    'short': 'Keep responses brief (2-3 lines)',
+    'medium': 'Standard length (4-6 lines)',
+    'long': 'Comprehensive responses (7+ lines)'
+  };
+
+  return `
+MODE INSTRUCTIONS: ${modeMap[mode] || modeMap['chat']}
+CONTEXT FOCUS: ${contextMap[context] || contextMap['general']}
+TONE STYLE: ${toneMap[tone] || toneMap['casual']}
+LENGTH REQUIREMENT: ${lengthMap[length] || lengthMap['medium']}`;
+}
+
+// Enhanced prompt builder with conversation context and advanced features
+function buildPrompt(
+  userMessage: string, 
+  conversationHistory: any[] = [], 
+  mode: string = 'chat',
+  context: string = 'general',
+  tone: string = 'casual',
+  length: string = 'medium'
+): string {
   const contextInfo = conversationHistory.length > 0 
     ? `\nCONVERSATION HISTORY: ${conversationHistory.map(msg => `${msg.sender}: ${msg.content}`).join('\n')}`
     : '\nCONVERSATION HISTORY: This is the first message.';
 
+  // Mode-specific instructions
+  const modeInstructions = getModeInstructions(mode, context, tone, length);
+
   return `${FAITHBOT_PERSONALITY}
 
 ${contextInfo}
+
+MODE: ${mode.toUpperCase()}
+CONTEXT: ${context.toUpperCase()}
+TONE: ${tone.toUpperCase()}
+LENGTH: ${length.toUpperCase()}
+
+${modeInstructions}
 
 USER MESSAGE: ${userMessage}
 
@@ -97,9 +151,21 @@ export async function POST(request: Request) {
   try {
     console.log("FaithBot: POST request received - AI VERSION - TESTING CACHE CLEAR");
     
-    // Parse request
-    const { message, conversationHistory } = await request.json();
+    // Parse request with enhanced features
+    const { 
+      message, 
+      conversationHistory, 
+      mode = 'chat', // chat, prayer, bible-study, sermon-writer, youth-content
+      context = 'general', // general, sacramental, pastoral, educational
+      tone = 'casual', // casual, formal, encouraging, reflective
+      length = 'medium' // short, medium, long
+    } = await request.json();
+    
     console.log("FaithBot: Message received:", message);
+    console.log("FaithBot: Mode:", mode);
+    console.log("FaithBot: Context:", context);
+    console.log("FaithBot: Tone:", tone);
+    console.log("FaithBot: Length:", length);
     console.log("FaithBot: Conversation history:", conversationHistory);
     
     if (!message || typeof message !== 'string') {
@@ -124,8 +190,8 @@ export async function POST(request: Request) {
       );
     }
 
-    // Build the prompt with FaithBot personality and conversation history
-    const prompt = buildPrompt(message.trim(), conversationHistory || []);
+    // Build the prompt with FaithBot personality, conversation history, and mode-specific enhancements
+    const prompt = buildPrompt(message.trim(), conversationHistory || [], mode, context, tone, length);
     console.log("FaithBot: Prompt built, length:", prompt.length);
 
     // Call Gemini API with timeout
