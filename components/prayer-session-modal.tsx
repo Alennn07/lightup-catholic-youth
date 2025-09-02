@@ -28,6 +28,19 @@ export function PrayerSessionModal({ isOpen, onClose, userId, onSessionComplete 
   const [startTime, setStartTime] = useState<Date | null>(null)
   const { toast } = useToast()
 
+  // Update duration every second when active
+  useEffect(() => {
+    let interval: NodeJS.Timeout
+    if (isActive && startTime) {
+      interval = setInterval(() => {
+        const now = new Date()
+        const elapsed = Math.round((now.getTime() - startTime.getTime()) / 1000 / 60)
+        setDuration(elapsed)
+      }, 1000)
+    }
+    return () => clearInterval(interval)
+  }, [isActive, startTime])
+
   if (!isOpen) return null
 
   const startSession = () => {
@@ -95,19 +108,6 @@ export function PrayerSessionModal({ isOpen, onClose, userId, onSessionComplete 
     setDuration(0)
     setStartTime(null)
   }
-
-  // Update duration every second when active
-  useEffect(() => {
-    let interval: NodeJS.Timeout
-    if (isActive && startTime) {
-      interval = setInterval(() => {
-        const now = new Date()
-        const elapsed = Math.round((now.getTime() - startTime.getTime()) / 1000 / 60)
-        setDuration(elapsed)
-      }, 1000)
-    }
-    return () => clearInterval(interval)
-  }, [isActive, startTime])
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
