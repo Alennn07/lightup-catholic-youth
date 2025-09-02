@@ -1,3 +1,5 @@
+"use client"
+
 // Internationalization (i18n) configuration and utilities
 import React, { useState, useEffect, createContext, useContext } from 'react';
 
