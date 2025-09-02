@@ -385,6 +385,12 @@ export default function CommunityPage() {
 
   // Handle community actions
   const handleJoinCommunity = async () => {
+    if (!user) {
+      // Redirect to sign up if not logged in
+      window.location.href = '/auth/sign-up'
+      return
+    }
+    
     setIsJoiningCommunity(true)
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1500))
@@ -539,7 +545,7 @@ export default function CommunityPage() {
                 ) : (
                   <>
                     <Users className="mr-2 h-5 w-5" />
-                    Join Our Community
+                    {user ? "Go to Dashboard" : "Join Our Community"}
                   </>
                 )}
               </Button>

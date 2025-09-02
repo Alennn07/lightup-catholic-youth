@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { Heart, Users, Globe, ArrowRight } from "lucide-react"
+import { useAuth } from "@/contexts/auth-context"
 
 const stats = [
   { number: "12K+", label: "Young Catholics", icon: Users },
@@ -13,6 +14,8 @@ const stats = [
 ]
 
 export function CommunitySection() {
+  const { user } = useAuth()
+  
   return (
     <section className="py-16 bg-gray-50">
       <div className="container mx-auto px-4">
@@ -69,7 +72,7 @@ export function CommunitySection() {
                 <p className="text-gray-600 mb-6">
                   Share your prayer requests and pray for others. Experience the power of community prayer and support.
                 </p>
-                <Link href="/dashboard#prayer-wall">
+                <Link href="/prayer-wall">
                   <Button variant="outline" size="sm" className="border-gray-400 text-gray-700 hover:bg-gray-50 hover:border-gray-500 bg-white">
                     Visit Prayer Wall
                     <ArrowRight className="ml-2 h-4 w-4" />
@@ -94,7 +97,7 @@ export function CommunitySection() {
                 <p className="text-gray-600 mb-6">
                   Find and connect with Catholic youth groups in your area. Build real friendships and grow together.
                 </p>
-                <Link href="/dashboard#youth-groups">
+                <Link href="/youth-groups">
                   <Button variant="outline" size="sm" className="border-gray-400 text-gray-700 hover:bg-gray-50 hover:border-gray-500 bg-white">
                     Find Groups
                     <ArrowRight className="ml-2 h-4 w-4" />
@@ -113,9 +116,9 @@ export function CommunitySection() {
           viewport={{ once: true }}
           className="text-center"
         >
-          <Link href="/auth/sign-up">
+          <Link href={user ? "/dashboard" : "/auth/sign-up"}>
             <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white">
-              Join Community
+              {user ? "Go to Dashboard" : "Join Community"}
             </Button>
           </Link>
         </motion.div>
