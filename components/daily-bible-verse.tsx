@@ -260,83 +260,83 @@ export function DailyBibleVerse() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="max-w-4xl mx-auto p-3 sm:p-4 md:p-6">
       <Card className="shadow-lg">
-        <CardHeader className="text-center pb-6">
-          <div className="flex items-center justify-center mb-4">
-            <BookOpen className="h-12 w-12 text-purple-600" />
+        <CardHeader className="text-center pb-3 sm:pb-4 md:pb-6">
+          <div className="flex items-center justify-center mb-2 sm:mb-3 md:mb-4">
+            <BookOpen className="h-8 w-8 sm:h-10 sm:w-10 md:h-12 md:w-12 text-purple-600" />
           </div>
-          <CardTitle className="text-3xl font-bold text-foreground mb-2">
+          <CardTitle className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground mb-1 sm:mb-2">
             Daily Bible Verse
           </CardTitle>
-          <p className="text-muted-foreground text-lg">
+          <p className="text-muted-foreground text-sm sm:text-base md:text-lg">
             Today's scripture to inspire your faith journey
           </p>
-          <Badge variant="secondary" className="mt-3">
+          <Badge variant="secondary" className="mt-2 sm:mt-3">
             {verseData.verse.theme}
           </Badge>
         </CardHeader>
 
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-3 sm:space-y-4 md:space-y-6">
           {/* Stats Cards */}
-          <div className="grid grid-cols-2 gap-4 mb-6">
-            <Card className="text-center p-4">
-              <div className="flex items-center justify-center mb-2">
-                <Flame className="h-6 w-6 text-orange-500" />
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-5 md:mb-6">
+            <Card className="text-center p-3 sm:p-4">
+              <div className="flex items-center justify-center mb-1 sm:mb-2">
+                <Flame className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 text-orange-500" />
               </div>
-              <div className="text-2xl font-bold text-foreground">
+              <div className="text-lg sm:text-xl md:text-2xl font-bold text-foreground">
                 {verseData.stats.reading_streak}
               </div>
-              <div className="text-sm text-muted-foreground">Day Streak</div>
+              <div className="text-xs sm:text-sm text-muted-foreground">Day Streak</div>
             </Card>
             
-            <Card className="text-center p-4">
-              <div className="flex items-center justify-center mb-2">
-                <Calendar className="h-6 w-6 text-green-500" />
+            <Card className="text-center p-3 sm:p-4">
+              <div className="flex items-center justify-center mb-1 sm:mb-2">
+                <Calendar className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 text-green-500" />
               </div>
-              <div className="text-lg font-bold text-foreground">
+              <div className="text-sm sm:text-base md:text-lg font-bold text-foreground">
                 {new Date().toLocaleDateString('en-US', { 
                   month: 'short', 
                   day: 'numeric' 
                 })}
               </div>
-              <div className="text-sm text-muted-foreground">Today's Date</div>
+              <div className="text-xs sm:text-sm text-muted-foreground">Today's Date</div>
             </Card>
           </div>
 
           {/* Bible Verse */}
-          <div className="text-center mb-6">
-            <blockquote className="text-2xl italic text-foreground mb-4 leading-relaxed">
+          <div className="text-center mb-4 sm:mb-5 md:mb-6">
+            <blockquote className="text-lg sm:text-xl md:text-2xl italic text-foreground mb-2 sm:mb-3 md:mb-4 leading-relaxed">
               "{verseData.verse.text}"
             </blockquote>
-            <cite className="text-lg text-orange-600 font-semibold">
+            <cite className="text-sm sm:text-base md:text-lg text-orange-600 font-semibold">
               - {verseData.verse.reference}
             </cite>
           </div>
 
           {/* Progress Bar */}
-          <div className="space-y-2">
+          <div className="space-y-1 sm:space-y-2">
             <div className="flex justify-between items-center">
-              <span className="text-sm font-medium text-foreground">Today's Progress</span>
-              <span className="text-sm text-muted-foreground">
+              <span className="text-xs sm:text-sm font-medium text-foreground">Today's Progress</span>
+              <span className="text-xs sm:text-sm text-muted-foreground">
                 {verseData.user_progress.is_completed ? 'Completed' : 'Not Started'}
               </span>
             </div>
             <Progress 
               value={verseData.user_progress.is_completed ? 100 : 0} 
-              className="h-2"
+              className="h-1.5 sm:h-2"
             />
           </div>
 
           {/* Reflection */}
           <Card className="bg-accent/50 border-accent">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Star className="h-4 w-4 text-yellow-600" />
-                <span className="text-sm font-medium text-accent-foreground">Today's Reflection</span>
+            <CardContent className="p-3 sm:p-4">
+              <div className="flex items-center gap-2 mb-1 sm:mb-2">
+                <Star className="h-3 w-3 sm:h-4 sm:w-4 text-yellow-600" />
+                <span className="text-xs sm:text-sm font-medium text-accent-foreground">Today's Reflection</span>
                 <Badge variant="secondary" className="text-xs">Youth Focused</Badge>
               </div>
-              <p className="text-foreground leading-relaxed">
+              <p className="text-sm sm:text-base text-foreground leading-relaxed">
                 {verseData.verse.reflection}
               </p>
             </CardContent>
@@ -344,47 +344,49 @@ export function DailyBibleVerse() {
 
           {/* Action Prompt */}
           <div className="text-center">
-            <p className="text-foreground mb-4">
+            <p className="text-sm sm:text-base text-foreground mb-3 sm:mb-4">
               <strong>Take Action Today:</strong> {verseData.verse.action}
             </p>
           </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 md:gap-4 justify-center">
             <Button
               onClick={handleMarkCompleted}
               disabled={isUpdating || verseData.user_progress.is_completed}
-              className={`flex items-center gap-2 ${
+              className={`flex items-center gap-2 h-10 sm:h-11 w-full sm:w-auto text-sm sm:text-base ${
                 verseData.user_progress.is_completed 
                   ? 'bg-green-600 hover:bg-green-700' 
                   : 'bg-purple-600 hover:bg-purple-700'
               }`}
             >
-              <CheckCircle className="h-4 w-4" />
+              <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4" />
               {verseData.user_progress.is_completed ? 'Completed Today!' : 'Mark as Completed'}
             </Button>
 
-            <Button variant="outline" className="flex items-center gap-2">
-              <Heart className="h-4 w-4" />
-              Favorite
-            </Button>
+            <div className="flex gap-2 sm:gap-3 md:gap-4">
+              <Button variant="outline" className="flex items-center gap-2 h-10 sm:h-11 flex-1 sm:flex-none text-sm sm:text-base">
+                <Heart className="h-3 w-3 sm:h-4 sm:w-4" />
+                Favorite
+              </Button>
 
-            <Button 
-              variant="outline" 
-              className="flex items-center gap-2"
-              onClick={handleShare}
-            >
-              <Share2 className="h-4 w-4" />
-              Share
-            </Button>
+              <Button 
+                variant="outline" 
+                className="flex items-center gap-2 h-10 sm:h-11 flex-1 sm:flex-none text-sm sm:text-base"
+                onClick={handleShare}
+              >
+                <Share2 className="h-3 w-3 sm:h-4 sm:w-4" />
+                Share
+              </Button>
+            </div>
           </div>
 
           {/* Success Message */}
           {verseData.user_progress.is_completed && (
-            <div className="bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-lg p-4 text-center">
+            <div className="bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-lg p-3 sm:p-4 text-center">
               <div className="flex items-center justify-center gap-2 text-green-800 dark:text-green-200">
-                <CheckCircle className="h-5 w-5" />
-                <span className="font-medium">
+                <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5" />
+                <span className="text-sm sm:text-base font-medium">
                   Amazing! You've completed today's verse and maintained your {verseData.stats.reading_streak}-day streak! 🎉
                 </span>
               </div>
