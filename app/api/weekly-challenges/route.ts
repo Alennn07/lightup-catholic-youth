@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
     currentWeekEnd.setDate(currentWeekEnd.getDate() + 6) // End of week (Saturday)
     currentWeekEnd.setHours(23, 59, 59, 999)
 
-    const { data: challenges, error } = await supabase
+    const { data: challenges, error } = await (supabase as any)
       .from('weekly_challenges')
       .select('*')
       .eq('user_id', userId)
@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
     currentWeekEnd.setHours(23, 59, 59, 999)
 
     // Insert new weekly challenge
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from('weekly_challenges')
       .insert({
         user_id: userId,
@@ -104,7 +104,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Update weekly challenge progress
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from('weekly_challenges')
       .update(updateData)
       .eq('id', challengeId)
