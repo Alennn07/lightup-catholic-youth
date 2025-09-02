@@ -12,22 +12,22 @@ export function ModernHero() {
   const { t } = useTranslation()
 
   return (
-    <section className="pt-20 sm:pt-24 pb-12 sm:pb-16 bg-white">
+    <section className="pt-16 sm:pt-20 md:pt-24 pb-8 sm:pb-12 md:pb-16 bg-white">
       <div className="container mx-auto px-3 sm:px-4">
         <div className="max-w-4xl mx-auto text-center">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
             {/* Main Heading */}
-            <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold text-gray-900 mb-4 sm:mb-6 leading-tight">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-6xl font-bold text-gray-900 mb-3 sm:mb-4 md:mb-6 leading-tight">
               {t("homepage.hero.title")}
             </h1>
 
             {/* Subtitle */}
-            <p className="text-base sm:text-lg md:text-xl text-gray-600 mb-6 sm:mb-8 max-w-2xl mx-auto leading-relaxed px-2">
+            <p className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-600 mb-4 sm:mb-6 md:mb-8 max-w-2xl mx-auto leading-relaxed px-2">
               {t("homepage.hero.subtitle")}
             </p>
 
             {/* CTA - Different buttons for logged in vs logged out users */}
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mb-8 sm:mb-12 px-4">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 md:gap-4 justify-center mb-6 sm:mb-8 md:mb-12 px-4">
               {isLoading ? (
                 // Loading state - show skeleton buttons
                 <>
@@ -38,12 +38,12 @@ export function ModernHero() {
                 // Logged in user - show dashboard and profile buttons
                 <>
                   <Link href="/dashboard">
-                    <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white px-6 sm:px-8 h-12 w-full sm:w-auto">
+                    <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white px-4 sm:px-6 md:px-8 h-10 sm:h-12 w-full sm:w-auto text-sm sm:text-base">
                       {t("navigation.dashboard")}
                     </Button>
                   </Link>
                   <Link href="/profile">
-                    <Button size="lg" variant="outline" className="border-2 border-gray-400 text-gray-800 hover:bg-gray-100 hover:border-gray-600 hover:text-gray-900 px-6 sm:px-8 bg-white font-medium h-12 w-full sm:w-auto">
+                    <Button size="lg" variant="outline" className="border-2 border-gray-400 text-gray-800 hover:bg-gray-100 hover:border-gray-600 hover:text-gray-900 px-4 sm:px-6 md:px-8 bg-white font-medium h-10 sm:h-12 w-full sm:w-auto text-sm sm:text-base">
                       {t("navigation.profile")}
                     </Button>
                   </Link>
@@ -52,12 +52,12 @@ export function ModernHero() {
                 // Not logged in - show sign up and sign in buttons
                 <>
                   <Link href="/auth/sign-up">
-                    <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white px-6 sm:px-8 h-12 w-full sm:w-auto">
+                    <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white px-4 sm:px-6 md:px-8 h-10 sm:h-12 w-full sm:w-auto text-sm sm:text-base">
                       {t("homepage.hero.getStarted")}
                     </Button>
                   </Link>
                   <Link href="/auth/sign-in">
-                    <Button size="lg" variant="outline" className="border-2 border-gray-400 text-gray-800 hover:bg-gray-100 hover:border-gray-600 hover:text-gray-900 px-6 sm:px-8 bg-white font-medium h-12 w-full sm:w-auto">
+                    <Button size="lg" variant="outline" className="border-2 border-gray-400 text-gray-800 hover:bg-gray-100 hover:border-gray-600 hover:text-gray-900 px-4 sm:px-6 md:px-8 bg-white font-medium h-10 sm:h-12 w-full sm:w-auto text-sm sm:text-base">
                       {t("navigation.signIn")}
                     </Button>
                   </Link>
