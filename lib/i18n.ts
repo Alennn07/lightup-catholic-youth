@@ -1285,7 +1285,33 @@ export const I18nProvider: React.FC<{ children: React.ReactNode }> = ({ children
 export function useTranslation() {
   const context = useContext(I18nContext);
   if (context === undefined) {
-    throw new Error('useTranslation must be used within an I18nProvider');
+    // Fallback for when used outside provider
+    return {
+      t: (key: string, vars?: Record<string, string>) => {
+        // Simple fallback translation
+        const keys = key.split('.');
+        let text: any = translations.en;
+        for (const k of keys) {
+          if (text && typeof text === 'object' && k in text) {
+            text = text[k];
+          } else {
+            return key; // Return key if not found
+          }
+        }
+        
+        if (typeof text === 'string') {
+          if (vars) {
+            for (const [varKey, varValue] of Object.entries(vars)) {
+              text = text.replace(`{{${varKey}}}`, varValue);
+            }
+          }
+          return text;
+        }
+        return key;
+      },
+      language: 'en' as SupportedLanguage,
+      changeLanguage: () => {},
+    };
   }
   return context;
 };
