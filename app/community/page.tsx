@@ -11,7 +11,8 @@ import { useToast } from "@/hooks/use-toast"
 import { useAuth } from "@/contexts/auth-context"
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { Heart, Users, BookOpen, MessageCircle, Calendar, Music, ArrowRight, MapPin, Clock, Star, Globe, Church, Cross, Lightbulb, Award, TrendingUp, Bookmark, Share2, ThumbsUp, MessageSquare, Plus, CheckCircle } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { Heart, Users, BookOpen, MessageCircle, Calendar, Music, ArrowRight, MapPin, Clock, Star, Globe, Church, Cross, Lightbulb, Award, TrendingUp, Bookmark, Share2, ThumbsUp, MessageSquare, Plus, CheckCircle, ArrowLeft } from "lucide-react"
 import { logIfEnabled } from "@/lib/performance-monitor"
 import { useTranslation } from "@/lib/i18n"
 
@@ -140,6 +141,7 @@ export default function CommunityPage() {
   const { t } = useTranslation()
   const { toast } = useToast()
   const { user, getAccessToken } = useAuth()
+  const router = useRouter()
   const [groups, setGroups] = useState(featuredYouthGroups)
   const [stories, setStories] = useState(faithSpotlight)
   const [events, setEvents] = useState(upcomingEvents)
@@ -519,6 +521,18 @@ export default function CommunityPage() {
 
       <div className="pt-24 pb-16">
         <div className="container mx-auto px-4">
+          {/* Back Button */}
+          <div className="mb-6">
+            <Button 
+              variant="ghost" 
+              onClick={() => router.back()}
+              className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back
+            </Button>
+          </div>
+          
           {/* Hero Section */}
           <div className="text-center mb-16">
             <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-blue-100 to-purple-100 border border-blue-200 rounded-full px-6 py-3 mb-6">
