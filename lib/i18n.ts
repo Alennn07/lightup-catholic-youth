@@ -1198,24 +1198,91 @@ export function t(key: string, language?: SupportedLanguage): string {
   return value || key;
 }
 
-// Hook for React components
-export function useTranslation() {
-  const [language, setLanguage] = useState<SupportedLanguage>(getCurrentLanguage());
-  
-  const changeLanguage = (newLanguage: SupportedLanguage) => {
-    setCurrentLanguage(newLanguage);
-    setLanguage(newLanguage);
-  };
-  
-  const translate = (key: string) => t(key, language);
-  
-  return {
-    t: translate,
-    language,
-    changeLanguage,
-    supportedLanguages: ['en', 'gu', 'hi'] as SupportedLanguage[],
-  };
+// Import React hooks
+import { useState, useEffect, createContext, useContext } from 'react';
+
+// Create I18n Context
+interface I18nContextType {
+  language: SupportedLanguage;
+  changeLanguage: (lang: SupportedLanguage) => void;
+  t: (key: string, vars?: Record<string, string>) => string;
 }
 
-// Import useState for the hook
-import { useState } from 'react';
+const I18nContext = createContext<I18nContextType | undefined>(undefined);
+
+// I18n Provider Component
+export const I18nProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [language, setLanguage] = useState<SupportedLanguage>('en');
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+    const storedLang = localStorage.getItem('language') as SupportedLanguage;
+    if (storedLang && translations[storedLang]) {
+      setLanguage(storedLang);
+    } else {
+      const browserLang = navigator.language.split('-')[0];
+      if (browserLang === 'gu' || browserLang === 'hi') {
+        setLanguage(browserLang);
+      }
+    }
+  }, []);
+
+  const changeLanguage = (lang: SupportedLanguage) => {
+    if (translations[lang]) {
+      setLanguage(lang);
+      localStorage.setItem('language', lang);
+    }
+  };
+
+  const t = (key: string, vars?: Record<string, string>): string => {
+    const keys = key.split('.');
+    let text: any = translations[language];
+    for (const k of keys) {
+      if (text && typeof text === 'object' && k in text) {
+        text = text[k];
+      } else {
+        // Fallback to English if key not found in current language
+        text = translations.en;
+        for (const k_en of keys) {
+          if (text && typeof text === 'object' && k_en in text) {
+            text = text[k_en];
+          } else {
+            return `MISSING_TRANSLATION: ${key}`;
+          }
+        }
+        break;
+      }
+    }
+
+    if (typeof text === 'string') {
+      if (vars) {
+        for (const [varKey, varValue] of Object.entries(vars)) {
+          text = text.replace(`{{${varKey}}}`, varValue);
+        }
+      }
+      return text;
+    }
+    return `MISSING_TRANSLATION: ${key}`;
+  };
+
+  // Prevent hydration mismatch by not rendering until client-side
+  if (!isClient) {
+    return <>{children}</>;
+  }
+
+  return (
+    <I18nContext.Provider value={{ language, changeLanguage, t }}>
+      {children}
+    </I18nContext.Provider>
+  );
+};
+
+// Hook for React components
+export function useTranslation() {
+  const context = useContext(I18nContext);
+  if (context === undefined) {
+    throw new Error('useTranslation must be used within an I18nProvider');
+  }
+  return context;
+};
