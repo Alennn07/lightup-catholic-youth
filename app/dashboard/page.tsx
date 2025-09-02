@@ -5,7 +5,7 @@ import { motion } from "framer-motion"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 import { Navigation } from "@/components/navigation"
-
+import { PrayerSessionModal } from "@/components/prayer-session-modal"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -21,6 +21,7 @@ import {
 } from "lucide-react"
 import { useAuth } from "@/contexts/auth-context"
 import { useTranslation } from "@/lib/i18n"
+import { useToast } from "@/hooks/use-toast"
 
 interface UserStats {
   daysActive: number
@@ -34,6 +35,7 @@ export default function DashboardPage() {
   const { t } = useTranslation()
   const { user, isLoading: authLoading } = useAuth()
   const router = useRouter()
+  const { toast } = useToast()
   const [userStats, setUserStats] = useState<UserStats>({
     daysActive: 1,
     prayersShared: 0,
@@ -42,11 +44,97 @@ export default function DashboardPage() {
     username: ''
   })
   const [isLoading, setIsLoading] = useState(false)
+  const [insights, setInsights] = useState<any[]>([])
+  const [weeklyChallenges, setWeeklyChallenges] = useState<any[]>([])
+  const [showPrayerModal, setShowPrayerModal] = useState(false)
+  const [loadingInsights, setLoadingInsights] = useState(false)
 
   // SUPER FAST: Calculate user display name instantly
   const userDisplayName = useMemo(() => {
     return user?.name || user?.email?.split('@')[0] || 'User'
   }, [user?.name, user?.email])
+
+  // Fetch user insights
+  const fetchInsights = useCallback(async () => {
+    if (!user?.id) return
+    
+    setLoadingInsights(true)
+    try {
+      const response = await fetch(`/api/insights?userId=${user.id}`)
+      if (response.ok) {
+        const { insights: fetchedInsights } = await response.json()
+        setInsights(fetchedInsights || [])
+      }
+    } catch (error) {
+      console.error('Error fetching insights:', error)
+    } finally {
+      setLoadingInsights(false)
+    }
+  }, [user?.id])
+
+  // Fetch weekly challenges
+  const fetchWeeklyChallenges = useCallback(async () => {
+    if (!user?.id) return
+    
+    try {
+      const response = await fetch(`/api/weekly-challenges?userId=${user.id}`)
+      if (response.ok) {
+        const { challenges } = await response.json()
+        setWeeklyChallenges(challenges || [])
+      }
+    } catch (error) {
+      console.error('Error fetching weekly challenges:', error)
+    }
+  }, [user?.id])
+
+  // Handle prayer session completion
+  const handlePrayerSessionComplete = useCallback((session: any) => {
+    // Update user stats
+    setUserStats(prev => ({
+      ...prev,
+      prayersShared: prev.prayersShared + 1
+    }))
+    
+    // Refresh insights
+    fetchInsights()
+    
+    toast({
+      title: "Prayer Session Saved! 🙏",
+      description: `Your ${session.duration_minutes}-minute prayer session has been recorded.`,
+    })
+  }, [fetchInsights, toast])
+
+  // Handle challenge participation
+  const handleJoinChallenge = useCallback(async (challengeId: string) => {
+    if (!user?.id) return
+    
+    try {
+      const response = await fetch('/api/weekly-challenges', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          challengeId,
+          currentCount: 1,
+          isCompleted: true
+        })
+      })
+      
+      if (response.ok) {
+        toast({
+          title: "Challenge Accepted! 🎯",
+          description: "You've joined the weekly challenge. Keep up the great work!",
+        })
+        fetchWeeklyChallenges()
+      }
+    } catch (error) {
+      console.error('Error joining challenge:', error)
+      toast({
+        title: "Error",
+        description: "Failed to join challenge. Please try again.",
+        variant: "destructive"
+      })
+    }
+  }, [user?.id, fetchWeeklyChallenges, toast])
 
   // SUPER FAST: Set basic stats immediately
   useEffect(() => {
@@ -63,6 +151,14 @@ export default function DashboardPage() {
       })
     }
   }, [user?.id, user?.created_at, userDisplayName, isLoading])
+
+  // Fetch insights and challenges when user is available
+  useEffect(() => {
+    if (user?.id) {
+      fetchInsights()
+      fetchWeeklyChallenges()
+    }
+  }, [user?.id, fetchInsights, fetchWeeklyChallenges])
 
   // SUPER FAST: Redirect if not authenticated
   useEffect(() => {
@@ -174,21 +270,64 @@ export default function DashboardPage() {
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="p-4 bg-white rounded-lg border border-amber-100">
-                    <h4 className="font-semibold text-gray-800 mb-2">Today's Focus</h4>
-                    <p className="text-sm text-gray-600 mb-3">Based on your activity, try spending 10 minutes in prayer today.</p>
-                    <Button size="sm" variant="outline" className="text-amber-600 border-amber-300 hover:bg-amber-50">
-                      Start Prayer
-                    </Button>
-                  </div>
-                  
-                  <div className="p-4 bg-white rounded-lg border border-orange-100">
-                    <h4 className="font-semibold text-gray-800 mb-2">Weekly Challenge</h4>
-                    <p className="text-sm text-gray-600 mb-3">Share one prayer request with the community this week.</p>
-                    <Button size="sm" variant="outline" className="text-orange-600 border-orange-300 hover:bg-orange-50">
-                      Join Challenge
-                    </Button>
-                  </div>
+                  {loadingInsights ? (
+                    <div className="col-span-2 p-4 bg-white rounded-lg border border-amber-100 text-center">
+                      <div className="animate-pulse">
+                        <div className="h-4 bg-gray-200 rounded w-3/4 mx-auto mb-2"></div>
+                        <div className="h-3 bg-gray-200 rounded w-full mb-3"></div>
+                        <div className="h-8 bg-gray-200 rounded w-24 mx-auto"></div>
+                      </div>
+                    </div>
+                  ) : insights.length > 0 ? (
+                    insights.map((insight, index) => (
+                      <div key={index} className="p-4 bg-white rounded-lg border border-amber-100">
+                        <h4 className="font-semibold text-gray-800 mb-2">{insight.title}</h4>
+                        <p className="text-sm text-gray-600 mb-3">{insight.description}</p>
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          className="text-amber-600 border-amber-300 hover:bg-amber-50"
+                          onClick={() => {
+                            if (insight.action_text === 'Start Prayer') {
+                              setShowPrayerModal(true)
+                            } else if (insight.action_url) {
+                              router.push(insight.action_url)
+                            }
+                          }}
+                        >
+                          {insight.action_text || 'Take Action'}
+                        </Button>
+                      </div>
+                    ))
+                  ) : (
+                    <>
+                      <div className="p-4 bg-white rounded-lg border border-amber-100">
+                        <h4 className="font-semibold text-gray-800 mb-2">Today's Focus</h4>
+                        <p className="text-sm text-gray-600 mb-3">Take a moment to connect with God through prayer today.</p>
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          className="text-amber-600 border-amber-300 hover:bg-amber-50"
+                          onClick={() => setShowPrayerModal(true)}
+                        >
+                          Start Prayer
+                        </Button>
+                      </div>
+                      
+                      <div className="p-4 bg-white rounded-lg border border-orange-100">
+                        <h4 className="font-semibold text-gray-800 mb-2">Weekly Challenge</h4>
+                        <p className="text-sm text-gray-600 mb-3">Share one prayer request with the community this week.</p>
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          className="text-orange-600 border-orange-300 hover:bg-orange-50"
+                          onClick={() => router.push('/prayer-wall')}
+                        >
+                          Join Challenge
+                        </Button>
+                      </div>
+                    </>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -467,6 +606,16 @@ export default function DashboardPage() {
           </p>
         </div>
       </div>
+
+      {/* Prayer Session Modal */}
+      {user && (
+        <PrayerSessionModal
+          isOpen={showPrayerModal}
+          onClose={() => setShowPrayerModal(false)}
+          userId={user.id}
+          onSessionComplete={handlePrayerSessionComplete}
+        />
+      )}
     </div>
   )
 }
