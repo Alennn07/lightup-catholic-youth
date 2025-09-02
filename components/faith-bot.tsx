@@ -9,6 +9,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { MessageCircle, Send, Bot, User, BookOpen, Heart } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import { useTranslation } from "@/lib/i18n"
 
 interface Message {
   id: string
@@ -18,6 +19,7 @@ interface Message {
 }
 
 export function FaithBot() {
+  const { t, language } = useTranslation()
   const [messages, setMessages] = useState<Message[]>([])
   const messagesEndRef = useRef<HTMLDivElement>(null)
   
@@ -81,7 +83,8 @@ export function FaithBot() {
           mode: mode,
           context: context,
           tone: tone,
-          length: length
+          length: length,
+          language: language
         }),
       })
 
@@ -105,8 +108,8 @@ export function FaithBot() {
     } catch (error) {
       console.error("FaithBot Frontend: Error occurred:", error);
       toast({
-        title: "Error",
-        description: "Failed to get response from FaithBot",
+        title: t("common.error"),
+        description: t("faithbot.errors.failedToGetResponse"),
         variant: "destructive",
       })
     } finally {
@@ -139,15 +142,15 @@ export function FaithBot() {
           <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-amber-400 to-rose-500 rounded-full mb-4 shadow-lg">
             <MessageCircle className="h-8 w-8 text-white" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">FaithBot AI Assistant</h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Your Catholic ChatGPT! Understands slang, casual chat, and creates inspiring content. Ask anything about faith, get custom prayers, create videos, or just chat - I get you! 🙏✨
-          </p>
+                     <h1 className="text-3xl font-bold text-gray-900 mb-4">{t("faithbot.title")}</h1>
+           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+             {t("faithbot.subtitle")}
+           </p>
         </div>
 
         {/* Quick Questions */}
         <div className="mb-8">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Questions</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">{t("faithbot.quickQuestions")}</h3>
           <div className="flex flex-wrap gap-2">
             {quickQuestions.map((question, index) => (
               <Button
@@ -165,7 +168,7 @@ export function FaithBot() {
 
         {/* Quick Mode Buttons */}
         <div className="mb-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Modes</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">{t("faithbot.quickModes")}</h3>
           <div className="flex flex-wrap gap-2">
             <Button
               variant="outline"
@@ -173,7 +176,7 @@ export function FaithBot() {
               className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
               onClick={() => setMode('prayer')}
             >
-              🙏 Prayer Writer
+              🙏 {t("faithbot.prayerWriter")}
             </Button>
             <Button
               variant="outline"
@@ -181,7 +184,7 @@ export function FaithBot() {
               className="bg-green-50 border-green-200 text-green-700 hover:bg-green-100"
               onClick={() => setMode('bible-study')}
             >
-              📖 Bible Study
+              📖 {t("faithbot.bibleStudy")}
             </Button>
             <Button
               variant="outline"
@@ -189,7 +192,7 @@ export function FaithBot() {
               className="bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100"
               onClick={() => setMode('sermon-writer')}
             >
-              🎤 Sermon Writer
+              🎤 {t("faithbot.sermonWriter")}
             </Button>
             <Button
               variant="outline"
@@ -197,7 +200,7 @@ export function FaithBot() {
               className="bg-pink-50 border-pink-200 text-pink-700 hover:bg-pink-100"
               onClick={() => setMode('youth-content')}
             >
-              ✨ Youth Content
+              ✨ {t("faithbot.youthContent")}
             </Button>
           </div>
         </div>
@@ -207,14 +210,14 @@ export function FaithBot() {
         {/* Advanced Controls */}
         <div className="mb-6 bg-white rounded-xl shadow-md border border-gray-200 p-4">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">Advanced Settings</h3>
+            <h3 className="text-lg font-semibold text-gray-900">{t("faithbot.advancedSettings")}</h3>
             <Button
               variant="outline"
               size="sm"
               onClick={() => setShowAdvanced(!showAdvanced)}
               className="text-sm"
             >
-              {showAdvanced ? 'Hide' : 'Show'} Advanced
+              {showAdvanced ? t("faithbot.hideAdvanced") : t("faithbot.showAdvanced")}
             </Button>
           </div>
           
@@ -222,63 +225,63 @@ export function FaithBot() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {/* Mode Selection */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Mode</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">{t("faithbot.mode")}</label>
                 <select
                   value={mode}
                   onChange={(e) => setMode(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
                 >
-                  <option value="chat">Chat</option>
-                  <option value="prayer">Prayer Writer</option>
-                  <option value="bible-study">Bible Study</option>
-                  <option value="sermon-writer">Sermon Writer</option>
-                  <option value="youth-content">Youth Content</option>
+                  <option value="chat">{t("faithbot.chat")}</option>
+                  <option value="prayer">{t("faithbot.prayerWriter")}</option>
+                  <option value="bible-study">{t("faithbot.bibleStudy")}</option>
+                  <option value="sermon-writer">{t("faithbot.sermonWriter")}</option>
+                  <option value="youth-content">{t("faithbot.youthContent")}</option>
                 </select>
               </div>
 
-              {/* Context Selection */}
+                            {/* Context Selection */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Context</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">{t("faithbot.context")}</label>
                 <select
                   value={context}
                   onChange={(e) => setContext(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
                 >
-                  <option value="general">General</option>
-                  <option value="sacramental">Sacramental</option>
-                  <option value="pastoral">Pastoral</option>
-                  <option value="educational">Educational</option>
+                  <option value="general">{t("faithbot.general")}</option>
+                  <option value="sacramental">{t("faithbot.sacramental")}</option>
+                  <option value="pastoral">{t("faithbot.pastoral")}</option>
+                  <option value="educational">{t("faithbot.educational")}</option>
                 </select>
               </div>
 
               {/* Tone Selection */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Tone</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">{t("faithbot.tone")}</label>
                 <select
                   value={tone}
                   onChange={(e) => setTone(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
                 >
-                  <option value="casual">Casual</option>
-                  <option value="formal">Formal</option>
-                  <option value="encouraging">Encouraging</option>
-                  <option value="reflective">Reflective</option>
+                  <option value="casual">{t("faithbot.casual")}</option>
+                  <option value="formal">{t("faithbot.formal")}</option>
+                  <option value="encouraging">{t("faithbot.encouraging")}</option>
+                  <option value="reflective">{t("faithbot.reflective")}</option>
                 </select>
               </div>
 
-                              {/* Length Selection */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Length</label>
-                  <select
-                    value={length}
-                    onChange={(e) => setLength(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
-                  >
-                    <option value="short">Short</option>
-                    <option value="medium">Medium</option>
-                    <option value="long">Long</option>
-                  </select>
-                </div>
+                               {/* Length Selection */}
+                 <div>
+                   <label className="block text-sm font-medium text-gray-700 mb-2">{t("faithbot.length")}</label>
+                   <select
+                     value={length}
+                     onChange={(e) => setLength(e.target.value)}
+                     className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+                   >
+                     <option value="short">{t("faithbot.short")}</option>
+                     <option value="medium">{t("faithbot.medium")}</option>
+                     <option value="long">{t("faithbot.long")}</option>
+                   </select>
+                 </div>
 
 
               </div>
@@ -353,13 +356,13 @@ export function FaithBot() {
           {/* Input */}
           <form onSubmit={handleSendMessage} className="p-4 border-t border-gray-200 bg-gray-50">
             <div className="flex gap-2">
-              <Input
-                value={inputMessage}
-                onChange={(e) => setInputMessage(e.target.value)}
-                placeholder="Ask me anything about Catholic faith..."
-                className="flex-1 bg-white border-gray-200 text-gray-900 placeholder:text-gray-400 focus:border-amber-500 focus:ring-amber-500"
-                disabled={isLoading}
-              />
+                             <Input
+                 value={inputMessage}
+                 onChange={(e) => setInputMessage(e.target.value)}
+                 placeholder={t("faithbot.placeholder")}
+                 className="flex-1 bg-white border-gray-200 text-gray-900 placeholder:text-gray-400 focus:border-amber-500 focus:ring-amber-500"
+                 disabled={isLoading}
+               />
               <Button
                 type="submit"
                 disabled={isLoading || !inputMessage.trim()}
@@ -371,32 +374,32 @@ export function FaithBot() {
           </form>
         </div>
 
-        {/* Features */}
-        <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="text-center p-6 bg-white rounded-xl shadow-md border border-gray-200">
-            <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-4">
-              <BookOpen className="h-6 w-6 text-white" />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Biblical Knowledge</h3>
-            <p className="text-gray-600">Get answers about Bible stories, verses, and discover hidden treasures</p>
-          </div>
-          
-          <div className="text-center p-6 bg-white rounded-xl shadow-md border border-gray-200">
-            <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Heart className="h-6 w-6 text-white" />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Prayer & Guidance</h3>
-            <p className="text-gray-600">Get custom prayers for any situation and spiritual guidance</p>
-          </div>
-          
-          <div className="text-center p-6 bg-white rounded-xl shadow-md border border-gray-200">
-            <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4">
-              <MessageCircle className="h-6 w-6 text-white" />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Creative Content</h3>
-            <p className="text-gray-600">Create youth video scripts, sermons, and inspiring reflections</p>
-          </div>
-        </div>
+                 {/* Features */}
+         <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+           <div className="text-center p-6 bg-white rounded-xl shadow-md border border-gray-200">
+             <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-4">
+               <BookOpen className="h-6 w-6 text-white" />
+             </div>
+             <h3 className="text-lg font-semibold text-gray-900 mb-2">{t("faithbot.features.biblicalKnowledge")}</h3>
+             <p className="text-gray-600">{t("faithbot.features.biblicalKnowledgeDesc")}</p>
+           </div>
+           
+           <div className="text-center p-6 bg-white rounded-xl shadow-md border border-gray-200">
+             <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4">
+               <Heart className="h-6 w-6 text-white" />
+             </div>
+             <h3 className="text-lg font-semibold text-gray-900 mb-2">{t("faithbot.features.prayerGuidance")}</h3>
+             <p className="text-gray-600">{t("faithbot.features.prayerGuidanceDesc")}</p>
+           </div>
+           
+           <div className="text-center p-6 bg-white rounded-xl shadow-md border border-gray-200">
+             <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4">
+               <MessageCircle className="h-6 w-6 text-white" />
+             </div>
+             <h3 className="text-lg font-semibold text-gray-900 mb-2">{t("faithbot.features.creativeContent")}</h3>
+             <p className="text-gray-600">{t("faithbot.features.creativeContentDesc")}</p>
+           </div>
+         </div>
       </div>
     </div>
   )

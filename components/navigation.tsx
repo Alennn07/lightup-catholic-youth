@@ -7,6 +7,7 @@ import { Heart, Menu, X, ChevronDown, User, LogOut, Settings, LayoutDashboard } 
 import { motion, AnimatePresence } from "framer-motion"
 import { useAuth } from "@/contexts/auth-context"
 import { logIfEnabled } from "@/lib/performance-monitor"
+import { LanguageSwitcher } from "@/components/language-switcher"
 
 export function Navigation() {
   const [isOpen, setIsOpen] = useState(false)
@@ -90,6 +91,7 @@ export function Navigation() {
 
           {/* Desktop Auth & Profile */}
           <div className="hidden md:flex items-center space-x-3">
+            <LanguageSwitcher />
             {isLoading ? (
               <div className="flex items-center space-x-3">
                 <div className="w-8 h-8 bg-gray-200 rounded-full animate-pulse"></div>

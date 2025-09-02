@@ -232,20 +232,40 @@ FINAL FORMATTING CHECK: Before sending your response, make sure it has:
 }
 
 // Error messages that match FaithBot's personality
-const ERROR_MESSAGES = [
-  "Oops! 🙈 FaithBot got a bit distracted. Try asking again?",
-  "Something went wrong! 😅 Can you try again?",
-  "FaithBot is having a moment! 🙏 Give it another shot?",
-  "Technical difficulties! 😤 Try again in a sec?",
-  "FaithBot needs a quick reset! 🔄 Ask me again?"
-];
+const ERROR_MESSAGES = {
+  en: [
+    "Oops! 🙈 FaithBot got a bit distracted. Try asking again?",
+    "Something went wrong! 😅 Can you try again?",
+    "FaithBot is having a moment! 🙏 Give it another shot?",
+    "Technical difficulties! 😤 Try again in a sec?",
+    "FaithBot needs a quick reset! 🔄 Ask me again?"
+  ],
+  gu: [
+    "ઓહ! 🙈 ફેઇથબોટ થોડો વિચલિત થઈ ગયો. ફરી પૂછવાનો પ્રયાસ કરો?",
+    "કંઈક ખોટું થયું! 😅 શું તમે ફરી પ્રયાસ કરી શકો છો?",
+    "ફેઇથબોટને એક ક્ષણ લાગી! 🙏 ફરી એક વાર પ્રયાસ કરો?",
+    "ટેક્નિકલ મુશ્કેલીઓ! 😤 એક સેકન્ડમાં ફરી પ્રયાસ કરો?",
+    "ફેઇથબોટને ઝડપી રીસેટની જરૂર છે! 🔄 મને ફરી પૂછો?"
+  ],
+  hi: [
+    "ओह! 🙈 फेथबॉट थोड़ा विचलित हो गया। फिर से पूछने का प्रयास करें?",
+    "कुछ गलत हुआ! 😅 क्या आप फिर से प्रयास कर सकते हैं?",
+    "फेथबॉट को एक क्षण लगा! 🙏 फिर से एक बार प्रयास करें?",
+    "तकनीकी कठिनाइयां! 😤 एक सेकंड में फिर से प्रयास करें?",
+    "फेथबॉट को त्वरित रीसेट की आवश्यकता है! 🔄 मुझसे फिर से पूछें?"
+  ]
+};
 
 // Get random error message
-function getRandomErrorMessage(): string {
-  return ERROR_MESSAGES[Math.floor(Math.random() * ERROR_MESSAGES.length)];
+function getRandomErrorMessage(language: string = 'en'): string {
+  const lang = language as keyof typeof ERROR_MESSAGES;
+  const messages = ERROR_MESSAGES[lang] || ERROR_MESSAGES.en;
+  return messages[Math.floor(Math.random() * messages.length)];
 }
 
 export async function POST(request: Request) {
+  let language = 'en'; // Default language
+  
   try {
     console.log("FaithBot: POST request received - AI VERSION - TESTING CACHE CLEAR");
     
@@ -256,8 +276,11 @@ export async function POST(request: Request) {
       mode = 'chat', // chat, prayer, bible-study, sermon-writer, youth-content
       context = 'general', // general, sacramental, pastoral, educational
       tone = 'casual', // casual, formal, encouraging, reflective
-      length = 'medium' // short, medium, long
+      length = 'medium', // short, medium, long
+      language: requestLanguage = 'en' // en, gu, hi
     } = await request.json();
+    
+    language = requestLanguage; // Set the language variable
     
     console.log("FaithBot: Message received:", message);
     console.log("FaithBot: Mode:", mode);
@@ -267,8 +290,13 @@ export async function POST(request: Request) {
     console.log("FaithBot: Conversation history:", conversationHistory);
     
     if (!message || typeof message !== 'string') {
+      const errorMessages = {
+        en: "I need a message to chat with you! 🙏 Please type something.",
+        gu: "તમારી સાથે ચેટ કરવા માટે મને એક સંદેશની જરૂર છે! 🙏 કૃપા કરીને કંઈક લખો.",
+        hi: "आपके साथ चैट करने के लिए मुझे एक संदेश की आवश्यकता है! 🙏 कृपया कुछ टाइप करें।"
+      };
       return NextResponse.json(
-        { error: "I need a message to chat with you! 🙏 Please type something." },
+        { error: errorMessages[language as keyof typeof errorMessages] || errorMessages.en },
         { status: 400 }
       );
     }
@@ -282,8 +310,13 @@ export async function POST(request: Request) {
     
     if (!apiKey) {
       console.error("FaithBot: Missing GEMINI_API_KEY environment variable");
+      const errorMessages = {
+        en: "FaithBot is still getting set up! 🙏 Check back soon!",
+        gu: "ફેઇથબોટ હજુ સેટઅપ થઈ રહ્યો છે! 🙏 ટૂંક સમયમાં ફરી તપાસો!",
+        hi: "फेथबॉट अभी भी सेटअप हो रहा है! 🙏 जल्द ही वापस जांचें!"
+      };
       return NextResponse.json(
-        { error: "FaithBot is still getting set up! 🙏 Check back soon!" },
+        { error: errorMessages[language as keyof typeof errorMessages] || errorMessages.en },
         { status: 500 }
       );
     }
@@ -378,7 +411,7 @@ export async function POST(request: Request) {
     console.error("FaithBot API Error Message:", (error as Error).message);
     
     return NextResponse.json({
-      response: getRandomErrorMessage(),
+      response: getRandomErrorMessage(language),
       timestamp: new Date().toISOString(),
       success: false,
       error: process.env.NODE_ENV === 'development' ? (error as Error).message : undefined
