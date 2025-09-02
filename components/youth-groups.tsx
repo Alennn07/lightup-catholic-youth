@@ -14,6 +14,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Search, Users, MapPin, Calendar, Plus, Settings, MessageSquare, Heart, X, Edit, Trash2, Globe, RefreshCw } from 'lucide-react'
 import { logIfEnabled } from "@/lib/performance-monitor"
+import { useTranslation } from "@/lib/i18n"
 
 interface YouthGroup {
   id: string
@@ -51,6 +52,7 @@ interface YouthGroup {
 }
 
 export default function YouthGroups() {
+  const { t } = useTranslation()
   const { user, getAccessToken } = useAuth()
   const { toast } = useToast()
   const [groups, setGroups] = useState<YouthGroup[]>([])

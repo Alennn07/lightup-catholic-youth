@@ -142,6 +142,174 @@ export interface Translations {
     failedToRemove: string;
     authenticationError: string;
   };
+  
+  // Homepage
+  homepage: {
+    hero: {
+      title: string;
+      subtitle: string;
+      getStarted: string;
+      exploreFeatures: string;
+      joinCommunity: string;
+    };
+    features: {
+      title: string;
+      subtitle: string;
+      prayerWall: string;
+      prayerWallDesc: string;
+      youthGroups: string;
+      youthGroupsDesc: string;
+      dailyBible: string;
+      dailyBibleDesc: string;
+      faithBot: string;
+      faithBotDesc: string;
+      faithJournal: string;
+      faithJournalDesc: string;
+      faithQuiz: string;
+      faithQuizDesc: string;
+      liturgicalCalendar: string;
+      liturgicalCalendarDesc: string;
+    };
+    testimonials: {
+      title: string;
+      subtitle: string;
+      beFirst: string;
+      beFirstDesc: string;
+    };
+    stats: {
+      users: string;
+      prayers: string;
+      groups: string;
+      countries: string;
+    };
+  };
+  
+  // About Page
+  about: {
+    title: string;
+    subtitle: string;
+    mission: {
+      title: string;
+      description: string;
+    };
+    values: {
+      title: string;
+      faithCentered: {
+        title: string;
+        description: string;
+      };
+      communityDriven: {
+        title: string;
+        description: string;
+      };
+      globallyConnected: {
+        title: string;
+        description: string;
+      };
+      safeSecure: {
+        title: string;
+        description: string;
+      };
+    };
+    team: {
+      title: string;
+      subtitle: string;
+    };
+  };
+  
+  // Features Page
+  features: {
+    title: string;
+    subtitle: string;
+    comingSoon: string;
+    beta: string;
+  };
+  
+  // Community Page
+  community: {
+    title: string;
+    subtitle: string;
+    joinNow: string;
+    createAccount: string;
+  };
+  
+  // Dashboard
+  dashboard: {
+    title: string;
+    welcome: string;
+    quickActions: string;
+    recentActivity: string;
+    noActivity: string;
+  };
+  
+  // Prayer Wall
+  prayerWall: {
+    title: string;
+    subtitle: string;
+    addRequest: string;
+    prayFor: string;
+    recentRequests: string;
+    noRequests: string;
+    requestPlaceholder: string;
+    submitRequest: string;
+  };
+  
+  // Daily Bible Verse
+  dailyBible: {
+    title: string;
+    subtitle: string;
+    todaysVerse: string;
+    reflection: string;
+    shareVerse: string;
+    previousVerse: string;
+    nextVerse: string;
+  };
+  
+  // Faith Journal
+  faithJournal: {
+    title: string;
+    subtitle: string;
+    newEntry: string;
+    writeEntry: string;
+    saveEntry: string;
+    myEntries: string;
+    noEntries: string;
+  };
+  
+  // Faith Quiz
+  faithQuiz: {
+    title: string;
+    subtitle: string;
+    startQuiz: string;
+    question: string;
+    nextQuestion: string;
+    finishQuiz: string;
+    yourScore: string;
+    retakeQuiz: string;
+  };
+  
+  // Liturgical Calendar
+  liturgicalCalendar: {
+    title: string;
+    subtitle: string;
+    currentSeason: string;
+    today: string;
+    upcoming: string;
+  };
+  
+  // Settings
+  settings: {
+    title: string;
+    profile: string;
+    account: string;
+    preferences: string;
+    privacy: string;
+    notifications: string;
+    language: string;
+    theme: string;
+    saveChanges: string;
+    changesSaved: string;
+  };
 }
 
 // English translations
@@ -276,6 +444,152 @@ const en: Translations = {
     failedToAdd: "Failed to add member",
     failedToRemove: "Failed to remove member",
     authenticationError: "Authentication Error",
+  },
+  homepage: {
+    hero: {
+      title: "A place for Catholic youth to connect and grow",
+      subtitle: "Share prayers, find community, explore your faith, and connect with other young Catholics around the world.",
+      getStarted: "Get Started",
+      exploreFeatures: "Explore Features",
+      joinCommunity: "Join Community",
+    },
+    features: {
+      title: "Features",
+      subtitle: "Everything you need to grow in your Catholic faith",
+      prayerWall: "Prayer Wall",
+      prayerWallDesc: "Share prayer requests and pray for others in your Catholic youth community.",
+      youthGroups: "Youth Group Finder",
+      youthGroupsDesc: "Discover and connect with Catholic youth groups in your area.",
+      dailyBible: "Daily Bible Verse",
+      dailyBibleDesc: "Start each day with inspiring scripture and thoughtful reflections.",
+      faithBot: "FaithBot AI",
+      faithBotDesc: "Your Catholic ChatGPT! Get answers, prayers, and spiritual guidance.",
+      faithJournal: "Faith Journal",
+      faithJournalDesc: "Reflect on your spiritual journey with private journaling.",
+      faithQuiz: "Faith Quiz",
+      faithQuizDesc: "Test your knowledge and learn more about Catholic teachings.",
+      liturgicalCalendar: "Liturgical Calendar",
+      liturgicalCalendarDesc: "Stay connected to the Church's liturgical seasons and feasts.",
+    },
+    testimonials: {
+      title: "What Our Community Says",
+      subtitle: "Join thousands of young Catholics growing in faith together",
+      beFirst: "Be the first!",
+      beFirstDesc: "Share your experience and inspire others. Be the first to leave a testimonial!",
+    },
+    stats: {
+      users: "Active Users",
+      prayers: "Prayers Shared",
+      groups: "Youth Groups",
+      countries: "Countries",
+    },
+  },
+  about: {
+    title: "About LightUp",
+    subtitle: "Empowering Catholic youth to grow in faith and community",
+    mission: {
+      title: "Our Mission",
+      description: "To create a vibrant online community where Catholic youth can connect, grow in faith, and support each other on their spiritual journey.",
+    },
+    values: {
+      title: "Our Values",
+      faithCentered: {
+        title: "Faith-Centered",
+        description: "Everything we do is rooted in Catholic teachings and values, helping young people grow closer to God.",
+      },
+      communityDriven: {
+        title: "Community-Driven",
+        description: "We believe in the power of community and connection to strengthen faith and build lasting friendships.",
+      },
+      globallyConnected: {
+        title: "Globally Connected",
+        description: "Connecting Catholic youth from around the world, transcending geographical boundaries.",
+      },
+      safeSecure: {
+        title: "Safe & Secure",
+        description: "Providing a safe, moderated environment where young Catholics can share and grow together.",
+      },
+    },
+    team: {
+      title: "Our Team",
+      subtitle: "Passionate Catholics dedicated to serving the youth community",
+    },
+  },
+  features: {
+    title: "Features",
+    subtitle: "Everything you need to grow in your Catholic faith",
+    comingSoon: "Coming Soon",
+    beta: "Beta",
+  },
+  community: {
+    title: "Community",
+    subtitle: "Connect with Catholic youth from around the world",
+    joinNow: "Join Now",
+    createAccount: "Create Account",
+  },
+  dashboard: {
+    title: "Dashboard",
+    welcome: "Welcome back",
+    quickActions: "Quick Actions",
+    recentActivity: "Recent Activity",
+    noActivity: "No recent activity",
+  },
+  prayerWall: {
+    title: "Prayer Wall",
+    subtitle: "Share your prayer requests and pray for others",
+    addRequest: "Add Prayer Request",
+    prayFor: "Pray for",
+    recentRequests: "Recent Prayer Requests",
+    noRequests: "No prayer requests yet",
+    requestPlaceholder: "Share your prayer request...",
+    submitRequest: "Submit Request",
+  },
+  dailyBible: {
+    title: "Daily Bible Verse",
+    subtitle: "Start your day with God's word",
+    todaysVerse: "Today's Verse",
+    reflection: "Reflection",
+    shareVerse: "Share Verse",
+    previousVerse: "Previous",
+    nextVerse: "Next",
+  },
+  faithJournal: {
+    title: "Faith Journal",
+    subtitle: "Reflect on your spiritual journey",
+    newEntry: "New Entry",
+    writeEntry: "Write your thoughts...",
+    saveEntry: "Save Entry",
+    myEntries: "My Entries",
+    noEntries: "No entries yet",
+  },
+  faithQuiz: {
+    title: "Faith Quiz",
+    subtitle: "Test your knowledge of Catholic teachings",
+    startQuiz: "Start Quiz",
+    question: "Question",
+    nextQuestion: "Next Question",
+    finishQuiz: "Finish Quiz",
+    yourScore: "Your Score",
+    retakeQuiz: "Retake Quiz",
+  },
+  liturgicalCalendar: {
+    title: "Liturgical Calendar",
+    subtitle: "Stay connected to the Church's seasons",
+    currentSeason: "Current Season",
+    today: "Today",
+    upcoming: "Upcoming",
+  },
+  settings: {
+    title: "Settings",
+    profile: "Profile",
+    account: "Account",
+    preferences: "Preferences",
+    privacy: "Privacy",
+    notifications: "Notifications",
+    language: "Language",
+    theme: "Theme",
+    saveChanges: "Save Changes",
+    changesSaved: "Changes saved successfully",
   },
 };
 
@@ -412,6 +726,152 @@ const gu: Translations = {
     failedToRemove: "સભ્ય દૂર કરવામાં નિષ્ફળ",
     authenticationError: "ઓથેન્ટિકેશન ભૂલ",
   },
+  homepage: {
+    hero: {
+      title: "કેથોલિક યુવાઓ માટે જોડાણ અને વિકાસનું સ્થાન",
+      subtitle: "પ્રાર્થના શેર કરો, સમુદાય શોધો, તમારા વિશ્વાસનું અન્વેષણ કરો, અને વિશ્વભરના અન્ય યુવા કેથોલિકો સાથે જોડાઓ.",
+      getStarted: "શરૂ કરો",
+      exploreFeatures: "વિશેષતાઓ અન્વેષો",
+      joinCommunity: "સમુદાયમાં જોડાઓ",
+    },
+    features: {
+      title: "વિશેષતાઓ",
+      subtitle: "તમારા કેથોલિક વિશ્વાસમાં વિકાસ માટે જરૂરી બધું",
+      prayerWall: "પ્રાર્થના દિવાલ",
+      prayerWallDesc: "તમારા કેથોલિક યુવા સમુદાયમાં પ્રાર્થના વિનંતીઓ શેર કરો અને અન્યો માટે પ્રાર્થના કરો.",
+      youthGroups: "યુવા જૂથ શોધક",
+      youthGroupsDesc: "તમારા વિસ્તારમાં કેથોલિક યુવા જૂથો શોધો અને જોડાઓ.",
+      dailyBible: "દૈનિક બાઇબલ શ્લોક",
+      dailyBibleDesc: "પ્રેરણાદાયક શાસ્ત્ર અને વિચારશીલ પ્રતિબિંબો સાથે દરેક દિવસ શરૂ કરો.",
+      faithBot: "ફેઇથબોટ AI",
+      faithBotDesc: "તમારો કેથોલિક ChatGPT! જવાબો, પ્રાર્થના અને આધ્યાત્મિક માર્ગદર્શન મેળવો.",
+      faithJournal: "વિશ્વાસ જર્નલ",
+      faithJournalDesc: "ખાનગી જર્નલિંગ સાથે તમારી આધ્યાત્મિક યાત્રા પર પ્રતિબિંબિત કરો.",
+      faithQuiz: "વિશ્વાસ ક્વિઝ",
+      faithQuizDesc: "કેથોલિક શિક્ષણો વિશે તમારું જ્ઞાન ચકાસો અને વધુ શીખો.",
+      liturgicalCalendar: "લિટર્જિકલ કેલેન્ડર",
+      liturgicalCalendarDesc: "ચર્ચના લિટર્જિકલ સીઝન અને તહેવારો સાથે જોડાયેલા રહો.",
+    },
+    testimonials: {
+      title: "અમારો સમુદાય શું કહે છે",
+      subtitle: "હજારો યુવા કેથોલિકો સાથે વિશ્વાસમાં વિકાસ કરવા જોડાઓ",
+      beFirst: "પહેલા બનો!",
+      beFirstDesc: "તમારો અનુભવ શેર કરો અને અન્યોને પ્રેરિત કરો. પહેલા પ્રશંસાપત્ર આપવા બનો!",
+    },
+    stats: {
+      users: "સક્રિય વપરાશકર્તાઓ",
+      prayers: "શેર કરેલી પ્રાર્થના",
+      groups: "યુવા જૂથો",
+      countries: "દેશો",
+    },
+  },
+  about: {
+    title: "લાઇટઅપ વિશે",
+    subtitle: "કેથોલિક યુવાઓને વિશ્વાસ અને સમુદાયમાં વિકાસ કરવા માટે સશક્ત બનાવવું",
+    mission: {
+      title: "અમારું મિશન",
+      description: "એક જીવંત ઓનલાઇન સમુદાય બનાવવું જ્યાં કેથોલિક યુવાઓ જોડાઈ શકે, વિશ્વાસમાં વિકાસ કરી શકે, અને તેમની આધ્યાત્મિક યાત્રામાં એકબીજાને સહાય કરી શકે.",
+    },
+    values: {
+      title: "અમારા મૂલ્યો",
+      faithCentered: {
+        title: "વિશ્વાસ-કેન્દ્રિત",
+        description: "અમે જે કરીએ છીએ તે બધું કેથોલિક શિક્ષણો અને મૂલ્યોમાં મૂળ ધરાવે છે, યુવાઓને ભગવાનની નજીક વિકાસ કરવામાં મદદ કરે છે.",
+      },
+      communityDriven: {
+        title: "સમુદાય-ચાલિત",
+        description: "અમે વિશ્વાસને મજબૂત બનાવવા અને ટકાઉ મિત્રતા બનાવવા માટે સમુદાય અને જોડાણની શક્તિમાં વિશ્વાસ કરીએ છીએ.",
+      },
+      globallyConnected: {
+        title: "વૈશ્વિક રીતે જોડાયેલા",
+        description: "વિશ્વભરના કેથોલિક યુવાઓને જોડવા, ભૌગોલિક સીમાઓને પાર કરીને.",
+      },
+      safeSecure: {
+        title: "સુરક્ષિત અને સુરક્ષિત",
+        description: "યુવા કેથોલિકો શેર કરી શકે અને એકસાથે વિકાસ કરી શકે તેવું સુરક્ષિત, મધ્યસ્થ વાતાવરણ પ્રદાન કરવું.",
+      },
+    },
+    team: {
+      title: "અમારી ટીમ",
+      subtitle: "યુવા સમુદાયની સેવા કરવા માટે ઉત્સાહી કેથોલિકો",
+    },
+  },
+  features: {
+    title: "વિશેષતાઓ",
+    subtitle: "તમારા કેથોલિક વિશ્વાસમાં વિકાસ માટે જરૂરી બધું",
+    comingSoon: "ટૂંક સમયમાં આવી રહ્યું છે",
+    beta: "બીટા",
+  },
+  community: {
+    title: "સમુદાય",
+    subtitle: "વિશ્વભરના કેથોલિક યુવાઓ સાથે જોડાઓ",
+    joinNow: "હવે જોડાઓ",
+    createAccount: "એકાઉન્ટ બનાવો",
+  },
+  dashboard: {
+    title: "ડેશબોર્ડ",
+    welcome: "પાછા આવ્યા છો",
+    quickActions: "ઝડપી ક્રિયાઓ",
+    recentActivity: "તાજેતરની પ્રવૃત્તિ",
+    noActivity: "તાજેતરની કોઈ પ્રવૃત્તિ નથી",
+  },
+  prayerWall: {
+    title: "પ્રાર્થના દિવાલ",
+    subtitle: "તમારી પ્રાર્થના વિનંતીઓ શેર કરો અને અન્યો માટે પ્રાર્થના કરો",
+    addRequest: "પ્રાર્થના વિનંતી ઉમેરો",
+    prayFor: "માટે પ્રાર્થના કરો",
+    recentRequests: "તાજેતરની પ્રાર્થના વિનંતીઓ",
+    noRequests: "હજુ સુધી કોઈ પ્રાર્થના વિનંતીઓ નથી",
+    requestPlaceholder: "તમારી પ્રાર્થના વિનંતી શેર કરો...",
+    submitRequest: "વિનંતી સબમિટ કરો",
+  },
+  dailyBible: {
+    title: "દૈનિક બાઇબલ શ્લોક",
+    subtitle: "ભગવાનના શબ્દ સાથે તમારો દિવસ શરૂ કરો",
+    todaysVerse: "આજનો શ્લોક",
+    reflection: "પ્રતિબિંબ",
+    shareVerse: "શ્લોક શેર કરો",
+    previousVerse: "પહેલાં",
+    nextVerse: "આગળ",
+  },
+  faithJournal: {
+    title: "વિશ્વાસ જર્નલ",
+    subtitle: "તમારી આધ્યાત્મિક યાત્રા પર પ્રતિબિંબિત કરો",
+    newEntry: "નવી એન્ટ્રી",
+    writeEntry: "તમારા વિચારો લખો...",
+    saveEntry: "એન્ટ્રી સેવ કરો",
+    myEntries: "મારી એન્ટ્રીઓ",
+    noEntries: "હજુ સુધી કોઈ એન્ટ્રીઓ નથી",
+  },
+  faithQuiz: {
+    title: "વિશ્વાસ ક્વિઝ",
+    subtitle: "કેથોલિક શિક્ષણો વિશે તમારું જ્ઞાન ચકાસો",
+    startQuiz: "ક્વિઝ શરૂ કરો",
+    question: "પ્રશ્ન",
+    nextQuestion: "આગળનો પ્રશ્ન",
+    finishQuiz: "ક્વિઝ પૂરી કરો",
+    yourScore: "તમારો સ્કોર",
+    retakeQuiz: "ક્વિઝ ફરી લો",
+  },
+  liturgicalCalendar: {
+    title: "લિટર્જિકલ કેલેન્ડર",
+    subtitle: "ચર્ચના સીઝન સાથે જોડાયેલા રહો",
+    currentSeason: "વર્તમાન સીઝન",
+    today: "આજે",
+    upcoming: "આગામી",
+  },
+  settings: {
+    title: "સેટિંગ્સ",
+    profile: "પ્રોફાઇલ",
+    account: "એકાઉન્ટ",
+    preferences: "પસંદગીઓ",
+    privacy: "ગોપનીયતા",
+    notifications: "સૂચનાઓ",
+    language: "ભાષા",
+    theme: "થીમ",
+    saveChanges: "ફેરફારો સેવ કરો",
+    changesSaved: "ફેરફારો સફળતાપૂર્વક સેવ થયા",
+  },
 };
 
 // Hindi translations
@@ -546,6 +1006,152 @@ const hi: Translations = {
     failedToAdd: "सदस्य जोड़ने में विफल",
     failedToRemove: "सदस्य हटाने में विफल",
     authenticationError: "प्रमाणीकरण त्रुटि",
+  },
+  homepage: {
+    hero: {
+      title: "कैथोलिक युवाओं के लिए जुड़ने और बढ़ने का स्थान",
+      subtitle: "प्रार्थना साझा करें, समुदाय खोजें, अपने विश्वास का अन्वेषण करें, और दुनिया भर के अन्य युवा कैथोलिकों से जुड़ें।",
+      getStarted: "शुरू करें",
+      exploreFeatures: "विशेषताएं अन्वेषण करें",
+      joinCommunity: "समुदाय में शामिल हों",
+    },
+    features: {
+      title: "विशेषताएं",
+      subtitle: "अपने कैथोलिक विश्वास में बढ़ने के लिए आवश्यक सब कुछ",
+      prayerWall: "प्रार्थना दीवार",
+      prayerWallDesc: "अपने कैथोलिक युवा समुदाय में प्रार्थना अनुरोध साझा करें और दूसरों के लिए प्रार्थना करें।",
+      youthGroups: "युवा समूह खोजक",
+      youthGroupsDesc: "अपने क्षेत्र में कैथोलिक युवा समूहों की खोज करें और जुड़ें।",
+      dailyBible: "दैनिक बाइबल छंद",
+      dailyBibleDesc: "प्रेरणादायक शास्त्र और विचारशील प्रतिबिंबों के साथ हर दिन शुरू करें।",
+      faithBot: "फेथबॉट AI",
+      faithBotDesc: "आपका कैथोलिक ChatGPT! जवाब, प्रार्थना और आध्यात्मिक मार्गदर्शन प्राप्त करें।",
+      faithJournal: "विश्वास जर्नल",
+      faithJournalDesc: "निजी जर्नलिंग के साथ अपनी आध्यात्मिक यात्रा पर प्रतिबिंबित करें।",
+      faithQuiz: "विश्वास क्विज",
+      faithQuizDesc: "कैथोलिक शिक्षाओं के बारे में अपना ज्ञान परखें और अधिक सीखें।",
+      liturgicalCalendar: "लीटर्जिकल कैलेंडर",
+      liturgicalCalendarDesc: "चर्च के लीटर्जिकल सीज़न और पर्वों से जुड़े रहें।",
+    },
+    testimonials: {
+      title: "हमारा समुदाय क्या कहता है",
+      subtitle: "हजारों युवा कैथोलिकों के साथ विश्वास में बढ़ने के लिए जुड़ें",
+      beFirst: "पहले बनें!",
+      beFirstDesc: "अपना अनुभव साझा करें और दूसरों को प्रेरित करें। पहले प्रशंसापत्र देने वाले बनें!",
+    },
+    stats: {
+      users: "सक्रिय उपयोगकर्ता",
+      prayers: "साझा की गई प्रार्थनाएं",
+      groups: "युवा समूह",
+      countries: "देश",
+    },
+  },
+  about: {
+    title: "लाइटअप के बारे में",
+    subtitle: "कैथोलिक युवाओं को विश्वास और समुदाय में बढ़ने के लिए सशक्त बनाना",
+    mission: {
+      title: "हमारा मिशन",
+      description: "एक जीवंत ऑनलाइन समुदाय बनाना जहां कैथोलिक युवा जुड़ सकें, विश्वास में बढ़ सकें, और अपनी आध्यात्मिक यात्रा में एक-दूसरे की मदद कर सकें।",
+    },
+    values: {
+      title: "हमारे मूल्य",
+      faithCentered: {
+        title: "विश्वास-केंद्रित",
+        description: "हम जो कुछ भी करते हैं वह कैथोलिक शिक्षाओं और मूल्यों में निहित है, युवाओं को भगवान के करीब बढ़ने में मदद करता है।",
+      },
+      communityDriven: {
+        title: "समुदाय-चालित",
+        description: "हम विश्वास को मजबूत बनाने और स्थायी मित्रता बनाने के लिए समुदाय और जुड़ाव की शक्ति में विश्वास करते हैं।",
+      },
+      globallyConnected: {
+        title: "वैश्विक रूप से जुड़े",
+        description: "दुनिया भर के कैथोलिक युवाओं को जोड़ना, भौगोलिक सीमाओं को पार करके।",
+      },
+      safeSecure: {
+        title: "सुरक्षित और सुरक्षित",
+        description: "एक सुरक्षित, मध्यस्थ वातावरण प्रदान करना जहां युवा कैथोलिक साझा कर सकें और एक साथ बढ़ सकें।",
+      },
+    },
+    team: {
+      title: "हमारी टीम",
+      subtitle: "युवा समुदाय की सेवा के लिए समर्पित उत्साही कैथोलिक",
+    },
+  },
+  features: {
+    title: "विशेषताएं",
+    subtitle: "अपने कैथोलिक विश्वास में बढ़ने के लिए आवश्यक सब कुछ",
+    comingSoon: "जल्द आ रहा है",
+    beta: "बीटा",
+  },
+  community: {
+    title: "समुदाय",
+    subtitle: "दुनिया भर के कैथोलिक युवाओं से जुड़ें",
+    joinNow: "अभी जुड़ें",
+    createAccount: "खाता बनाएं",
+  },
+  dashboard: {
+    title: "डैशबोर्ड",
+    welcome: "वापस स्वागत है",
+    quickActions: "त्वरित क्रियाएं",
+    recentActivity: "हाल की गतिविधि",
+    noActivity: "कोई हाल की गतिविधि नहीं",
+  },
+  prayerWall: {
+    title: "प्रार्थना दीवार",
+    subtitle: "अपने प्रार्थना अनुरोध साझा करें और दूसरों के लिए प्रार्थना करें",
+    addRequest: "प्रार्थना अनुरोध जोड़ें",
+    prayFor: "के लिए प्रार्थना करें",
+    recentRequests: "हाल के प्रार्थना अनुरोध",
+    noRequests: "अभी तक कोई प्रार्थना अनुरोध नहीं",
+    requestPlaceholder: "अपना प्रार्थना अनुरोध साझा करें...",
+    submitRequest: "अनुरोध सबमिट करें",
+  },
+  dailyBible: {
+    title: "दैनिक बाइबल छंद",
+    subtitle: "भगवान के वचन के साथ अपना दिन शुरू करें",
+    todaysVerse: "आज का छंद",
+    reflection: "प्रतिबिंब",
+    shareVerse: "छंद साझा करें",
+    previousVerse: "पिछला",
+    nextVerse: "अगला",
+  },
+  faithJournal: {
+    title: "विश्वास जर्नल",
+    subtitle: "अपनी आध्यात्मिक यात्रा पर प्रतिबिंबित करें",
+    newEntry: "नई प्रविष्टि",
+    writeEntry: "अपने विचार लिखें...",
+    saveEntry: "प्रविष्टि सहेजें",
+    myEntries: "मेरी प्रविष्टियां",
+    noEntries: "अभी तक कोई प्रविष्टि नहीं",
+  },
+  faithQuiz: {
+    title: "विश्वास क्विज",
+    subtitle: "कैथोलिक शिक्षाओं के बारे में अपना ज्ञान परखें",
+    startQuiz: "क्विज शुरू करें",
+    question: "प्रश्न",
+    nextQuestion: "अगला प्रश्न",
+    finishQuiz: "क्विज समाप्त करें",
+    yourScore: "आपका स्कोर",
+    retakeQuiz: "क्विज फिर से लें",
+  },
+  liturgicalCalendar: {
+    title: "लीटर्जिकल कैलेंडर",
+    subtitle: "चर्च के सीज़न से जुड़े रहें",
+    currentSeason: "वर्तमान सीज़न",
+    today: "आज",
+    upcoming: "आगामी",
+  },
+  settings: {
+    title: "सेटिंग्स",
+    profile: "प्रोफाइल",
+    account: "खाता",
+    preferences: "प्राथमिकताएं",
+    privacy: "गोपनीयता",
+    notifications: "सूचनाएं",
+    language: "भाषा",
+    theme: "थीम",
+    saveChanges: "परिवर्तन सहेजें",
+    changesSaved: "परिवर्तन सफलतापूर्वक सहेजे गए",
   },
 };
 

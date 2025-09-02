@@ -8,6 +8,7 @@ import { Heart, Users, BookOpen } from "lucide-react"
 import { CommunitySection } from "@/components/community-section"
 import { SimpleFooter } from "@/components/simple-footer"
 import { supabase } from "@/lib/supabase"
+import { useTranslation } from "@/lib/i18n"
 
 interface Feature {
   id: string
@@ -31,6 +32,7 @@ interface Testimonial {
 }
 
 export default function HomePage() {
+  const { t } = useTranslation()
   const [features, setFeatures] = useState<Feature[]>([])
   const [testimonials, setTestimonials] = useState<Testimonial[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -85,8 +87,8 @@ export default function HomePage() {
         setFeatures([
           {
             id: "prayer-wall",
-            name: "Prayer Wall",
-            description: "Share prayer requests and pray for others in your Catholic youth community.",
+            name: t("homepage.features.prayerWall"),
+            description: t("homepage.features.prayerWallDesc"),
             icon: Heart,
             color: "from-pink-500 to-rose-500",
             userCount: 0,
@@ -96,8 +98,8 @@ export default function HomePage() {
           },
           {
             id: "youth-groups",
-            name: "Youth Group Finder",
-            description: "Discover and connect with Catholic youth groups in your area.",
+            name: t("homepage.features.youthGroups"),
+            description: t("homepage.features.youthGroupsDesc"),
             icon: Users,
             color: "from-blue-500 to-cyan-500",
             userCount: 0,
@@ -107,8 +109,8 @@ export default function HomePage() {
           },
           {
             id: "daily-bible-verse",
-            name: "Daily Bible Verse",
-            description: "Start each day with inspiring scripture and thoughtful reflections.",
+            name: t("homepage.features.dailyBible"),
+            description: t("homepage.features.dailyBibleDesc"),
             icon: BookOpen,
             color: "from-green-500 to-emerald-500",
             userCount: 0,
@@ -122,10 +124,10 @@ export default function HomePage() {
       if (!testimonialsData || testimonialsData.length === 0) {
         setTestimonials([
           {
-            name: "Be the first!",
+            name: t("homepage.testimonials.beFirst"),
             age: 0,
-            location: "Join our community",
-            testimonial: "Share your experience and inspire others. Be the first to leave a testimonial!",
+            location: t("homepage.testimonials.beFirstDesc"),
+            testimonial: t("homepage.testimonials.beFirstDesc"),
             rating: 0,
             image: "/placeholder-user.jpg",
           }

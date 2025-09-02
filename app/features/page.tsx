@@ -22,6 +22,7 @@ import {
 } from "lucide-react"
 import { supabase } from "@/lib/supabase"
 import { logIfEnabled } from "@/lib/performance-monitor"
+import { useTranslation } from "@/lib/i18n"
 
 interface Feature {
   id: string
@@ -36,6 +37,7 @@ interface Feature {
 }
 
 export default function FeaturesPage() {
+  const { t } = useTranslation()
   const [features, setFeatures] = useState<Feature[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [activeTab, setActiveTab] = useState("all")
@@ -305,11 +307,10 @@ export default function FeaturesPage() {
           className="text-center mb-16 mt-8"
         >
           <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-6">
-            Our Features
+            {t("features.title")}
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            Discover all the tools and features designed to help Catholic youth grow in faith, 
-            build community, and deepen their relationship with God.
+            {t("features.subtitle")}
           </p>
         </motion.div>
 

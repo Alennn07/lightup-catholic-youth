@@ -15,8 +15,10 @@ import { Heart, Mail, Lock, ArrowLeft, Eye, EyeOff, Sparkles } from "lucide-reac
 import { useToast } from "@/hooks/use-toast"
 import { useAuth } from "@/contexts/auth-context"
 import { logIfEnabled } from "@/lib/performance-monitor"
+import { useTranslation } from "@/lib/i18n"
 
 export default function SignInPage() {
+  const { t } = useTranslation()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
@@ -55,7 +57,7 @@ export default function SignInPage() {
       logIfEnabled(`Sign-in error: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error')
       
       // Handle specific error types
-      let errorTitle = "Sign in failed"
+      let errorTitle = t("auth.signInFailed")
       let errorDescription = "Please check your credentials and try again."
       
       if (error.message?.includes("Invalid login credentials")) {
@@ -138,8 +140,8 @@ export default function SignInPage() {
 
         <Card className="shadow-2xl border border-gray-200 bg-white/95 backdrop-blur-sm">
           <CardHeader className="text-center pb-4">
-            <CardTitle className="text-2xl font-bold text-gray-900">Welcome Back</CardTitle>
-            <CardDescription className="text-gray-600">Sign in to your LightUp account</CardDescription>
+            <CardTitle className="text-2xl font-bold text-gray-900">{t("auth.signIn")}</CardTitle>
+            <CardDescription className="text-gray-600">{t("auth.signIn")} to your LightUp account</CardDescription>
           </CardHeader>
           
           <CardContent className="space-y-6">
@@ -153,7 +155,7 @@ export default function SignInPage() {
               {isGoogleLoading ? (
                 <>
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-600 mr-3"></div>
-                  Signing in...
+                  {t("auth.signingIn")}...
                 </>
               ) : (
                 <>
@@ -192,12 +194,12 @@ export default function SignInPage() {
                 <div className="space-y-3">
                   <Label htmlFor="email" className="text-gray-700 font-medium text-sm">
                     <Mail className="h-4 w-4 inline mr-2" />
-                    Email
+                    {t("auth.email")}
                   </Label>
                   <Input
                     id="email"
                     type="email"
-                    placeholder="Enter your email"
+                    placeholder={t("auth.enterEmail")}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
@@ -208,13 +210,13 @@ export default function SignInPage() {
                 <div className="space-y-3">
                   <Label htmlFor="password" className="text-gray-700 font-medium text-sm">
                     <Lock className="h-4 w-4 inline mr-2" />
-                    Password
+                    {t("auth.password")}
                   </Label>
                   <div className="relative">
                     <Input
                       id="password"
                       type={showPassword ? "text" : "password"}
-                      placeholder="Enter your password"
+                      placeholder={t("auth.enterPassword")}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
@@ -238,7 +240,7 @@ export default function SignInPage() {
                   {isLoading ? (
                     <>
                       <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                      Signing in...
+                      {t("auth.signingIn")}...
                     </>
                   ) : (
                     "Sign In"

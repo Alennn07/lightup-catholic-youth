@@ -13,6 +13,7 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Heart, Users, BookOpen, MessageCircle, Calendar, Music, ArrowRight, MapPin, Clock, Star, Globe, Church, Cross, Lightbulb, Award, TrendingUp, Bookmark, Share2, ThumbsUp, MessageSquare, Plus, CheckCircle } from "lucide-react"
 import { logIfEnabled } from "@/lib/performance-monitor"
+import { useTranslation } from "@/lib/i18n"
 
 const communityStats = [
   { label: "Active Members", value: "2,847", icon: Users, color: "text-blue-600" },
@@ -136,6 +137,7 @@ const upcomingEvents = [
 ]
 
 export default function CommunityPage() {
+  const { t } = useTranslation()
   const { toast } = useToast()
   const { user, getAccessToken } = useAuth()
   const [groups, setGroups] = useState(featuredYouthGroups)
@@ -518,11 +520,10 @@ export default function CommunityPage() {
               <span className="text-blue-700 font-medium">Catholic Youth Community</span>
             </div>
             <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
-              Connect. Grow. <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Serve.</span>
+              {t("community.title")}
             </h1>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
-              Join thousands of Catholic youth across the country as we journey together in faith, 
-              build authentic friendships, and make a difference in our communities.
+              {t("community.subtitle")}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button 

@@ -17,6 +17,7 @@ import {
   PenTool
 } from "lucide-react"
 import { useAuth } from "@/contexts/auth-context"
+import { useTranslation } from "@/lib/i18n"
 
 interface UserStats {
   daysActive: number
@@ -27,6 +28,7 @@ interface UserStats {
 }
 
 export default function DashboardPage() {
+  const { t } = useTranslation()
   const { user, isLoading: authLoading } = useAuth()
   const router = useRouter()
   const [userStats, setUserStats] = useState<UserStats>({
@@ -92,10 +94,10 @@ export default function DashboardPage() {
         {/* Welcome Header */}
         <div className="text-center mb-12">
           <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
-            Welcome back, {userDisplayName}!
+            {t("dashboard.welcomeBack", { name: userDisplayName })}
           </h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
-            Continue your faith journey with our Catholic youth community
+            {t("dashboard.subtitle")}
           </p>
           
           {/* Streak Badge */}

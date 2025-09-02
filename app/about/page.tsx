@@ -5,33 +5,36 @@ import { BackToTop } from "@/components/back-to-top"
 import { SimpleFooter } from "@/components/simple-footer"
 import { Card, CardContent } from "@/components/ui/card"
 import { Heart, Users, Globe, Shield } from "lucide-react"
+import { useTranslation } from "@/lib/i18n"
 
-const values = [
-  {
-    icon: Heart,
-    title: "Faith-Centered",
-    description:
-      "Everything we do is rooted in Catholic teachings and values, helping young people grow closer to God.",
-  },
-  {
-    icon: Users,
-    title: "Community-Driven",
-    description:
-      "We believe in the power of community and connection to strengthen faith and build lasting friendships.",
-  },
-  {
-    icon: Globe,
-    title: "Globally Connected",
-    description: "Connecting Catholic youth from around the world, transcending geographical boundaries.",
-  },
-  {
-    icon: Shield,
-    title: "Safe & Secure",
-    description: "Providing a safe, moderated environment where young Catholics can share and grow together.",
-  },
-]
+// Values will be defined inside the component to use translations
 
 export default function AboutPage() {
+  const { t } = useTranslation()
+  
+  const values = [
+    {
+      icon: Heart,
+      title: t("about.values.faithCentered.title"),
+      description: t("about.values.faithCentered.description"),
+    },
+    {
+      icon: Users,
+      title: t("about.values.communityDriven.title"),
+      description: t("about.values.communityDriven.description"),
+    },
+    {
+      icon: Globe,
+      title: t("about.values.globallyConnected.title"),
+      description: t("about.values.globallyConnected.description"),
+    },
+    {
+      icon: Shield,
+      title: t("about.values.safeSecure.title"),
+      description: t("about.values.safeSecure.description"),
+    },
+  ]
+  
   return (
     <div className="min-h-screen bg-white">
       <Navigation />
@@ -40,10 +43,9 @@ export default function AboutPage() {
         <div className="container mx-auto px-4">
           {/* Header */}
           <div className="max-w-3xl mx-auto text-center mb-16">
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">About LightUp</h1>
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">{t("about.title")}</h1>
             <p className="text-lg text-gray-600 leading-relaxed">
-              LightUp was created to provide Catholic youth with a digital space to connect, grow in faith, and build
-              meaningful relationships with other young Catholics around the world.
+              {t("about.subtitle")}
             </p>
           </div>
 
@@ -51,10 +53,9 @@ export default function AboutPage() {
           <div className="max-w-4xl mx-auto mb-16">
             <Card className="bg-gray-50 border-0">
               <CardContent className="p-8 md:p-12 text-center">
-                <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-6">Our Mission</h2>
+                <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-6">{t("about.mission.title")}</h2>
                 <p className="text-lg text-gray-700 leading-relaxed">
-                  To empower Catholic youth to deepen their faith, build authentic community, and discover their purpose
-                  through meaningful connections and spiritual growth tools designed for the digital age.
+                  {t("about.mission.description")}
                 </p>
               </CardContent>
             </Card>
@@ -62,7 +63,7 @@ export default function AboutPage() {
 
           {/* Values */}
           <div className="mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 text-center mb-12">Our Values</h2>
+            <h2 className="text-3xl font-bold text-gray-900 text-center mb-12">{t("about.values.title")}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {values.map((value, index) => (
                 <Card key={index} className="bg-white border border-gray-100 shadow-sm">

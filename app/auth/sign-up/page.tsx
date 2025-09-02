@@ -11,8 +11,10 @@ import { Heart, Mail, Lock, User, Calendar, MapPin, Building, ArrowLeft, Eye, Ey
 import { useAuth } from "@/contexts/auth-context"
 import { useToast } from "@/hooks/use-toast"
 import { supabase } from "@/lib/supabase"
+import { useTranslation } from "@/lib/i18n"
 
 export default function SignUpPage() {
+  const { t } = useTranslation()
   const [formData, setFormData] = useState({
     name: "",
     username: "",
@@ -210,9 +212,9 @@ export default function SignUpPage() {
 
         <Card className="shadow-2xl border border-gray-200 bg-white/95 backdrop-blur-sm">
           <CardHeader className="text-center pb-4">
-            <CardTitle className="text-2xl font-bold text-gray-900">Create Account</CardTitle>
+            <CardTitle className="text-2xl font-bold text-gray-900">{t("auth.createAccount")}</CardTitle>
             <CardDescription className="text-gray-600">
-              Join LightUp and start your faith journey today
+              {t("auth.joinLightUp")}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-5">
@@ -220,7 +222,7 @@ export default function SignUpPage() {
               <div className="space-y-3">
                 <Label htmlFor="name" className="text-gray-700 font-medium text-sm">
                   <User className="h-4 w-4 inline mr-2" />
-                  Preferred Name
+                  {t("auth.preferredName")}
                 </Label>
                 <Input
                   id="name"
