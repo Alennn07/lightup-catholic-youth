@@ -162,15 +162,16 @@ BEGIN
         action_text := 'Practice Gratitude';
     END IF;
     
-    -- Insert or update daily insight
+    -- Insert or update daily insight (only if no active insight exists for today)
     INSERT INTO user_insights (user_id, insight_type, title, description, action_text, action_url, expires_at)
-    VALUES (user_uuid, 'daily_focus', insight_title, insight_description, action_text, '/prayer-wall', CURRENT_DATE + INTERVAL '1 day')
-    ON CONFLICT (user_id, insight_type, created_at::date) 
-    DO UPDATE SET
-        title = EXCLUDED.title,
-        description = EXCLUDED.description,
-        action_text = EXCLUDED.action_text,
-        updated_at = NOW();
+    SELECT user_uuid, 'daily_focus', insight_title, insight_description, action_text, '/prayer-wall', CURRENT_DATE + INTERVAL '1 day'
+    WHERE NOT EXISTS (
+        SELECT 1 FROM user_insights 
+        WHERE user_id = user_uuid 
+        AND insight_type = 'daily_focus' 
+        AND created_at::date = CURRENT_DATE
+        AND is_active = true
+    );
     
     -- Generate weekly challenge if it's Monday or no active challenge exists
     IF EXTRACT(DOW FROM CURRENT_DATE) = 1 OR NOT EXISTS (
