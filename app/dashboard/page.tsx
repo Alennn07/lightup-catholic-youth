@@ -290,6 +290,10 @@ export default function DashboardPage() {
                           onClick={() => {
                             if (insight.action_text === 'Start Prayer') {
                               setShowPrayerModal(true)
+                            } else if (insight.action_text === 'Read Scripture') {
+                              router.push('/daily-bible-verse')
+                            } else if (insight.action_text === 'Practice Gratitude') {
+                              router.push('/faith-journal')
                             } else if (insight.action_url) {
                               router.push(insight.action_url)
                             }
@@ -321,7 +325,10 @@ export default function DashboardPage() {
                           size="sm" 
                           variant="outline" 
                           className="text-orange-600 border-orange-300 hover:bg-orange-50"
-                          onClick={() => router.push('/prayer-wall')}
+                          onClick={() => {
+                            // For weekly challenge, redirect to community page to share prayer requests
+                            router.push('/community')
+                          }}
                         >
                           Join Challenge
                         </Button>

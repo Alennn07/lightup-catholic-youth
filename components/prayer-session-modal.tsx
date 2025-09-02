@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -97,7 +97,7 @@ export function PrayerSessionModal({ isOpen, onClose, userId, onSessionComplete 
   }
 
   // Update duration every second when active
-  useState(() => {
+  useEffect(() => {
     let interval: NodeJS.Timeout
     if (isActive && startTime) {
       interval = setInterval(() => {
@@ -107,7 +107,7 @@ export function PrayerSessionModal({ isOpen, onClose, userId, onSessionComplete 
       }, 1000)
     }
     return () => clearInterval(interval)
-  })
+  }, [isActive, startTime])
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
