@@ -110,6 +110,10 @@ export interface Translations {
     enterEmail: string;
     enterPassword: string;
     signInFailed: string;
+    signingIn: string;
+    createAccount: string;
+    joinLightUp: string;
+    preferredName: string;
     accountNotFound: string;
     emailNotVerified: string;
     tooManyAttempts: string;
@@ -241,6 +245,8 @@ export interface Translations {
   dashboard: {
     title: string;
     welcome: string;
+    welcomeBack: string;
+    subtitle: string;
     quickActions: string;
     recentActivity: string;
     noActivity: string;
@@ -415,6 +421,10 @@ const en: Translations = {
     enterEmail: "Enter your email",
     enterPassword: "Enter your password",
     signInFailed: "Sign in failed",
+    signingIn: "Signing in",
+    createAccount: "Create Account",
+    joinLightUp: "Join LightUp",
+    preferredName: "Preferred Name",
     accountNotFound: "Account not found",
     emailNotVerified: "Email not verified",
     tooManyAttempts: "Too many attempts",
@@ -534,6 +544,8 @@ const en: Translations = {
   dashboard: {
     title: "Dashboard",
     welcome: "Welcome back",
+    welcomeBack: "Welcome back, {{name}}!",
+    subtitle: "Continue your faith journey with personalized insights and community connections",
     quickActions: "Quick Actions",
     recentActivity: "Recent Activity",
     noActivity: "No recent activity",
@@ -696,6 +708,10 @@ const gu: Translations = {
     enterEmail: "તમારો ઇમેઇલ દાખલ કરો",
     enterPassword: "તમારો પાસવર્ડ દાખલ કરો",
     signInFailed: "સાઇન ઇન નિષ્ફળ",
+    signingIn: "સાઇન ઇન થઈ રહ્યું છે",
+    createAccount: "એકાઉન્ટ બનાવો",
+    joinLightUp: "લાઇટઅપમાં જોડાઓ",
+    preferredName: "પસંદગીનું નામ",
     accountNotFound: "એકાઉન્ટ મળ્યું નથી",
     emailNotVerified: "ઇમેઇલ વેરિફાય થયું નથી",
     tooManyAttempts: "ઘણા પ્રયાસો",
@@ -815,6 +831,8 @@ const gu: Translations = {
   dashboard: {
     title: "ડેશબોર્ડ",
     welcome: "પાછા આવ્યા છો",
+    welcomeBack: "પાછા આવ્યા છો, {{name}}!",
+    subtitle: "વ્યક્તિગત સંકેતો અને સમુદાય જોડાણો સાથે તમારી વિશ્વાસ યાત્રા ચાલુ રાખો",
     quickActions: "ઝડપી ક્રિયાઓ",
     recentActivity: "તાજેતરની પ્રવૃત્તિ",
     noActivity: "તાજેતરની કોઈ પ્રવૃત્તિ નથી",
@@ -977,6 +995,10 @@ const hi: Translations = {
     enterEmail: "अपना ईमेल दर्ज करें",
     enterPassword: "अपना पासवर्ड दर्ज करें",
     signInFailed: "साइन इन विफल",
+    signingIn: "साइन इन हो रहा है",
+    createAccount: "खाता बनाएं",
+    joinLightUp: "लाइटअप में शामिल हों",
+    preferredName: "पसंदीदा नाम",
     accountNotFound: "खाता नहीं मिला",
     emailNotVerified: "ईमेल सत्यापित नहीं हुआ",
     tooManyAttempts: "बहुत सारे प्रयास",
@@ -1096,6 +1118,8 @@ const hi: Translations = {
   dashboard: {
     title: "डैशबोर्ड",
     welcome: "वापस स्वागत है",
+    welcomeBack: "वापस स्वागत है, {{name}}!",
+    subtitle: "व्यक्तिगत अंतर्दृष्टि और समुदाय कनेक्शन के साथ अपनी आस्था यात्रा जारी रखें",
     quickActions: "त्वरित क्रियाएं",
     recentActivity: "हाल की गतिविधि",
     noActivity: "कोई हाल की गतिविधि नहीं",

@@ -30,8 +30,8 @@ export default function SignInPage() {
   // Redirect if already logged in
   useEffect(() => {
     if (user && !isLoading) {
-      logIfEnabled('User already logged in, redirecting to dashboard...')
-      router.push('/dashboard')
+      logIfEnabled('User already logged in, redirecting to home...')
+      router.push('/')
     }
   }, [user, isLoading, router])
 
