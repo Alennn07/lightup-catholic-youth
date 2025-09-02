@@ -158,35 +158,166 @@ export default function DashboardPage() {
           </Card>
         </div>
 
-        {/* Section Divider */}
-        <div className="flex items-center justify-center mb-12">
-          <div className="w-24 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
-          <div className="mx-4 text-gray-400 text-sm font-medium">
-            Explore Features
+        {/* Personalized Faith Insights */}
+        {user && (
+          <div className="mb-8">
+            <Card className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 shadow-lg">
+              <CardContent className="p-6">
+                <div className="flex items-center space-x-3 mb-4">
+                  <div className="w-10 h-10 bg-gradient-to-r from-amber-500 to-orange-500 rounded-xl flex items-center justify-center">
+                    <Sparkles className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-800">Your Faith Insights</h3>
+                    <p className="text-gray-600 text-sm">Personalized recommendations for your spiritual growth</p>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="p-4 bg-white rounded-lg border border-amber-100">
+                    <h4 className="font-semibold text-gray-800 mb-2">Today's Focus</h4>
+                    <p className="text-sm text-gray-600 mb-3">Based on your activity, try spending 10 minutes in prayer today.</p>
+                    <Button size="sm" variant="outline" className="text-amber-600 border-amber-300 hover:bg-amber-50">
+                      Start Prayer
+                    </Button>
+                  </div>
+                  
+                  <div className="p-4 bg-white rounded-lg border border-orange-100">
+                    <h4 className="font-semibold text-gray-800 mb-2">Weekly Challenge</h4>
+                    <p className="text-sm text-gray-600 mb-3">Share one prayer request with the community this week.</p>
+                    <Button size="sm" variant="outline" className="text-orange-600 border-orange-300 hover:bg-orange-50">
+                      Join Challenge
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
-          <div className="w-24 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
-        </div>
+        )}
 
-        {/* Features Call-to-Action */}
-        <div className="text-center mb-12">
-          <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 shadow-lg">
-            <CardContent className="p-8">
-              <h3 className="text-2xl font-bold text-gray-800 mb-4">
-                Discover All Our Features
-              </h3>
-              <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
-                Access prayer wall, youth groups, daily Bible verses, FaithBot AI, faith journal, 
-                faith quiz, and many more tools to support your faith journey.
-              </p>
-              <Button 
-                onClick={() => router.push('/features')}
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 text-lg font-medium shadow-lg hover:shadow-xl"
-              >
-                Explore Features
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
+        {/* Spiritual Goals & Challenges */}
+        {user && (
+          <div className="mb-8">
+            <Card className="bg-white shadow-lg border border-gray-100">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl flex items-center justify-center">
+                      <TrendingUp className="h-5 w-5 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold text-gray-800">Spiritual Goals</h3>
+                      <p className="text-gray-600 text-sm">Set and track your faith journey milestones</p>
+                    </div>
+                  </div>
+                  <Button variant="outline" size="sm">
+                    Set New Goal
+                  </Button>
+                </div>
+                
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                        <BookOpen className="h-4 w-4 text-blue-600" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-800">Read 5 Bible verses this week</p>
+                        <p className="text-sm text-gray-500">Progress: 2/5 completed</p>
+                      </div>
+                    </div>
+                    <div className="w-16 bg-gray-200 rounded-full h-2">
+                      <div className="bg-blue-500 h-2 rounded-full" style={{width: '40%'}}></div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                        <Heart className="h-4 w-4 text-purple-600" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-800">Pray for 10 minutes daily</p>
+                        <p className="text-sm text-gray-500">Streak: 3 days</p>
+                      </div>
+                    </div>
+                    <div className="w-16 bg-gray-200 rounded-full h-2">
+                      <div className="bg-purple-500 h-2 rounded-full" style={{width: '30%'}}></div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                        <Users className="h-4 w-4 text-green-600" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-800">Join a youth group event</p>
+                        <p className="text-sm text-gray-500">Next event: This Saturday</p>
+                      </div>
+                    </div>
+                    <div className="w-16 bg-gray-200 rounded-full h-2">
+                      <div className="bg-green-500 h-2 rounded-full" style={{width: '0%'}}></div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* Faith Milestones & Achievements */}
+        {user && (
+          <div className="mb-8">
+            <Card className="bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200 shadow-lg">
+              <CardContent className="p-6">
+                <div className="flex items-center space-x-3 mb-6">
+                  <div className="w-10 h-10 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-xl flex items-center justify-center">
+                    <Activity className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-800">Faith Milestones</h3>
+                    <p className="text-gray-600 text-sm">Celebrate your spiritual achievements</p>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="text-center p-4 bg-white rounded-lg border border-indigo-100">
+                    <div className="w-12 h-12 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-2">
+                      <span className="text-white font-bold text-lg">🏆</span>
+                    </div>
+                    <p className="text-sm font-medium text-gray-800">First Week</p>
+                    <p className="text-xs text-gray-500">Completed</p>
+                  </div>
+                  
+                  <div className="text-center p-4 bg-white rounded-lg border border-indigo-100">
+                    <div className="w-12 h-12 bg-gradient-to-r from-blue-400 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-2">
+                      <span className="text-white font-bold text-lg">📖</span>
+                    </div>
+                    <p className="text-sm font-medium text-gray-800">Bible Reader</p>
+                    <p className="text-xs text-gray-500">5 verses</p>
+                  </div>
+                  
+                  <div className="text-center p-4 bg-white rounded-lg border border-indigo-100">
+                    <div className="w-12 h-12 bg-gradient-to-r from-green-400 to-green-600 rounded-full flex items-center justify-center mx-auto mb-2">
+                      <span className="text-white font-bold text-lg">🤝</span>
+                    </div>
+                    <p className="text-sm font-medium text-gray-800">Community</p>
+                    <p className="text-xs text-gray-500">Active</p>
+                  </div>
+                  
+                  <div className="text-center p-4 bg-white rounded-lg border border-indigo-100">
+                    <div className="w-12 h-12 bg-gradient-to-r from-purple-400 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-2">
+                      <span className="text-white font-bold text-lg">💫</span>
+                    </div>
+                    <p className="text-sm font-medium text-gray-800">Next Goal</p>
+                    <p className="text-xs text-gray-500">Prayer Streak</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
         {/* Faith Journey Progress Tracker */}
         {user && (
