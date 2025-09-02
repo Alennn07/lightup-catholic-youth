@@ -1209,6 +1209,7 @@ interface I18nContextType {
   language: SupportedLanguage;
   changeLanguage: (lang: SupportedLanguage) => void;
   t: (key: string, vars?: Record<string, string>) => string;
+  supportedLanguages: SupportedLanguage[];
 }
 
 const I18nContext = createContext<I18nContextType | undefined>(undefined);
@@ -1276,7 +1277,7 @@ export const I18nProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   return React.createElement(
     I18nContext.Provider,
-    { value: { language, changeLanguage, t } },
+    { value: { language, changeLanguage, t, supportedLanguages: ['en', 'gu', 'hi'] } },
     children
   );
 };
@@ -1311,6 +1312,7 @@ export function useTranslation() {
       },
       language: 'en' as SupportedLanguage,
       changeLanguage: () => {},
+      supportedLanguages: ['en', 'gu', 'hi'] as SupportedLanguage[],
     };
   }
   return context;
