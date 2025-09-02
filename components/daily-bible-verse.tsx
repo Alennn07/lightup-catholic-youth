@@ -11,6 +11,7 @@ import { supabase } from "@/lib/supabase"
 import { generateShareImage, downloadImage } from "@/lib/generate-share-image"
 import { SharePreviewModal } from "@/components/share-preview-modal"
 import { logIfEnabled, logPerformanceIfEnabled } from "@/lib/performance-monitor"
+import { useTranslation } from "@/lib/i18n"
 
 interface Verse {
   id: string
@@ -43,6 +44,7 @@ const verseCache = new Map<string, DailyVerseData>()
 const CACHE_DURATION = 5 * 60 * 1000 // 5 minutes
 
 export function DailyBibleVerse() {
+  const { t } = useTranslation()
   const [verseData, setVerseData] = useState<DailyVerseData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isUpdating, setIsUpdating] = useState(false)

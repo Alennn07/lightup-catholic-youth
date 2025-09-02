@@ -22,8 +22,10 @@ import { useAuth } from "@/contexts/auth-context"
 import { useToast } from "@/hooks/use-toast"
 import Link from "next/link"
 import { Navigation } from "@/components/navigation"
+import { useTranslation } from "@/lib/i18n"
 
 export default function SettingsPage() {
+  const { t } = useTranslation()
   const { user, isLoading } = useAuth()
   const router = useRouter()
   const { toast } = useToast()
@@ -198,9 +200,9 @@ export default function SettingsPage() {
 
         <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
           <CardHeader className="border-b border-gray-100">
-            <CardTitle className="text-2xl font-bold text-gray-900">Account Settings</CardTitle>
+            <CardTitle className="text-2xl font-bold text-gray-900">{t("settings.title")}</CardTitle>
             <CardDescription className="text-gray-600">
-              Manage your account preferences, security, and notifications
+              {t("settings.subtitle")}
             </CardDescription>
           </CardHeader>
           <CardContent className="p-6">

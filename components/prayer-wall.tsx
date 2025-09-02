@@ -16,6 +16,7 @@ import { useToast } from "@/hooks/use-toast"
 import { useAuth } from "@/contexts/auth-context"
 import { formatDistanceToNow } from "date-fns"
 import { logIfEnabled } from "@/lib/performance-monitor"
+import { useTranslation } from "@/lib/i18n"
 
 interface PrayerRequest {
   id: string  // Changed from number to string (UUID)
@@ -33,6 +34,7 @@ interface PrayerRequest {
 }
 
 export function PrayerWall() {
+  const { t } = useTranslation()
   const [requests, setRequests] = useState<PrayerRequest[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
