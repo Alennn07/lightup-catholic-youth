@@ -5,7 +5,7 @@ import { motion } from "framer-motion"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 import { Navigation } from "@/components/navigation"
-import { DailyBibleVerse } from "@/components/daily-bible-verse"
+
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -14,7 +14,10 @@ import {
   Activity,
   Heart,
   BookOpen,
-  PenTool
+  PenTool,
+  TrendingUp,
+  Users,
+  MessageCircle
 } from "lucide-react"
 import { useAuth } from "@/contexts/auth-context"
 import { useTranslation } from "@/lib/i18n"
@@ -185,10 +188,144 @@ export default function DashboardPage() {
           </Card>
         </div>
 
-        {/* Daily Bible Verse Section - Only show when user is signed in */}
+        {/* Faith Journey Progress Tracker */}
         {user && (
           <div className="mb-8">
-            <DailyBibleVerse />
+            <Card className="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 shadow-lg">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-blue-500 rounded-xl flex items-center justify-center">
+                      <TrendingUp className="h-6 w-6 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold text-gray-800">Your Faith Journey</h3>
+                      <p className="text-gray-600">Track your spiritual growth and milestones</p>
+                    </div>
+                  </div>
+                  <Badge variant="secondary" className="bg-purple-100 text-purple-700">
+                    Level {Math.floor(userStats.daysActive / 7) + 1}
+                  </Badge>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                  <div className="text-center p-4 bg-white rounded-lg border border-purple-100">
+                    <div className="text-2xl font-bold text-purple-600 mb-1">{userStats.daysActive}</div>
+                    <div className="text-sm text-gray-600">Days of Faith</div>
+                  </div>
+                  <div className="text-center p-4 bg-white rounded-lg border border-blue-100">
+                    <div className="text-2xl font-bold text-blue-600 mb-1">{userStats.prayersShared + userStats.bibleVersesRead + userStats.journalEntries}</div>
+                    <div className="text-sm text-gray-600">Total Activities</div>
+                  </div>
+                  <div className="text-center p-4 bg-white rounded-lg border border-green-100">
+                    <div className="text-2xl font-bold text-green-600 mb-1">{Math.min(100, Math.floor((userStats.daysActive / 30) * 100))}%</div>
+                    <div className="text-sm text-gray-600">Monthly Goal</div>
+                  </div>
+                </div>
+                
+                <div className="flex flex-wrap gap-2">
+                  <Badge variant="outline" className="bg-white">Prayer Warrior</Badge>
+                  <Badge variant="outline" className="bg-white">Scripture Reader</Badge>
+                  <Badge variant="outline" className="bg-white">Community Member</Badge>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* Quick Actions Panel */}
+        {user && (
+          <div className="mb-8">
+            <Card className="bg-white shadow-lg border border-gray-100">
+              <CardContent className="p-6">
+                <h3 className="text-xl font-bold text-gray-800 mb-4">Quick Actions</h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <Button 
+                    variant="outline" 
+                    className="h-20 flex flex-col items-center justify-center space-y-2 border-2 hover:border-blue-300 hover:bg-blue-50"
+                    onClick={() => router.push('/prayer-wall')}
+                  >
+                    <Heart className="h-6 w-6 text-red-500" />
+                    <span className="text-sm font-medium">Prayer Wall</span>
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="h-20 flex flex-col items-center justify-center space-y-2 border-2 hover:border-green-300 hover:bg-green-50"
+                    onClick={() => router.push('/youth-groups')}
+                  >
+                    <Users className="h-6 w-6 text-green-500" />
+                    <span className="text-sm font-medium">Youth Groups</span>
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="h-20 flex flex-col items-center justify-center space-y-2 border-2 hover:border-purple-300 hover:bg-purple-50"
+                    onClick={() => router.push('/faithbot')}
+                  >
+                    <MessageCircle className="h-6 w-6 text-purple-500" />
+                    <span className="text-sm font-medium">FaithBot AI</span>
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="h-20 flex flex-col items-center justify-center space-y-2 border-2 hover:border-orange-300 hover:bg-orange-50"
+                    onClick={() => router.push('/faith-journal')}
+                  >
+                    <PenTool className="h-6 w-6 text-orange-500" />
+                    <span className="text-sm font-medium">Faith Journal</span>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* Community Activity Feed */}
+        {user && (
+          <div className="mb-8">
+            <Card className="bg-white shadow-lg border border-gray-100">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-xl font-bold text-gray-800">Community Activity</h3>
+                  <Button variant="ghost" size="sm" onClick={() => router.push('/community')}>
+                    View All
+                  </Button>
+                </div>
+                <div className="space-y-4">
+                  <div className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
+                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                      <Heart className="h-4 w-4 text-blue-600" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm text-gray-800">
+                        <span className="font-medium">Sarah M.</span> shared a prayer request
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">2 hours ago</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
+                    <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                      <Users className="h-4 w-4 text-green-600" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm text-gray-800">
+                        <span className="font-medium">St. Mary's Youth</span> has a new event
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">5 hours ago</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
+                    <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                      <MessageCircle className="h-4 w-4 text-purple-600" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm text-gray-800">
+                        <span className="font-medium">Michael T.</span> shared a faith story
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">1 day ago</p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         )}
 
