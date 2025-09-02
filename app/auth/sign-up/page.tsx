@@ -193,8 +193,8 @@ export default function SignUpPage() {
         <span>Back to Home</span>
       </Link>
 
-      <div className="relative z-10 w-full max-w-md mx-4">
-        <div className="text-center mb-10">
+      <div className="relative z-10 w-full max-w-md mx-3 sm:mx-4">
+        <div className="text-center mb-6 sm:mb-10">
           <div className="flex items-center justify-center space-x-3 mb-6">
             <div className="relative">
               <Heart className="h-12 w-12 text-blue-600 fill-blue-600" />
