@@ -136,13 +136,13 @@ export function FaithBot() {
 
   return (
     <div className="bg-gradient-to-br from-amber-50 via-white to-rose-50 min-h-screen">
-      <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto px-4 py-4 md:py-8">
         {/* Header */}
         <div className="text-center mb-12">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-amber-400 to-rose-500 rounded-full mb-4 shadow-lg">
             <MessageCircle className="h-8 w-8 text-white" />
           </div>
-                     <h1 className="text-3xl font-bold text-gray-900 mb-4">{t("faithbot.title")}</h1>
+                     <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">{t("faithbot.title")}</h1>
            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
              {t("faithbot.subtitle")}
            </p>

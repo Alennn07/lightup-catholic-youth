@@ -193,14 +193,14 @@ export default function SignUpPage() {
         <span>Back to Home</span>
       </Link>
 
-      <div className="relative z-10 w-full max-w-md">
+      <div className="relative z-10 w-full max-w-md mx-4">
         <div className="text-center mb-10">
           <div className="flex items-center justify-center space-x-3 mb-6">
             <div className="relative">
               <Heart className="h-12 w-12 text-blue-600 fill-blue-600" />
               <div className="absolute -top-1 -right-1 w-4 h-4 bg-yellow-400 rounded-full animate-pulse shadow-sm"></div>
             </div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
               LightUp
             </h1>
           </div>

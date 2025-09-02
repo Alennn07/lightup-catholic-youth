@@ -188,7 +188,7 @@ export default function SettingsPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       <Navigation />
-      <div className="max-w-4xl mx-auto pt-24">
+      <div className="max-w-4xl mx-auto pt-24 px-4">
         <div className="flex items-center gap-4 mb-8">
           <Link href="/dashboard">
             <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-900 hover:bg-gray-100">

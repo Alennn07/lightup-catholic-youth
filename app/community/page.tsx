@@ -519,10 +519,10 @@ export default function CommunityPage() {
               <Cross className="h-5 w-5 text-blue-600" />
               <span className="text-blue-700 font-medium">Catholic Youth Community</span>
             </div>
-            <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
+            <h1 className="text-3xl md:text-4xl lg:text-6xl font-bold text-gray-900 mb-6">
               {t("community.title")}
             </h1>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
+            <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto mb-8">
               {t("community.subtitle")}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
