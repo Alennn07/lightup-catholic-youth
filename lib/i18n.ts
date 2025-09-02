@@ -1,4 +1,6 @@
 // Internationalization (i18n) configuration and utilities
+import React, { useState, useEffect, createContext, useContext } from 'react';
+
 export type SupportedLanguage = 'en' | 'gu' | 'hi';
 
 export interface Translations {
@@ -1198,8 +1200,7 @@ export function t(key: string, language?: SupportedLanguage): string {
   return value || key;
 }
 
-// Import React hooks
-import { useState, useEffect, createContext, useContext } from 'react';
+
 
 // Create I18n Context
 interface I18nContextType {
@@ -1268,13 +1269,13 @@ export const I18nProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Prevent hydration mismatch by not rendering until client-side
   if (!isClient) {
-    return <>{children}</>;
+    return React.createElement(React.Fragment, null, children);
   }
 
-  return (
-    <I18nContext.Provider value={{ language, changeLanguage, t }}>
-      {children}
-    </I18nContext.Provider>
+  return React.createElement(
+    I18nContext.Provider,
+    { value: { language, changeLanguage, t } },
+    children
   );
 };
 
