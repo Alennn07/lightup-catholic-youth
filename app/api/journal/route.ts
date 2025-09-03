@@ -69,6 +69,7 @@ export async function POST(request: Request) {
       mood: validatedData.mood,
       tags: validatedData.tags,
       is_private: validatedData.is_private,
+      entry_date: validatedData.date || new Date().toISOString().split('T')[0],
       created_at: new Date().toISOString()
     }
     
