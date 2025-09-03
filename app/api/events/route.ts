@@ -1,6 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
+import { ApiErrors, withErrorHandling } from '@/lib/api-error-handler'
 
 export const dynamic = 'force-dynamic'
 
@@ -68,7 +69,7 @@ export async function POST(request: NextRequest) {
     // Get current user
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return ApiErrors.unauthorized('Authentication required to create events')
     }
 
     const body = await request.json()
@@ -76,7 +77,7 @@ export async function POST(request: NextRequest) {
 
     // Validate required fields
     if (!title || !type || !date || !location || !maxAttendees) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+      return ApiErrors.validation('Missing required fields: title, type, date, location, and maxAttendees are required')
     }
 
     // Create event
@@ -103,12 +104,12 @@ export async function POST(request: NextRequest) {
 
     if (createError) {
       console.error('Error creating event:', createError)
-      return NextResponse.json({ error: 'Failed to create event' }, { status: 500 })
+      return ApiErrors.database('Failed to create event', createError)
     }
 
     return NextResponse.json({ event, message: 'Event created successfully' }, { status: 201 })
   } catch (error) {
     console.error('Create event API error:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    return ApiErrors.internal('Failed to create event')
   }
 }

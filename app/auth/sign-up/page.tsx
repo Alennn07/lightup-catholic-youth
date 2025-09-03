@@ -12,6 +12,7 @@ import { useAuth } from "@/contexts/auth-context"
 import { useToast } from "@/hooks/use-toast"
 import { supabase } from "@/lib/supabase"
 import { useTranslation } from "@/lib/i18n"
+import { ErrorBoundary } from "@/components/error-boundary"
 
 export default function SignUpPage() {
   const { t } = useTranslation()
@@ -177,7 +178,8 @@ export default function SignUpPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-6">
+    <ErrorBoundary>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-6">
       {/* Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-1/4 left-1/4 w-80 h-80 bg-blue-200/20 rounded-full blur-3xl animate-pulse"></div>
@@ -440,5 +442,6 @@ export default function SignUpPage() {
         </Card>
       </div>
     </div>
+    </ErrorBoundary>
   )
 }

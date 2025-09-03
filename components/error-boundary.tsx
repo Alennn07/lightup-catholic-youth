@@ -2,16 +2,20 @@
 
 import React from 'react'
 import { Button } from '@/components/ui/button'
-import { AlertTriangle, RefreshCw } from 'lucide-react'
+import { AlertTriangle, RefreshCw, Home, Bug } from 'lucide-react'
+import { errorMonitor } from '@/lib/error-monitor'
 
 interface ErrorBoundaryState {
   hasError: boolean
   error?: Error
+  errorId?: string
 }
 
 interface ErrorBoundaryProps {
   children: React.ReactNode
   fallback?: React.ComponentType<{ error: Error; resetError: () => void }>
+  onError?: (error: Error, errorInfo: React.ErrorInfo) => void
+  showDetails?: boolean
 }
 
 export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
@@ -21,15 +25,33 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
   }
 
   static getDerivedStateFromError(error: Error): ErrorBoundaryState {
-    return { hasError: true, error }
+    const errorId = `error_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    return { hasError: true, error, errorId }
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('ErrorBoundary caught an error:', error, errorInfo)
+    // Use the error monitor to capture the error
+    const errorId = errorMonitor.captureError(error, {
+      component: 'ErrorBoundary',
+      additionalData: {
+        componentStack: errorInfo.componentStack,
+        errorId: this.state.errorId
+      }
+    }, 'high')
+
+    // Update state with the error ID
+    this.setState({ errorId })
+
+    // Call custom error handler if provided
+    if (this.props.onError) {
+      this.props.onError(error, errorInfo)
+    }
   }
 
+
+
   resetError = () => {
-    this.setState({ hasError: false, error: undefined })
+    this.setState({ hasError: false, error: undefined, errorId: undefined })
   }
 
   render() {
@@ -39,14 +61,32 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
         return <FallbackComponent error={this.state.error!} resetError={this.resetError} />
       }
 
-      return <DefaultErrorFallback error={this.state.error!} resetError={this.resetError} />
+      return <DefaultErrorFallback 
+        error={this.state.error!} 
+        resetError={this.resetError}
+        errorId={this.state.errorId}
+        showDetails={this.props.showDetails}
+      />
     }
 
     return this.props.children
   }
 }
 
-function DefaultErrorFallback({ error, resetError }: { error: Error; resetError: () => void }) {
+function DefaultErrorFallback({ 
+  error, 
+  resetError, 
+  errorId, 
+  showDetails = false 
+}: { 
+  error: Error
+  resetError: () => void
+  errorId?: string
+  showDetails?: boolean
+}) {
+  const isDevelopment = process.env.NODE_ENV === 'development'
+  const shouldShowDetails = isDevelopment || showDetails
+
   return (
     <div className="min-h-[400px] flex items-center justify-center p-8">
       <div className="text-center max-w-md">
@@ -57,6 +97,13 @@ function DefaultErrorFallback({ error, resetError }: { error: Error; resetError:
         <p className="text-gray-600 mb-4">
           We encountered an unexpected error. Please try again.
         </p>
+        
+        {errorId && (
+          <p className="text-sm text-gray-500 mb-4">
+            Error ID: <code className="bg-gray-100 px-2 py-1 rounded">{errorId}</code>
+          </p>
+        )}
+        
         <div className="space-y-2">
           <Button onClick={resetError} className="w-full">
             <RefreshCw className="h-4 w-4 mr-2" />
@@ -69,15 +116,32 @@ function DefaultErrorFallback({ error, resetError }: { error: Error; resetError:
           >
             Reload Page
           </Button>
+          <Button 
+            variant="outline" 
+            onClick={() => window.location.href = '/'} 
+            className="w-full"
+          >
+            <Home className="h-4 w-4 mr-2" />
+            Go Home
+          </Button>
         </div>
-        {process.env.NODE_ENV === 'development' && (
+        
+        {shouldShowDetails && (
           <details className="mt-4 text-left">
-            <summary className="cursor-pointer text-sm text-gray-500">
-              Error Details (Development)
+            <summary className="cursor-pointer text-sm text-gray-500 flex items-center">
+              <Bug className="h-4 w-4 mr-1" />
+              Error Details {isDevelopment ? '(Development)' : ''}
             </summary>
-            <pre className="mt-2 text-xs text-red-600 bg-red-50 p-2 rounded overflow-auto">
-              {error.message}
-            </pre>
+            <div className="mt-2 text-xs text-red-600 bg-red-50 p-3 rounded overflow-auto max-h-40">
+              <div className="font-semibold mb-2">Error Message:</div>
+              <div className="mb-3">{error.message}</div>
+              {error.stack && (
+                <>
+                  <div className="font-semibold mb-2">Stack Trace:</div>
+                  <pre className="whitespace-pre-wrap text-xs">{error.stack}</pre>
+                </>
+              )}
+            </div>
           </details>
         )}
       </div>

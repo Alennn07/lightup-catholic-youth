@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { User, Calendar, MapPin, Building, ArrowLeft, Save, Edit } from "lucide-react"
 import { useAuth } from "@/contexts/auth-context"
 import { useToast } from "@/hooks/use-toast"
+import { ErrorBoundary } from "@/components/error-boundary"
 import { Navigation } from "@/components/navigation"
 import { BackToTop } from "@/components/back-to-top"
 
@@ -59,29 +60,49 @@ export default function ProfilePage() {
   const handleSave = useCallback(async () => {
     try {
       if (!user) {
-        alert('No user found!')
+        toast({
+          title: "Error",
+          description: "No user found! Please sign in again.",
+          variant: "destructive",
+        })
         return
       }
       
       if (!updateProfile) {
-        alert('No updateProfile function!')
+        toast({
+          title: "Error",
+          description: "Update function not available. Please refresh the page.",
+          variant: "destructive",
+        })
         return
       }
       
       // Validate form data
       if (!formData.name.trim()) {
-        alert('Name is required!')
+        toast({
+          title: "Validation Error",
+          description: "Name is required!",
+          variant: "destructive",
+        })
         return
       }
       
       if (!formData.username.trim()) {
-        alert('Username is required!')
+        toast({
+          title: "Validation Error",
+          description: "Username is required!",
+          variant: "destructive",
+        })
         return
       }
       
       // Check if username contains only valid characters
       if (!/^[a-zA-Z0-9_]+$/.test(formData.username)) {
-        alert('Username can only contain letters, numbers, and underscores!')
+        toast({
+          title: "Validation Error",
+          description: "Username can only contain letters, numbers, and underscores!",
+          variant: "destructive",
+        })
         return
       }
       
@@ -92,7 +113,11 @@ export default function ProfilePage() {
       
       console.log('✅ Profile update response:', updatedProfile)
       
-      alert('Profile updated successfully!')
+      toast({
+        title: "Success!",
+        description: "Profile updated successfully!",
+        variant: "default",
+      })
       setIsEditing(false)
       
       // Force a re-render by updating form data with the returned profile
@@ -108,7 +133,11 @@ export default function ProfilePage() {
       
     } catch (error) {
       console.error('❌ Error in handleSave:', error)
-      alert('Error: ' + error.message)
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to update profile. Please try again.",
+        variant: "destructive",
+      })
     }
   }, [formData, updateProfile, user])
 
@@ -132,7 +161,8 @@ export default function ProfilePage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 p-6">
+      <ErrorBoundary>
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 p-6">
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center gap-4 mb-8">
             <div className="h-10 w-32 bg-gray-200 rounded animate-pulse"></div>
@@ -171,6 +201,7 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
+      </ErrorBoundary>
     )
   }
 
@@ -180,7 +211,8 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 p-6">
+    <ErrorBoundary>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 p-6">
       <Navigation />
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center gap-4 mb-8">
@@ -416,5 +448,6 @@ export default function ProfilePage() {
       
       <BackToTop />
     </div>
+    </ErrorBoundary>
   )
 }

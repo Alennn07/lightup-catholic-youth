@@ -2,6 +2,7 @@
 
 import { Navigation } from "@/components/navigation"
 import { BackToTop } from "@/components/back-to-top"
+import { ErrorBoundary } from "@/components/error-boundary"
 import { SimpleFooter } from "@/components/simple-footer"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -435,21 +436,41 @@ export default function CommunityPage() {
     })
   }
 
-  const handleInviteFriends = () => {
-    if (navigator.share) {
-      navigator.share({
-        title: "Join LightUp - Catholic Youth Platform",
-        text: "I found this amazing Catholic youth community! Join me on LightUp to connect, grow, and serve together.",
-        url: window.location.origin,
-      })
-    } else {
-      // Fallback for browsers that don't support Web Share API
-      navigator.clipboard.writeText(window.location.origin)
-      toast({
-        title: "Link Copied! 📋",
-        description: "The website link has been copied to your clipboard. Share it with your friends!",
-        variant: "default",
-      })
+  const handleInviteFriends = async () => {
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: "Join LightUp - Catholic Youth Platform",
+          text: "I found this amazing Catholic youth community! Join me on LightUp to connect, grow, and serve together.",
+          url: window.location.origin,
+        })
+      } else {
+        // Fallback for browsers that don't support Web Share API
+        await navigator.clipboard.writeText(window.location.origin)
+        toast({
+          title: "Link Copied! 📋",
+          description: "The website link has been copied to your clipboard. Share it with your friends!",
+          variant: "default",
+        })
+      }
+    } catch (error) {
+      console.error('Error sharing:', error)
+      // Fallback to clipboard if share fails
+      try {
+        await navigator.clipboard.writeText(window.location.origin)
+        toast({
+          title: "Link Copied! 📋",
+          description: "The website link has been copied to your clipboard. Share it with your friends!",
+          variant: "default",
+        })
+      } catch (clipboardError) {
+        console.error('Clipboard error:', clipboardError)
+        toast({
+          title: "Share Error",
+          description: "Unable to share or copy link. Please copy the URL manually.",
+          variant: "destructive",
+        })
+      }
     }
   }
 
@@ -516,7 +537,8 @@ export default function CommunityPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <ErrorBoundary>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       <Navigation />
 
       <div className="pt-24 pb-16">
@@ -957,5 +979,6 @@ export default function CommunityPage() {
       <BackToTop />
       <SimpleFooter />
     </div>
+    </ErrorBoundary>
   )
 }

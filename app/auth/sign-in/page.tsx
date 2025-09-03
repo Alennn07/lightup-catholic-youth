@@ -16,6 +16,7 @@ import { useToast } from "@/hooks/use-toast"
 import { useAuth } from "@/contexts/auth-context"
 import { logIfEnabled } from "@/lib/performance-monitor"
 import { useTranslation } from "@/lib/i18n"
+import { ErrorBoundary } from "@/components/error-boundary"
 
 export default function SignInPage() {
   const { t } = useTranslation()
@@ -105,7 +106,8 @@ export default function SignInPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-6 relative overflow-hidden">
+    <ErrorBoundary>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-6 relative overflow-hidden">
       {/* Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-1/4 left-1/4 w-80 h-80 bg-blue-200/20 rounded-full blur-3xl animate-pulse"></div>
@@ -317,5 +319,6 @@ export default function SignInPage() {
         </Card>
       </div>
     </div>
+    </ErrorBoundary>
   )
 }
