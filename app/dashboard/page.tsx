@@ -48,6 +48,8 @@ export default function DashboardPage() {
   const [weeklyChallenges, setWeeklyChallenges] = useState<any[]>([])
   const [showPrayerModal, setShowPrayerModal] = useState(false)
   const [loadingInsights, setLoadingInsights] = useState(false)
+  const [recentSessions, setRecentSessions] = useState<any[]>([])
+  const [loadingSessions, setLoadingSessions] = useState(false)
 
   // SUPER FAST: Calculate user display name instantly
   const userDisplayName = useMemo(() => {
@@ -69,6 +71,23 @@ export default function DashboardPage() {
       console.error('Error fetching insights:', error)
     } finally {
       setLoadingInsights(false)
+    }
+  }, [user?.id])
+
+  // Fetch recent prayer sessions (last 5)
+  const fetchRecentSessions = useCallback(async () => {
+    if (!user?.id) return
+    setLoadingSessions(true)
+    try {
+      const response = await fetch(`/api/prayer-sessions?userId=${user.id}&limit=5`)
+      if (response.ok) {
+        const { sessions } = await response.json()
+        setRecentSessions(sessions || [])
+      }
+    } catch (error) {
+      console.error('Error fetching recent sessions:', error)
+    } finally {
+      setLoadingSessions(false)
     }
   }, [user?.id])
 
@@ -95,8 +114,9 @@ export default function DashboardPage() {
       prayersShared: prev.prayersShared + 1
     }))
     
-    // Refresh insights
+    // Refresh insights and recent sessions
     fetchInsights()
+    fetchRecentSessions()
     
     toast({
       title: "Prayer Session Saved! 🙏",
@@ -157,8 +177,9 @@ export default function DashboardPage() {
     if (user?.id) {
       fetchInsights()
       fetchWeeklyChallenges()
+      fetchRecentSessions()
     }
-  }, [user?.id, fetchInsights, fetchWeeklyChallenges])
+  }, [user?.id, fetchInsights, fetchWeeklyChallenges, fetchRecentSessions])
 
   // SUPER FAST: Redirect if not authenticated
   useEffect(() => {
@@ -336,6 +357,54 @@ export default function DashboardPage() {
                     </>
                   )}
                 </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* Recent Prayer Sessions */}
+        {user && (
+          <div className="mb-8">
+            <Card className="bg-white shadow-lg border border-gray-100">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-gradient-to-r from-rose-500 to-pink-500 rounded-xl flex items-center justify-center">
+                      <Heart className="h-5 w-5 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold text-gray-800">Recent Prayer Sessions</h3>
+                      <p className="text-gray-600 text-sm">Your last few prayer times</p>
+                    </div>
+                  </div>
+                </div>
+
+                {loadingSessions ? (
+                  <div className="space-y-3">
+                    <div className="h-4 bg-gray-200 rounded w-full animate-pulse" />
+                    <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse" />
+                    <div className="h-4 bg-gray-200 rounded w-2/3 animate-pulse" />
+                  </div>
+                ) : recentSessions.length === 0 ? (
+                  <p className="text-gray-600">No sessions yet. Start one above to begin your prayer journey!</p>
+                ) : (
+                  <div className="divide-y divide-gray-100">
+                    {recentSessions.map((s: any, idx: number) => (
+                      <div key={idx} className="py-3 flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full bg-rose-100 flex items-center justify-center">
+                            <Heart className="h-4 w-4 text-rose-600" />
+                          </div>
+                          <div>
+                            <div className="text-sm font-medium text-gray-800 capitalize">{s.session_type || 'guided'}</div>
+                            <div className="text-xs text-gray-500">{new Date(s.created_at).toLocaleString()}</div>
+                          </div>
+                        </div>
+                        <div className="text-sm text-gray-700 font-medium">{s.duration_minutes} min</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
