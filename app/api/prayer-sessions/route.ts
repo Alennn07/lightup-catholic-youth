@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabase-admin'
 
 export async function GET(request: NextRequest) {
   try {
@@ -69,7 +70,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Insert new prayer session
-    const { data, error } = await supabase
+    // Use service role to avoid RLS issues on server-side writes
+    const { data, error } = await supabaseAdmin
       .from('prayer_sessions')
       .insert({
         user_id: userId,
@@ -88,7 +90,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Also record this as user activity
-    await supabase
+    await supabaseAdmin
       .from('user_activity')
       .insert({
         user_id: userId,
