@@ -39,7 +39,7 @@ ON youth_groups (created_at);
 
 -- 10. Add index for events
 CREATE INDEX IF NOT EXISTS idx_events_date 
-ON events (event_date);
+ON events (date);
 
 -- 11. Add index for prayer requests
 CREATE INDEX IF NOT EXISTS idx_prayer_requests_user_created 
@@ -49,9 +49,9 @@ ON prayer_requests (user_id, created_at);
 CREATE INDEX IF NOT EXISTS idx_notifications_user_read 
 ON notifications (user_id, is_read);
 
--- 13. Add index for user profiles
-CREATE INDEX IF NOT EXISTS idx_users_user_id 
-ON users (user_id);
+-- 13. Add index for users (primary key is already indexed, but adding email index for lookups)
+CREATE INDEX IF NOT EXISTS idx_users_email 
+ON users (email);
 
 -- 14. Add index for user settings
 CREATE INDEX IF NOT EXISTS idx_user_settings_user_id 
