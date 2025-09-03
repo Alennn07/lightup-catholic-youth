@@ -65,9 +65,9 @@ ON youth_group_members (user_id);
 CREATE INDEX IF NOT EXISTS idx_prayer_responses_request 
 ON prayer_responses (prayer_request_id);
 
--- 17. Add index for user activities by user and date
-CREATE INDEX IF NOT EXISTS idx_user_activities_user_date 
-ON user_activities (user_id, activity_date);
+-- 17. Add index for user activities by user and creation time
+CREATE INDEX IF NOT EXISTS idx_user_activities_user_created 
+ON user_activities (user_id, created_at);
 
 -- 18. Add index for user insights by user
 CREATE INDEX IF NOT EXISTS idx_user_insights_user 
@@ -153,9 +153,9 @@ ON testimonials (user_id);
 CREATE INDEX IF NOT EXISTS idx_apps_category 
 ON apps (category);
 
--- 39. Add index for user activity by user and date
-CREATE INDEX IF NOT EXISTS idx_user_activity_user_date 
-ON user_activity (user_id, activity_date);
+-- 39. Add index for user activity by user and creation time
+CREATE INDEX IF NOT EXISTS idx_user_activity_user_created 
+ON user_activity (user_id, created_at);
 
 -- 🚀 ANALYZE TABLES for better query planning
 ANALYZE user_progress;

@@ -19,11 +19,7 @@ ON user_progress (verse_date);
 CREATE INDEX IF NOT EXISTS idx_user_progress_completed_at 
 ON user_progress (completed_at);
 
--- 5. Journal entries by user and date
-CREATE INDEX IF NOT EXISTS idx_journal_entries_user_date 
-ON journal_entries (user_id, entry_date);
-
--- 6. Journal entries by user and creation time
+-- 5. Journal entries by user and creation time
 CREATE INDEX IF NOT EXISTS idx_journal_entries_user_created 
 ON journal_entries (user_id, created_at);
 
@@ -63,9 +59,9 @@ ON youth_group_members (group_id);
 CREATE INDEX IF NOT EXISTS idx_youth_group_members_user 
 ON youth_group_members (user_id);
 
--- 16. User activities by user and date
-CREATE INDEX IF NOT EXISTS idx_user_activities_user_date 
-ON user_activities (user_id, activity_date);
+-- 16. User activities by user and creation time
+CREATE INDEX IF NOT EXISTS idx_user_activities_user_created 
+ON user_activities (user_id, created_at);
 
 -- 17. User insights by user
 CREATE INDEX IF NOT EXISTS idx_user_insights_user 
@@ -131,9 +127,9 @@ ON security_logs (event_type);
 CREATE INDEX IF NOT EXISTS idx_bible_verse_readings_user 
 ON bible_verse_readings (user_id);
 
--- 33. Bible verse readings by date
-CREATE INDEX IF NOT EXISTS idx_bible_verse_readings_date 
-ON bible_verse_readings (reading_date);
+-- 33. Bible verse readings by creation time
+CREATE INDEX IF NOT EXISTS idx_bible_verse_readings_created 
+ON bible_verse_readings (created_at);
 
 -- 34. Feature feedback by feature
 CREATE INDEX IF NOT EXISTS idx_feature_feedback_feature 
@@ -151,9 +147,9 @@ ON testimonials (user_id);
 CREATE INDEX IF NOT EXISTS idx_apps_category 
 ON apps (category);
 
--- 38. User activity by user and date
-CREATE INDEX IF NOT EXISTS idx_user_activity_user_date 
-ON user_activity (user_id, activity_date);
+-- 38. User activity by user and creation time
+CREATE INDEX IF NOT EXISTS idx_user_activity_user_created 
+ON user_activity (user_id, created_at);
 
 -- Analyze tables for query optimization
 ANALYZE users;
