@@ -1,8 +1,6 @@
-# 🚀 Environment Variables Configuration
+# 🚀 Environment Variables Configuration - LightUp Catholic Youth Platform
 
-## Performance & Logging Control
-
-This document explains all the environment variables you can use to control logging and performance monitoring in your LightUp application.
+This document provides a comprehensive guide to all environment variables used in the LightUp application.
 
 ## 📁 Environment File Setup
 
@@ -10,339 +8,261 @@ Create a `.env.local` file in your project root with these variables:
 
 ```bash
 # .env.local
-ENABLE_PERFORMANCE_MONITORING=true
-ENABLE_PERFORMANCE_LOGGING=true
-ENABLE_API_LOGGING=true
-
-# 🚀 Site Configuration
-NEXT_PUBLIC_SITE_URL=https://your-domain.vercel.app
+# Copy this file and replace placeholder values with your actual credentials
 ```
 
-## 🚀 Site Configuration
+## 🔐 Required Environment Variables
 
-### **NEXT_PUBLIC_SITE_URL**
-- **Default**: `http://localhost:3000` (development)
-- **Purpose**: Set the production site URL for OAuth redirects
-- **Values**: Your production domain (e.g., `https://your-app.vercel.app`)
-- **Impact**: Fixes Google OAuth redirect issues in production
-- **Critical**: Must be set for production OAuth to work
+### **Supabase Configuration**
+
+#### **NEXT_PUBLIC_SUPABASE_URL**
+- **Type**: Public (client-side accessible)
+- **Purpose**: Supabase project URL for database and authentication
+- **Used in**: All Supabase client connections, auth context, API routes
+- **Example**: `https://your-project-id.supabase.co`
+- **Critical**: Required for all database operations
 
 ```bash
-NEXT_PUBLIC_SITE_URL=https://your-domain.vercel.app
+NEXT_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
 ```
 
-## 🎯 Core Performance Variables
+#### **NEXT_PUBLIC_SUPABASE_ANON_KEY**
+- **Type**: Public (client-side accessible)
+- **Purpose**: Supabase anonymous key for client-side operations
+- **Used in**: Client-side Supabase connections, middleware, auth
+- **Example**: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`
+- **Critical**: Required for client-side database access
 
-### **ENABLE_PERFORMANCE_MONITORING**
-- **Default**: `true` in development, `false` in production
-- **Purpose**: Completely enable/disable performance monitoring
+```bash
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+#### **SUPABASE_SERVICE_ROLE_KEY**
+- **Type**: Private (server-side only)
+- **Purpose**: Supabase service role key for admin operations
+- **Used in**: API routes, admin operations, bypassing RLS
+- **Example**: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`
+- **Critical**: Required for server-side database operations
+
+```bash
+SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+### **Site Configuration**
+
+#### **NEXT_PUBLIC_SITE_URL**
+- **Type**: Public (client-side accessible)
+- **Purpose**: Production site URL for OAuth redirects and email links
+- **Used in**: Auth callbacks, email templates, OAuth redirects
+- **Example**: `https://your-app.vercel.app`
+- **Critical**: Required for production OAuth and email links
+
+```bash
+NEXT_PUBLIC_SITE_URL=https://your-app.vercel.app
+```
+
+### **Email Configuration**
+
+#### **EMAIL_USER**
+- **Type**: Private (server-side only)
+- **Purpose**: Email address for sending notifications
+- **Used in**: Email service, password reset, verification emails
+- **Example**: `your-email@gmail.com`
+- **Critical**: Required for email functionality
+
+```bash
+EMAIL_USER=your-email@gmail.com
+```
+
+#### **EMAIL_PASSWORD**
+- **Type**: Private (server-side only)
+- **Purpose**: App password for email authentication
+- **Used in**: Email service authentication
+- **Example**: `your-app-password`
+- **Critical**: Required for email sending
+
+```bash
+EMAIL_PASSWORD=your-app-password
+```
+
+### **AI Configuration**
+
+#### **GEMINI_API_KEY**
+- **Type**: Private (server-side only)
+- **Purpose**: Google Gemini API key for FaithBot AI functionality
+- **Used in**: FaithBot API route, AI chat responses
+- **Example**: `AIzaSyB...`
+- **Critical**: Required for FaithBot AI features
+
+```bash
+GEMINI_API_KEY=AIzaSyB...
+```
+
+## 🔧 Optional Environment Variables
+
+### **Development & Debugging**
+
+#### **NODE_ENV**
+- **Type**: System (automatically set)
+- **Purpose**: Environment mode (development/production)
+- **Used in**: Error handling, logging, feature flags
+- **Values**: `development` | `production`
+- **Default**: Set by Next.js automatically
+
+#### **PORT**
+- **Type**: Private (server-side only)
+- **Purpose**: Backend server port
+- **Used in**: Backend server configuration
+- **Default**: `5000`
+- **Example**: `3001`
+
+```bash
+PORT=5000
+```
+
+#### **ENABLE_BACKEND_LOGGING**
+- **Type**: Private (server-side only)
+- **Purpose**: Enable/disable backend server logging
+- **Used in**: Backend server logging
 - **Values**: `true` | `false`
-- **Impact**: When disabled, no performance metrics are collected
+- **Default**: `true` in development
 
 ```bash
-ENABLE_PERFORMANCE_MONITORING=true
+ENABLE_BACKEND_LOGGING=true
 ```
 
-### **ENABLE_PERFORMANCE_LOGGING**
-- **Default**: `true` in development, `false` in production
-- **Purpose**: Control console output for performance metrics
-- **Values**: `true` | `false`
-- **Impact**: When disabled, no performance logs appear in console
+## 🚨 Inconsistencies Found & Fixed
+
+### **URL Variable Inconsistency**
+**Issue**: The codebase uses both `NEXT_PUBLIC_APP_URL` and `NEXT_PUBLIC_SITE_URL` inconsistently.
+
+**Files with inconsistencies**:
+- `app/api/_email/email-service.ts` - Uses `NEXT_PUBLIC_APP_URL`
+- `next.config.js` - Uses `NEXT_PUBLIC_APP_URL`
+- Most other files use `NEXT_PUBLIC_SITE_URL`
+
+**Recommendation**: Standardize on `NEXT_PUBLIC_SITE_URL` for consistency.
+
+## 📋 Complete .env.example
 
 ```bash
-ENABLE_PERFORMANCE_LOGGING=true
+# ===========================================
+# LightUp Catholic Youth Platform
+# Environment Variables Configuration
+# ===========================================
+
+# 🔐 Supabase Configuration (Required)
+NEXT_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+# 🌐 Site Configuration (Required)
+NEXT_PUBLIC_SITE_URL=https://your-app.vercel.app
+
+# 📧 Email Configuration (Required)
+EMAIL_USER=your-email@gmail.com
+EMAIL_PASSWORD=your-app-password
+
+# 🤖 AI Configuration (Required for FaithBot)
+GEMINI_API_KEY=AIzaSyB...
+
+# 🔧 Development Configuration (Optional)
+PORT=5000
+ENABLE_BACKEND_LOGGING=true
 ```
 
-## 🚀 API Logging Control
+## 🚀 Deployment Configuration
 
-### **ENABLE_API_LOGGING**
-- **Default**: `true`
-- **Purpose**: Enable/disable API route logging
-- **Values**: `true` | `false`
-- **Example**: Controls logs like "🚀 OPTIMIZED API V4.0 - Performance focused!"
-
-```bash
-ENABLE_API_LOGGING=true
-```
-
-### **ENABLE_VERBOSE_API_LOGGING**
-- **Default**: `false`
-- **Purpose**: Include detailed data payloads in API logs
-- **Values**: `true` | `false`
-- **Warning**: May log sensitive user data
-
-```bash
-ENABLE_VERBOSE_API_LOGGING=false
-```
-
-## 🎭 Frontend Logging Control
-
-### **ENABLE_FRONTEND_LOGGING**
-- **Default**: `true`
-- **Purpose**: Control frontend component logging
-- **Values**: `true` | `false`
-- **Example**: Controls logs like "🚀 Using cached data for better performance"
-
-```bash
-ENABLE_FRONTEND_LOGGING=true
-```
-
-### **ENABLE_CACHE_LOGGING**
-- **Default**: `true`
-- **Purpose**: Control cache-related logging
-- **Values**: `true` | `false`
-- **Example**: Controls logs about cache hits/misses
-
-```bash
-ENABLE_CACHE_LOGGING=true
-```
-
-## 🔍 Debug Mode
-
-### **DEBUG_MODE**
-- **Default**: `false`
-- **Purpose**: Enable comprehensive debugging (overrides other settings)
-- **Values**: `true` | `false`
-- **Impact**: When enabled, shows all logs regardless of other settings
-
-```bash
-DEBUG_MODE=false
-```
-
-## 📊 Performance Thresholds
-
-### **PERFORMANCE_WARNING_THRESHOLD**
-- **Default**: `1000` (1 second)
-- **Purpose**: Log warning for operations slower than this
-- **Values**: Number in milliseconds
-- **Example**: `1000` = warn for operations slower than 1 second
-
-```bash
-PERFORMANCE_WARNING_THRESHOLD=1000
-```
-
-### **PERFORMANCE_ERROR_THRESHOLD**
-- **Default**: `3000` (3 seconds)
-- **Purpose**: Log error for operations slower than this
-- **Values**: Number in milliseconds
-- **Example**: `3000` = error for operations slower than 3 seconds
-
-```bash
-PERFORMANCE_ERROR_THRESHOLD=3000
-```
-
-## 🗄️ Cache Configuration
-
-### **VERSE_CACHE_DURATION**
-- **Default**: `300000` (5 minutes)
-- **Purpose**: How long to cache verse data
-- **Values**: Number in milliseconds
-- **Example**: `300000` = cache for 5 minutes
-
-```bash
-VERSE_CACHE_DURATION=300000
-```
-
-### **MAX_CACHE_ITEMS**
-- **Default**: `1000`
-- **Purpose**: Maximum number of cached items
-- **Values**: Number
-- **Impact**: Prevents memory leaks from unlimited caching
-
-```bash
-MAX_CACHE_ITEMS=1000
-```
-
-## 🌐 Environment Overrides
-
-### **FORCE_ENABLE_LOGGING**
-- **Default**: `false`
-- **Purpose**: Force enable logging in production
-- **Values**: `true` | `false`
-- **Use Case**: Debug production issues
-
-```bash
-FORCE_ENABLE_LOGGING=false
-```
-
-### **FORCE_DISABLE_LOGGING**
-- **Default**: `false`
-- **Purpose**: Force disable logging in development
-- **Values**: `true` | `false`
-- **Use Case**: Clean console for demos
-
-```bash
-FORCE_DISABLE_LOGGING=false
-```
-
-## 📝 Log Levels
-
-### **DEFAULT_LOG_LEVEL**
-- **Default**: `info`
-- **Purpose**: Set default logging level
-- **Values**: `error` | `warn` | `info` | `debug`
-- **Impact**: Controls which messages are displayed
-
-```bash
-DEFAULT_LOG_LEVEL=info
-```
-
-## 🚨 Error Reporting
-
-### **ENABLE_ERROR_REPORTING**
-- **Default**: `false`
-- **Purpose**: Send errors to external services
-- **Values**: `true` | `false`
-- **Use Case**: Production error monitoring
-
-```bash
-ENABLE_ERROR_REPORTING=false
-```
-
-### **ERROR_REPORTING_ENDPOINT**
-- **Default**: Empty
-- **Purpose**: URL for error reporting service
-- **Values**: Valid URL
-- **Example**: `https://api.errors.com/collect`
-
-```bash
-ERROR_REPORTING_ENDPOINT=https://api.errors.com/collect
-```
-
-## 🔐 Security Variables
-
-### **ENABLE_REQUEST_LOGGING**
-- **Default**: `false`
-- **Purpose**: Log HTTP requests/responses
-- **Values**: `true` | `false`
-- **Warning**: May log sensitive data like auth tokens
-
-```bash
-ENABLE_REQUEST_LOGGING=false
-```
-
-### **ENABLE_AUTH_LOGGING**
-- **Default**: `false`
-- **Purpose**: Log authentication events
-- **Values**: `true` | `false`
-- **Warning**: May log user IDs and auth states
-
-```bash
-ENABLE_AUTH_LOGGING=false
-```
-
-## 🎯 Production Configuration
-
-For production, use minimal logging:
-
-```bash
-# Production - Minimal Logging
-ENABLE_PERFORMANCE_MONITORING=true
-ENABLE_PERFORMANCE_LOGGING=false
-ENABLE_API_LOGGING=false
-ENABLE_FRONTEND_LOGGING=false
-ENABLE_CACHE_LOGGING=false
-DEBUG_MODE=false
-ENABLE_ERROR_REPORTING=true
-```
-
-## 🧪 Development Configuration
-
-For development, use comprehensive logging:
-
-```bash
-# Development - Full Logging
-ENABLE_PERFORMANCE_MONITORING=true
-ENABLE_PERFORMANCE_LOGGING=true
-ENABLE_API_LOGGING=true
-ENABLE_FRONTEND_LOGGING=true
-ENABLE_CACHE_LOGGING=true
-DEBUG_MODE=true
-ENABLE_ERROR_REPORTING=false
-```
-
-## 🔧 Testing Configuration
-
-For testing, disable all logging:
-
-```bash
-# Testing - No Logging
-ENABLE_PERFORMANCE_MONITORING=false
-ENABLE_PERFORMANCE_LOGGING=false
-ENABLE_API_LOGGING=false
-ENABLE_FRONTEND_LOGGING=false
-ENABLE_CACHE_LOGGING=false
-DEBUG_MODE=false
-ENABLE_ERROR_REPORTING=false
-```
-
-## 📱 Vercel Deployment
-
-For Vercel, add these to your project settings:
+### **Vercel Deployment**
 
 1. Go to Vercel Dashboard → Your Project → Settings → Environment Variables
 2. Add each variable with appropriate values
 3. Deploy to apply changes
 
-## 🚀 Usage Examples
+### **Required for Production**
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `NEXT_PUBLIC_SITE_URL`
+- `EMAIL_USER`
+- `EMAIL_PASSWORD`
+- `GEMINI_API_KEY`
 
-### **Enable Only Performance Monitoring (No Logs)**
-```bash
-ENABLE_PERFORMANCE_MONITORING=true
-ENABLE_PERFORMANCE_LOGGING=false
+### **Development Only**
+- `PORT` (if using custom backend)
+- `ENABLE_BACKEND_LOGGING`
+
+## 🔍 Environment Variable Usage Map
+
+### **Client-Side (NEXT_PUBLIC_*)**
+- `NEXT_PUBLIC_SUPABASE_URL` - Used in 25+ files
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Used in 25+ files
+- `NEXT_PUBLIC_SITE_URL` - Used in auth, email templates, callbacks
+
+### **Server-Side Only**
+- `SUPABASE_SERVICE_ROLE_KEY` - Used in 20+ API routes
+- `EMAIL_USER` - Used in email service
+- `EMAIL_PASSWORD` - Used in email service
+- `GEMINI_API_KEY` - Used in FaithBot API
+- `PORT` - Used in backend server
+- `ENABLE_BACKEND_LOGGING` - Used in backend server
+
+## 🚨 Security Notes
+
+### **Public Variables (NEXT_PUBLIC_*)**
+- Exposed to client-side code
+- Safe to include in client bundles
+- Can be viewed in browser dev tools
+
+### **Private Variables**
+- Only accessible server-side
+- Never exposed to client
+- Keep secure and don't commit to version control
+
+## 🔧 Troubleshooting
+
+### **Common Issues**
+
+#### **"Missing environment variable" errors**
+- Check variable name spelling
+- Ensure variables are in `.env.local`
+- Restart development server after changes
+
+#### **OAuth redirect issues**
+- Verify `NEXT_PUBLIC_SITE_URL` matches your domain
+- Check Google Cloud Console redirect URIs
+- Ensure production URL is set in Vercel
+
+#### **Email not sending**
+- Verify `EMAIL_USER` and `EMAIL_PASSWORD`
+- Check if using app password (not regular password)
+- Test email credentials separately
+
+#### **Database connection issues**
+- Verify Supabase URL and keys
+- Check if service role key has proper permissions
+- Ensure RLS policies are configured
+
+### **Environment Variable Validation**
+
+The application includes validation for critical variables:
+
+```typescript
+// Example validation in API routes
+if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
+  console.error('❌ NEXT_PUBLIC_SUPABASE_URL is missing')
+  return NextResponse.json({ error: 'Configuration error' }, { status: 500 })
+}
 ```
 
-### **Enable Only Error Logging**
-```bash
-ENABLE_PERFORMANCE_MONITORING=true
-ENABLE_PERFORMANCE_LOGGING=false
-DEFAULT_LOG_LEVEL=error
-```
+## 📝 Migration Notes
 
-### **Enable Debug Mode for Troubleshooting**
-```bash
-DEBUG_MODE=true
-ENABLE_VERBOSE_API_LOGGING=true
-```
+### **From NEXT_PUBLIC_APP_URL to NEXT_PUBLIC_SITE_URL**
+If you're currently using `NEXT_PUBLIC_APP_URL`, update your environment variables:
 
-### **Production with Error Reporting**
-```bash
-ENABLE_PERFORMANCE_MONITORING=true
-ENABLE_PERFORMANCE_LOGGING=false
-ENABLE_ERROR_REPORTING=true
-ERROR_REPORTING_ENDPOINT=https://your-error-service.com
-```
-
-## 🔍 Monitoring Your Configuration
-
-Check if logging is working:
-
-1. **Browser Console**: Look for performance monitor initialization messages
-2. **Network Tab**: Check API response times
-3. **Performance Tab**: Monitor overall page performance
-
-## 🚨 Troubleshooting
-
-### **No Logs Appearing**
-- Check `ENABLE_PERFORMANCE_LOGGING` is `true`
-- Verify `DEBUG_MODE` is not overriding settings
-- Check browser console for initialization messages
-
-### **Too Many Logs**
-- Set `ENABLE_PERFORMANCE_LOGGING=false`
-- Reduce `DEFAULT_LOG_LEVEL` to `error`
-- Disable specific logging categories
-
-### **Performance Monitoring Not Working**
-- Check `ENABLE_PERFORMANCE_MONITORING` is `true`
-- Verify environment variables are loaded
-- Check for JavaScript errors in console
-
-### **OAuth Redirect Issues (Google Sign-In)**
-- Verify `NEXT_PUBLIC_SITE_URL` is set to your production domain
-- Check Google Cloud Console OAuth redirect URIs include production URL
-- Ensure environment variables are deployed to Vercel
-- Restart development server after changing environment variables
+1. Replace `NEXT_PUBLIC_APP_URL` with `NEXT_PUBLIC_SITE_URL`
+2. Update Vercel environment variables
+3. Restart your application
 
 ---
 

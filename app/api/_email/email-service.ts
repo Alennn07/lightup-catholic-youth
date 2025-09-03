@@ -178,7 +178,7 @@ export class EmailService {
           </ul>
           
           <div style="text-align: center; margin: 30px 0;">
-            <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/auth/forgot-password" 
+            <a href="${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/forgot-password" 
                style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%); 
                       color: white; 
                       padding: 15px 30px; 
