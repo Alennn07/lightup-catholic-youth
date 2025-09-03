@@ -21,7 +21,13 @@ export async function POST(request: NextRequest) {
   const userAgent = request.headers.get('user-agent') || 'unknown';
   
   try {
-    // Rate limiting
+    const body = await request.json();
+    
+    // Validate request body with Zod
+    const validatedData = RegisterSchema.parse(body);
+    const { name, username, email, password, age, parish, diocese } = validatedData;
+
+    // Rate limiting (after we have the email)
     const rateLimit = await checkRateLimit(email, 'REGISTRATION', ip);
     if (!rateLimit.allowed) {
       return NextResponse.json(
@@ -32,12 +38,6 @@ export async function POST(request: NextRequest) {
         }
       );
     }
-
-    const body = await request.json();
-    
-    // Validate request body with Zod
-    const validatedData = RegisterSchema.parse(body);
-    const { name, username, email, password, age, parish, diocese } = validatedData;
 
     console.log('🚀 Simple registration started for:', email);
 
@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
         name,
         username,
         email,
-        age: parseInt(age),
+        age: age,
         parish,
         diocese,
         created_at: new Date().toISOString()
@@ -128,7 +128,7 @@ export async function POST(request: NextRequest) {
         name,
         username,
         email,
-        age: parseInt(age),
+        age: age,
         parish,
         diocese,
       }
