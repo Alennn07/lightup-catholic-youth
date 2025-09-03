@@ -103,6 +103,7 @@ export function PrayerWall() {
           request: formData.request,
           category: formData.category,
           is_anonymous: formData.isAnonymous,
+          image_url: formData.imageUrl || null,
         }),
       })
 

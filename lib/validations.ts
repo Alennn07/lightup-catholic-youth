@@ -27,7 +27,8 @@ export const PrayerRequestSchema = z.object({
   title: z.string().min(1, 'Title is required').max(255, 'Title too long'),
   content: z.string().min(1, 'Content is required').max(2000, 'Content too long'),
   category: z.enum(['Health', 'Family', 'Education', 'Work', 'Spiritual', 'Other']),
-  is_anonymous: z.boolean().default(false)
+  is_anonymous: z.boolean().default(false),
+  image_url: z.string().url().optional().nullable()
 })
 
 export const PrayerResponseSchema = z.object({
@@ -45,7 +46,8 @@ export const JournalEntrySchema = z.object({
   mood: z.enum(['joyful', 'peaceful', 'grateful', 'hopeful', 'contemplative', 'struggling', 'anxious', 'sad']).optional(),
   tags: z.array(z.string()).max(10, 'Too many tags').optional(),
   is_private: z.boolean().default(true),
-  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format (YYYY-MM-DD)').optional()
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format (YYYY-MM-DD)').optional(),
+  image_urls: z.array(z.string().url()).max(3, 'Maximum 3 images allowed').optional()
 })
 
 // =============================================

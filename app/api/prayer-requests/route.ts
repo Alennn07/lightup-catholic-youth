@@ -117,16 +117,23 @@ export async function POST(request: NextRequest) {
     
     const validatedData = PrayerRequestSchema.parse(body)
 
+    const insertData: any = {
+      user_id: user.id,
+      title: validatedData.title,
+      content: validatedData.content,
+      category: validatedData.category,
+      is_anonymous: validatedData.is_anonymous,
+      prayer_count: 0
+    }
+    
+    // Only add image_url if it exists
+    if (validatedData.image_url) {
+      insertData.image_url = validatedData.image_url
+    }
+
     const { data: newRequest, error } = await supabase
       .from("prayer_requests")
-      .insert({
-        user_id: user.id,
-        title: validatedData.title,
-        content: validatedData.content,
-        category: validatedData.category,
-        is_anonymous: validatedData.is_anonymous,
-        prayer_count: 0
-      })
+      .insert(insertData)
       .select(`
         *,
         user:users(name, avatar_url)

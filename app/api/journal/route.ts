@@ -63,16 +63,23 @@ export async function POST(request: Request) {
     // Validate request body
     const validatedData = JournalEntrySchema.parse(body)
 
+    const insertData: any = {
+      title: validatedData.title,
+      content: validatedData.content,
+      mood: validatedData.mood,
+      tags: validatedData.tags,
+      is_private: validatedData.is_private,
+      created_at: new Date().toISOString()
+    }
+    
+    // Only add image_urls if it exists and is not empty
+    if (validatedData.image_urls && validatedData.image_urls.length > 0) {
+      insertData.image_urls = validatedData.image_urls
+    }
+
     const { data: newEntry, error } = await supabase
       .from("journal_entries")
-      .insert({
-        title: validatedData.title,
-        content: validatedData.content,
-        mood: validatedData.mood,
-        tags: validatedData.tags,
-        is_private: validatedData.is_private,
-        created_at: new Date().toISOString()
-      })
+      .insert(insertData)
       .select()
       .single()
 

@@ -116,6 +116,7 @@ export function FaithJournal() {
           .map((tag) => tag.trim())
           .filter(Boolean),
         entry_date: formData.date,
+        image_urls: formData.imageUrls,
       }
 
       let response
@@ -301,11 +302,11 @@ export function FaithJournal() {
                 New Journal Entry
               </Button>
             </DialogTrigger>
-            <DialogContent className="bg-card border-border text-foreground max-w-2xl">
+            <DialogContent className="bg-card border-border text-foreground max-w-2xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle className="text-foreground">{editingEntry ? "Edit Journal Entry" : "New Journal Entry"}</DialogTitle>
               </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-4 pb-4">
                 <Input
                   placeholder="Entry title..."
                   value={formData.title}
@@ -401,7 +402,7 @@ export function FaithJournal() {
                   )}
                 </div>
 
-                <div className="flex gap-3 pt-2">
+                <div className="flex gap-3 pt-4 border-t border-border bg-card sticky bottom-0 -mx-6 px-6 py-4">
                   <Button
                     type="submit"
                     disabled={isSubmitting || !formData.title.trim() || !formData.content.trim() || !formData.mood}
