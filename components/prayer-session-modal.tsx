@@ -26,6 +26,8 @@ export function PrayerSessionModal({ isOpen, onClose, userId, onSessionComplete 
   const [isActive, setIsActive] = useState(false)
   // Track elapsed time in SECONDS for accurate mm:ss display
   const [elapsedSeconds, setElapsedSeconds] = useState(0)
+  // Accumulated seconds from previous runs (for pause/resume)
+  const [baseElapsedSeconds, setBaseElapsedSeconds] = useState(0)
   const [startTime, setStartTime] = useState<Date | null>(null)
   const { toast } = useToast()
 
@@ -36,21 +38,30 @@ export function PrayerSessionModal({ isOpen, onClose, userId, onSessionComplete 
       interval = setInterval(() => {
         const now = new Date()
         const elapsed = Math.floor((now.getTime() - startTime.getTime()) / 1000)
-        setElapsedSeconds(elapsed)
+        setElapsedSeconds(baseElapsedSeconds + elapsed)
       }, 1000)
     }
     return () => clearInterval(interval)
-  }, [isActive, startTime])
+  }, [isActive, startTime, baseElapsedSeconds])
 
   if (!isOpen) return null
 
   const startSession = () => {
+    // Start or resume: keep existing elapsed as base, and start ticking from now
     setIsActive(true)
     setStartTime(new Date())
-    setElapsedSeconds(0)
+    setBaseElapsedSeconds(elapsedSeconds)
   }
 
   const pauseSession = () => {
+    if (startTime) {
+      const now = new Date()
+      const runSeconds = Math.floor((now.getTime() - startTime.getTime()) / 1000)
+      const total = baseElapsedSeconds + runSeconds
+      setElapsedSeconds(total)
+      setBaseElapsedSeconds(total)
+    }
+    setStartTime(null)
     setIsActive(false)
   }
 
@@ -58,7 +69,8 @@ export function PrayerSessionModal({ isOpen, onClose, userId, onSessionComplete 
     if (!startTime) return
 
     const endTime = new Date()
-    const sessionDurationSeconds = Math.floor((endTime.getTime() - startTime.getTime()) / 1000)
+    const runSeconds = startTime ? Math.floor((endTime.getTime() - startTime.getTime()) / 1000) : 0
+    const sessionDurationSeconds = baseElapsedSeconds + runSeconds
     const sessionDuration = Math.max(1, Math.round(sessionDurationSeconds / 60)) // minutes (at least 1)
 
     try {
@@ -108,6 +120,7 @@ export function PrayerSessionModal({ isOpen, onClose, userId, onSessionComplete 
     setNotes("")
     setIsActive(false)
     setElapsedSeconds(0)
+    setBaseElapsedSeconds(0)
     setStartTime(null)
   }
 
