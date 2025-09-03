@@ -18,7 +18,7 @@ WHERE category IS NULL;
 
 -- Add constraints for prayer_requests category
 ALTER TABLE prayer_requests 
-ADD CONSTRAINT IF NOT EXISTS valid_prayer_category 
+ADD CONSTRAINT valid_prayer_category 
 CHECK (category IN ('Health', 'Family', 'Education', 'Work', 'Spiritual', 'Other'));
 
 -- Create indexes for better performance
