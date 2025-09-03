@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback, useMemo } from "react"
+import { useState, useEffect, useCallback, useMemo, useTransition } from "react"
 import { motion } from "framer-motion"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
@@ -17,7 +17,9 @@ import {
   PenTool,
   TrendingUp,
   Users,
-  MessageCircle
+  MessageCircle,
+  Loader2,
+  RefreshCw
 } from "lucide-react"
 import { useAuth } from "@/contexts/auth-context"
 import { useTranslation } from "@/lib/i18n"
@@ -59,40 +61,96 @@ export default function DashboardPage() {
   const [notifications, setNotifications] = useState<any[]>([])
   const [loadingNotifications, setLoadingNotifications] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [isPending, startTransition] = useTransition()
+  const [optimisticUpdates, setOptimisticUpdates] = useState<{[key: string]: any}>({})
+  const [cache, setCache] = useState<{[key: string]: {data: any, timestamp: number}}>({})
 
   // SUPER FAST: Calculate user display name instantly
   const userDisplayName = useMemo(() => {
     return user?.name || user?.email?.split('@')[0] || 'User'
   }, [user?.name, user?.email])
 
-  // Fetch user insights
-  const fetchInsights = useCallback(async () => {
+  // Cache management with 5-minute TTL
+  const CACHE_TTL = 5 * 60 * 1000 // 5 minutes
+  const getCachedData = useCallback((key: string) => {
+    const cached = cache[key]
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+      return cached.data
+    }
+    return null
+  }, [cache])
+
+  const setCachedData = useCallback((key: string, data: any) => {
+    setCache(prev => ({
+      ...prev,
+      [key]: { data, timestamp: Date.now() }
+    }))
+  }, [])
+
+  // Optimistic update helper
+  const applyOptimisticUpdate = useCallback((key: string, update: any) => {
+    setOptimisticUpdates(prev => ({ ...prev, [key]: update }))
+  }, [])
+
+  const clearOptimisticUpdate = useCallback((key: string) => {
+    setOptimisticUpdates(prev => {
+      const { [key]: removed, ...rest } = prev
+      return rest
+    })
+  }, [])
+
+  // Fetch user insights with caching
+  const fetchInsights = useCallback(async (forceRefresh = false) => {
     if (!user?.id) return
+    
+    const cacheKey = `insights-${user.id}`
+    if (!forceRefresh) {
+      const cached = getCachedData(cacheKey)
+      if (cached) {
+        setInsights(cached)
+        return
+      }
+    }
     
     setLoadingInsights(true)
     try {
       const response = await fetch(`/api/insights?userId=${user.id}`)
       if (response.ok) {
         const { insights: fetchedInsights } = await response.json()
-        setInsights(fetchedInsights || [])
+        const insightsData = fetchedInsights || []
+        setInsights(insightsData)
+        setCachedData(cacheKey, insightsData)
       }
     } catch (error) {
       console.error('Error fetching insights:', error)
     } finally {
       setLoadingInsights(false)
     }
-  }, [user?.id])
+  }, [user?.id, getCachedData, setCachedData])
 
-  // Fetch recent prayer sessions (last 5)
-  const fetchRecentSessions = useCallback(async () => {
+  // Fetch recent prayer sessions with caching
+  const fetchRecentSessions = useCallback(async (forceRefresh = false) => {
     if (!user?.id) return
+    
+    const cacheKey = `sessions-${user.id}`
+    if (!forceRefresh) {
+      const cached = getCachedData(cacheKey)
+      if (cached) {
+        setRecentSessions(cached.sessions)
+        setUserStats(prev => ({ ...prev, prayersShared: cached.stats?.sessionCount ?? prev.prayersShared }))
+        setPrayerStreakDays(cached.streak)
+        return
+      }
+    }
+    
     setLoadingSessions(true)
     try {
       const response = await fetch(`/api/prayer-sessions?userId=${user.id}&limit=50`)
       if (response.ok) {
         const { sessions, stats } = await response.json()
         const safeSessions = sessions || []
-        setRecentSessions(safeSessions.slice(0, 5))
+        const recentSessionsData = safeSessions.slice(0, 5)
+        setRecentSessions(recentSessionsData)
 
         // Update counters from server stats
         setUserStats(prev => ({
@@ -120,60 +178,109 @@ export default function DashboardPage() {
           }
         }
         setPrayerStreakDays(streak)
+        
+        // Cache the data
+        setCachedData(cacheKey, { sessions: recentSessionsData, stats, streak })
       }
     } catch (error) {
       console.error('Error fetching recent sessions:', error)
     } finally {
       setLoadingSessions(false)
     }
-  }, [user?.id])
+  }, [user?.id, getCachedData, setCachedData])
 
-  // Fetch Bible verse completion metrics
-  const fetchBibleProgress = useCallback(async () => {
+  // Fetch Bible verse completion metrics with caching
+  const fetchBibleProgress = useCallback(async (forceRefresh = false) => {
     if (!user?.id) return
+    
+    const cacheKey = `bible-progress-${user.id}`
+    if (!forceRefresh) {
+      const cached = getCachedData(cacheKey)
+      if (cached) {
+        setBibleCompletedToday(cached.completedToday)
+        setBibleCompletedThisWeek(cached.completedCount)
+        return
+      }
+    }
+    
     try {
       const response = await fetch(`/api/daily-bible-verse/progress?userId=${user.id}&days=7`)
       if (response.ok) {
         const data = await response.json()
-        setBibleCompletedToday(Boolean(data.completedToday))
-        setBibleCompletedThisWeek(Number(data.completedCount || 0))
+        const completedToday = Boolean(data.completedToday)
+        const completedCount = Number(data.completedCount || 0)
+        setBibleCompletedToday(completedToday)
+        setBibleCompletedThisWeek(completedCount)
+        setCachedData(cacheKey, { completedToday, completedCount })
       }
     } catch (e) {
       console.error('Error fetching bible progress', e)
     }
-  }, [user?.id])
+  }, [user?.id, getCachedData, setCachedData])
 
-  // Fetch aggregate user stats for dashboard totals
-  const fetchUserStats = useCallback(async () => {
+  // Fetch aggregate user stats with caching
+  const fetchUserStats = useCallback(async (forceRefresh = false) => {
     if (!user?.id) return
+    
+    const cacheKey = `user-stats-${user.id}`
+    if (!forceRefresh) {
+      const cached = getCachedData(cacheKey)
+      if (cached) {
+        setUserStats(prev => ({
+          ...prev,
+          bibleVersesRead: cached.bibleCompletions7d || 0,
+          journalEntries: cached.journalEntries || 0,
+        }))
+        setTotalActivities(cached.totalActivities)
+        return
+      }
+    }
+    
     try {
       const response = await fetch(`/api/users/stats?userId=${user.id}`)
       if (response.ok) {
         const stats = await response.json()
+        const totalActivitiesCount = (stats.totalPrayerSessions || 0) + (stats.bibleCompletions7d || 0) + (stats.journalEntries || 0)
+        
         setUserStats(prev => ({
           ...prev,
           bibleVersesRead: stats.bibleCompletions7d || 0,
           journalEntries: stats.journalEntries || 0,
         }))
-        setTotalActivities((stats.totalPrayerSessions || 0) + (stats.bibleCompletions7d || 0) + (stats.journalEntries || 0))
+        setTotalActivities(totalActivitiesCount)
+        
+        setCachedData(cacheKey, { ...stats, totalActivities: totalActivitiesCount })
       }
     } catch (e) {
       console.error('Error fetching user aggregate stats', e)
     }
-  }, [user?.id])
+  }, [user?.id, getCachedData, setCachedData])
 
-  // Fetch community activity (prayer requests, events, etc.)
-  const fetchCommunityActivity = useCallback(async () => {
+  // Fetch community activity with caching and parallel requests
+  const fetchCommunityActivity = useCallback(async (forceRefresh = false) => {
     if (!user?.id) return
+    
+    const cacheKey = 'community-activity'
+    if (!forceRefresh) {
+      const cached = getCachedData(cacheKey)
+      if (cached) {
+        setCommunityActivity(cached)
+        return
+      }
+    }
+    
     setLoadingCommunity(true)
     try {
-      // Fetch recent prayer requests
-      const prayerResponse = await fetch('/api/prayer-requests?limit=3')
-      const prayerData = prayerResponse.ok ? await prayerResponse.json() : []
+      // Parallel fetch of prayer requests and events
+      const [prayerResponse, eventsResponse] = await Promise.all([
+        fetch('/api/prayer-requests?limit=3'),
+        fetch('/api/events?limit=2')
+      ])
       
-      // Fetch recent events
-      const eventsResponse = await fetch('/api/events?limit=2')
-      const eventsData = eventsResponse.ok ? await eventsResponse.json() : []
+      const [prayerData, eventsData] = await Promise.all([
+        prayerResponse.ok ? prayerResponse.json() : [],
+        eventsResponse.ok ? eventsResponse.json() : []
+      ])
       
       // Combine and format activity
       const activities = [
@@ -195,67 +302,108 @@ export default function DashboardPage() {
         })))
       ].sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
       
-      setCommunityActivity(activities.slice(0, 3))
+      const finalActivities = activities.slice(0, 3)
+      setCommunityActivity(finalActivities)
+      setCachedData(cacheKey, finalActivities)
     } catch (e) {
       console.error('Error fetching community activity', e)
     } finally {
       setLoadingCommunity(false)
     }
-  }, [user?.id])
+  }, [user?.id, getCachedData, setCachedData])
 
-  // Fetch notifications
-  const fetchNotifications = useCallback(async () => {
+  // Fetch notifications with caching
+  const fetchNotifications = useCallback(async (forceRefresh = false) => {
     if (!user?.id) return
+    
+    const cacheKey = `notifications-${user.id}`
+    if (!forceRefresh) {
+      const cached = getCachedData(cacheKey)
+      if (cached) {
+        setNotifications(cached)
+        return
+      }
+    }
+    
     setLoadingNotifications(true)
     try {
       const response = await fetch(`/api/notifications?userId=${user.id}`)
       if (response.ok) {
         const data = await response.json()
-        setNotifications(data.notifications || [])
+        const notificationsData = data.notifications || []
+        setNotifications(notificationsData)
+        setCachedData(cacheKey, notificationsData)
       }
     } catch (e) {
       console.error('Error fetching notifications', e)
     } finally {
       setLoadingNotifications(false)
     }
-  }, [user?.id])
+  }, [user?.id, getCachedData, setCachedData])
 
-  // Fetch weekly challenges
-  const fetchWeeklyChallenges = useCallback(async () => {
+  // Fetch weekly challenges with caching
+  const fetchWeeklyChallenges = useCallback(async (forceRefresh = false) => {
     if (!user?.id) return
+    
+    const cacheKey = `challenges-${user.id}`
+    if (!forceRefresh) {
+      const cached = getCachedData(cacheKey)
+      if (cached) {
+        setWeeklyChallenges(cached)
+        return
+      }
+    }
     
     try {
       const response = await fetch(`/api/weekly-challenges?userId=${user.id}`)
       if (response.ok) {
         const { challenges } = await response.json()
-        setWeeklyChallenges(challenges || [])
+        const challengesData = challenges || []
+        setWeeklyChallenges(challengesData)
+        setCachedData(cacheKey, challengesData)
       }
     } catch (error) {
       console.error('Error fetching weekly challenges:', error)
     }
-  }, [user?.id])
+  }, [user?.id, getCachedData, setCachedData])
 
-  // Handle prayer session completion
+  // Handle prayer session completion with optimistic updates
   const handlePrayerSessionComplete = useCallback((session: any) => {
-    // Update user stats
+    // Optimistic UI update
+    applyOptimisticUpdate('prayer-session', { 
+      prayersShared: userStats.prayersShared + 1,
+      totalActivities: totalActivities + 1 
+    })
+    
+    // Update user stats immediately
     setUserStats(prev => ({
       ...prev,
       prayersShared: prev.prayersShared + 1
     }))
+    setTotalActivities(prev => prev + 1)
     
-    // Refresh insights and recent sessions
-    fetchInsights()
-    fetchRecentSessions()
+    // Refresh data in background with cache invalidation
+    startTransition(() => {
+      fetchInsights(true) // Force refresh
+      fetchRecentSessions(true) // Force refresh
+      fetchUserStats(true) // Force refresh
+    })
+    
+    // Clear optimistic update after a delay
+    setTimeout(() => clearOptimisticUpdate('prayer-session'), 2000)
     
     toast({
       title: "Prayer Session Saved! 🙏",
       description: `Your ${session.duration_minutes}-minute prayer session has been recorded.`,
     })
-  }, [fetchInsights, toast])
+  }, [userStats.prayersShared, totalActivities, applyOptimisticUpdate, clearOptimisticUpdate, fetchInsights, fetchRecentSessions, fetchUserStats, toast])
 
-  // Handle challenge participation
+  // Handle challenge participation with optimistic updates
   const handleJoinChallenge = useCallback(async (challengeId: string) => {
     if (!user?.id) return
+    
+    // Optimistic UI update
+    applyOptimisticUpdate('challenge-join', { challengeId, isCompleted: true })
     
     try {
       const response = await fetch('/api/weekly-challenges', {
@@ -273,17 +421,50 @@ export default function DashboardPage() {
           title: "Challenge Accepted! 🎯",
           description: "You've joined the weekly challenge. Keep up the great work!",
         })
-        fetchWeeklyChallenges()
+        
+        // Refresh challenges in background
+        startTransition(() => {
+          fetchWeeklyChallenges(true) // Force refresh
+        })
+      } else {
+        // Revert optimistic update on failure
+        clearOptimisticUpdate('challenge-join')
+        throw new Error('Failed to join challenge')
       }
     } catch (error) {
       console.error('Error joining challenge:', error)
+      clearOptimisticUpdate('challenge-join')
       toast({
         title: "Error",
         description: "Failed to join challenge. Please try again.",
         variant: "destructive"
       })
     }
-  }, [user?.id, fetchWeeklyChallenges, toast])
+  }, [user?.id, applyOptimisticUpdate, clearOptimisticUpdate, fetchWeeklyChallenges, toast])
+
+  // Manual refresh function
+  const refreshAllData = useCallback(() => {
+    if (!user?.id) return
+    
+    startTransition(() => {
+      Promise.all([
+        fetchInsights(true),
+        fetchWeeklyChallenges(true),
+        fetchRecentSessions(true),
+        fetchUserStats(true),
+        fetchBibleProgress(true),
+        fetchCommunityActivity(true),
+        fetchNotifications(true)
+      ]).catch(error => {
+        console.error('Error refreshing data:', error)
+        toast({
+          title: "Refresh Failed",
+          description: "Some data couldn't be refreshed. Please try again.",
+          variant: "destructive"
+        })
+      })
+    })
+  }, [user?.id, fetchInsights, fetchWeeklyChallenges, fetchRecentSessions, fetchUserStats, fetchBibleProgress, fetchCommunityActivity, fetchNotifications, toast])
 
   // SUPER FAST: Set basic stats immediately
   useEffect(() => {
@@ -301,16 +482,22 @@ export default function DashboardPage() {
     }
   }, [user?.id, user?.created_at, userDisplayName, isLoading])
 
-  // Fetch insights and challenges when user is available
+  // PARALLEL DATA FETCHING: All API calls happen simultaneously
   useEffect(() => {
     if (user?.id) {
-      fetchInsights()
-      fetchWeeklyChallenges()
-      fetchRecentSessions()
-      fetchUserStats()
-      fetchBibleProgress()
-      fetchCommunityActivity()
-      fetchNotifications()
+      // Execute all fetches in parallel for maximum speed
+      Promise.all([
+        fetchInsights(),
+        fetchWeeklyChallenges(),
+        fetchRecentSessions(),
+        fetchUserStats(),
+        fetchBibleProgress(),
+        fetchCommunityActivity(),
+        fetchNotifications()
+      ]).catch(error => {
+        console.error('Error in parallel data fetching:', error)
+        setError('Failed to load some data. Please refresh the page.')
+      })
     }
   }, [user?.id, fetchInsights, fetchWeeklyChallenges, fetchRecentSessions, fetchBibleProgress, fetchUserStats, fetchCommunityActivity, fetchNotifications])
 
@@ -384,8 +571,8 @@ export default function DashboardPage() {
             </div>
           )}
           
-          {/* Streak Badge */}
-          <div className="mt-4 sm:mt-6">
+          {/* Streak Badge with Refresh Button */}
+          <div className="mt-4 sm:mt-6 flex items-center justify-center gap-4">
             <Badge
               variant="outline"
               className="bg-gradient-to-r from-blue-100 to-purple-100 text-blue-700 border-blue-200 px-4 py-2 text-sm font-medium"
@@ -393,6 +580,15 @@ export default function DashboardPage() {
               <Sparkles className="h-4 w-4 mr-2" />
               {userStats.daysActive} day{userStats.daysActive !== 1 ? 's' : ''} active!
             </Badge>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={refreshAllData}
+              disabled={isPending}
+              className="text-gray-500 hover:text-gray-700"
+            >
+              <RefreshCw className={`h-4 w-4 ${isPending ? 'animate-spin' : ''}`} />
+            </Button>
           </div>
         </div>
 
@@ -473,6 +669,7 @@ export default function DashboardPage() {
                           size="sm" 
                           variant="outline" 
                           className="text-amber-600 border-amber-300 hover:bg-amber-50"
+                          disabled={isPending}
                           onClick={() => {
                             if (insight.action_text === 'Start Prayer') {
                               setShowPrayerModal(true)
@@ -485,6 +682,7 @@ export default function DashboardPage() {
                             }
                           }}
                         >
+                          {isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
                           {insight.action_text || 'Take Action'}
                         </Button>
                       </div>
@@ -498,8 +696,10 @@ export default function DashboardPage() {
                           size="sm" 
                           variant="outline" 
                           className="text-amber-600 border-amber-300 hover:bg-amber-50"
+                          disabled={isPending}
                           onClick={() => setShowPrayerModal(true)}
                         >
+                          {isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
                           Start Prayer
                         </Button>
                       </div>
@@ -511,11 +711,13 @@ export default function DashboardPage() {
                           size="sm" 
                           variant="outline" 
                           className="text-orange-600 border-orange-300 hover:bg-orange-50"
+                          disabled={isPending}
                           onClick={() => {
                             // For weekly challenge, redirect to community page to share prayer requests
                             router.push('/community')
                           }}
                         >
+                          {isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
                           Join Challenge
                         </Button>
                       </div>
@@ -590,7 +792,13 @@ export default function DashboardPage() {
                       <p className="text-gray-600 text-sm">Set and track your faith journey milestones</p>
                     </div>
                   </div>
-                  <Button variant="outline" size="sm" onClick={() => router.push('/faith-journal')}>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    disabled={isPending}
+                    onClick={() => router.push('/faith-journal')}
+                  >
+                    {isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
                     Set New Goal
                   </Button>
                 </div>
@@ -761,33 +969,37 @@ export default function DashboardPage() {
                   <Button 
                     variant="outline" 
                     className="h-20 flex flex-col items-center justify-center space-y-2 border-2 hover:border-blue-300 hover:bg-blue-50"
+                    disabled={isPending}
                     onClick={() => router.push('/prayer-wall')}
                   >
-                    <Heart className="h-6 w-6 text-red-500" />
+                    {isPending ? <Loader2 className="h-6 w-6 animate-spin text-red-500" /> : <Heart className="h-6 w-6 text-red-500" />}
                     <span className="text-sm font-medium">Prayer Wall</span>
                   </Button>
                   <Button 
                     variant="outline" 
                     className="h-20 flex flex-col items-center justify-center space-y-2 border-2 hover:border-green-300 hover:bg-green-50"
+                    disabled={isPending}
                     onClick={() => router.push('/youth-groups')}
                   >
-                    <Users className="h-6 w-6 text-green-500" />
+                    {isPending ? <Loader2 className="h-6 w-6 animate-spin text-green-500" /> : <Users className="h-6 w-6 text-green-500" />}
                     <span className="text-sm font-medium">Youth Groups</span>
                   </Button>
                   <Button 
                     variant="outline" 
                     className="h-20 flex flex-col items-center justify-center space-y-2 border-2 hover:border-purple-300 hover:bg-purple-50"
+                    disabled={isPending}
                     onClick={() => router.push('/faithbot')}
                   >
-                    <MessageCircle className="h-6 w-6 text-purple-500" />
+                    {isPending ? <Loader2 className="h-6 w-6 animate-spin text-purple-500" /> : <MessageCircle className="h-6 w-6 text-purple-500" />}
                     <span className="text-sm font-medium">FaithBot AI</span>
                   </Button>
                   <Button 
                     variant="outline" 
                     className="h-20 flex flex-col items-center justify-center space-y-2 border-2 hover:border-orange-300 hover:bg-orange-50"
+                    disabled={isPending}
                     onClick={() => router.push('/faith-journal')}
                   >
-                    <PenTool className="h-6 w-6 text-orange-500" />
+                    {isPending ? <Loader2 className="h-6 w-6 animate-spin text-orange-500" /> : <PenTool className="h-6 w-6 text-orange-500" />}
                     <span className="text-sm font-medium">Faith Journal</span>
                   </Button>
                 </div>
@@ -803,7 +1015,13 @@ export default function DashboardPage() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-xl font-bold text-gray-800">Community Activity</h3>
-                  <Button variant="ghost" size="sm" onClick={() => router.push('/community')}>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    disabled={isPending}
+                    onClick={() => router.push('/community')}
+                  >
+                    {isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
                     View All
                   </Button>
                 </div>
@@ -817,7 +1035,13 @@ export default function DashboardPage() {
                   <div className="text-center py-8">
                     <Users className="h-12 w-12 text-gray-400 mx-auto mb-3" />
                     <p className="text-gray-600 mb-3">No recent community activity</p>
-                    <Button variant="outline" size="sm" onClick={() => router.push('/community')}>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      disabled={isPending}
+                      onClick={() => router.push('/community')}
+                    >
+                      {isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
                       Join the Community
                     </Button>
                   </div>
