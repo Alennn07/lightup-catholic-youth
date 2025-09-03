@@ -171,8 +171,8 @@ export const UserProfileSchema = z.object({
 // =============================================
 
 export const PaginationSchema = z.object({
-  page: z.string().regex(/^\d+$/).transform(Number).default(1),
-  limit: z.string().regex(/^\d+$/).transform(Number).default(10),
+  page: z.string().regex(/^\d+$/).default('1').transform(Number),
+  limit: z.string().regex(/^\d+$/).default('10').transform(Number),
   search: z.string().max(100, 'Search term too long').optional()
 })
 
