@@ -14,7 +14,7 @@ VALUES (
   allowed_mime_types = EXCLUDED.allowed_mime_types;
 
 -- Create images bucket for prayer wall, journal, and other images
-INSERT INTO storage.buckets (id, name, public, true, file_size_limit, allowed_mime_types)
+INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 VALUES (
   'images',
   'images',
@@ -26,47 +26,47 @@ VALUES (
   allowed_mime_types = EXCLUDED.allowed_mime_types;
 
 -- RLS Policies for avatars bucket
-CREATE POLICY "Users can upload their own avatar" ON storage.objects
+CREATE POLICY IF NOT EXISTS "Users can upload their own avatar" ON storage.objects
 FOR INSERT WITH CHECK (
   bucket_id = 'avatars' 
   AND auth.uid()::text = (storage.foldername(name))[1]
 );
 
-CREATE POLICY "Users can update their own avatar" ON storage.objects
+CREATE POLICY IF NOT EXISTS "Users can update their own avatar" ON storage.objects
 FOR UPDATE USING (
   bucket_id = 'avatars' 
   AND auth.uid()::text = (storage.foldername(name))[1]
 );
 
-CREATE POLICY "Users can delete their own avatar" ON storage.objects
+CREATE POLICY IF NOT EXISTS "Users can delete their own avatar" ON storage.objects
 FOR DELETE USING (
   bucket_id = 'avatars' 
   AND auth.uid()::text = (storage.foldername(name))[1]
 );
 
-CREATE POLICY "Anyone can view avatars" ON storage.objects
+CREATE POLICY IF NOT EXISTS "Anyone can view avatars" ON storage.objects
 FOR SELECT USING (bucket_id = 'avatars');
 
 -- RLS Policies for images bucket
-CREATE POLICY "Authenticated users can upload images" ON storage.objects
+CREATE POLICY IF NOT EXISTS "Authenticated users can upload images" ON storage.objects
 FOR INSERT WITH CHECK (
   bucket_id = 'images' 
   AND auth.role() = 'authenticated'
 );
 
-CREATE POLICY "Users can update their own images" ON storage.objects
+CREATE POLICY IF NOT EXISTS "Users can update their own images" ON storage.objects
 FOR UPDATE USING (
   bucket_id = 'images' 
   AND auth.uid()::text = (storage.foldername(name))[1]
 );
 
-CREATE POLICY "Users can delete their own images" ON storage.objects
+CREATE POLICY IF NOT EXISTS "Users can delete their own images" ON storage.objects
 FOR DELETE USING (
   bucket_id = 'images' 
   AND auth.uid()::text = (storage.foldername(name))[1]
 );
 
-CREATE POLICY "Anyone can view images" ON storage.objects
+CREATE POLICY IF NOT EXISTS "Anyone can view images" ON storage.objects
 FOR SELECT USING (bucket_id = 'images');
 
 -- Show bucket configuration
