@@ -257,28 +257,17 @@ export function useErrorMonitor() {
   }
 }
 
-// Higher-order component for automatic error monitoring
-export function withErrorMonitoring<P extends object>(
-  Component: React.ComponentType<P>,
-  componentName: string
-) {
-  return function ErrorMonitoredComponent(props: P) {
-    const { captureError } = useErrorMonitor()
-
-    const handleError = (error: Error, errorInfo: React.ErrorInfo) => {
-      captureError(error, {
-        component: componentName,
-        additionalData: {
-          componentStack: errorInfo.componentStack,
-          props: props
-        }
-      }, 'high')
-    }
-
-    return (
-      <ErrorBoundary onError={handleError}>
-        <Component {...props} />
-      </ErrorBoundary>
-    )
+// Utility function for creating error handlers
+export function createErrorHandler(componentName: string, additionalData?: any) {
+  const { captureError } = useErrorMonitor()
+  
+  return (error: Error, errorInfo?: any) => {
+    captureError(error, {
+      component: componentName,
+      additionalData: {
+        ...additionalData,
+        errorInfo
+      }
+    }, 'high')
   }
 }
