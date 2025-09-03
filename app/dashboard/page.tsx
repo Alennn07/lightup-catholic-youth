@@ -54,6 +54,11 @@ export default function DashboardPage() {
   const [bibleCompletedToday, setBibleCompletedToday] = useState(false)
   const [bibleCompletedThisWeek, setBibleCompletedThisWeek] = useState(0)
   const [totalActivities, setTotalActivities] = useState(0)
+  const [communityActivity, setCommunityActivity] = useState<any[]>([])
+  const [loadingCommunity, setLoadingCommunity] = useState(false)
+  const [notifications, setNotifications] = useState<any[]>([])
+  const [loadingNotifications, setLoadingNotifications] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   // SUPER FAST: Calculate user display name instantly
   const userDisplayName = useMemo(() => {
@@ -157,6 +162,64 @@ export default function DashboardPage() {
     }
   }, [user?.id])
 
+  // Fetch community activity (prayer requests, events, etc.)
+  const fetchCommunityActivity = useCallback(async () => {
+    if (!user?.id) return
+    setLoadingCommunity(true)
+    try {
+      // Fetch recent prayer requests
+      const prayerResponse = await fetch('/api/prayer-requests?limit=3')
+      const prayerData = prayerResponse.ok ? await prayerResponse.json() : []
+      
+      // Fetch recent events
+      const eventsResponse = await fetch('/api/events?limit=2')
+      const eventsData = eventsResponse.ok ? await eventsResponse.json() : []
+      
+      // Combine and format activity
+      const activities = [
+        ...(prayerData.slice(0, 2).map((req: any) => ({
+          type: 'prayer',
+          user: req.name || 'Anonymous',
+          action: 'shared a prayer request',
+          time: req.created_at,
+          icon: Heart,
+          color: 'blue'
+        }))),
+        ...(eventsData.slice(0, 1).map((event: any) => ({
+          type: 'event',
+          user: event.organizer || 'Youth Group',
+          action: 'has a new event',
+          time: event.created_at,
+          icon: Users,
+          color: 'green'
+        })))
+      ].sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
+      
+      setCommunityActivity(activities.slice(0, 3))
+    } catch (e) {
+      console.error('Error fetching community activity', e)
+    } finally {
+      setLoadingCommunity(false)
+    }
+  }, [user?.id])
+
+  // Fetch notifications
+  const fetchNotifications = useCallback(async () => {
+    if (!user?.id) return
+    setLoadingNotifications(true)
+    try {
+      const response = await fetch(`/api/notifications?userId=${user.id}`)
+      if (response.ok) {
+        const data = await response.json()
+        setNotifications(data.notifications || [])
+      }
+    } catch (e) {
+      console.error('Error fetching notifications', e)
+    } finally {
+      setLoadingNotifications(false)
+    }
+  }, [user?.id])
+
   // Fetch weekly challenges
   const fetchWeeklyChallenges = useCallback(async () => {
     if (!user?.id) return
@@ -246,8 +309,10 @@ export default function DashboardPage() {
       fetchRecentSessions()
       fetchUserStats()
       fetchBibleProgress()
+      fetchCommunityActivity()
+      fetchNotifications()
     }
-  }, [user?.id, fetchInsights, fetchWeeklyChallenges, fetchRecentSessions, fetchBibleProgress, fetchUserStats])
+  }, [user?.id, fetchInsights, fetchWeeklyChallenges, fetchRecentSessions, fetchBibleProgress, fetchUserStats, fetchCommunityActivity, fetchNotifications])
 
   // SUPER FAST: Redirect if not authenticated
   useEffect(() => {
@@ -270,6 +335,26 @@ export default function DashboardPage() {
     )
   }
 
+  // Error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+        <Navigation />
+        <div className="container mx-auto px-4 pt-24 pb-8">
+          <div className="text-center">
+            <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md mx-auto">
+              <h2 className="text-lg font-semibold text-red-800 mb-2">Something went wrong</h2>
+              <p className="text-red-600 mb-4">{error}</p>
+              <Button onClick={() => window.location.reload()} variant="outline">
+                Try Again
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   if (!user) {
     return <div>User not found!</div>
   }
@@ -279,7 +364,7 @@ export default function DashboardPage() {
       <Navigation />
       
       <div className="container mx-auto px-3 sm:px-4 pt-16 sm:pt-20 md:pt-24 pb-4 sm:pb-6 md:pb-8">
-        {/* Welcome Header */}
+        {/* Welcome Header with Notifications */}
         <div className="text-center mb-6 sm:mb-8 md:mb-12">
           <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-gray-800 mb-2 sm:mb-3 md:mb-4 px-2">
             {t("dashboard.welcomeBack", { name: userDisplayName })}
@@ -287,6 +372,17 @@ export default function DashboardPage() {
           <p className="text-sm sm:text-base md:text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed px-2">
             {t("dashboard.subtitle")}
           </p>
+          
+          {/* Notifications */}
+          {notifications.length > 0 && (
+            <div className="mt-4 max-w-md mx-auto">
+              {notifications.slice(0, 2).map((notif, idx) => (
+                <div key={idx} className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-2">
+                  <p className="text-sm text-blue-800">{notif.message}</p>
+                </div>
+              ))}
+            </div>
+          )}
           
           {/* Streak Badge */}
           <div className="mt-4 sm:mt-6">
@@ -507,11 +603,11 @@ export default function DashboardPage() {
                       </div>
                       <div>
                         <p className="font-medium text-gray-800">Read 5 Bible verses this week</p>
-                        <p className="text-sm text-gray-500">Progress: 2/5 completed</p>
+                        <p className="text-sm text-gray-500">Progress: {bibleCompletedThisWeek}/5 completed</p>
                       </div>
                     </div>
                     <div className="w-16 bg-gray-200 rounded-full h-2">
-                      <div className="bg-blue-500 h-2 rounded-full" style={{width: '40%'}}></div>
+                      <div className="bg-blue-500 h-2 rounded-full" style={{width: `${Math.min(100, (bibleCompletedThisWeek / 5) * 100)}%`}}></div>
                     </div>
                   </div>
                   
@@ -537,11 +633,16 @@ export default function DashboardPage() {
                       </div>
                       <div>
                         <p className="font-medium text-gray-800">Join a youth group event</p>
-                        <p className="text-sm text-gray-500">Next event: This Saturday</p>
+                        <p className="text-sm text-gray-500">
+                          {communityActivity.find(a => a.type === 'event') 
+                            ? `Next event: ${new Date(communityActivity.find(a => a.type === 'event')?.time).toLocaleDateString()}`
+                            : 'No upcoming events'
+                          }
+                        </p>
                       </div>
                     </div>
                     <div className="w-16 bg-gray-200 rounded-full h-2">
-                      <div className="bg-green-500 h-2 rounded-full" style={{width: '0%'}}></div>
+                      <div className="bg-green-500 h-2 rounded-full" style={{width: communityActivity.find(a => a.type === 'event') ? '25%' : '0%'}}></div>
                     </div>
                   </div>
                 </div>
@@ -571,7 +672,7 @@ export default function DashboardPage() {
                       <span className="text-white font-bold text-lg">🏆</span>
                     </div>
                     <p className="text-sm font-medium text-gray-800">First Week</p>
-                    <p className="text-xs text-gray-500">Completed</p>
+                    <p className="text-xs text-gray-500">{userStats.daysActive >= 7 ? 'Completed' : `${7 - userStats.daysActive} days left`}</p>
                   </div>
                   
                   <div className="text-center p-4 bg-white rounded-lg border border-indigo-100">
@@ -579,7 +680,7 @@ export default function DashboardPage() {
                       <span className="text-white font-bold text-lg">📖</span>
                     </div>
                     <p className="text-sm font-medium text-gray-800">Bible Reader</p>
-                    <p className="text-xs text-gray-500">5 verses</p>
+                    <p className="text-xs text-gray-500">{bibleCompletedThisWeek} verses</p>
                   </div>
                   
                   <div className="text-center p-4 bg-white rounded-lg border border-indigo-100">
@@ -587,7 +688,7 @@ export default function DashboardPage() {
                       <span className="text-white font-bold text-lg">🤝</span>
                     </div>
                     <p className="text-sm font-medium text-gray-800">Community</p>
-                    <p className="text-xs text-gray-500">Active</p>
+                    <p className="text-xs text-gray-500">{communityActivity.length > 0 ? 'Active' : 'Join us!'}</p>
                   </div>
                   
                   <div className="text-center p-4 bg-white rounded-lg border border-indigo-100">
@@ -595,7 +696,7 @@ export default function DashboardPage() {
                       <span className="text-white font-bold text-lg">💫</span>
                     </div>
                     <p className="text-sm font-medium text-gray-800">Next Goal</p>
-                    <p className="text-xs text-gray-500">Prayer Streak</p>
+                    <p className="text-xs text-gray-500">{prayerStreakDays >= 3 ? 'Keep going!' : 'Build streak'}</p>
                   </div>
                 </div>
               </CardContent>
@@ -639,9 +740,11 @@ export default function DashboardPage() {
                 </div>
                 
                 <div className="flex flex-wrap gap-2">
-                  <Badge variant="outline" className="bg-white">Prayer Warrior</Badge>
-                  <Badge variant="outline" className="bg-white">Scripture Reader</Badge>
-                  <Badge variant="outline" className="bg-white">Community Member</Badge>
+                  {userStats.prayersShared > 0 && <Badge variant="outline" className="bg-white">Prayer Warrior</Badge>}
+                  {bibleCompletedThisWeek > 0 && <Badge variant="outline" className="bg-white">Scripture Reader</Badge>}
+                  {userStats.journalEntries > 0 && <Badge variant="outline" className="bg-white">Journal Keeper</Badge>}
+                  {communityActivity.length > 0 && <Badge variant="outline" className="bg-white">Community Member</Badge>}
+                  {prayerStreakDays >= 3 && <Badge variant="outline" className="bg-white">Streak Master</Badge>}
                 </div>
               </CardContent>
             </Card>
@@ -693,7 +796,7 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* Community Activity Feed */}
+        {/* Community Activity Feed - Now Dynamic */}
         {user && (
           <div className="mb-8">
             <Card className="bg-white shadow-lg border border-gray-100">
@@ -704,41 +807,41 @@ export default function DashboardPage() {
                     View All
                   </Button>
                 </div>
-                <div className="space-y-4">
-                  <div className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
-                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                      <Heart className="h-4 w-4 text-blue-600" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm text-gray-800">
-                        <span className="font-medium">Sarah M.</span> shared a prayer request
-                      </p>
-                      <p className="text-xs text-gray-500 mt-1">2 hours ago</p>
-                    </div>
+                {loadingCommunity ? (
+                  <div className="space-y-3">
+                    <div className="h-4 bg-gray-200 rounded w-full animate-pulse" />
+                    <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse" />
+                    <div className="h-4 bg-gray-200 rounded w-2/3 animate-pulse" />
                   </div>
-                  <div className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
-                    <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                      <Users className="h-4 w-4 text-green-600" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm text-gray-800">
-                        <span className="font-medium">St. Mary's Youth</span> has a new event
-                      </p>
-                      <p className="text-xs text-gray-500 mt-1">5 hours ago</p>
-                    </div>
+                ) : communityActivity.length === 0 ? (
+                  <div className="text-center py-8">
+                    <Users className="h-12 w-12 text-gray-400 mx-auto mb-3" />
+                    <p className="text-gray-600 mb-3">No recent community activity</p>
+                    <Button variant="outline" size="sm" onClick={() => router.push('/community')}>
+                      Join the Community
+                    </Button>
                   </div>
-                  <div className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
-                    <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
-                      <MessageCircle className="h-4 w-4 text-purple-600" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm text-gray-800">
-                        <span className="font-medium">Michael T.</span> shared a faith story
-                      </p>
-                      <p className="text-xs text-gray-500 mt-1">1 day ago</p>
-                    </div>
+                ) : (
+                  <div className="space-y-4">
+                    {communityActivity.map((activity, idx) => {
+                      const IconComponent = activity.icon
+                      const timeAgo = new Date(activity.time).toLocaleString()
+                      return (
+                        <div key={idx} className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
+                          <div className={`w-8 h-8 bg-${activity.color}-100 rounded-full flex items-center justify-center`}>
+                            <IconComponent className={`h-4 w-4 text-${activity.color}-600`} />
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-sm text-gray-800">
+                              <span className="font-medium">{activity.user}</span> {activity.action}
+                            </p>
+                            <p className="text-xs text-gray-500 mt-1">{timeAgo}</p>
+                          </div>
+                        </div>
+                      )
+                    })}
                   </div>
-                </div>
+                )}
               </CardContent>
             </Card>
           </div>
