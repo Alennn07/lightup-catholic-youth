@@ -24,18 +24,19 @@ export function PrayerSessionModal({ isOpen, onClose, userId, onSessionComplete 
   const [moodAfter, setMoodAfter] = useState("")
   const [notes, setNotes] = useState("")
   const [isActive, setIsActive] = useState(false)
-  const [duration, setDuration] = useState(0)
+  // Track elapsed time in SECONDS for accurate mm:ss display
+  const [elapsedSeconds, setElapsedSeconds] = useState(0)
   const [startTime, setStartTime] = useState<Date | null>(null)
   const { toast } = useToast()
 
-  // Update duration every second when active
+  // Update elapsed time every second when active
   useEffect(() => {
     let interval: NodeJS.Timeout
     if (isActive && startTime) {
       interval = setInterval(() => {
         const now = new Date()
-        const elapsed = Math.round((now.getTime() - startTime.getTime()) / 1000 / 60)
-        setDuration(elapsed)
+        const elapsed = Math.floor((now.getTime() - startTime.getTime()) / 1000)
+        setElapsedSeconds(elapsed)
       }, 1000)
     }
     return () => clearInterval(interval)
@@ -46,7 +47,7 @@ export function PrayerSessionModal({ isOpen, onClose, userId, onSessionComplete 
   const startSession = () => {
     setIsActive(true)
     setStartTime(new Date())
-    setDuration(0)
+    setElapsedSeconds(0)
   }
 
   const pauseSession = () => {
@@ -57,7 +58,8 @@ export function PrayerSessionModal({ isOpen, onClose, userId, onSessionComplete 
     if (!startTime) return
 
     const endTime = new Date()
-    const sessionDuration = Math.round((endTime.getTime() - startTime.getTime()) / 1000 / 60) // minutes
+    const sessionDurationSeconds = Math.floor((endTime.getTime() - startTime.getTime()) / 1000)
+    const sessionDuration = Math.max(1, Math.round(sessionDurationSeconds / 60)) // minutes (at least 1)
 
     try {
       const response = await fetch('/api/prayer-sessions', {
@@ -105,7 +107,7 @@ export function PrayerSessionModal({ isOpen, onClose, userId, onSessionComplete 
     setMoodAfter("")
     setNotes("")
     setIsActive(false)
-    setDuration(0)
+    setElapsedSeconds(0)
     setStartTime(null)
   }
 
@@ -172,7 +174,7 @@ export function PrayerSessionModal({ isOpen, onClose, userId, onSessionComplete 
             <div className="flex items-center justify-center gap-2 mb-2">
               <Clock className="h-5 w-5 text-gray-600" />
               <span className="text-2xl font-bold text-gray-800">
-                {Math.floor(duration / 60)}:{(duration % 60).toString().padStart(2, '0')}
+                {Math.floor(elapsedSeconds / 60)}:{(elapsedSeconds % 60).toString().padStart(2, '0')}
               </span>
             </div>
             
@@ -198,7 +200,7 @@ export function PrayerSessionModal({ isOpen, onClose, userId, onSessionComplete 
           </div>
 
           {/* Mood After (only show if session is active or completed) */}
-          {(isActive || duration > 0) && (
+          {(isActive || elapsedSeconds > 0) && (
             <div className="space-y-2">
               <Label htmlFor="moodAfter">How do you feel after prayer?</Label>
               <Select value={moodAfter} onValueChange={setMoodAfter}>
@@ -233,7 +235,7 @@ export function PrayerSessionModal({ isOpen, onClose, userId, onSessionComplete 
             <Button variant="outline" onClick={onClose} className="flex-1">
               Cancel
             </Button>
-            {duration > 0 && (
+            {elapsedSeconds > 0 && (
               <Button onClick={stopSession} className="flex-1 bg-blue-600 hover:bg-blue-700">
                 Save Session
               </Button>
