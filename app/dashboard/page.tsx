@@ -473,7 +473,7 @@ export default function DashboardPage() {
                       <p className="text-gray-600 text-sm">Set and track your faith journey milestones</p>
                     </div>
                   </div>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" onClick={() => router.push('/faith-journal')}>
                     Set New Goal
                   </Button>
                 </div>
