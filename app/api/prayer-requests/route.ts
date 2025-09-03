@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
+import { PrayerRequestSchema } from '@/lib/validations'
 
 export const dynamic = 'force-dynamic'
 
@@ -110,27 +111,21 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No user found in session' }, { status: 401 })
     }
 
+    // Validate request body
     const body = await request.json()
     console.log('📦 Request body received:', JSON.stringify(body, null, 2))
     
-    const { name, request: prayerRequest, category, is_anonymous } = body
-
-    // Validate required fields
-    if (!prayerRequest?.trim() || !category?.trim()) {
-      return NextResponse.json({ error: 'Prayer request and category are required' }, { status: 400 })
-    }
+    const validatedData = PrayerRequestSchema.parse(body)
 
     const { data: newRequest, error } = await supabase
       .from("prayer_requests")
       .insert({
         user_id: user.id,
-        name: is_anonymous ? "Anonymous" : (name || user.user_metadata?.name || "User"),
-        request: prayerRequest,
-        category,
-        is_anonymous,
-        prayer_count: 0,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
+        title: validatedData.title,
+        content: validatedData.content,
+        category: validatedData.category,
+        is_anonymous: validatedData.is_anonymous,
+        prayer_count: 0
       })
       .select(`
         *,
@@ -146,6 +141,16 @@ export async function POST(request: NextRequest) {
     console.log('✅ Prayer request created successfully')
     return NextResponse.json(newRequest, { status: 201 })
   } catch (error: any) {
+    if (error.name === 'ZodError') {
+      return NextResponse.json({ 
+        error: 'Validation error', 
+        details: error.errors.map((err: any) => ({
+          field: err.path.join('.'),
+          message: err.message
+        }))
+      }, { status: 400 })
+    }
+    
     console.error("Error creating prayer request:", error)
     return NextResponse.json({ error: "Failed to create prayer request" }, { status: 500 })
   }

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { supabase } from "@/lib/supabase"
+import { JournalEntrySchema, UserIdSchema } from '@/lib/validations'
 
 // Force this route to be dynamic since it uses request.url
 export const dynamic = 'force-dynamic'
@@ -12,6 +13,13 @@ export async function GET(request: Request) {
 
     if (!userId) {
       return NextResponse.json({ error: "User ID is required" }, { status: 400 })
+    }
+
+    // Validate userId format
+    try {
+      UserIdSchema.parse({ userId })
+    } catch (error) {
+      return NextResponse.json({ error: "Invalid user ID format" }, { status: 400 })
     }
 
     console.log(`🔍 Fetching journal entries for user: ${userId}`)
@@ -52,11 +60,18 @@ export async function POST(request: Request) {
     const body = await request.json()
     console.log(`📝 Creating journal entry:`, body)
 
+    // Validate request body
+    const validatedData = JournalEntrySchema.parse(body)
+
     const { data: newEntry, error } = await supabase
       .from("journal_entries")
       .insert({
-        ...body,
-        entry_date: body.date || new Date().toISOString().split("T")[0],
+        title: validatedData.title,
+        content: validatedData.content,
+        mood: validatedData.mood,
+        tags: validatedData.tags,
+        is_private: validatedData.is_private,
+        created_at: new Date().toISOString()
       })
       .select()
       .single()
@@ -76,6 +91,16 @@ export async function POST(request: Request) {
     console.log(`✅ Journal entry created successfully:`, newEntry)
     return NextResponse.json(newEntry, { status: 201 })
   } catch (error: any) {
+    if (error.name === 'ZodError') {
+      return NextResponse.json({ 
+        error: 'Validation error', 
+        details: error.errors.map((err: any) => ({
+          field: err.path.join('.'),
+          message: err.message
+        }))
+      }, { status: 400 })
+    }
+    
     console.error("❌ Error creating journal entry:", error)
     return NextResponse.json({ 
       error: "Failed to create journal entry",

@@ -24,6 +24,7 @@ import {
 import { useAuth } from "@/contexts/auth-context"
 import { useTranslation } from "@/lib/i18n"
 import { useToast } from "@/hooks/use-toast"
+import { ErrorBoundary, ApiErrorBoundary } from "@/components/error-boundary"
 
 interface UserStats {
   daysActive: number
@@ -547,53 +548,54 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      <Navigation />
-      
-      <div className="container mx-auto px-3 sm:px-4 pt-16 sm:pt-20 md:pt-24 pb-4 sm:pb-6 md:pb-8">
-        {/* Welcome Header with Notifications */}
-        <div className="text-center mb-6 sm:mb-8 md:mb-12">
-          <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-gray-800 mb-2 sm:mb-3 md:mb-4 px-2">
-            {t("dashboard.welcomeBack", { name: userDisplayName })}
-          </h1>
-          <p className="text-sm sm:text-base md:text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed px-2">
-            {t("dashboard.subtitle")}
-          </p>
-          
-          {/* Notifications */}
-          {notifications.length > 0 && (
-            <div className="mt-4 max-w-md mx-auto">
-              {notifications.slice(0, 2).map((notif, idx) => (
-                <div key={idx} className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-2">
-                  <p className="text-sm text-blue-800">{notif.message}</p>
-                </div>
-              ))}
+    <ErrorBoundary>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+        <Navigation />
+        
+        <div className="container mx-auto px-3 sm:px-4 pt-16 sm:pt-20 md:pt-24 pb-4 sm:pb-6 md:pb-8">
+          {/* Welcome Header with Notifications */}
+          <div className="text-center mb-6 sm:mb-8 md:mb-12">
+            <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-gray-800 mb-2 sm:mb-3 md:mb-4 px-2">
+              {t("dashboard.welcomeBack", { name: userDisplayName })}
+            </h1>
+            <p className="text-sm sm:text-base md:text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed px-2">
+              {t("dashboard.subtitle")}
+            </p>
+            
+            {/* Notifications */}
+            {notifications.length > 0 && (
+              <div className="mt-4 max-w-md mx-auto">
+                {notifications.slice(0, 2).map((notif, idx) => (
+                  <div key={idx} className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-2">
+                    <p className="text-sm text-blue-800">{notif.message}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+            
+            {/* Streak Badge with Refresh Button */}
+            <div className="mt-4 sm:mt-6 flex items-center justify-center gap-4">
+              <Badge
+                variant="outline"
+                className="bg-gradient-to-r from-blue-100 to-purple-100 text-blue-700 border-blue-200 px-4 py-2 text-sm font-medium"
+              >
+                <Sparkles className="h-4 w-4 mr-2" />
+                {userStats.daysActive} day{userStats.daysActive !== 1 ? 's' : ''} active!
+              </Badge>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={refreshAllData}
+                disabled={isPending}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <RefreshCw className={`h-4 w-4 ${isPending ? 'animate-spin' : ''}`} />
+              </Button>
             </div>
-          )}
-          
-          {/* Streak Badge with Refresh Button */}
-          <div className="mt-4 sm:mt-6 flex items-center justify-center gap-4">
-            <Badge
-              variant="outline"
-              className="bg-gradient-to-r from-blue-100 to-purple-100 text-blue-700 border-blue-200 px-4 py-2 text-sm font-medium"
-            >
-              <Sparkles className="h-4 w-4 mr-2" />
-              {userStats.daysActive} day{userStats.daysActive !== 1 ? 's' : ''} active!
-            </Badge>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={refreshAllData}
-              disabled={isPending}
-              className="text-gray-500 hover:text-gray-700"
-            >
-              <RefreshCw className={`h-4 w-4 ${isPending ? 'animate-spin' : ''}`} />
-            </Button>
           </div>
-        </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-8 md:mb-12">
+          {/* Stats Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-8 md:mb-12">
           <Card className="bg-white shadow-lg border border-gray-100">
             <CardContent className="p-4 sm:p-6 text-center">
               <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center mx-auto mb-4">
@@ -1071,23 +1073,24 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* Footer */}
-        <div className="text-center pt-12 border-t border-gray-100">
-          <p className="text-gray-500 text-sm">
-            Continue your faith journey with LightUp Catholic Youth Platform
-          </p>
+          {/* Footer */}
+          <div className="text-center pt-12 border-t border-gray-100">
+            <p className="text-gray-500 text-sm">
+              Continue your faith journey with LightUp Catholic Youth Platform
+            </p>
+          </div>
         </div>
-      </div>
 
-      {/* Prayer Session Modal */}
-      {user && (
-        <PrayerSessionModal
-          isOpen={showPrayerModal}
-          onClose={() => setShowPrayerModal(false)}
-          userId={user.id}
-          onSessionComplete={handlePrayerSessionComplete}
-        />
-      )}
-    </div>
+        {/* Prayer Session Modal */}
+        {user && (
+          <PrayerSessionModal
+            isOpen={showPrayerModal}
+            onClose={() => setShowPrayerModal(false)}
+            userId={user.id}
+            onSessionComplete={handlePrayerSessionComplete}
+          />
+        )}
+      </div>
+    </ErrorBoundary>
   )
 }

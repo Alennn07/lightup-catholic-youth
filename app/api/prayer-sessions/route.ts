@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 import { supabaseAdmin } from '@/lib/supabase-admin'
+import { PrayerSessionSchema } from '@/lib/validations'
 
 export async function GET(request: NextRequest) {
   try {
@@ -55,18 +56,15 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const { 
-      userId, 
-      sessionType = 'guided', 
-      durationMinutes, 
-      prayerFocus, 
-      moodBefore, 
-      moodAfter, 
-      notes 
-    } = await request.json()
+    const body = await request.json()
+    
+    // Validate request body
+    const validatedData = PrayerSessionSchema.parse(body)
+    
+    const { userId, ...sessionData } = body
 
-    if (!userId || !durationMinutes) {
-      return NextResponse.json({ error: 'User ID and duration are required' }, { status: 400 })
+    if (!userId) {
+      return NextResponse.json({ error: 'User ID is required' }, { status: 400 })
     }
 
     // Insert new prayer session
@@ -75,12 +73,12 @@ export async function POST(request: NextRequest) {
       .from('prayer_sessions')
       .insert({
         user_id: userId,
-        session_type: sessionType,
-        duration_minutes: durationMinutes,
-        prayer_focus: prayerFocus,
-        mood_before: moodBefore,
-        mood_after: moodAfter,
-        notes: notes
+        session_type: validatedData.session_type,
+        duration_minutes: validatedData.duration_minutes,
+        prayer_focus: validatedData.prayer_focus,
+        mood_before: validatedData.mood_before,
+        mood_after: validatedData.mood_after,
+        notes: validatedData.notes
       })
       .select()
 
@@ -96,15 +94,25 @@ export async function POST(request: NextRequest) {
         user_id: userId,
         activity_type: 'prayer',
         activity_data: {
-          session_type: sessionType,
-          duration_minutes: durationMinutes,
-          prayer_focus: prayerFocus
+          session_type: validatedData.session_type,
+          duration_minutes: validatedData.duration_minutes,
+          prayer_focus: validatedData.prayer_focus
         },
-        duration_minutes: durationMinutes
+        duration_minutes: validatedData.duration_minutes
       })
 
     return NextResponse.json({ session: data[0] })
-  } catch (error) {
+  } catch (error: any) {
+    if (error.name === 'ZodError') {
+      return NextResponse.json({ 
+        error: 'Validation error', 
+        details: error.errors.map((err: any) => ({
+          field: err.path.join('.'),
+          message: err.message
+        }))
+      }, { status: 400 })
+    }
+    
     console.error('Prayer sessions POST API error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
