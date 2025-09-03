@@ -14,6 +14,7 @@ import { BookOpen, Plus, Search, Edit, Trash2, Calendar } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { useAuth } from "@/contexts/auth-context"
 import { format, formatDistanceToNow, isAfter, subDays } from "date-fns"
+import { JournalImageUpload } from "@/components/image-upload"
 
 interface JournalEntry {
   id: string
@@ -41,6 +42,7 @@ export function FaithJournal() {
     tags: "",
     date: new Date().toISOString().split("T")[0],
     entry_date: new Date().toISOString().split("T")[0],
+    imageUrls: [] as string[],
   })
   const { toast } = useToast()
   const { user } = useAuth()
@@ -93,6 +95,7 @@ export function FaithJournal() {
       tags: "",
       date: new Date().toISOString().split("T")[0],
       entry_date: new Date().toISOString().split("T")[0],
+      imageUrls: [],
     })
     setEditingEntry(null)
   }
@@ -351,6 +354,52 @@ export function FaithJournal() {
                   onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
                   className="bg-muted border-border text-foreground placeholder:text-muted-foreground focus:bg-background focus:border-amber-400 focus:ring-amber-400"
                 />
+
+                {/* Image Upload Section */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">
+                    Journal Images (Optional - up to 3 images)
+                  </label>
+                  <JournalImageUpload
+                    onUpload={(url) => setFormData({ ...formData, imageUrls: [...formData.imageUrls, url] })}
+                    onError={(error) => {
+                      toast({
+                        title: "Upload failed",
+                        description: error,
+                        variant: "destructive",
+                      })
+                    }}
+                    className="max-w-md"
+                  />
+                  {formData.imageUrls.length > 0 && (
+                    <div className="mt-2">
+                      <p className="text-xs text-muted-foreground mb-2">
+                        Uploaded images ({formData.imageUrls.length}/3):
+                      </p>
+                      <div className="flex gap-2 flex-wrap">
+                        {formData.imageUrls.map((url, index) => (
+                          <div key={index} className="relative">
+                            <img
+                              src={url}
+                              alt={`Journal image ${index + 1}`}
+                              className="w-20 h-20 object-cover rounded-lg border border-border"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setFormData({ 
+                                ...formData, 
+                                imageUrls: formData.imageUrls.filter((_, i) => i !== index) 
+                              })}
+                              className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full text-xs hover:bg-red-600"
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
 
                 <div className="flex gap-3 pt-2">
                   <Button

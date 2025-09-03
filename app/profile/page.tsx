@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast"
 import { ErrorBoundary } from "@/components/error-boundary"
 import { Navigation } from "@/components/navigation"
 import { BackToTop } from "@/components/back-to-top"
+import { AvatarUploadExample } from "@/components/avatar-upload-example"
 
 export default function ProfilePage() {
   const { user, updateProfile, isLoading } = useAuth()
@@ -109,9 +110,9 @@ export default function ProfilePage() {
       console.log('🔄 Updating profile with data:', formData)
       
       // Update profile with all data
-      const updatedProfile = await updateProfile(formData)
+      await updateProfile(formData)
       
-      console.log('✅ Profile update response:', updatedProfile)
+      console.log('✅ Profile update completed')
       
       toast({
         title: "Success!",
@@ -119,17 +120,6 @@ export default function ProfilePage() {
         variant: "default",
       })
       setIsEditing(false)
-      
-      // Force a re-render by updating form data with the returned profile
-      if (updatedProfile) {
-        setFormData({
-          name: updatedProfile.name || "",
-          username: updatedProfile.username || "",
-          age: updatedProfile.age || 0,
-          parish: updatedProfile.parish || "",
-          diocese: updatedProfile.diocese || ""
-        })
-      }
       
     } catch (error) {
       console.error('❌ Error in handleSave:', error)
@@ -242,7 +232,7 @@ export default function ProfilePage() {
             </Card>
           )}
 
-          {/* Profile Header */}
+          {/* Profile Header with Avatar Upload */}
           <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
             <CardHeader className="text-center pb-6">
               <div className="flex justify-center mb-4">
@@ -268,6 +258,28 @@ export default function ProfilePage() {
                  'Click Edit to set your name and personalize your experience'}
               </CardDescription>
             </CardHeader>
+          </Card>
+
+          {/* Avatar Upload Section */}
+          <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+            <CardHeader>
+              <CardTitle className="text-xl font-bold text-gray-900">Profile Picture</CardTitle>
+              <CardDescription className="text-gray-600">
+                Upload a profile picture to personalize your account
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <AvatarUploadExample 
+                currentAvatarUrl={user.avatar_url}
+                userName={user.name || user.username || 'User'}
+                onAvatarUpdate={(newUrl) => {
+                  // Update the user context with new avatar URL
+                  if (updateProfile) {
+                    updateProfile({ ...formData, avatar_url: newUrl })
+                  }
+                }}
+              />
+            </CardContent>
           </Card>
 
           {/* Profile Details */}

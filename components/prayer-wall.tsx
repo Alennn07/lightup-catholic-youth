@@ -17,6 +17,7 @@ import { useAuth } from "@/contexts/auth-context"
 import { formatDistanceToNow } from "date-fns"
 import { logIfEnabled } from "@/lib/performance-monitor"
 import { useTranslation } from "@/lib/i18n"
+import { PrayerWallImageUpload } from "@/components/image-upload"
 
 interface PrayerRequest {
   id: string  // Changed from number to string (UUID)
@@ -44,6 +45,7 @@ export function PrayerWall() {
     request: "",
     category: "",
     isAnonymous: false,
+    imageUrl: "",
   })
   const { toast } = useToast()
   const { user, getAccessToken } = useAuth()
@@ -111,7 +113,7 @@ export function PrayerWall() {
 
       const newRequest = await response.json()
       setRequests([newRequest, ...requests])
-      setFormData({ name: "", request: "", category: "", isAnonymous: false })
+      setFormData({ name: "", request: "", category: "", isAnonymous: false, imageUrl: "" })
       setShowForm(false)
 
       toast({
@@ -291,6 +293,34 @@ export function PrayerWall() {
                 className="bg-gray-50 border-gray-200 text-gray-900 placeholder:text-gray-500 focus:bg-white focus:border-amber-400 focus:ring-amber-400 min-h-[120px] resize-none"
                 required
               />
+
+              {/* Image Upload Section */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700">
+                  Prayer Image (Optional)
+                </label>
+                <PrayerWallImageUpload
+                  onUpload={(url) => setFormData({ ...formData, imageUrl: url })}
+                  onError={(error) => {
+                    toast({
+                      title: "Upload failed",
+                      description: error,
+                      variant: "destructive",
+                    })
+                  }}
+                  className="max-w-md"
+                />
+                {formData.imageUrl && (
+                  <div className="mt-2">
+                    <img
+                      src={formData.imageUrl}
+                      alt="Prayer image preview"
+                      className="w-32 h-32 object-cover rounded-lg border border-gray-200"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">Image uploaded successfully</p>
+                  </div>
+                )}
+              </div>
 
               <div className="flex gap-3 pt-2">
                 <Button
