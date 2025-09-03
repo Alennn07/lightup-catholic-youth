@@ -213,6 +213,215 @@ export class EmailService {
     });
   }
 
+  // Send prayer wall reply notification
+  static async sendPrayerReplyNotification(
+    email: string, 
+    username: string, 
+    prayerTitle: string, 
+    replyContent: string, 
+    replyerName: string
+  ) {
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8f9fa;">
+        <div style="background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+          <h1 style="color: white; margin: 0; font-size: 28px;">🙏 Prayer Reply</h1>
+          <p style="color: white; margin: 10px 0 0 0; font-size: 16px;">Someone prayed for your request</p>
+        </div>
+        
+        <div style="background: white; padding: 30px; border-radius: 0 0 10px 10px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+          <h2 style="color: #333; margin-bottom: 20px;">Hi ${username}! 🙏</h2>
+          
+          <p style="color: #666; line-height: 1.6; margin-bottom: 25px;">
+            Great news! Someone has responded to your prayer request with love and support.
+          </p>
+          
+          <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="color: #333; margin-top: 0;">📝 Your Prayer Request:</h3>
+            <p style="color: #666; margin: 0; font-style: italic;">"${prayerTitle}"</p>
+          </div>
+          
+          <div style="background: #e8f5e8; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="color: #2e7d32; margin-top: 0;">💬 Prayer Response from ${replyerName}:</h3>
+            <p style="color: #333; margin: 0; line-height: 1.6;">"${replyContent}"</p>
+          </div>
+          
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/prayer-wall" 
+               style="background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%); 
+                      color: white; 
+                      padding: 15px 30px; 
+                      text-decoration: none; 
+                      border-radius: 25px; 
+                      display: inline-block; 
+                      font-weight: bold; 
+                      font-size: 16px;
+                      box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);">
+              🙏 View All Responses
+            </a>
+          </div>
+          
+          <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
+            <p style="color: #999; font-size: 14px; margin: 0;">
+              You're receiving this because someone responded to your prayer request. Keep the faith! ✨
+            </p>
+          </div>
+        </div>
+        
+        <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
+          <p>LightUp Catholic Youth Platform</p>
+          <p>Building faith, one connection at a time</p>
+        </div>
+      </div>
+    `;
+
+    return this.sendEmail({
+      to: email,
+      subject: '🙏 Someone prayed for your request!',
+      html
+    });
+  }
+
+  // Send youth group invite notification
+  static async sendYouthGroupInvite(
+    email: string, 
+    username: string, 
+    groupName: string, 
+    inviterName: string, 
+    groupDescription: string,
+    inviteLink: string
+  ) {
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8f9fa;">
+        <div style="background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+          <h1 style="color: white; margin: 0; font-size: 28px;">👥 Youth Group Invite</h1>
+          <p style="color: white; margin: 10px 0 0 0; font-size: 16px;">You've been invited to join!</p>
+        </div>
+        
+        <div style="background: white; padding: 30px; border-radius: 0 0 10px 10px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+          <h2 style="color: #333; margin-bottom: 20px;">Hi ${username}! 👋</h2>
+          
+          <p style="color: #666; line-height: 1.6; margin-bottom: 25px;">
+            <strong>${inviterName}</strong> has invited you to join the <strong>${groupName}</strong> youth group on LightUp!
+          </p>
+          
+          <div style="background: #f0f8ff; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="color: #1976D2; margin-top: 0;">🏛️ About ${groupName}:</h3>
+            <p style="color: #333; margin: 0; line-height: 1.6;">${groupDescription}</p>
+          </div>
+          
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${inviteLink}" 
+               style="background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%); 
+                      color: white; 
+                      padding: 15px 30px; 
+                      text-decoration: none; 
+                      border-radius: 25px; 
+                      display: inline-block; 
+                      font-weight: bold; 
+                      font-size: 16px;
+                      box-shadow: 0 4px 15px rgba(33, 150, 243, 0.4);">
+              👥 Join Group
+            </a>
+          </div>
+          
+          <div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 8px; margin: 20px 0;">
+            <p style="color: #856404; margin: 0; font-size: 14px;">
+              <strong>💡 What you'll get:</strong> Connect with fellow Catholic youth, participate in group activities, 
+              share your faith journey, and grow together in Christ!
+            </p>
+          </div>
+          
+          <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
+            <p style="color: #999; font-size: 14px; margin: 0;">
+              This invite was sent by ${inviterName}. If you don't want to receive these invites, you can update your preferences in your account settings.
+            </p>
+          </div>
+        </div>
+        
+        <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
+          <p>LightUp Catholic Youth Platform</p>
+          <p>Building faith, one connection at a time</p>
+        </div>
+      </div>
+    `;
+
+    return this.sendEmail({
+      to: email,
+      subject: `👥 You're invited to join ${groupName}!`,
+      html
+    });
+  }
+
+  // Send weekly faith challenge notification
+  static async sendWeeklyChallengeNotification(
+    email: string, 
+    username: string, 
+    challengeTitle: string, 
+    challengeDescription: string,
+    challengeLink: string
+  ) {
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8f9fa;">
+        <div style="background: linear-gradient(135deg, #9C27B0 0%, #7B1FA2 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+          <h1 style="color: white; margin: 0; font-size: 28px;">⭐ Weekly Faith Challenge</h1>
+          <p style="color: white; margin: 10px 0 0 0; font-size: 16px;">Your new challenge is here!</p>
+        </div>
+        
+        <div style="background: white; padding: 30px; border-radius: 0 0 10px 10px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+          <h2 style="color: #333; margin-bottom: 20px;">Hi ${username}! ⭐</h2>
+          
+          <p style="color: #666; line-height: 1.6; margin-bottom: 25px;">
+            Ready for this week's faith challenge? Let's grow together in our spiritual journey!
+          </p>
+          
+          <div style="background: #f3e5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="color: #7B1FA2; margin-top: 0;">🎯 This Week's Challenge:</h3>
+            <h4 style="color: #333; margin: 10px 0;">${challengeTitle}</h4>
+            <p style="color: #666; margin: 0; line-height: 1.6;">${challengeDescription}</p>
+          </div>
+          
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${challengeLink}" 
+               style="background: linear-gradient(135deg, #9C27B0 0%, #7B1FA2 100%); 
+                      color: white; 
+                      padding: 15px 30px; 
+                      text-decoration: none; 
+                      border-radius: 25px; 
+                      display: inline-block; 
+                      font-weight: bold; 
+                      font-size: 16px;
+                      box-shadow: 0 4px 15px rgba(156, 39, 176, 0.4);">
+              🚀 Start Challenge
+            </a>
+          </div>
+          
+          <div style="background: #e8f5e8; border: 1px solid #c8e6c9; padding: 15px; border-radius: 8px; margin: 20px 0;">
+            <p style="color: #2e7d32; margin: 0; font-size: 14px;">
+              <strong>💪 Remember:</strong> Every small step in faith makes a big difference. You've got this!
+            </p>
+          </div>
+          
+          <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
+            <p style="color: #999; font-size: 14px; margin: 0;">
+              Complete the challenge and share your experience with the community. Let's inspire each other! ✨
+            </p>
+          </div>
+        </div>
+        
+        <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
+          <p>LightUp Catholic Youth Platform</p>
+          <p>Building faith, one connection at a time</p>
+        </div>
+      </div>
+    `;
+
+    return this.sendEmail({
+      to: email,
+      subject: `⭐ New Weekly Faith Challenge: ${challengeTitle}`,
+      html
+    });
+  }
+
   // Generic email sender
   private static async sendEmail(emailData: EmailData) {
     try {

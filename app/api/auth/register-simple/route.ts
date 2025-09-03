@@ -1,8 +1,9 @@
-'use server';
-
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { EmailService } from '../../_email/email-service';
+import { RegisterSchema } from '@/lib/validations';
+import { checkRateLimit, getRateLimitHeaders } from '@/lib/rate-limiter';
+import { getClientIP, createFriendlyError, logSecurityEvent, generateSecureToken, storeToken } from '@/lib/auth-helpers';
 
 // Initialize Supabase client
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -16,16 +17,27 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey, {
 });
 
 export async function POST(request: NextRequest) {
+  const ip = getClientIP(request);
+  const userAgent = request.headers.get('user-agent') || 'unknown';
+  
   try {
-    const { name, username, email, password, age, parish, diocese } = await request.json();
-
-    // Validate required fields
-    if (!name || !username || !email || !password || !age || !parish || !diocese) {
+    // Rate limiting
+    const rateLimit = await checkRateLimit(email, 'REGISTRATION', ip);
+    if (!rateLimit.allowed) {
       return NextResponse.json(
-        { error: 'All fields are required' },
-        { status: 400 }
+        { error: 'Too many registration attempts. Please try again later.' },
+        { 
+          status: 429,
+          headers: getRateLimitHeaders(rateLimit.remaining, rateLimit.resetTime)
+        }
       );
     }
+
+    const body = await request.json();
+    
+    // Validate request body with Zod
+    const validatedData = RegisterSchema.parse(body);
+    const { name, username, email, password, age, parish, diocese } = validatedData;
 
     console.log('🚀 Simple registration started for:', email);
 
@@ -45,8 +57,15 @@ export async function POST(request: NextRequest) {
 
     if (authError) {
       console.error('❌ Auth user creation failed:', authError);
+      
+      // Log security event
+      await logSecurityEvent(null, 'registration_failed', {
+        email,
+        error: authError.message
+      }, ip, userAgent);
+      
       return NextResponse.json(
-        { error: authError.message },
+        { error: createFriendlyError(authError) },
         { status: 400 }
       );
     }
@@ -69,6 +88,12 @@ export async function POST(request: NextRequest) {
 
     if (profileError) {
       console.error('❌ Profile creation failed:', profileError);
+      
+      // Log security event
+      await logSecurityEvent(authData.user?.id, 'profile_creation_failed', {
+        error: profileError.message
+      }, ip, userAgent);
+      
       // If profile creation fails, we should clean up the auth user
       // But for now, let's just log it
       console.warn('⚠️ Profile creation failed, auth user remains');
@@ -76,9 +101,12 @@ export async function POST(request: NextRequest) {
       console.log('✅ User profile created successfully');
     }
 
-    // 3. Send welcome email with verification link
+    // 3. Generate verification token and send welcome email
     try {
-      const verificationLink = `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/verify-email?token=${authData.user!.id}`;
+      const verificationToken = generateSecureToken();
+      storeToken(verificationToken, authData.user!.id, 'email_verification', 24 * 60 * 60 * 1000); // 24 hours
+      
+      const verificationLink = `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/verify-email?token=${verificationToken}`;
       
       await EmailService.sendVerificationEmail(
         email,
@@ -108,8 +136,25 @@ export async function POST(request: NextRequest) {
 
   } catch (error: any) {
     console.error('❌ Simple registration API error:', error);
+    
+    // Log security event
+    await logSecurityEvent(null, 'registration_error', {
+      error: error.message,
+      stack: error.stack
+    }, ip, userAgent);
+    
+    if (error.name === 'ZodError') {
+      return NextResponse.json({ 
+        error: 'Please check your input and try again.',
+        details: error.errors.map((err: any) => ({
+          field: err.path.join('.'),
+          message: err.message
+        }))
+      }, { status: 400 });
+    }
+    
     return NextResponse.json(
-      { error: 'Internal server error during registration' },
+      { error: createFriendlyError(error) },
       { status: 500 }
     );
   }
