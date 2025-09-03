@@ -53,6 +53,7 @@ export default function DashboardPage() {
   const [prayerStreakDays, setPrayerStreakDays] = useState(0)
   const [bibleCompletedToday, setBibleCompletedToday] = useState(false)
   const [bibleCompletedThisWeek, setBibleCompletedThisWeek] = useState(0)
+  const [totalActivities, setTotalActivities] = useState(0)
 
   // SUPER FAST: Calculate user display name instantly
   const userDisplayName = useMemo(() => {
@@ -134,6 +135,25 @@ export default function DashboardPage() {
       }
     } catch (e) {
       console.error('Error fetching bible progress', e)
+    }
+  }, [user?.id])
+
+  // Fetch aggregate user stats for dashboard totals
+  const fetchUserStats = useCallback(async () => {
+    if (!user?.id) return
+    try {
+      const response = await fetch(`/api/users/stats?userId=${user.id}`)
+      if (response.ok) {
+        const stats = await response.json()
+        setUserStats(prev => ({
+          ...prev,
+          bibleVersesRead: stats.bibleCompletions7d || 0,
+          journalEntries: stats.journalEntries || 0,
+        }))
+        setTotalActivities((stats.totalPrayerSessions || 0) + (stats.bibleCompletions7d || 0) + (stats.journalEntries || 0))
+      }
+    } catch (e) {
+      console.error('Error fetching user aggregate stats', e)
     }
   }, [user?.id])
 
@@ -224,9 +244,10 @@ export default function DashboardPage() {
       fetchInsights()
       fetchWeeklyChallenges()
       fetchRecentSessions()
+      fetchUserStats()
       fetchBibleProgress()
     }
-  }, [user?.id, fetchInsights, fetchWeeklyChallenges, fetchRecentSessions, fetchBibleProgress])
+  }, [user?.id, fetchInsights, fetchWeeklyChallenges, fetchRecentSessions, fetchBibleProgress, fetchUserStats])
 
   // SUPER FAST: Redirect if not authenticated
   useEffect(() => {
@@ -608,7 +629,7 @@ export default function DashboardPage() {
                     <div className="text-sm text-gray-600">Days of Faith</div>
                   </div>
                   <div className="text-center p-4 bg-white rounded-lg border border-blue-100">
-                    <div className="text-2xl font-bold text-blue-600 mb-1">{userStats.prayersShared + userStats.bibleVersesRead + userStats.journalEntries}</div>
+                    <div className="text-2xl font-bold text-blue-600 mb-1">{totalActivities}</div>
                     <div className="text-sm text-gray-600">Total Activities</div>
                   </div>
                   <div className="text-center p-4 bg-white rounded-lg border border-green-100">
