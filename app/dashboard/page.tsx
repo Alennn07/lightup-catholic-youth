@@ -51,6 +51,8 @@ export default function DashboardPage() {
   const [recentSessions, setRecentSessions] = useState<any[]>([])
   const [loadingSessions, setLoadingSessions] = useState(false)
   const [prayerStreakDays, setPrayerStreakDays] = useState(0)
+  const [bibleCompletedToday, setBibleCompletedToday] = useState(false)
+  const [bibleCompletedThisWeek, setBibleCompletedThisWeek] = useState(0)
 
   // SUPER FAST: Calculate user display name instantly
   const userDisplayName = useMemo(() => {
@@ -117,6 +119,21 @@ export default function DashboardPage() {
       console.error('Error fetching recent sessions:', error)
     } finally {
       setLoadingSessions(false)
+    }
+  }, [user?.id])
+
+  // Fetch Bible verse completion metrics
+  const fetchBibleProgress = useCallback(async () => {
+    if (!user?.id) return
+    try {
+      const response = await fetch(`/api/daily-bible-verse/progress?userId=${user.id}&days=7`)
+      if (response.ok) {
+        const data = await response.json()
+        setBibleCompletedToday(Boolean(data.completedToday))
+        setBibleCompletedThisWeek(Number(data.completedCount || 0))
+      }
+    } catch (e) {
+      console.error('Error fetching bible progress', e)
     }
   }, [user?.id])
 
@@ -207,8 +224,9 @@ export default function DashboardPage() {
       fetchInsights()
       fetchWeeklyChallenges()
       fetchRecentSessions()
+      fetchBibleProgress()
     }
-  }, [user?.id, fetchInsights, fetchWeeklyChallenges, fetchRecentSessions])
+  }, [user?.id, fetchInsights, fetchWeeklyChallenges, fetchRecentSessions, fetchBibleProgress])
 
   // SUPER FAST: Redirect if not authenticated
   useEffect(() => {
@@ -288,8 +306,9 @@ export default function DashboardPage() {
               <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl flex items-center justify-center mx-auto mb-4">
                 <BookOpen className="h-6 w-6 text-white" />
               </div>
-              <div className="text-2xl font-bold text-gray-800 mb-2">{userStats.bibleVersesRead}</div>
-              <div className="text-gray-600 font-medium">Bible Verses Read</div>
+              <div className="text-2xl font-bold text-gray-800 mb-1">{bibleCompletedThisWeek}/5</div>
+              <div className="text-gray-600 font-medium">Verses this week</div>
+              <div className="text-xs text-green-600 mt-1">{bibleCompletedToday ? 'Completed today ✅' : 'Not yet today'}</div>
             </CardContent>
           </Card>
 

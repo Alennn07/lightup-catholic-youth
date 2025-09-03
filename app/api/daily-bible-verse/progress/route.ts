@@ -4,6 +4,39 @@ import { logIfEnabled, logPerformanceIfEnabled } from '@/lib/performance-monitor
 
 export const dynamic = 'force-dynamic'
 
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url)
+    const userId = searchParams.get('userId')
+    const days = parseInt(searchParams.get('days') || '7')
+    if (!userId) return NextResponse.json({ error: 'User ID is required' }, { status: 400 })
+
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      { auth: { autoRefreshToken: false, persistSession: false } }
+    )
+
+    const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+
+    const { data, error } = await supabase
+      .from('user_progress')
+      .select('is_completed, verse_date')
+      .eq('user_id', userId)
+      .gte('verse_date', since)
+
+    if (error) return NextResponse.json({ error: 'Failed to fetch progress' }, { status: 500 })
+
+    const completedCount = (data || []).filter(r => r.is_completed).length
+    const todayKey = new Date().toISOString().split('T')[0]
+    const completedToday = (data || []).some(r => r.verse_date === todayKey && r.is_completed)
+
+    return NextResponse.json({ completedCount, completedToday })
+  } catch {
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
+}
+
 export async function POST(request: NextRequest) {
   const startTime = Date.now()
   
