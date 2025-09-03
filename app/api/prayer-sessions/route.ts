@@ -12,8 +12,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'User ID is required' }, { status: 400 })
     }
 
-    // Get user's prayer sessions
-    const { data: sessions, error } = await supabase
+    // Get user's prayer sessions (use service role to ensure server-side access)
+    const { data: sessions, error } = await supabaseAdmin
       .from('prayer_sessions')
       .select('*')
       .eq('user_id', userId)
@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get prayer statistics
-    const { data: stats, error: statsError } = await supabase
+    const { data: stats, error: statsError } = await supabaseAdmin
       .from('prayer_sessions')
       .select('duration_minutes, created_at')
       .eq('user_id', userId)
