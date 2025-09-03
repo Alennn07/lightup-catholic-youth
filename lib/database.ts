@@ -253,7 +253,7 @@ export interface AppAnalytics {
 export const dbHelpers = {
   // User profile helpers
   async getUserProfile(userId: string): Promise<UserProfile | null> {
-    const { data, error } = await supabase.from("user_profiles").select("*").eq("id", userId).single()
+    const { data, error } = await supabase.from("users").select("*").eq("id", userId).single()
 
     if (error) {
       console.error("Error fetching user profile:", error)
@@ -264,7 +264,7 @@ export const dbHelpers = {
   },
 
   async updateUserProfile(userId: string, updates: Partial<UserProfile>): Promise<boolean> {
-    const { error } = await supabase.from("user_profiles").update(updates).eq("id", userId)
+    const { error } = await supabase.from("users").update(updates).eq("id", userId)
 
     if (error) {
       console.error("Error updating user profile:", error)
@@ -284,7 +284,7 @@ export const dbHelpers = {
       .from("prayer_requests")
       .select(`
         *,
-        user:user_profiles(name, avatar_url)
+        user:users(name, avatar_url)
       `)
       .eq("is_public", true)
       .order("created_at", { ascending: false })

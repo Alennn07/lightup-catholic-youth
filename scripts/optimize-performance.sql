@@ -50,8 +50,8 @@ CREATE INDEX IF NOT EXISTS idx_notifications_user_read
 ON notifications (user_id, is_read);
 
 -- 13. Add index for user profiles
-CREATE INDEX IF NOT EXISTS idx_user_profiles_user_id 
-ON user_profiles (user_id);
+CREATE INDEX IF NOT EXISTS idx_users_user_id 
+ON users (user_id);
 
 -- 14. Add index for user settings
 CREATE INDEX IF NOT EXISTS idx_user_settings_user_id 
@@ -129,7 +129,7 @@ ANALYZE youth_groups;
 ANALYZE events;
 ANALYZE prayer_requests;
 ANALYZE notifications;
-ANALYZE user_profiles;
+ANALYZE users;
 ANALYZE user_settings;
 ANALYZE user_achievements;
 ANALYZE user_badges;
@@ -156,7 +156,7 @@ VACUUM ANALYZE youth_groups;
 VACUUM ANALYZE events;
 VACUUM ANALYZE prayer_requests;
 VACUUM ANALYZE notifications;
-VACUUM ANALYZE user_profiles;
+VACUUM ANALYZE users;
 VACUUM ANALYZE user_settings;
 VACUUM ANALYZE user_achievements;
 VACUUM ANALYZE user_badges;
@@ -191,7 +191,7 @@ AND tablename IN (
     'events',
     'prayer_requests',
     'notifications',
-    'user_profiles',
+    'users',
     'user_settings',
     'user_achievements',
     'user_badges',

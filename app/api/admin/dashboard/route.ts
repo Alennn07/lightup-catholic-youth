@@ -36,7 +36,7 @@ export async function GET(request: Request) {
     }
 
     // Check if user is admin (you can implement your own admin check logic)
-    const { data: profile } = await supabase.from("user_profiles").select("*").eq("id", session.user.id).single()
+    const { data: profile } = await supabase.from("users").select("*").eq("id", session.user.id).single()
 
     if (!profile || !profile.email.includes("admin")) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
@@ -45,7 +45,7 @@ export async function GET(request: Request) {
     // Get dashboard statistics
     const [usersResult, prayerRequestsResult, youthGroupsResult, eventsResult, journalEntriesResult, feedbackResult] =
       await Promise.all([
-        supabase.from("user_profiles").select("id", { count: "exact" }),
+        supabase.from("users").select("id", { count: "exact" }),
         supabase.from("prayer_requests").select("id", { count: "exact" }),
         supabase.from("youth_groups").select("id", { count: "exact" }),
         supabase.from("events").select("id", { count: "exact" }),
@@ -55,7 +55,7 @@ export async function GET(request: Request) {
 
     // Get recent activity
     const { data: recentUsers } = await supabase
-      .from("user_profiles")
+      .from("users")
       .select("name, email, created_at")
       .order("created_at", { ascending: false })
       .limit(5)

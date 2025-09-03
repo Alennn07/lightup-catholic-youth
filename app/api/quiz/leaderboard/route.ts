@@ -53,7 +53,7 @@ export async function GET(request: Request) {
       .from('quiz_progress')
       .select(`
         *,
-        user_profiles!inner(
+        users!inner(
           username,
           avatar_url,
           parish
