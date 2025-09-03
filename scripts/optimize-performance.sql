@@ -53,73 +53,109 @@ ON notifications (user_id, is_read);
 CREATE INDEX IF NOT EXISTS idx_users_email 
 ON users (email);
 
--- 14. Add index for user settings
-CREATE INDEX IF NOT EXISTS idx_user_settings_user_id 
-ON user_settings (user_id);
+-- 14. Add index for youth group members by group
+CREATE INDEX IF NOT EXISTS idx_youth_group_members_group 
+ON youth_group_members (group_id);
 
--- 15. Add index for user achievements
-CREATE INDEX IF NOT EXISTS idx_user_achievements_user_created 
-ON user_achievements (user_id, created_at);
+-- 15. Add index for youth group members by user
+CREATE INDEX IF NOT EXISTS idx_youth_group_members_user 
+ON youth_group_members (user_id);
 
--- 16. Add index for user badges
-CREATE INDEX IF NOT EXISTS idx_user_badges_user_created 
-ON user_badges (user_id, created_at);
+-- 16. Add index for prayer responses by prayer request
+CREATE INDEX IF NOT EXISTS idx_prayer_responses_request 
+ON prayer_responses (prayer_request_id);
 
--- 17. Add index for user friends/followers
-CREATE INDEX IF NOT EXISTS idx_user_relationships_user 
-ON user_relationships (user_id);
+-- 17. Add index for user activities by user and date
+CREATE INDEX IF NOT EXISTS idx_user_activities_user_date 
+ON user_activities (user_id, activity_date);
 
--- 18. Add index for user posts
-CREATE INDEX IF NOT EXISTS idx_user_posts_user_created 
-ON user_posts (user_id, created_at);
+-- 18. Add index for user insights by user
+CREATE INDEX IF NOT EXISTS idx_user_insights_user 
+ON user_insights (user_id);
 
--- 19. Add index for user comments
-CREATE INDEX IF NOT EXISTS idx_user_comments_user_created 
-ON user_comments (user_id, created_at);
+-- 19. Add index for prayer sessions by user
+CREATE INDEX IF NOT EXISTS idx_prayer_sessions_user 
+ON prayer_sessions (user_id);
 
--- 20. Add index for user likes
-CREATE INDEX IF NOT EXISTS idx_user_likes_user_created 
-ON user_likes (user_id, created_at);
+-- 20. Add index for weekly challenges by user
+CREATE INDEX IF NOT EXISTS idx_weekly_challenges_user 
+ON weekly_challenges (user_id);
 
--- 21. Add index for user shares
-CREATE INDEX IF NOT EXISTS idx_user_shares_user_created 
-ON user_shares (user_id, created_at);
+-- 21. Add index for quiz progress by user and category
+CREATE INDEX IF NOT EXISTS idx_quiz_progress_user_category 
+ON quiz_progress (user_id, category);
 
--- 22. Add index for user bookmarks
-CREATE INDEX IF NOT EXISTS idx_user_bookmarks_user_created 
-ON user_bookmarks (user_id, created_at);
+-- 22. Add index for quiz attempts by user
+CREATE INDEX IF NOT EXISTS idx_quiz_attempts_user 
+ON quiz_attempts (user_id);
 
--- 23. Add index for user notes
-CREATE INDEX IF NOT EXISTS idx_user_notes_user_created 
-ON user_notes (user_id, created_at);
+-- 23. Add index for quiz achievements by user
+CREATE INDEX IF NOT EXISTS idx_quiz_achievements_user 
+ON quiz_achievements (user_id);
 
--- 24. Add index for user goals
-CREATE INDEX IF NOT EXISTS idx_user_goals_user_created 
-ON user_goals (user_id, created_at);
+-- 24. Add index for group events by group
+CREATE INDEX IF NOT EXISTS idx_group_events_group 
+ON group_events (group_id);
 
--- 25. Add index for user habits
-CREATE INDEX IF NOT EXISTS idx_user_habits_user_created 
-ON user_habits (user_id, created_at);
+-- 25. Add index for group events by date
+CREATE INDEX IF NOT EXISTS idx_group_events_date 
+ON group_events (event_date);
 
--- 26. Add index for user moods
-CREATE INDEX IF NOT EXISTS idx_user_moods_user_created 
-ON user_moods (user_id, created_at);
+-- 26. Add index for group posts by group
+CREATE INDEX IF NOT EXISTS idx_group_posts_group 
+ON group_posts (group_id);
 
--- 27. Add index for user prayers
-CREATE INDEX IF NOT EXISTS idx_user_prayers_user_created 
-ON user_prayers (user_id, created_at);
+-- 27. Add index for event registrations by event
+CREATE INDEX IF NOT EXISTS idx_event_registrations_event 
+ON event_registrations (event_id);
 
--- 28. Add index for user reflections
-CREATE INDEX IF NOT EXISTS idx_user_reflections_user_created 
-ON user_reflections (user_id, created_at);
+-- 28. Add index for event registrations by user
+CREATE INDEX IF NOT EXISTS idx_event_registrations_user 
+ON event_registrations (user_id);
 
--- 29. Add index for user gratitude
-CREATE INDEX IF NOT EXISTS idx_user_gratitude_user_created 
-ON user_gratitude (user_id, created_at);
+-- 29. Add index for error logs by timestamp
+CREATE INDEX IF NOT EXISTS idx_error_logs_timestamp 
+ON error_logs (timestamp);
 
--- 30. Add index for user challenges
-CREATE INDEX IF NOT EXISTS idx_user_challenges_user_created 
-ON user_challenges (user_id, created_at);
+-- 30. Add index for error logs by severity
+CREATE INDEX IF NOT EXISTS idx_error_logs_severity 
+ON error_logs (severity);
+
+-- 31. Add index for security logs by timestamp
+CREATE INDEX IF NOT EXISTS idx_security_logs_timestamp 
+ON security_logs (timestamp);
+
+-- 32. Add index for security logs by event type
+CREATE INDEX IF NOT EXISTS idx_security_logs_event_type 
+ON security_logs (event_type);
+
+-- 33. Add index for bible verse readings by user
+CREATE INDEX IF NOT EXISTS idx_bible_verse_readings_user 
+ON bible_verse_readings (user_id);
+
+-- 34. Add index for bible verse readings by date
+CREATE INDEX IF NOT EXISTS idx_bible_verse_readings_date 
+ON bible_verse_readings (reading_date);
+
+-- 35. Add index for feature feedback by feature
+CREATE INDEX IF NOT EXISTS idx_feature_feedback_feature 
+ON feature_feedback (feature_id);
+
+-- 36. Add index for feature feedback by user
+CREATE INDEX IF NOT EXISTS idx_feature_feedback_user 
+ON feature_feedback (user_id);
+
+-- 37. Add index for testimonials by user
+CREATE INDEX IF NOT EXISTS idx_testimonials_user 
+ON testimonials (user_id);
+
+-- 38. Add index for apps by category
+CREATE INDEX IF NOT EXISTS idx_apps_category 
+ON apps (category);
+
+-- 39. Add index for user activity by user and date
+CREATE INDEX IF NOT EXISTS idx_user_activity_user_date 
+ON user_activity (user_id, activity_date);
 
 -- 🚀 ANALYZE TABLES for better query planning
 ANALYZE user_progress;
@@ -128,25 +164,26 @@ ANALYZE quiz_questions;
 ANALYZE youth_groups;
 ANALYZE events;
 ANALYZE prayer_requests;
-ANALYZE notifications;
 ANALYZE users;
-ANALYZE user_settings;
-ANALYZE user_achievements;
-ANALYZE user_badges;
-ANALYZE user_relationships;
-ANALYZE user_posts;
-ANALYZE user_comments;
-ANALYZE user_likes;
-ANALYZE user_shares;
-ANALYZE user_bookmarks;
-ANALYZE user_notes;
-ANALYZE user_goals;
-ANALYZE user_habits;
-ANALYZE user_moods;
-ANALYZE user_prayers;
-ANALYZE user_reflections;
-ANALYZE user_gratitude;
-ANALYZE user_challenges;
+ANALYZE youth_group_members;
+ANALYZE prayer_responses;
+ANALYZE user_activities;
+ANALYZE user_insights;
+ANALYZE prayer_sessions;
+ANALYZE weekly_challenges;
+ANALYZE quiz_progress;
+ANALYZE quiz_attempts;
+ANALYZE quiz_achievements;
+ANALYZE group_events;
+ANALYZE group_posts;
+ANALYZE event_registrations;
+ANALYZE error_logs;
+ANALYZE security_logs;
+ANALYZE bible_verse_readings;
+ANALYZE feature_feedback;
+ANALYZE testimonials;
+ANALYZE apps;
+ANALYZE user_activity;
 
 -- 🚀 VACUUM TABLES for better performance
 VACUUM ANALYZE user_progress;
@@ -155,25 +192,26 @@ VACUUM ANALYZE quiz_questions;
 VACUUM ANALYZE youth_groups;
 VACUUM ANALYZE events;
 VACUUM ANALYZE prayer_requests;
-VACUUM ANALYZE notifications;
 VACUUM ANALYZE users;
-VACUUM ANALYZE user_settings;
-VACUUM ANALYZE user_achievements;
-VACUUM ANALYZE user_badges;
-VACUUM ANALYZE user_relationships;
-VACUUM ANALYZE user_posts;
-VACUUM ANALYZE user_comments;
-VACUUM ANALYZE user_likes;
-VACUUM ANALYZE user_shares;
-VACUUM ANALYZE user_bookmarks;
-VACUUM ANALYZE user_notes;
-VACUUM ANALYZE user_goals;
-VACUUM ANALYZE user_habits;
-VACUUM ANALYZE user_moods;
-VACUUM ANALYZE user_prayers;
-VACUUM ANALYZE user_reflections;
-VACUUM ANALYZE user_gratitude;
-VACUUM ANALYZE user_challenges;
+VACUUM ANALYZE youth_group_members;
+VACUUM ANALYZE prayer_responses;
+VACUUM ANALYZE user_activities;
+VACUUM ANALYZE user_insights;
+VACUUM ANALYZE prayer_sessions;
+VACUUM ANALYZE weekly_challenges;
+VACUUM ANALYZE quiz_progress;
+VACUUM ANALYZE quiz_attempts;
+VACUUM ANALYZE quiz_achievements;
+VACUUM ANALYZE group_events;
+VACUUM ANALYZE group_posts;
+VACUUM ANALYZE event_registrations;
+VACUUM ANALYZE error_logs;
+VACUUM ANALYZE security_logs;
+VACUUM ANALYZE bible_verse_readings;
+VACUUM ANALYZE feature_feedback;
+VACUUM ANALYZE testimonials;
+VACUUM ANALYZE apps;
+VACUUM ANALYZE user_activity;
 
 -- 🚀 SHOW INDEXES for verification
 SELECT 
@@ -190,24 +228,27 @@ AND tablename IN (
     'youth_groups',
     'events',
     'prayer_requests',
-    'notifications',
+
     'users',
-    'user_settings',
-    'user_achievements',
-    'user_badges',
-    'user_relationships',
-    'user_posts',
-    'user_comments',
-    'user_likes',
-    'user_shares',
-    'user_bookmarks',
-    'user_notes',
-    'user_goals',
-    'user_habits',
-    'user_moods',
-    'user_prayers',
-    'user_reflections',
-    'user_gratitude',
-    'user_challenges'
+
+    'youth_group_members',
+    'prayer_responses',
+    'user_activities',
+    'user_insights',
+    'prayer_sessions',
+    'weekly_challenges',
+    'quiz_progress',
+    'quiz_attempts',
+    'quiz_achievements',
+    'group_events',
+    'group_posts',
+    'event_registrations',
+    'error_logs',
+    'security_logs',
+    'bible_verse_readings',
+    'feature_feedback',
+    'testimonials',
+    'apps',
+    'user_activity'
 )
 ORDER BY tablename, indexname;
