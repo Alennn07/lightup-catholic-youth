@@ -50,6 +50,7 @@ export default function DashboardPage() {
   const [loadingInsights, setLoadingInsights] = useState(false)
   const [recentSessions, setRecentSessions] = useState<any[]>([])
   const [loadingSessions, setLoadingSessions] = useState(false)
+  const [prayerStreakDays, setPrayerStreakDays] = useState(0)
 
   // SUPER FAST: Calculate user display name instantly
   const userDisplayName = useMemo(() => {
@@ -79,10 +80,38 @@ export default function DashboardPage() {
     if (!user?.id) return
     setLoadingSessions(true)
     try {
-      const response = await fetch(`/api/prayer-sessions?userId=${user.id}&limit=5`)
+      const response = await fetch(`/api/prayer-sessions?userId=${user.id}&limit=50`)
       if (response.ok) {
-        const { sessions } = await response.json()
-        setRecentSessions(sessions || [])
+        const { sessions, stats } = await response.json()
+        const safeSessions = sessions || []
+        setRecentSessions(safeSessions.slice(0, 5))
+
+        // Update counters from server stats
+        setUserStats(prev => ({
+          ...prev,
+          prayersShared: stats?.sessionCount ?? prev.prayersShared,
+        }))
+
+        // Compute prayer streak: consecutive days ending today with >= 10 minutes total
+        const minutesByDay = new Map<string, number>()
+        for (const s of safeSessions) {
+          const day = new Date(s.created_at).toISOString().split('T')[0]
+          minutesByDay.set(day, (minutesByDay.get(day) || 0) + (s.duration_minutes || 0))
+        }
+        let streak = 0
+        const today = new Date()
+        while (true) {
+          const dayKey = new Date(today.getTime() - streak * 24 * 60 * 60 * 1000)
+            .toISOString()
+            .split('T')[0]
+          const mins = minutesByDay.get(dayKey) || 0
+          if (mins >= 10) {
+            streak += 1
+          } else {
+            break
+          }
+        }
+        setPrayerStreakDays(streak)
       }
     } catch (error) {
       console.error('Error fetching recent sessions:', error)
@@ -453,11 +482,11 @@ export default function DashboardPage() {
                       </div>
                       <div>
                         <p className="font-medium text-gray-800">Pray for 10 minutes daily</p>
-                        <p className="text-sm text-gray-500">Streak: 3 days</p>
+                        <p className="text-sm text-gray-500">Streak: {prayerStreakDays} day{prayerStreakDays === 1 ? '' : 's'}</p>
                       </div>
                     </div>
                     <div className="w-16 bg-gray-200 rounded-full h-2">
-                      <div className="bg-purple-500 h-2 rounded-full" style={{width: '30%'}}></div>
+                      <div className="bg-purple-500 h-2 rounded-full" style={{width: `${Math.min(100, prayerStreakDays * 10)}%`}}></div>
                     </div>
                   </div>
                   
