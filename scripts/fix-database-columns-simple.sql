@@ -1,5 +1,5 @@
--- Add missing columns for image upload functionality
--- This script adds the missing columns to support image uploads
+-- Simple fix for missing database columns
+-- This script adds the missing columns without constraint conflicts
 
 -- Add missing columns to prayer_requests table
 ALTER TABLE prayer_requests 
@@ -16,21 +16,7 @@ UPDATE prayer_requests
 SET category = 'Other' 
 WHERE category IS NULL;
 
--- Add constraints for prayer_requests category (only if it doesn't exist)
-DO $$ 
-BEGIN
-    IF NOT EXISTS (
-        SELECT 1 FROM information_schema.table_constraints 
-        WHERE constraint_name = 'valid_prayer_category' 
-        AND table_name = 'prayer_requests'
-    ) THEN
-        ALTER TABLE prayer_requests 
-        ADD CONSTRAINT valid_prayer_category 
-        CHECK (category IN ('Health', 'Family', 'Education', 'Work', 'Spiritual', 'Other'));
-    END IF;
-END $$;
-
--- Create indexes for better performance
+-- Create indexes for better performance (safe to run multiple times)
 CREATE INDEX IF NOT EXISTS idx_prayer_requests_category ON prayer_requests(category);
 CREATE INDEX IF NOT EXISTS idx_prayer_requests_image_url ON prayer_requests(image_url) WHERE image_url IS NOT NULL;
 CREATE INDEX IF NOT EXISTS idx_journal_entries_image_urls ON journal_entries USING GIN(image_urls) WHERE image_urls IS NOT NULL;
@@ -55,5 +41,5 @@ SELECT
   column_default
 FROM information_schema.columns 
 WHERE table_name = 'journal_entries' 
-  AND column_name = 'image_urls'
+  AND column_name IN ('image_urls', 'entry_date')
 ORDER BY column_name;
