@@ -10,8 +10,21 @@ export async function GET() {
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     )
 
-    // Try to insert a test member
-    const testGroupId = 1 // Use the first group ID
+    // First, get the actual group ID for LYGGG
+    const { data: groups, error: groupsError } = await supabase
+      .from('youth_groups')
+      .select('id, name')
+      .eq('name', 'LYGGG')
+      .limit(1)
+
+    if (groupsError || !groups || groups.length === 0) {
+      return NextResponse.json({ 
+        error: 'LYGGG group not found', 
+        details: groupsError?.message 
+      }, { status: 404 })
+    }
+
+    const testGroupId = groups[0].id
     const testUserId = 'd2adf254-832d-4178-8fe6-bea77a02a57f' // The user from the request
 
     const { data, error } = await supabase
