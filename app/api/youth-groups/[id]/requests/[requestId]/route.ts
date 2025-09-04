@@ -123,7 +123,7 @@ export async function PUT(
     if (verifyError) {
       logIfEnabled(`❌ Error verifying request status: ${verifyError.message}`)
     } else {
-      logIfEnabled(`🔍 Verified request status in DB: ${JSON.stringify(verifyRequest)}`)
+      logIfEnabled(`🔍 Verified request status in DB:`, verifyRequest)
     }
 
     if (action === 'approve') {
