@@ -1,6 +1,18 @@
 import { NextResponse } from "next/server"
-import { supabase } from "@/lib/supabase"
+import { createClient } from '@supabase/supabase-js'
 import { JournalEntrySchema, UserIdSchema } from '@/lib/validations'
+
+// Create Supabase client with service role key for admin operations
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
+    }
+  }
+)
 
 // Force this route to be dynamic since it uses request.url
 export const dynamic = 'force-dynamic'
@@ -70,8 +82,7 @@ export async function POST(request: Request) {
       mood: validatedData.mood,
       tags: validatedData.tags,
       is_private: validatedData.is_private,
-      entry_date: validatedData.date || new Date().toISOString().split('T')[0],
-      created_at: new Date().toISOString()
+      entry_date: validatedData.date || new Date().toISOString().split('T')[0]
     }
     
     // Only add image_urls if it exists and is not empty
