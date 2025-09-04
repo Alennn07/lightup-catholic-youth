@@ -93,6 +93,23 @@ export async function PUT(
     console.log(`✅ Request updated successfully:`, updatedRequest)
     console.log(`✅ Updated status: ${updatedRequest?.status}`)
 
+    // Force a second update to ensure it sticks
+    if (action === 'approve') {
+      console.log(`🔄 Force updating request ${requestId} to approved again...`)
+      const { data: forceUpdate, error: forceError } = await supabase
+        .from('group_join_requests')
+        .update({ status: 'approved' })
+        .eq('id', requestId)
+        .select()
+        .single()
+
+      if (forceError) {
+        console.error(`❌ Force update failed: ${forceError.message}`)
+      } else {
+        console.log(`✅ Force update successful:`, forceUpdate)
+      }
+    }
+
     logIfEnabled(`✅ Request ${requestId} updated to status: ${action === 'approve' ? 'approved' : 'rejected'}`)
     logIfEnabled(`✅ Updated request data:`, updatedRequest)
     
