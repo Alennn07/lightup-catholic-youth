@@ -73,8 +73,43 @@ export default function EnhancedYouthGroups() {
   const [loadingGroupDetails, setLoadingGroupDetails] = useState(false)
   const [showAddMemberForm, setShowAddMemberForm] = useState(false)
   const [showMemberRequests, setShowMemberRequests] = useState(false)
+  const [showCreateEvent, setShowCreateEvent] = useState(false)
+  const [showCreatePost, setShowCreatePost] = useState(false)
+  const [showEditGroup, setShowEditGroup] = useState(false)
   const [newMemberEmail, setNewMemberEmail] = useState('')
   const [joinRequestMessage, setJoinRequestMessage] = useState('')
+  const [groupMembers, setGroupMembers] = useState<any[]>([])
+  const [loadingMembers, setLoadingMembers] = useState(false)
+  
+  // Event form state
+  const [eventForm, setEventForm] = useState({
+    title: '',
+    description: '',
+    date: '',
+    time: '',
+    location: '',
+    maxAttendees: ''
+  })
+  
+  // Post form state
+  const [postForm, setPostForm] = useState({
+    title: '',
+    content: '',
+    type: 'announcement'
+  })
+  
+  // Edit group form state
+  const [editGroupForm, setEditGroupForm] = useState({
+    name: '',
+    description: '',
+    mission_statement: '',
+    meeting_time: '',
+    meeting_location: '',
+    age_range: '',
+    max_members: '',
+    is_public: true,
+    requires_approval: true
+  })
 
   // Form state for creating groups
   const [formData, setFormData] = useState({
@@ -98,6 +133,30 @@ export default function EnhancedYouthGroups() {
   useEffect(() => {
     fetchGroups()
   }, [])
+
+  // Fetch members when group details modal opens
+  useEffect(() => {
+    if (showGroupDetails && selectedGroup) {
+      fetchGroupMembers()
+    }
+  }, [showGroupDetails, selectedGroup])
+
+  // Initialize edit form when group is selected
+  useEffect(() => {
+    if (selectedGroup && showEditGroup) {
+      setEditGroupForm({
+        name: selectedGroup.name || '',
+        description: selectedGroup.description || '',
+        mission_statement: selectedGroup.mission_statement || '',
+        meeting_time: selectedGroup.meeting_time || '',
+        meeting_location: selectedGroup.meeting_location || '',
+        age_range: selectedGroup.age_range || '',
+        max_members: selectedGroup.max_members?.toString() || '',
+        is_public: selectedGroup.is_public || true,
+        requires_approval: selectedGroup.requires_approval || true
+      })
+    }
+  }, [selectedGroup, showEditGroup])
 
   const fetchGroups = async () => {
     try {
@@ -363,6 +422,174 @@ export default function EnhancedYouthGroups() {
     }
   }
 
+  // Fetch group members
+  const fetchGroupMembers = async () => {
+    if (!selectedGroup) return
+    
+    try {
+      setLoadingMembers(true)
+      const token = await getAccessToken()
+      if (!token) return
+
+      const response = await fetch(`/api/youth-groups/${selectedGroup.id}/members`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setGroupMembers(data.members || [])
+      } else {
+        console.error('Failed to fetch members')
+      }
+    } catch (error) {
+      console.error('Error fetching members:', error)
+    } finally {
+      setLoadingMembers(false)
+    }
+  }
+
+  // Handle create event
+  const handleCreateEvent = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!selectedGroup) return
+
+    try {
+      const token = await getAccessToken()
+      if (!token) return
+
+      const response = await fetch(`/api/youth-groups/${selectedGroup.id}/events`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(eventForm)
+      })
+
+      if (response.ok) {
+        toast({
+          title: "Success",
+          description: "Event created successfully"
+        })
+        setEventForm({
+          title: '',
+          description: '',
+          date: '',
+          time: '',
+          location: '',
+          maxAttendees: ''
+        })
+        setShowCreateEvent(false)
+      } else {
+        const error = await response.json()
+        toast({
+          title: "Error",
+          description: error.error || "Failed to create event",
+          variant: "destructive"
+        })
+      }
+    } catch (error) {
+      console.error('Error creating event:', error)
+      toast({
+        title: "Error",
+        description: "Failed to create event",
+        variant: "destructive"
+      })
+    }
+  }
+
+  // Handle create post
+  const handleCreatePost = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!selectedGroup) return
+
+    try {
+      const token = await getAccessToken()
+      if (!token) return
+
+      const response = await fetch(`/api/youth-groups/${selectedGroup.id}/posts`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(postForm)
+      })
+
+      if (response.ok) {
+        toast({
+          title: "Success",
+          description: "Post created successfully"
+        })
+        setPostForm({
+          title: '',
+          content: '',
+          type: 'announcement'
+        })
+        setShowCreatePost(false)
+      } else {
+        const error = await response.json()
+        toast({
+          title: "Error",
+          description: error.error || "Failed to create post",
+          variant: "destructive"
+        })
+      }
+    } catch (error) {
+      console.error('Error creating post:', error)
+      toast({
+        title: "Error",
+        description: "Failed to create post",
+        variant: "destructive"
+      })
+    }
+  }
+
+  // Handle edit group
+  const handleEditGroup = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!selectedGroup) return
+
+    try {
+      const token = await getAccessToken()
+      if (!token) return
+
+      const response = await fetch(`/api/youth-groups/${selectedGroup.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(editGroupForm)
+      })
+
+      if (response.ok) {
+        toast({
+          title: "Success",
+          description: "Group updated successfully"
+        })
+        setShowEditGroup(false)
+        fetchGroups()
+      } else {
+        const error = await response.json()
+        toast({
+          title: "Error",
+          description: error.error || "Failed to update group",
+          variant: "destructive"
+        })
+      }
+    } catch (error) {
+      console.error('Error updating group:', error)
+      toast({
+        title: "Error",
+        description: "Failed to update group",
+        variant: "destructive"
+      })
+    }
+  }
+
   const filteredGroups = groups.filter(group => {
     const matchesSearch = group.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          group.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -510,7 +737,14 @@ export default function EnhancedYouthGroups() {
       {/* Groups Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredGroups.map((group) => (
-          <Card key={group.id} className="hover:shadow-lg transition-shadow">
+          <Card 
+            key={group.id} 
+            className="hover:shadow-lg hover:scale-105 transition-all duration-200 cursor-pointer border-2 hover:border-blue-200"
+            onClick={() => {
+              setSelectedGroup(group)
+              setShowGroupDetails(true)
+            }}
+          >
             <CardHeader className="pb-3">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
@@ -556,7 +790,9 @@ export default function EnhancedYouthGroups() {
                     <span>Ages {group.age_range}</span>
                   )}
                 </div>
-                {getGroupActionButton(group) || getFallbackButton(group)}
+                <div onClick={(e) => e.stopPropagation()}>
+                  {getGroupActionButton(group) || getFallbackButton(group)}
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -748,6 +984,291 @@ export default function EnhancedYouthGroups() {
         </DialogContent>
       </Dialog>
 
+      {/* Group Details Modal */}
+      <Dialog open={showGroupDetails && selectedGroup} onOpenChange={setShowGroupDetails}>
+        <DialogContent className="max-w-6xl max-h-[95vh] overflow-hidden">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold text-gray-900">
+              {selectedGroup?.name}
+            </DialogTitle>
+            <DialogDescription className="text-gray-600">
+              {selectedGroup?.description}
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedGroup && (
+            <div className="flex flex-col h-full">
+              {/* Tabs */}
+              <Tabs defaultValue="details" className="flex-1 flex flex-col">
+                <TabsList className="grid w-full grid-cols-4">
+                  <TabsTrigger value="details" className="flex items-center space-x-2">
+                    <Settings className="h-4 w-4" />
+                    <span>Details</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="members" className="flex items-center space-x-2">
+                    <Users className="h-4 w-4" />
+                    <span>Members</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="events" className="flex items-center space-x-2">
+                    <Calendar className="h-4 w-4" />
+                    <span>Events</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="posts" className="flex items-center space-x-2">
+                    <MessageSquare className="h-4 w-4" />
+                    <span>Posts</span>
+                  </TabsTrigger>
+                </TabsList>
+
+                {/* Tab Content */}
+                <div className="flex-1 overflow-y-auto mt-4">
+                  {/* Group Details Tab */}
+                  <TabsContent value="details" className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {/* Basic Info */}
+                      <div className="space-y-4">
+                        <div>
+                          <h3 className="text-lg font-semibold text-gray-900 mb-3">Group Information</h3>
+                          <div className="space-y-3">
+                            <div className="flex items-center space-x-3">
+                              <MapPin className="h-5 w-5 text-gray-400" />
+                              <div>
+                                <p className="text-sm font-medium text-gray-900">Location</p>
+                                <p className="text-sm text-gray-600">
+                                  {selectedGroup.city}, {selectedGroup.state}, {selectedGroup.country}
+                                </p>
+                              </div>
+                            </div>
+                            
+                            <div className="flex items-center space-x-3">
+                              <Users className="h-5 w-5 text-gray-400" />
+                              <div>
+                                <p className="text-sm font-medium text-gray-900">Members</p>
+                                <p className="text-sm text-gray-600">
+                                  {selectedGroup.member_count || 0} / {selectedGroup.max_members} members
+                                </p>
+                              </div>
+                            </div>
+                            
+                            <div className="flex items-center space-x-3">
+                              <Calendar className="h-5 w-5 text-gray-400" />
+                              <div>
+                                <p className="text-sm font-medium text-gray-900">Meeting Time</p>
+                                <p className="text-sm text-gray-600">
+                                  {selectedGroup.meeting_time || 'Not specified'}
+                                </p>
+                              </div>
+                            </div>
+                            
+                            <div className="flex items-center space-x-3">
+                              <Globe className="h-5 w-5 text-gray-400" />
+                              <div>
+                                <p className="text-sm font-medium text-gray-900">Visibility</p>
+                                <p className="text-sm text-gray-600">
+                                  {selectedGroup.is_public ? 'Public' : 'Private'}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Additional Details */}
+                      <div className="space-y-4">
+                        <div>
+                          <h3 className="text-lg font-semibold text-gray-900 mb-3">Additional Details</h3>
+                          <div className="space-y-3">
+                            {selectedGroup.age_range && (
+                              <div>
+                                <p className="text-sm font-medium text-gray-900">Age Range</p>
+                                <p className="text-sm text-gray-600">{selectedGroup.age_range}</p>
+                              </div>
+                            )}
+                            
+                            {selectedGroup.parish && (
+                              <div>
+                                <p className="text-sm font-medium text-gray-900">Parish</p>
+                                <p className="text-sm text-gray-600">{selectedGroup.parish}</p>
+                              </div>
+                            )}
+                            
+                            {selectedGroup.diocese && (
+                              <div>
+                                <p className="text-sm font-medium text-gray-900">Diocese</p>
+                                <p className="text-sm text-gray-600">{selectedGroup.diocese}</p>
+                              </div>
+                            )}
+                            
+                            {selectedGroup.meeting_location && (
+                              <div>
+                                <p className="text-sm font-medium text-gray-900">Meeting Location</p>
+                                <p className="text-sm text-gray-600">{selectedGroup.meeting_location}</p>
+                              </div>
+                            )}
+                            
+                            {selectedGroup.meeting_frequency && (
+                              <div>
+                                <p className="text-sm font-medium text-gray-900">Meeting Frequency</p>
+                                <p className="text-sm text-gray-600">{selectedGroup.meeting_frequency}</p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Mission Statement */}
+                    {selectedGroup.mission_statement && (
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-3">Mission Statement</h3>
+                        <p className="text-gray-700 italic bg-gray-50 p-4 rounded-lg">
+                          "{selectedGroup.mission_statement}"
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Edit Group Button */}
+                    {selectedGroup.is_owner && (
+                      <div className="flex justify-end pt-4 border-t">
+                        <Button 
+                          onClick={() => setShowEditGroup(true)}
+                          className="bg-blue-600 hover:bg-blue-700"
+                        >
+                          <Edit className="h-4 w-4 mr-2" />
+                          Edit Group Details
+                        </Button>
+                      </div>
+                    )}
+                  </TabsContent>
+
+                  {/* Members Tab */}
+                  <TabsContent value="members" className="space-y-4">
+                    <div className="flex justify-between items-center">
+                      <h3 className="text-lg font-semibold text-gray-900">Group Members</h3>
+                      {selectedGroup.is_owner && (
+                        <div className="flex space-x-2">
+                          <Button 
+                            onClick={() => setShowAddMemberForm(true)}
+                            className="bg-green-600 hover:bg-green-700"
+                          >
+                            <UserPlus className="h-4 w-4 mr-2" />
+                            Add Member
+                          </Button>
+                          <Button 
+                            onClick={() => setShowMemberRequests(true)}
+                            variant="outline"
+                          >
+                            <Users className="h-4 w-4 mr-2" />
+                            Manage Requests
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Members List */}
+                    <div className="space-y-3">
+                      {loadingMembers ? (
+                        <div className="text-center py-8 text-gray-500">
+                          <RefreshCw className="h-8 w-8 mx-auto mb-4 text-gray-300 animate-spin" />
+                          <p>Loading members...</p>
+                        </div>
+                      ) : groupMembers.length > 0 ? (
+                        <div className="space-y-2">
+                          {groupMembers.map((member, index) => (
+                            <div key={member.id || index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                              <div className="flex items-center space-x-3">
+                                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                                  <Users className="h-4 w-4 text-blue-600" />
+                                </div>
+                                <div>
+                                  <p className="font-medium text-gray-900">
+                                    {member.email || member.user?.email || 'Unknown User'}
+                                  </p>
+                                  <p className="text-sm text-gray-500">
+                                    {member.role || 'Member'} • {member.status || 'Active'}
+                                  </p>
+                                </div>
+                              </div>
+                              {selectedGroup?.is_owner && member.role !== 'owner' && (
+                                <Button size="sm" variant="outline">
+                                  <Settings className="h-4 w-4" />
+                                </Button>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-center py-8 text-gray-500">
+                          <Users className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                          <p>No members found</p>
+                          <p className="text-sm">Members will appear here once they join the group</p>
+                        </div>
+                      )}
+                    </div>
+                  </TabsContent>
+
+                  {/* Events Tab */}
+                  <TabsContent value="events" className="space-y-4">
+                    <div className="flex justify-between items-center">
+                      <h3 className="text-lg font-semibold text-gray-900">Group Events</h3>
+                      {selectedGroup.is_owner && (
+                        <Button 
+                          onClick={() => setShowCreateEvent(true)}
+                          className="bg-blue-600 hover:bg-blue-700"
+                        >
+                          <Plus className="h-4 w-4 mr-2" />
+                          Create Event
+                        </Button>
+                      )}
+                    </div>
+                    
+                    {/* Events List */}
+                    <div className="space-y-3">
+                      <div className="text-center py-8 text-gray-500">
+                        <Calendar className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                        <p>Events will be displayed here</p>
+                        <p className="text-sm">This feature will show upcoming and past group events</p>
+                      </div>
+                    </div>
+                  </TabsContent>
+
+                  {/* Posts Tab */}
+                  <TabsContent value="posts" className="space-y-4">
+                    <div className="flex justify-between items-center">
+                      <h3 className="text-lg font-semibold text-gray-900">Group Posts</h3>
+                      {selectedGroup.is_owner && (
+                        <Button 
+                          onClick={() => setShowCreatePost(true)}
+                          className="bg-blue-600 hover:bg-blue-700"
+                        >
+                          <Plus className="h-4 w-4 mr-2" />
+                          Create Post
+                        </Button>
+                      )}
+                    </div>
+                    
+                    {/* Posts List */}
+                    <div className="space-y-3">
+                      <div className="text-center py-8 text-gray-500">
+                        <MessageSquare className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                        <p>Posts will be displayed here</p>
+                        <p className="text-sm">This feature will show group announcements and discussions</p>
+                      </div>
+                    </div>
+                  </TabsContent>
+                </div>
+              </Tabs>
+
+              {/* Modal Footer */}
+              <div className="flex justify-end space-x-3 pt-4 border-t mt-4">
+                <Button variant="outline" onClick={() => setShowGroupDetails(false)}>
+                  Close
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
       {/* Join Request Modal */}
       <Dialog open={(() => {
         const shouldOpen = Boolean(showGroupDetails && selectedGroup && !selectedGroup.is_owner && !selectedGroup.is_member)
@@ -840,6 +1361,283 @@ export default function EnhancedYouthGroups() {
               </Button>
               <Button type="submit">
                 Add Member
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Group Modal */}
+      <Dialog open={showEditGroup} onOpenChange={setShowEditGroup}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Group Details</DialogTitle>
+            <DialogDescription>
+              Update your group information
+            </DialogDescription>
+          </DialogHeader>
+          
+          <form onSubmit={handleEditGroup} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="edit_name">Group Name *</Label>
+                <Input
+                  id="edit_name"
+                  value={editGroupForm.name}
+                  onChange={(e) => setEditGroupForm(prev => ({ ...prev, name: e.target.value }))}
+                  required
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="edit_max_members">Max Members</Label>
+                <Input
+                  id="edit_max_members"
+                  type="number"
+                  value={editGroupForm.max_members}
+                  onChange={(e) => setEditGroupForm(prev => ({ ...prev, max_members: e.target.value }))}
+                />
+              </div>
+              
+              <div className="md:col-span-2">
+                <Label htmlFor="edit_description">Description *</Label>
+                <Textarea
+                  id="edit_description"
+                  value={editGroupForm.description}
+                  onChange={(e) => setEditGroupForm(prev => ({ ...prev, description: e.target.value }))}
+                  rows={3}
+                  required
+                />
+              </div>
+              
+              <div className="md:col-span-2">
+                <Label htmlFor="edit_mission">Mission Statement</Label>
+                <Textarea
+                  id="edit_mission"
+                  value={editGroupForm.mission_statement}
+                  onChange={(e) => setEditGroupForm(prev => ({ ...prev, mission_statement: e.target.value }))}
+                  rows={2}
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="edit_meeting_time">Meeting Time</Label>
+                <Input
+                  id="edit_meeting_time"
+                  value={editGroupForm.meeting_time}
+                  onChange={(e) => setEditGroupForm(prev => ({ ...prev, meeting_time: e.target.value }))}
+                  placeholder="e.g., Every Sunday 10:00 AM"
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="edit_meeting_location">Meeting Location</Label>
+                <Input
+                  id="edit_meeting_location"
+                  value={editGroupForm.meeting_location}
+                  onChange={(e) => setEditGroupForm(prev => ({ ...prev, meeting_location: e.target.value }))}
+                  placeholder="e.g., Parish Hall"
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="edit_age_range">Age Range</Label>
+                <Input
+                  id="edit_age_range"
+                  value={editGroupForm.age_range}
+                  onChange={(e) => setEditGroupForm(prev => ({ ...prev, age_range: e.target.value }))}
+                  placeholder="e.g., 18-25"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label>Group Settings</Label>
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="edit_is_public"
+                    checked={editGroupForm.is_public}
+                    onChange={(e) => setEditGroupForm(prev => ({ ...prev, is_public: e.target.checked }))}
+                    className="rounded"
+                  />
+                  <Label htmlFor="edit_is_public" className="text-sm">Public Group</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="edit_requires_approval"
+                    checked={editGroupForm.requires_approval}
+                    onChange={(e) => setEditGroupForm(prev => ({ ...prev, requires_approval: e.target.checked }))}
+                    className="rounded"
+                  />
+                  <Label htmlFor="edit_requires_approval" className="text-sm">Requires Approval</Label>
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex justify-end space-x-3">
+              <Button type="button" variant="outline" onClick={() => setShowEditGroup(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
+                Save Changes
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Create Event Modal */}
+      <Dialog open={showCreateEvent} onOpenChange={setShowCreateEvent}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Create New Event</DialogTitle>
+            <DialogDescription>
+              Add a new event for {selectedGroup?.name}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <form onSubmit={handleCreateEvent} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="md:col-span-2">
+                <Label htmlFor="event_title">Event Title *</Label>
+                <Input
+                  id="event_title"
+                  value={eventForm.title}
+                  onChange={(e) => setEventForm(prev => ({ ...prev, title: e.target.value }))}
+                  placeholder="e.g., Youth Group Meeting"
+                  required
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="event_date">Date *</Label>
+                <Input
+                  id="event_date"
+                  type="date"
+                  value={eventForm.date}
+                  onChange={(e) => setEventForm(prev => ({ ...prev, date: e.target.value }))}
+                  required
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="event_time">Time *</Label>
+                <Input
+                  id="event_time"
+                  type="time"
+                  value={eventForm.time}
+                  onChange={(e) => setEventForm(prev => ({ ...prev, time: e.target.value }))}
+                  required
+                />
+              </div>
+              
+              <div className="md:col-span-2">
+                <Label htmlFor="event_location">Location</Label>
+                <Input
+                  id="event_location"
+                  value={eventForm.location}
+                  onChange={(e) => setEventForm(prev => ({ ...prev, location: e.target.value }))}
+                  placeholder="e.g., Parish Hall, Room 101"
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="event_max_attendees">Max Attendees</Label>
+                <Input
+                  id="event_max_attendees"
+                  type="number"
+                  value={eventForm.maxAttendees}
+                  onChange={(e) => setEventForm(prev => ({ ...prev, maxAttendees: e.target.value }))}
+                  placeholder="Optional"
+                />
+              </div>
+              
+              <div className="md:col-span-2">
+                <Label htmlFor="event_description">Description *</Label>
+                <Textarea
+                  id="event_description"
+                  value={eventForm.description}
+                  onChange={(e) => setEventForm(prev => ({ ...prev, description: e.target.value }))}
+                  rows={4}
+                  placeholder="Describe the event, what to bring, etc."
+                  required
+                />
+              </div>
+            </div>
+            
+            <div className="flex justify-end space-x-3">
+              <Button type="button" variant="outline" onClick={() => setShowCreateEvent(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
+                Create Event
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Create Post Modal */}
+      <Dialog open={showCreatePost} onOpenChange={setShowCreatePost}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Create New Post</DialogTitle>
+            <DialogDescription>
+              Share an announcement or discussion with {selectedGroup?.name}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <form onSubmit={handleCreatePost} className="space-y-4">
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="post_title">Post Title *</Label>
+                <Input
+                  id="post_title"
+                  value={postForm.title}
+                  onChange={(e) => setPostForm(prev => ({ ...prev, title: e.target.value }))}
+                  placeholder="e.g., Weekly Announcements"
+                  required
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="post_type">Post Type</Label>
+                <Select
+                  value={postForm.type}
+                  onValueChange={(value) => setPostForm(prev => ({ ...prev, type: value }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="announcement">Announcement</SelectItem>
+                    <SelectItem value="discussion">Discussion</SelectItem>
+                    <SelectItem value="prayer_request">Prayer Request</SelectItem>
+                    <SelectItem value="event_reminder">Event Reminder</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div>
+                <Label htmlFor="post_content">Content *</Label>
+                <Textarea
+                  id="post_content"
+                  value={postForm.content}
+                  onChange={(e) => setPostForm(prev => ({ ...prev, content: e.target.value }))}
+                  rows={6}
+                  placeholder="Share your message with the group..."
+                  required
+                />
+              </div>
+            </div>
+            
+            <div className="flex justify-end space-x-3">
+              <Button type="button" variant="outline" onClick={() => setShowCreatePost(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
+                Create Post
               </Button>
             </div>
           </form>
