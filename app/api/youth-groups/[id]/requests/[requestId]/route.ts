@@ -71,6 +71,8 @@ export async function PUT(
     }
 
     // Update the request status
+    console.log(`Updating request ${requestId} to status: ${action === 'approve' ? 'approved' : 'rejected'}`)
+    
     const { data: updatedRequest, error: updateError } = await supabase
       .from('group_join_requests')
       .update({
@@ -84,9 +86,11 @@ export async function PUT(
       .single()
 
     if (updateError) {
-      logIfEnabled(`❌ Error updating join request: ${updateError.message}`, 'error')
-      return NextResponse.json({ error: 'Failed to update request' }, { status: 500 })
+      console.error(`❌ Error updating join request: ${updateError.message}`, updateError)
+      return NextResponse.json({ error: 'Failed to update request', details: updateError.message }, { status: 500 })
     }
+
+    console.log(`✅ Request updated successfully:`, updatedRequest)
 
     logIfEnabled(`✅ Request ${requestId} updated to status: ${action === 'approve' ? 'approved' : 'rejected'}`)
     logIfEnabled(`✅ Updated request data:`, updatedRequest)
