@@ -93,7 +93,7 @@ export async function POST() {
     console.log('Groups added:', groups?.length, groupsError)
 
     // Insert sample events data
-    const { data: events, error: eventsError } = await supabase
+    const { data: events, error: eventsInsertError } = await supabase
       .from('events')
       .insert([
         {
@@ -134,7 +134,7 @@ export async function POST() {
       ])
       .select()
 
-    console.log('Events added:', events?.length, eventsError)
+    console.log('Events added:', events?.length, eventsInsertError)
 
     return NextResponse.json({
       success: true,
@@ -143,7 +143,7 @@ export async function POST() {
         groups: groups?.length || 0,
         events: events?.length || 0,
         youthGroupsError: youthGroupsError?.message,
-        eventsError: eventsError?.message
+        eventsInsertError: eventsInsertError?.message
       }
     })
 
