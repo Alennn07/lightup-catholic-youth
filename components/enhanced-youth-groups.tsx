@@ -801,7 +801,10 @@ export default function EnhancedYouthGroups() {
           groupId={selectedGroup.id}
           groupName={selectedGroup.name}
           isOpen={showMemberRequests}
-          onClose={() => setShowMemberRequests(false)}
+          onClose={() => {
+            console.log('Modal onClose called, setting showMemberRequests to false')
+            setShowMemberRequests(false)
+          }}
           onRequestProcessed={fetchGroups}
         />
       )}

@@ -131,7 +131,9 @@ export function MemberRequestModal({
         // Close the modal immediately after successful approval
         if (action === 'approve') {
           console.log('Attempting to close modal after approval.')
+          console.log('Current requests before close:', requests.length)
           onClose()
+          console.log('onClose() called')
         }
       } else {
         const error = await response.json()
