@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/auth-context'
+import { supabase } from '@/lib/supabase'
 
 export interface UserPermissions {
   canCreateGroups: boolean
@@ -45,11 +46,38 @@ export function usePermissions() {
 
   const fetchUserPermissions = async () => {
     try {
-      const response = await fetch('/api/users/permissions')
+      // Get the access token from Supabase
+      const { data: { session } } = await supabase.auth.getSession()
+      const token = session?.access_token
+      
+      if (!token) {
+        console.log('No access token available, using fallback permissions')
+        setPermissions({
+          canCreateGroups: false,
+          isGroupLeader: false,
+          userRole: 'member',
+          canManageGroup: () => false,
+          canJoinGroup: () => true,
+          canCreateEvents: () => false,
+          canCreatePosts: () => false,
+          canManageMembers: () => false,
+        })
+        setLoading(false)
+        return
+      }
+
+      const response = await fetch('/api/users/permissions', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+      
       if (response.ok) {
         const data = await response.json()
         setPermissions(data.permissions)
       } else {
+        console.log('Permissions API failed, using fallback permissions')
         // Fallback to basic permissions
         setPermissions({
           canCreateGroups: false,
