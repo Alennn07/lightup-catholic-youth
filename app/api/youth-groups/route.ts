@@ -1,43 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { logIfEnabled, logPerformanceIfEnabled } from '@/lib/performance-monitor'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
-  const startTime = Date.now()
-  
   try {
     console.log('🚀 GET /api/youth-groups - Starting request')
-    logIfEnabled('🚀 GET /api/youth-groups - Starting request')
     
-    const authHeader = request.headers.get('authorization')
-    const token = authHeader?.replace('Bearer ', '')
-    
-    // Create Supabase client with service role key (bypasses RLS for now)
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!,
-      { 
-        auth: { autoRefreshToken: false, persistSession: false },
-        db: { schema: 'public' }
-      }
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
     )
 
-    // If token is provided, verify it, otherwise use service role
-    let user = null
-    if (token) {
-      const { data: { user: authUser }, error: authError } = await supabase.auth.getUser(token)
-      if (authError || !authUser) {
-        console.log('⚠️ Invalid token, using service role for now')
-      } else {
-        user = authUser
-      }
-    } else {
-      console.log('⚠️ No token provided, using service role')
-    }
-
-    // 🚀 OPTIMIZED: Single efficient query with proper indexing
+    // Simple query without user-specific data
     const { data: groups, error: groupsError } = await supabase
       .from('youth_groups')
       .select(`
@@ -59,7 +34,7 @@ export async function GET(request: NextRequest) {
       `)
       .eq('is_active', true)
       .order('created_at', { ascending: false })
-      .limit(50) // Increased limit for better UX
+      .limit(50)
 
     if (groupsError) {
       console.error(`❌ Error fetching groups: ${groupsError.message}`, groupsError)
@@ -69,85 +44,24 @@ export async function GET(request: NextRequest) {
       }, { status: 500 })
     }
 
-    if (!groups || groups.length === 0) {
-      const endTime = Date.now()
-      const totalDuration = endTime - startTime
-      logPerformanceIfEnabled('Youth Groups API - Empty Result', totalDuration)
-      
-      return NextResponse.json({ groups: [] })
-    }
+    console.log(`✅ Found ${groups?.length || 0} groups`)
 
-    // 🚀 OPTIMIZED: Batch fetch user memberships and pending requests (only if user is authenticated)
-    let membershipsResult = { data: [], error: null }
-    let pendingRequestsResult = { data: [], error: null }
-    
-    if (user) {
-      [membershipsResult, pendingRequestsResult] = await Promise.all([
-        supabase
-          .from('youth_group_members')
-          .select('group_id, role, status')
-          .eq('user_id', user.id)
-          .eq('status', 'active'),
-        supabase
-          .from('group_join_requests')
-          .select('group_id, status')
-          .eq('user_id', user.id)
-          .eq('status', 'pending')
-      ])
-    }
+    // Add basic user info (no complex queries)
+    const groupsWithUserInfo = (groups || []).map(group => ({
+      ...group,
+      is_owner: false,
+      is_member: false,
+      is_pending: false,
+      user_role: 'none'
+    }))
 
-    const userMemberships = membershipsResult.data || []
-    const pendingRequests = pendingRequestsResult.data || []
-
-    // Create lookup maps for O(1) checks
-    const membershipMap = new Map(
-      userMemberships.map(member => [member.group_id, member])
-    )
-    const pendingMap = new Map(
-      pendingRequests.map(request => [request.group_id, request])
-    )
-
-    // 🚀 FAST PROCESSING: Process groups with membership info
-    const groupsWithInfo = groups.map((group) => {
-      const membership = membershipMap.get(group.id)
-      const pendingRequest = pendingMap.get(group.id)
-      const isOwner = group.owner_id === user.id
-      
-      return {
-        ...group,
-        user_role: membership?.role || null,
-        user_status: membership?.status || null,
-        is_member: isOwner || !!membership,
-        is_owner: isOwner,
-        is_pending: !!pendingRequest
-      }
+    return NextResponse.json({ 
+      groups: groupsWithUserInfo,
+      total: groupsWithUserInfo.length
     })
-
-    const endTime = Date.now()
-    const totalDuration = endTime - startTime
-    logPerformanceIfEnabled('Youth Groups API - GET', totalDuration)
-    
-    logIfEnabled(`✅ Youth groups fetched successfully in ${totalDuration}ms: ${groupsWithInfo.length} groups`)
-    
-    // Add cache headers for better performance
-    const response = NextResponse.json({ 
-      groups: groupsWithInfo,
-      loadTime: `${totalDuration}ms`
-    })
-    
-    // Cache for 2 minutes to reduce repeated API calls
-    response.headers.set('Cache-Control', 'private, max-age=120')
-    
-    return response
 
   } catch (error: any) {
-    const endTime = Date.now()
-    const totalDuration = endTime - startTime
-    
-    console.error(`❌ Error in Youth Groups API after ${totalDuration}ms:`, error)
-    logIfEnabled(`❌ Error in Youth Groups API after ${totalDuration}ms: ${error.message || 'Unknown error'}`, 'error')
-    logPerformanceIfEnabled('Youth Groups API - Error', totalDuration)
-    
+    console.error(`❌ Error in Youth Groups API:`, error)
     return NextResponse.json({ 
       error: 'Internal server error',
       details: error.message || 'Unknown error occurred'
@@ -158,47 +72,45 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     console.log('🚀 POST /api/youth-groups - Starting request')
-    const authHeader = request.headers.get('authorization')
-    const token = authHeader?.replace('Bearer ', '')
-    if (!token) {
-      console.log('❌ No authorization token provided')
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+    
+    const body = await request.json()
+    const { name, description, parish, city, state, country, meeting_time, age_range, max_members, is_public, requires_approval } = body
 
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!,
-      { auth: { autoRefreshToken: false, persistSession: false } }
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
     )
+
+    // Get user from token
+    const authHeader = request.headers.get('authorization')
+    const token = authHeader?.replace('Bearer ', '')
+    
+    if (!token) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
 
     const { data: { user }, error: authError } = await supabase.auth.getUser(token)
     if (authError || !user) {
-      console.log('❌ Auth error:', authError)
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
     }
 
-    const body = await request.json()
-    console.log('📝 Request body:', body)
-
-    // Create the group
+    // Create group
     const { data: group, error: createError } = await supabase
       .from('youth_groups')
       .insert([{
-        name: body.name,
-        description: body.description,
-        mission_statement: body.mission_statement,
-        parish: body.parish,
-        diocese: body.diocese,
-        city: body.city,
-        state: body.state,
-        country: body.country,
-        meeting_location: body.meeting_location,
-        meeting_time: body.meeting_time,
-        meeting_frequency: body.meeting_frequency,
-        age_range: body.age_range,
-        max_members: body.max_members || 50,
-        is_public: body.is_public !== undefined ? body.is_public : true,
-        owner_id: user.id
+        name,
+        description,
+        parish,
+        city,
+        state,
+        country,
+        meeting_time,
+        age_range,
+        max_members: max_members || 50,
+        is_public: is_public !== false,
+        is_active: true,
+        owner_id: user.id,
+        requires_approval: requires_approval !== false
       }])
       .select()
       .single()
@@ -213,7 +125,7 @@ export async function POST(request: NextRequest) {
 
     // Add the creator as an owner member
     const { error: memberError } = await supabase
-      .from('group_members')
+      .from('youth_group_members')
       .insert([{
         group_id: group.id,
         user_id: user.id,
