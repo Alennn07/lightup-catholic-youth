@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { useAuth } from "@/contexts/auth-context"
 import { logIfEnabled } from "@/lib/performance-monitor"
 import { LanguageSwitcher } from "@/components/language-switcher"
+import { GlobalSearch } from "@/components/global-search"
 
 export function Navigation() {
   const [isOpen, setIsOpen] = useState(false)
@@ -26,6 +27,7 @@ export function Navigation() {
     { href: "/", label: "Home" },
     { href: "/features", label: "Features" },
     { href: "/community", label: "Community" },
+    { href: "/search", label: "Search" },
     { href: "/about", label: "About" },
   ]
 
@@ -87,6 +89,14 @@ export function Navigation() {
                 ))}
               </div>
             </div>
+          </div>
+
+          {/* Global Search */}
+          <div className="hidden md:block flex-1 max-w-md mx-4">
+            <GlobalSearch 
+              placeholder="Search prayers, journal, groups..."
+              className="w-full"
+            />
           </div>
 
           {/* Desktop Auth & Profile */}
@@ -221,6 +231,14 @@ export function Navigation() {
               className="md:hidden border-t border-gray-200"
             >
               <div className="py-4 space-y-1">
+                {/* Mobile Search */}
+                <div className="px-4 mb-4">
+                  <GlobalSearch 
+                    placeholder="Search prayers, journal, groups..."
+                    className="w-full"
+                  />
+                </div>
+
                 {navItems.map((item) => (
                   <Link
                     key={item.href}
