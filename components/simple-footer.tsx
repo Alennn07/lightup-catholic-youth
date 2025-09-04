@@ -45,17 +45,17 @@ export function SimpleFooter() {
             <h4 className="font-semibold text-gray-900 mb-4">Support</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="/help" className="text-gray-600 hover:text-gray-900 transition-colors">
+                <Link href="/support#help-center" className="text-gray-600 hover:text-gray-900 transition-colors">
                   Help Center
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="text-gray-600 hover:text-gray-900 transition-colors">
+                <Link href="/support#contact" className="text-gray-600 hover:text-gray-900 transition-colors">
                   Contact
                 </Link>
               </li>
               <li>
-                <Link href="/privacy" className="text-gray-600 hover:text-gray-900 transition-colors">
+                <Link href="/support#privacy" className="text-gray-600 hover:text-gray-900 transition-colors">
                   Privacy
                 </Link>
               </li>

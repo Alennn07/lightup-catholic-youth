@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { Navigation } from "@/components/navigation"
 import { BackToTop } from "@/components/back-to-top"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -23,6 +24,34 @@ import {
 } from "lucide-react"
 
 export default function SupportPage() {
+  const [activeTab, setActiveTab] = useState("help-center")
+
+  // Handle URL hash navigation
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.replace('#', '')
+      if (hash && ['help-center', 'contact', 'privacy'].includes(hash)) {
+        setActiveTab(hash)
+        // Smooth scroll to the tabs section
+        setTimeout(() => {
+          const tabsElement = document.getElementById('support-tabs')
+          if (tabsElement) {
+            tabsElement.scrollIntoView({ behavior: 'smooth', block: 'start' })
+          }
+        }, 100)
+      }
+    }
+
+    // Check initial hash
+    handleHashChange()
+
+    // Listen for hash changes
+    window.addEventListener('hashchange', handleHashChange)
+    
+    return () => {
+      window.removeEventListener('hashchange', handleHashChange)
+    }
+  }, [])
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       <Navigation />
@@ -44,7 +73,7 @@ export default function SupportPage() {
           </div>
 
           {/* Main Content */}
-          <Tabs defaultValue="help-center" className="w-full">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full" id="support-tabs">
             <TabsList className="grid w-full grid-cols-3 mb-8">
               <TabsTrigger value="help-center" id="help-center">Help Center</TabsTrigger>
               <TabsTrigger value="contact" id="contact">Contact</TabsTrigger>
