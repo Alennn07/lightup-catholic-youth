@@ -102,19 +102,25 @@ export function MemberRequestModal({
 
       if (response.ok) {
         const data = await response.json()
+        console.log('Request processed successfully:', data)
+        
         toast({
           title: "Success",
           description: data.message || `Request ${action}d successfully`
         })
         
-        // Remove the processed request from the list
+        // Remove the processed request from the list immediately
         setRequests(prev => prev.filter(req => req.id !== requestId))
         
         // Refresh the parent component data
         onRequestProcessed()
         
-        // Also refresh the requests in this modal
-        await fetchRequests()
+        // Close the modal after successful approval
+        if (action === 'approve') {
+          setTimeout(() => {
+            onClose()
+          }, 1000)
+        }
       } else {
         const error = await response.json()
         toast({
