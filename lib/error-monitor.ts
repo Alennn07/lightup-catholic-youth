@@ -29,13 +29,16 @@ class ErrorMonitor {
   private readonly RETRY_ATTEMPTS = 3
 
   private constructor() {
-    // Set up global error handlers
-    this.setupGlobalErrorHandlers()
-    
-    // Process error queue periodically
-    setInterval(() => {
-      this.processErrorQueue()
-    }, 30000) // Every 30 seconds
+    // Only set up handlers on client side
+    if (typeof window !== 'undefined') {
+      // Set up global error handlers
+      this.setupGlobalErrorHandlers()
+      
+      // Process error queue periodically
+      setInterval(() => {
+        this.processErrorQueue()
+      }, 30000) // Every 30 seconds
+    }
   }
 
   public static getInstance(): ErrorMonitor {
@@ -46,6 +49,9 @@ class ErrorMonitor {
   }
 
   private setupGlobalErrorHandlers() {
+    // Only set up error handlers on the client side
+    if (typeof window === 'undefined') return
+
     // Handle unhandled promise rejections
     window.addEventListener('unhandledrejection', (event) => {
       this.captureError(new Error(event.reason), {

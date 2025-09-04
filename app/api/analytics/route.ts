@@ -3,7 +3,7 @@ import { cookies } from "next/headers"
 import { NextResponse } from "next/server"
 import { logIfEnabled } from "@/lib/performance-monitor"
 
-// Force this route to be dynamic since it uses request.url
+// Force this route to be dynamic
 export const dynamic = 'force-dynamic'
 
 export async function POST(request: Request) {
