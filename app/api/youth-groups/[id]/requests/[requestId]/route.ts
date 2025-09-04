@@ -89,39 +89,64 @@ export async function PUT(
     }
 
     if (action === 'approve') {
-      // Check if group has space
-      const { count: memberCount } = await supabase
+      // Check if user is already a member
+      const { data: existingMember } = await supabase
         .from('youth_group_members')
-        .select('*', { count: 'exact', head: true })
+        .select('id')
         .eq('group_id', groupId)
-        .eq('status', 'active')
-
-      if (memberCount && memberCount >= group.max_members) {
-        // Revert the request status
-        await supabase
-          .from('group_join_requests')
-          .update({ status: 'pending' })
-          .eq('id', requestId)
-
-        return NextResponse.json({ error: 'Group has reached maximum capacity' }, { status: 400 })
-      }
-
-      // Add user to group
-      const { data: newMember, error: joinError } = await supabase
-        .from('youth_group_members')
-        .insert({
-          group_id: groupId,
-          user_id: joinRequest.user_id,
-          role: 'member',
-          status: 'active',
-          joined_at: new Date().toISOString()
-        })
-        .select()
+        .eq('user_id', joinRequest.user_id)
         .single()
 
-      if (joinError) {
-        logIfEnabled(`❌ Error adding member to group: ${joinError.message}`, 'error')
-        return NextResponse.json({ error: 'Failed to add member to group' }, { status: 500 })
+      let newMember = null
+
+      if (!existingMember) {
+        // Check if group has space
+        const { count: memberCount } = await supabase
+          .from('youth_group_members')
+          .select('*', { count: 'exact', head: true })
+          .eq('group_id', groupId)
+          .eq('status', 'active')
+
+        if (memberCount && memberCount >= group.max_members) {
+          // Revert the request status
+          await supabase
+            .from('group_join_requests')
+            .update({ status: 'pending' })
+            .eq('id', requestId)
+
+          return NextResponse.json({ error: 'Group has reached maximum capacity' }, { status: 400 })
+        }
+
+        // Add user to group
+        const { data: memberData, error: joinError } = await supabase
+          .from('youth_group_members')
+          .insert({
+            group_id: groupId,
+            user_id: joinRequest.user_id,
+            role: 'member',
+            status: 'active',
+            joined_at: new Date().toISOString()
+          })
+          .select()
+          .single()
+
+        if (joinError) {
+          logIfEnabled(`❌ Error adding member to group: ${joinError.message}`, 'error')
+          return NextResponse.json({ error: 'Failed to add member to group' }, { status: 500 })
+        }
+
+        newMember = memberData
+      } else {
+        // User is already a member, just update their status if needed
+        const { data: memberData } = await supabase
+          .from('youth_group_members')
+          .update({ status: 'active' })
+          .eq('group_id', groupId)
+          .eq('user_id', joinRequest.user_id)
+          .select()
+          .single()
+
+        newMember = memberData
       }
 
       // Create notification for the approved user
