@@ -71,8 +71,8 @@ export async function PUT(
     }
 
     // Update the request status
-    console.log(`Updating request ${requestId} to status: ${action === 'approve' ? 'approved' : 'rejected'}`)
-    
+    console.log(`🔄 Updating request ${requestId} to status: ${action === 'approve' ? 'approved' : 'rejected'}`)
+
     const { data: updatedRequest, error: updateError } = await supabase
       .from('group_join_requests')
       .update({
@@ -91,6 +91,7 @@ export async function PUT(
     }
 
     console.log(`✅ Request updated successfully:`, updatedRequest)
+    console.log(`✅ Updated status: ${updatedRequest?.status}`)
 
     logIfEnabled(`✅ Request ${requestId} updated to status: ${action === 'approve' ? 'approved' : 'rejected'}`)
     logIfEnabled(`✅ Updated request data:`, updatedRequest)

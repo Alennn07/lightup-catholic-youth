@@ -145,10 +145,14 @@ export function MemberRequestModal({
         // Refresh the parent component data
         onRequestProcessed()
         
+        // Force refresh the requests list to get updated status
+        console.log('🔄 Forcing fresh fetch of requests...')
+        await fetchJoinRequests()
+        
         // Close the modal immediately after successful approval
         if (action === 'approve') {
           console.log('✅ APPROVAL SUCCESSFUL - Closing modal immediately')
-          console.log('Current requests before close:', requests.length)
+          console.log('Current requests after refresh:', requests.length)
           
           // Small delay to prevent immediate reopening
           setTimeout(() => {
