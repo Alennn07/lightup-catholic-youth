@@ -8,6 +8,7 @@ export async function GET(request: NextRequest) {
   const startTime = Date.now()
   
   try {
+    console.log('🚀 GET /api/youth-groups - Starting request')
     logIfEnabled('🚀 GET /api/youth-groups - Starting request')
     
     const authHeader = request.headers.get('authorization')
@@ -51,7 +52,6 @@ export async function GET(request: NextRequest) {
         is_active, 
         owner_id, 
         requires_approval,
-        member_count,
         created_at
       `)
       .eq('is_active', true)
@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
       .limit(50) // Increased limit for better UX
 
     if (groupsError) {
-      logIfEnabled(`❌ Error fetching groups: ${groupsError.message}`, 'error')
+      console.error(`❌ Error fetching groups: ${groupsError.message}`, groupsError)
       return NextResponse.json({ 
         error: 'Failed to fetch groups',
         details: groupsError.message 
@@ -136,6 +136,7 @@ export async function GET(request: NextRequest) {
     const endTime = Date.now()
     const totalDuration = endTime - startTime
     
+    console.error(`❌ Error in Youth Groups API after ${totalDuration}ms:`, error)
     logIfEnabled(`❌ Error in Youth Groups API after ${totalDuration}ms: ${error.message || 'Unknown error'}`, 'error')
     logPerformanceIfEnabled('Youth Groups API - Error', totalDuration)
     
