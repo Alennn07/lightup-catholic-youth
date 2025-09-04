@@ -64,6 +64,7 @@ export async function POST(request: Request) {
     const validatedData = JournalEntrySchema.parse(body)
 
     const insertData: any = {
+      user_id: validatedData.user_id,
       title: validatedData.title,
       content: validatedData.content,
       mood: validatedData.mood,

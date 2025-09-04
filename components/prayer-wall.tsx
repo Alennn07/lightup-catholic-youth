@@ -99,8 +99,8 @@ export function PrayerWall() {
           "Authorization": `Bearer ${accessToken}`,
         },
         body: JSON.stringify({
-          name: formData.isAnonymous ? "Anonymous" : formData.name || user.name,
-          request: formData.request,
+          title: formData.isAnonymous ? "Anonymous" : formData.name || user.name,
+          content: formData.request,
           category: formData.category,
           is_anonymous: formData.isAnonymous,
           image_url: formData.imageUrl || null,

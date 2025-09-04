@@ -115,7 +115,7 @@ export function FaithJournal() {
           .split(",")
           .map((tag) => tag.trim())
           .filter(Boolean),
-        entry_date: formData.date,
+        date: formData.date,
         image_urls: formData.imageUrls,
       }
 

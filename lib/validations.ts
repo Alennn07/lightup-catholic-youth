@@ -41,6 +41,7 @@ export const PrayerResponseSchema = z.object({
 // =============================================
 
 export const JournalEntrySchema = z.object({
+  user_id: z.string().uuid('Invalid user ID format'),
   title: z.string().max(255, 'Title too long').optional(),
   content: z.string().min(1, 'Content is required').max(5000, 'Content too long'),
   mood: z.enum(['joyful', 'peaceful', 'grateful', 'hopeful', 'contemplative', 'struggling', 'anxious', 'sad']).optional(),
