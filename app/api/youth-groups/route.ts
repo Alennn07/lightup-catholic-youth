@@ -46,13 +46,29 @@ export async function GET(request: NextRequest) {
 
     console.log(`✅ Found ${groups?.length || 0} groups`)
 
-    // Add basic user info (no complex queries)
+    // Get user from token if available
+    let currentUserId = null
+    const authHeader = request.headers.get('authorization')
+    const token = authHeader?.replace('Bearer ', '')
+    
+    if (token) {
+      try {
+        const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+        if (!authError && user) {
+          currentUserId = user.id
+        }
+      } catch (error) {
+        console.log('Auth error in middleware:', error)
+      }
+    }
+
+    // Add user info based on current user
     const groupsWithUserInfo = (groups || []).map(group => ({
       ...group,
-      is_owner: false,
-      is_member: false,
-      is_pending: false,
-      user_role: 'none'
+      is_owner: currentUserId ? group.owner_id === currentUserId : false,
+      is_member: false, // Will be set by frontend if needed
+      is_pending: false, // Will be set by frontend if needed
+      user_role: currentUserId && group.owner_id === currentUserId ? 'owner' : 'none'
     }))
 
     return NextResponse.json({ 
