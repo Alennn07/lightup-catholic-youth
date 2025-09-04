@@ -76,16 +76,17 @@ export function ImageUpload({
           formData.append('context', context)
         }
 
-        // Get auth token
-        const { data: { session } } = await import('@/lib/supabase').then(m => m.supabase.auth.getSession())
-        if (!session?.access_token) {
+        // Get auth token using the auth context
+        const { getAccessToken } = await import('@/lib/supabase')
+        const token = await getAccessToken()
+        if (!token) {
           throw new Error('Not authenticated')
         }
 
         const response = await fetch(endpoint, {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${session.access_token}`
+            'Authorization': `Bearer ${token}`
           },
           body: formData
         })
