@@ -55,12 +55,7 @@ export async function GET(
         user_id,
         message,
         status,
-        requested_at,
-        users!inner(
-          id,
-          email,
-          user_metadata
-        )
+        requested_at
       `)
       .eq('group_id', groupId)
       .eq('status', 'pending')
