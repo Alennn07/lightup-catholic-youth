@@ -4,6 +4,7 @@ import { Navigation } from "@/components/navigation"
 import { BackToTop } from "@/components/back-to-top"
 import { ErrorBoundary } from "@/components/error-boundary"
 import { SimpleFooter } from "@/components/simple-footer"
+import { SmartBackButton } from "@/components/smart-back-button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -545,14 +546,11 @@ export default function CommunityPage() {
         <div className="container mx-auto px-4">
           {/* Back Button */}
           <div className="mb-6">
-            <Button 
-              variant="ghost" 
-              onClick={() => router.back()}
-              className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Back
-            </Button>
+            <SmartBackButton
+              fallbackPath="/"
+              showHomeButton={true}
+              variant="ghost"
+            />
           </div>
           
           {/* Hero Section */}

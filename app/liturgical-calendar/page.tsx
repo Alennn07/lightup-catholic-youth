@@ -1,6 +1,7 @@
 "use client"
 
 import { Navigation } from "@/components/navigation"
+import { SmartBackButton } from "@/components/smart-back-button"
 import LiturgicalCalendar from "@/components/liturgical-calendar"
 
 export default function LiturgicalCalendarPage() {
@@ -8,6 +9,14 @@ export default function LiturgicalCalendarPage() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       <Navigation />
       <div className="container mx-auto px-4 pt-24 pb-8">
+        {/* Back Button */}
+        <div className="mb-6">
+          <SmartBackButton
+            fallbackPath="/features"
+            showHomeButton={true}
+          />
+        </div>
+
         <div className="text-center mb-8">
           <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
             Liturgical Calendar

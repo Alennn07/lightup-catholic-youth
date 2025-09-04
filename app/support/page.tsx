@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { Navigation } from "@/components/navigation"
 import { BackToTop } from "@/components/back-to-top"
+import { SmartBackButton } from "@/components/smart-back-button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -58,6 +59,14 @@ export default function SupportPage() {
       
       <main className="pt-24 pb-16">
         <div className="container mx-auto px-4">
+          {/* Back Button */}
+          <div className="mb-6">
+            <SmartBackButton
+              fallbackPath="/"
+              showHomeButton={true}
+            />
+          </div>
+
           {/* Header */}
           <div className="text-center mb-12">
             <Badge className="mb-4 bg-blue-100 text-blue-800 border-blue-200">

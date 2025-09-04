@@ -3,6 +3,7 @@
 import { Navigation } from "@/components/navigation"
 import { BackToTop } from "@/components/back-to-top"
 import { SimpleFooter } from "@/components/simple-footer"
+import { SmartBackButton } from "@/components/smart-back-button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Heart, Users, Globe, Shield } from "lucide-react"
 import { useTranslation } from "@/lib/i18n"
@@ -41,6 +42,14 @@ export default function AboutPage() {
 
       <div className="pt-24 pb-16">
         <div className="container mx-auto px-4">
+          {/* Back Button */}
+          <div className="mb-6">
+            <SmartBackButton
+              fallbackPath="/"
+              showHomeButton={true}
+            />
+          </div>
+
           {/* Header */}
           <div className="max-w-3xl mx-auto text-center mb-16">
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-6">{t("about.title")}</h1>

@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast"
 import { ErrorBoundary } from "@/components/error-boundary"
 import { Navigation } from "@/components/navigation"
 import { BackToTop } from "@/components/back-to-top"
+import { SmartBackButton } from "@/components/smart-back-button"
 import { AvatarUploadExample } from "@/components/avatar-upload-example"
 
 export default function ProfilePage() {
@@ -206,12 +207,12 @@ export default function ProfilePage() {
       <Navigation />
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center gap-4 mb-8">
-          <Link href="/dashboard">
-            <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-900 hover:bg-gray-100">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Dashboard
-            </Button>
-          </Link>
+          <SmartBackButton
+            fallbackPath="/dashboard"
+            showHomeButton={true}
+            variant="ghost"
+            size="sm"
+          />
         </div>
 
         <div className="grid gap-6">
