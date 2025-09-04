@@ -49,11 +49,13 @@ export async function GET(request: NextRequest) {
         is_public, 
         is_active, 
         owner_id, 
+        requires_approval,
+        member_count,
         created_at
       `)
       .eq('is_active', true)
       .order('created_at', { ascending: false })
-      .limit(10) // Increased limit for better UX
+      .limit(50) // Increased limit for better UX
 
     if (groupsError) {
       logIfEnabled(`❌ Error fetching groups: ${groupsError.message}`, 'error')
@@ -71,30 +73,44 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ groups: [] })
     }
 
-    // 🚀 OPTIMIZED: Batch fetch user memberships in single query
-    const { data: userMemberships } = await supabase
-      .from('group_members')
-      .select('group_id, role, status')
-      .eq('user_id', user.id)
-      .eq('status', 'active')
+    // 🚀 OPTIMIZED: Batch fetch user memberships and pending requests
+    const [membershipsResult, pendingRequestsResult] = await Promise.all([
+      supabase
+        .from('youth_group_members')
+        .select('group_id, role, status')
+        .eq('user_id', user.id)
+        .eq('status', 'active'),
+      supabase
+        .from('group_join_requests')
+        .select('group_id, status')
+        .eq('user_id', user.id)
+        .eq('status', 'pending')
+    ])
 
-    // Create lookup map for O(1) membership checks
+    const userMemberships = membershipsResult.data || []
+    const pendingRequests = pendingRequestsResult.data || []
+
+    // Create lookup maps for O(1) checks
     const membershipMap = new Map(
-      (userMemberships || []).map(member => [member.group_id, member])
+      userMemberships.map(member => [member.group_id, member])
+    )
+    const pendingMap = new Map(
+      pendingRequests.map(request => [request.group_id, request])
     )
 
     // 🚀 FAST PROCESSING: Process groups with membership info
     const groupsWithInfo = groups.map((group) => {
       const membership = membershipMap.get(group.id)
+      const pendingRequest = pendingMap.get(group.id)
       const isOwner = group.owner_id === user.id
       
       return {
         ...group,
-        member_count: 0, // Load on demand if needed
         user_role: membership?.role || null,
         user_status: membership?.status || null,
         is_member: isOwner || !!membership,
-        is_owner: isOwner
+        is_owner: isOwner,
+        is_pending: !!pendingRequest
       }
     })
 
