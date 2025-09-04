@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Heart, Plus, Send, Users, Clock } from "lucide-react"
+import { Heart, Plus, Send, Users, Clock, X, ZoomIn } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { useAuth } from "@/contexts/auth-context"
 import { formatDistanceToNow } from "date-fns"
@@ -41,6 +41,7 @@ export function PrayerWall() {
   const [isLoading, setIsLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [selectedImage, setSelectedImage] = useState<string | null>(null)
   const [formData, setFormData] = useState({
     name: "",
     request: "",
@@ -395,11 +396,19 @@ export function PrayerWall() {
                 {/* Display uploaded image if exists */}
                 {request.image_url && (
                   <div className="mb-4">
-                    <img 
-                      src={request.image_url} 
-                      alt="Prayer request image" 
-                      className="w-full max-w-md h-48 object-cover rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
-                    />
+                    <div 
+                      className="relative cursor-pointer group"
+                      onClick={() => setSelectedImage(request.image_url!)}
+                    >
+                      <img 
+                        src={request.image_url} 
+                        alt="Prayer request image" 
+                        className="w-full max-w-md h-48 object-cover rounded-lg shadow-md hover:shadow-lg transition-all duration-300 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 rounded-lg flex items-center justify-center">
+                        <ZoomIn className="h-8 w-8 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      </div>
+                    </div>
                   </div>
                 )}
 
@@ -425,6 +434,29 @@ export function PrayerWall() {
           )}
         </div>
       </div>
+
+      {/* Image Modal */}
+      {selectedImage && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4"
+          onClick={() => setSelectedImage(null)}
+        >
+          <div className="relative max-w-4xl max-h-full">
+            <img 
+              src={selectedImage} 
+              alt="Full size prayer request image" 
+              className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
+            />
+            <Button
+              onClick={() => setSelectedImage(null)}
+              className="absolute top-4 right-4 bg-black bg-opacity-50 hover:bg-opacity-75 text-white"
+              size="sm"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
