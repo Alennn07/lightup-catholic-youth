@@ -128,6 +128,10 @@ export function MemberRequestModal({
         // Refresh the parent component data
         onRequestProcessed()
         
+        // Force refresh the requests list to get updated data
+        console.log('Refreshing requests after approval...')
+        await fetchRequests()
+        
         // Close the modal after successful approval
         if (action === 'approve') {
           setTimeout(() => {
