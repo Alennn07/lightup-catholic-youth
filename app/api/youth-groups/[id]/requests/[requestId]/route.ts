@@ -90,6 +90,19 @@ export async function PUT(
 
     logIfEnabled(`✅ Request ${requestId} updated to status: ${action === 'approve' ? 'approved' : 'rejected'}`)
     logIfEnabled(`✅ Updated request data:`, updatedRequest)
+    
+    // Double-check the request status in database
+    const { data: verifyRequest, error: verifyError } = await supabase
+      .from('group_join_requests')
+      .select('id, status, user_id')
+      .eq('id', requestId)
+      .single()
+    
+    if (verifyError) {
+      logIfEnabled(`❌ Error verifying request status: ${verifyError.message}`)
+    } else {
+      logIfEnabled(`🔍 Verified request status in DB:`, verifyRequest)
+    }
 
     if (action === 'approve') {
       // Check if user is already a member
