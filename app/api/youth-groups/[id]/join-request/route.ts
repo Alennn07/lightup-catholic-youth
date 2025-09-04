@@ -50,9 +50,10 @@ export async function POST(
       return NextResponse.json({ error: 'Group is not active' }, { status: 400 })
     }
 
-    if (!group.is_public) {
-      return NextResponse.json({ error: 'Group is private' }, { status: 403 })
-    }
+    // Private groups are allowed - they just require approval
+    // if (!group.is_public) {
+    //   return NextResponse.json({ error: 'Group is private' }, { status: 403 })
+    // }
 
     // Check if user is already a member
     const { data: existingMembership } = await supabase
