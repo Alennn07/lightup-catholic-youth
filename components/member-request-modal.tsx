@@ -130,7 +130,7 @@ export function MemberRequestModal({
         
         // Force refresh the requests list to get updated data
         console.log('Refreshing requests after approval...')
-        await fetchRequests()
+        await fetchJoinRequests()
         
         // Close the modal after successful approval
         if (action === 'approve') {
