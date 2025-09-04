@@ -221,9 +221,15 @@ export default function EnhancedYouthGroups() {
     }
 
     // If no approval required, join directly
+    await submitJoinRequest(groupId, '')
+  }
+
+  const submitJoinRequest = async (groupId: string, message: string) => {
     try {
       const token = await getAccessToken()
       if (!token) return
+
+      console.log('Submitting join request for group:', groupId, 'with message:', message)
 
       const response = await fetch(`/api/youth-groups/${groupId}/join-request`, {
         method: 'POST',
@@ -232,7 +238,7 @@ export default function EnhancedYouthGroups() {
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-          message: joinRequestMessage
+          message: message
         })
       })
 
@@ -243,6 +249,8 @@ export default function EnhancedYouthGroups() {
           description: data.message || "Join request submitted successfully"
         })
         setJoinRequestMessage('')
+        setShowGroupDetails(false)
+        setSelectedGroup(null)
         fetchGroups()
       } else {
         const error = await response.json()
@@ -737,7 +745,7 @@ export default function EnhancedYouthGroups() {
 
       {/* Join Request Modal */}
       <Dialog open={(() => {
-        const shouldOpen = showGroupDetails && selectedGroup && !selectedGroup.is_owner && !selectedGroup.is_member
+        const shouldOpen = Boolean(showGroupDetails && selectedGroup && !selectedGroup.is_owner && !selectedGroup.is_member)
         console.log('Modal condition:', {
           showGroupDetails,
           selectedGroup: selectedGroup?.name,
@@ -776,7 +784,7 @@ export default function EnhancedYouthGroups() {
               <Button variant="outline" onClick={() => setShowGroupDetails(false)}>
                 Cancel
               </Button>
-              <Button onClick={() => selectedGroup && handleJoinGroup(selectedGroup.id)}>
+              <Button onClick={() => selectedGroup && submitJoinRequest(selectedGroup.id, joinRequestMessage)}>
                 {selectedGroup?.requires_approval ? "Request to Join" : "Join Group"}
               </Button>
             </div>
