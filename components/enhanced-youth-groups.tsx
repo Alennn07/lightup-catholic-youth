@@ -103,12 +103,14 @@ export default function EnhancedYouthGroups() {
     try {
       setLoading(true)
       const token = await getAccessToken()
-      if (!token) return
+      
+      const headers: any = {}
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`
+      }
 
       const response = await fetch('/api/youth-groups', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+        headers
       })
 
       if (response.ok) {
