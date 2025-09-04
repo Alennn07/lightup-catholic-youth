@@ -83,13 +83,18 @@ export function GlobalSearch({
         params.append('userId', user.id)
       }
 
+      console.log(`🔍 Frontend search: ${searchQuery}, type: ${type}`)
       const response = await fetch(`/api/search?${params}`)
       const data = await response.json()
+
+      console.log(`📊 Frontend search response:`, data)
 
       if (data.success) {
         setResults(data.data)
         setPage(pageNum)
+        console.log(`✅ Search results set:`, data.data)
       } else {
+        console.error(`❌ Search failed:`, data.error)
         toast({
           title: "Search failed",
           description: data.error || "Unable to search at this time",
@@ -267,7 +272,7 @@ export function GlobalSearch({
                 <Loader2 className="h-6 w-6 animate-spin mx-auto mb-2" />
                 <p className="text-sm text-gray-500">Searching...</p>
               </div>
-            ) : results && results.total > 0 ? (
+            ) : results && (results.prayers.length > 0 || results.journal.length > 0 || results.groups.length > 0 || results.events.length > 0) ? (
               <div>
                 {/* Prayers */}
                 {results.prayers.map(renderResult)}

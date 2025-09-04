@@ -337,6 +337,14 @@ export async function GET(request: NextRequest) {
     results.total = totalResults
     results.hasMore = totalResults >= limitNum
 
+    console.log(`📊 Final results:`, {
+      prayers: results.prayers.length,
+      journal: results.journal.length,
+      groups: results.groups.length,
+      events: results.events.length,
+      total: totalResults
+    })
+
     console.log(`✅ Search completed: ${totalResults} results found`)
 
     return NextResponse.json({
