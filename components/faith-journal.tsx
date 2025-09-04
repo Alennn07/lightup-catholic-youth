@@ -26,6 +26,7 @@ interface JournalEntry {
   entry_date: string
   created_at: string
   updated_at: string
+  image_urls?: string[]
 }
 
 export function FaithJournal() {
@@ -174,6 +175,7 @@ export function FaithJournal() {
       tags: entry.tags.join(", "),
       date: entry.entry_date,
       entry_date: entry.entry_date,
+      imageUrls: entry.image_urls || [],
     })
     setIsDialogOpen(true)
   }
