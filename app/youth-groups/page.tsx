@@ -1,6 +1,6 @@
 "use client"
 
-import YouthGroups from '@/components/youth-groups'
+import EnhancedYouthGroups from '@/components/enhanced-youth-groups'
 import { Navigation } from '@/components/navigation'
 import { SmartBackButton } from '@/components/smart-back-button'
 
@@ -17,7 +17,7 @@ export default function YouthGroupsPage() {
           />
         </div>
         
-        <YouthGroups />
+        <EnhancedYouthGroups />
       </div>
     </div>
   )
