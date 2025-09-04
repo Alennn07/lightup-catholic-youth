@@ -91,6 +91,12 @@ export function MemberRequestModal({
 
   const handleRequestAction = async (requestId: string, action: 'approve' | 'reject') => {
     try {
+      // Check if this request is already being processed
+      if (processing === requestId) {
+        console.log(`Request ${requestId} is already being processed, skipping...`)
+        return
+      }
+
       setProcessing(requestId)
       const token = await getAccessToken()
       if (!token) {
@@ -130,7 +136,11 @@ export function MemberRequestModal({
         })
         
         // Remove the processed request from the list immediately
-        setRequests(prev => prev.filter(req => req.id !== requestId))
+        setRequests(prev => {
+          const filtered = prev.filter(req => req.id !== requestId)
+          console.log(`Removed request ${requestId}, remaining requests: ${filtered.length}`)
+          return filtered
+        })
         
         // Refresh the parent component data
         onRequestProcessed()
