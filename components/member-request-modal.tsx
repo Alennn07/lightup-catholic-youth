@@ -130,6 +130,7 @@ export function MemberRequestModal({
         
         // Close the modal immediately after successful approval
         if (action === 'approve') {
+          console.log('Attempting to close modal after approval.')
           onClose()
         }
       } else {
