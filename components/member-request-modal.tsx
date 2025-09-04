@@ -63,7 +63,7 @@ export function MemberRequestModal({
       const token = await getAccessToken()
       if (!token) return
 
-      const response = await fetch(`/api/youth-groups/${groupId}/join-request`, {
+      const response = await fetch(`/api/youth-groups/${groupId}/requests`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
