@@ -441,11 +441,11 @@ export function PrayerWall() {
           className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4"
           onClick={() => setSelectedImage(null)}
         >
-          <div className="relative max-w-4xl max-h-full">
+          <div className="relative max-w-6xl max-h-[90vh] w-full h-full flex items-center justify-center">
             <img 
               src={selectedImage} 
               alt="Full size prayer request image" 
-              className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
+              className="max-w-full max-h-full w-auto h-auto object-contain rounded-lg shadow-2xl"
             />
             <Button
               onClick={() => setSelectedImage(null)}
