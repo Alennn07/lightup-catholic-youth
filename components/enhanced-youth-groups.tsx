@@ -202,12 +202,19 @@ export default function EnhancedYouthGroups() {
   }
 
   const handleJoinGroup = async (groupId: string) => {
+    console.log('handleJoinGroup called for group:', groupId)
     // Find the group to check if it requires approval
     const group = groups.find(g => g.id === groupId)
-    if (!group) return
+    if (!group) {
+      console.log('Group not found')
+      return
+    }
+
+    console.log('Group found:', group.name, 'requires_approval:', group.requires_approval)
 
     // If group requires approval, show modal for join request
     if (group.requires_approval) {
+      console.log('Opening modal for join request')
       setSelectedGroup(group)
       setShowGroupDetails(true)
       return
@@ -729,7 +736,17 @@ export default function EnhancedYouthGroups() {
       </Dialog>
 
       {/* Join Request Modal */}
-      <Dialog open={showGroupDetails && selectedGroup && !selectedGroup.is_owner && !selectedGroup.is_member} onOpenChange={setShowGroupDetails}>
+      <Dialog open={(() => {
+        const shouldOpen = showGroupDetails && selectedGroup && !selectedGroup.is_owner && !selectedGroup.is_member
+        console.log('Modal condition:', {
+          showGroupDetails,
+          selectedGroup: selectedGroup?.name,
+          is_owner: selectedGroup?.is_owner,
+          is_member: selectedGroup?.is_member,
+          shouldOpen
+        })
+        return shouldOpen
+      })()} onOpenChange={setShowGroupDetails}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Join {selectedGroup?.name}</DialogTitle>
