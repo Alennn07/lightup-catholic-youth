@@ -43,6 +43,7 @@ export function MemberRequestModal({
 
   useEffect(() => {
     if (isOpen) {
+      console.log('Modal opened, fetching fresh requests...')
       fetchJoinRequests()
     }
   }, [isOpen, groupId])
@@ -61,6 +62,8 @@ export function MemberRequestModal({
 
       if (response.ok) {
         const data = await response.json()
+        console.log('Fetched requests data:', data)
+        console.log('Number of requests:', data.requests?.length || 0)
         setRequests(data.requests || [])
       } else {
         const error = await response.json()
