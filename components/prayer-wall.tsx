@@ -403,7 +403,7 @@ export function PrayerWall() {
                       <img 
                         src={request.image_url} 
                         alt="Prayer request image" 
-                        className="w-full max-w-md h-48 object-cover rounded-lg shadow-md hover:shadow-lg transition-all duration-300 group-hover:scale-105"
+                        className="w-full max-w-md max-h-64 object-contain rounded-lg shadow-md hover:shadow-lg transition-all duration-300 group-hover:scale-105"
                       />
                       <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 rounded-lg flex items-center justify-center">
                         <ZoomIn className="h-8 w-8 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
