@@ -86,7 +86,17 @@ export function MemberRequestModal({
     try {
       setProcessing(requestId)
       const token = await getAccessToken()
-      if (!token) return
+      if (!token) {
+        console.error('No access token available')
+        return
+      }
+
+      console.log('Sending approval request:', {
+        groupId,
+        requestId,
+        action,
+        token: token.substring(0, 20) + '...'
+      })
 
       const response = await fetch(`/api/youth-groups/${groupId}/requests/${requestId}`, {
         method: 'PUT',
@@ -99,6 +109,9 @@ export function MemberRequestModal({
           reviewMessage: reviewMessage.trim() || undefined
         })
       })
+
+      console.log('Response status:', response.status)
+      console.log('Response ok:', response.ok)
 
       if (response.ok) {
         const data = await response.json()
@@ -123,6 +136,8 @@ export function MemberRequestModal({
         }
       } else {
         const error = await response.json()
+        console.error('API Error:', error)
+        console.error('Response status:', response.status)
         toast({
           title: "Error",
           description: error.error || `Failed to ${action} request`,
