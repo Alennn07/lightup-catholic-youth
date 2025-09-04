@@ -49,6 +49,16 @@ export async function GET(request: NextRequest) {
 
     console.log(`🔍 Global search: "${searchQuery}", type: ${searchType}, page: ${pageNum}`)
 
+    // Debug: Check if there are any prayer requests at all
+    if (searchType === 'all' || searchType === 'prayers') {
+      const { data: allPrayers, error: allPrayersError } = await supabase
+        .from('prayer_requests')
+        .select('id, name, request, is_anonymous')
+        .limit(5)
+      
+      console.log(`🔍 Debug - All prayers in DB:`, { count: allPrayers?.length, error: allPrayersError, sample: allPrayers })
+    }
+
     const results: any = {
       prayers: [],
       journal: [],
@@ -63,6 +73,9 @@ export async function GET(request: NextRequest) {
     // Search prayers (respect RLS - only show public prayers or user's own)
     if (searchType === 'all' || searchType === 'prayers') {
       try {
+        console.log(`🔍 Searching prayers for: "${searchQuery}"`)
+        
+        // First try text search
         let prayersQuery = supabase
           .from('prayer_requests')
           .select(`
@@ -73,7 +86,8 @@ export async function GET(request: NextRequest) {
             is_anonymous,
             prayer_count,
             created_at,
-            image_url
+            image_url,
+            user_id
           `)
           .textSearch('request', searchQuery, {
             type: 'websearch',
@@ -91,7 +105,54 @@ export async function GET(request: NextRequest) {
         const { data: prayers, error: prayersError } = await prayersQuery
           .range(offset, offset + limitNum - 1)
 
-        if (!prayersError && prayers) {
+        console.log(`📊 Prayers text search result:`, { prayers: prayers?.length, error: prayersError })
+
+        // If text search fails or returns no results, try ILIKE search
+        if (prayersError || !prayers || prayers.length === 0) {
+          console.log(`🔄 Trying ILIKE search for prayers...`)
+          
+          let fallbackQuery = supabase
+            .from('prayer_requests')
+            .select(`
+              id,
+              name,
+              request,
+              category,
+              is_anonymous,
+              prayer_count,
+              created_at,
+              image_url,
+              user_id
+            `)
+            .ilike('request', `%${searchQuery}%`)
+            .order('created_at', { ascending: false })
+
+          // Apply RLS
+          if (searchUserId) {
+            fallbackQuery = fallbackQuery.or(`is_anonymous.eq.false,user_id.eq.${searchUserId}`)
+          } else {
+            fallbackQuery = fallbackQuery.eq('is_anonymous', false)
+          }
+
+          const { data: fallbackPrayers, error: fallbackError } = await fallbackQuery
+            .range(offset, offset + limitNum - 1)
+
+          console.log(`📊 Prayers ILIKE search result:`, { prayers: fallbackPrayers?.length, error: fallbackError })
+
+          if (!fallbackError && fallbackPrayers) {
+            results.prayers = fallbackPrayers.map(prayer => ({
+              id: prayer.id,
+              type: 'prayer',
+              title: prayer.is_anonymous ? 'Anonymous Prayer' : prayer.name,
+              content: prayer.request,
+              category: prayer.category,
+              is_anonymous: prayer.is_anonymous,
+              prayer_count: prayer.prayer_count,
+              created_at: prayer.created_at,
+              image_url: prayer.image_url
+            }))
+          }
+        } else if (!prayersError && prayers) {
           results.prayers = prayers.map(prayer => ({
             id: prayer.id,
             type: 'prayer',
@@ -112,7 +173,10 @@ export async function GET(request: NextRequest) {
     // Search journal entries (respect RLS - only show user's own entries)
     if ((searchType === 'all' || searchType === 'journal') && searchUserId) {
       try {
-        const { data: journalEntries, error: journalError } = await supabase
+        console.log(`🔍 Searching journal for: "${searchQuery}"`)
+        
+        // First try text search
+        let journalQuery = supabase
           .from('journal_entries')
           .select(`
             id,
@@ -130,9 +194,49 @@ export async function GET(request: NextRequest) {
             config: 'english'
           })
           .order('created_at', { ascending: false })
+
+        const { data: journalEntries, error: journalError } = await journalQuery
           .range(offset, offset + limitNum - 1)
 
-        if (!journalError && journalEntries) {
+        console.log(`📊 Journal text search result:`, { entries: journalEntries?.length, error: journalError })
+
+        // If text search fails or returns no results, try ILIKE search
+        if (journalError || !journalEntries || journalEntries.length === 0) {
+          console.log(`🔄 Trying ILIKE search for journal...`)
+          
+          const { data: fallbackEntries, error: fallbackError } = await supabase
+            .from('journal_entries')
+            .select(`
+              id,
+              title,
+              content,
+              mood,
+              tags,
+              entry_date,
+              created_at,
+              image_urls
+            `)
+            .eq('user_id', searchUserId)
+            .ilike('content', `%${searchQuery}%`)
+            .order('created_at', { ascending: false })
+            .range(offset, offset + limitNum - 1)
+
+          console.log(`📊 Journal ILIKE search result:`, { entries: fallbackEntries?.length, error: fallbackError })
+
+          if (!fallbackError && fallbackEntries) {
+            results.journal = fallbackEntries.map(entry => ({
+              id: entry.id,
+              type: 'journal',
+              title: entry.title || 'Untitled Entry',
+              content: entry.content,
+              mood: entry.mood,
+              tags: entry.tags,
+              entry_date: entry.entry_date,
+              created_at: entry.created_at,
+              image_urls: entry.image_urls
+            }))
+          }
+        } else if (!journalError && journalEntries) {
           results.journal = journalEntries.map(entry => ({
             id: entry.id,
             type: 'journal',
