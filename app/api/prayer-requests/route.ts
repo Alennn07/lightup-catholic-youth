@@ -119,8 +119,8 @@ export async function POST(request: NextRequest) {
 
     const insertData: any = {
       user_id: user.id,
-      title: validatedData.title,
-      content: validatedData.content,
+      name: validatedData.title,
+      request: validatedData.content,
       category: validatedData.category,
       is_anonymous: validatedData.is_anonymous,
       prayer_count: 0
