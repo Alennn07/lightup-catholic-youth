@@ -48,29 +48,49 @@ export function MemberRequestModal({
     }
   }, [isOpen, groupId])
 
-  const fetchJoinRequests = async () => {
+  const fetchJoinRequests = async (retryCount = 0) => {
     try {
       setLoading(true)
       const token = await getAccessToken()
       if (!token) return
 
-      const response = await fetch(`/api/youth-groups/${groupId}/requests?t=${Date.now()}`, {
+      // Force refresh with multiple cache-busting parameters
+      const cacheBuster = `t=${Date.now()}&r=${Math.random()}&v=${Date.now()}&retry=${retryCount}`
+      const response = await fetch(`/api/youth-groups/${groupId}/requests?${cacheBuster}`, {
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
         }
       })
 
       if (response.ok) {
         const data = await response.json()
-        console.log('Fetched requests data:', data)
+        console.log(`🔄 Fetch attempt ${retryCount + 1} - Fetched requests data:`, data)
         console.log('Number of requests:', data.requests?.length || 0)
         
         // Filter out approved/rejected requests to only show pending ones
         const pendingRequests = (data.requests || []).filter((req: any) => req.status === 'pending')
         console.log('Filtered pending requests:', pendingRequests.length)
+        
+        // If we have pending requests but we're retrying, check if this might be stale data
+        if (pendingRequests.length > 0 && retryCount > 0) {
+          console.log('⚠️ Found pending requests on retry - this might be stale data due to database lag')
+        }
+        
         setRequests(pendingRequests)
       } else {
         const error = await response.json()
+        console.error(`❌ Fetch attempt ${retryCount + 1} failed:`, error)
+        
+        // Retry up to 2 times for database consistency issues
+        if (retryCount < 2) {
+          console.log(`🔄 Retrying fetch in 500ms... (attempt ${retryCount + 2})`)
+          setTimeout(() => fetchJoinRequests(retryCount + 1), 500)
+          return
+        }
+        
         toast({
           title: "Error",
           description: error.error || "Failed to fetch join requests",
@@ -78,7 +98,15 @@ export function MemberRequestModal({
         })
       }
     } catch (error) {
-      console.error('Error fetching join requests:', error)
+      console.error(`❌ Fetch attempt ${retryCount + 1} error:`, error)
+      
+      // Retry up to 2 times for network issues
+      if (retryCount < 2) {
+        console.log(`🔄 Retrying fetch in 500ms... (attempt ${retryCount + 2})`)
+        setTimeout(() => fetchJoinRequests(retryCount + 1), 500)
+        return
+      }
+      
       toast({
         title: "Error",
         description: "Failed to fetch join requests",

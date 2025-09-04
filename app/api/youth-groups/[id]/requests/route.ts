@@ -17,12 +17,20 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    // Force a fresh connection to avoid read replica lag
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!,
       { 
         auth: { autoRefreshToken: false, persistSession: false },
-        db: { schema: 'public' }
+        db: { schema: 'public' },
+        global: {
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+          }
+        }
       }
     )
 
@@ -47,23 +55,81 @@ export async function GET(
       return NextResponse.json({ error: 'Only group owners can view join requests' }, { status: 403 })
     }
 
-    // Get pending join requests
-    const { data: requests, error: requestsError } = await supabase
-      .from('group_join_requests')
-      .select(`
-        id,
-        user_id,
-        message,
-        status,
-        requested_at
-      `)
-      .eq('group_id', groupId)
-      .eq('status', 'pending')
-      .order('requested_at', { ascending: false })
+    // Force refresh by adding a timestamp to bypass any caching
+    const timestamp = Date.now()
+    logIfEnabled(`🔄 Force refreshing requests at timestamp: ${timestamp}`)
+    
+    // Add a small delay to ensure database consistency
+    await new Promise(resolve => setTimeout(resolve, 100))
+    
+    // Retry mechanism to handle database consistency issues
+    let allRequests = null
+    let allRequestsError = null
+    let retryCount = 0
+    const maxRetries = 3
+    
+    while (retryCount < maxRetries) {
+      logIfEnabled(`🔄 Attempt ${retryCount + 1}/${maxRetries} to fetch requests`)
+      
+      const result = await supabase
+        .from('group_join_requests')
+        .select(`
+          id,
+          user_id,
+          message,
+          status,
+          requested_at,
+          reviewed_at
+        `)
+        .eq('group_id', groupId)
+        .order('requested_at', { ascending: false })
+        .limit(100) // Force fresh query
+      
+      allRequests = result.data
+      allRequestsError = result.error
+      
+      if (!allRequestsError && allRequests) {
+        logIfEnabled(`✅ Successfully fetched requests on attempt ${retryCount + 1}`)
+        break
+      }
+      
+      retryCount++
+      if (retryCount < maxRetries) {
+        logIfEnabled(`⚠️ Retry ${retryCount} after 500ms delay`)
+        await new Promise(resolve => setTimeout(resolve, 500 * retryCount)) // Exponential backoff
+      }
+    }
 
-    if (requestsError) {
-      logIfEnabled(`❌ Error fetching join requests: ${requestsError.message}`, 'error')
-      return NextResponse.json({ error: 'Failed to fetch join requests' }, { status: 500 })
+    if (allRequestsError) {
+      logIfEnabled(`❌ Error fetching all requests: ${allRequestsError.message}`, 'error')
+      return NextResponse.json({ error: 'Failed to fetch requests' }, { status: 500 })
+    }
+
+    logIfEnabled(`🔍 ALL REQUESTS for group ${groupId}:`, allRequests?.map(r => ({ 
+      id: r.id, 
+      status: r.status, 
+      user_id: r.user_id,
+      reviewed_at: r.reviewed_at 
+    })))
+
+    // Filter for pending requests
+    const requests = (allRequests || []).filter(req => req.status === 'pending')
+    logIfEnabled(`🔍 FILTERED PENDING requests:`, requests.map(r => ({ 
+      id: r.id, 
+      status: r.status, 
+      user_id: r.user_id 
+    })))
+    
+    // Check for potential database inconsistency
+    const approvedRequests = (allRequests || []).filter(req => req.status === 'approved')
+    if (approvedRequests.length > 0) {
+      logIfEnabled(`⚠️ WARNING: Found ${approvedRequests.length} approved requests that might be showing as pending due to database lag`)
+      logIfEnabled(`🔍 Approved requests:`, approvedRequests.map(r => ({ 
+        id: r.id, 
+        status: r.status, 
+        user_id: r.user_id,
+        reviewed_at: r.reviewed_at 
+      })))
     }
 
     logIfEnabled(`✅ Join requests fetched for group ${groupId}: ${requests?.length || 0} requests`)
