@@ -46,14 +46,20 @@ export async function POST(
       return NextResponse.json({ error: 'Group not found' }, { status: 404 })
     }
 
+    console.log('Group data:', {
+      id: group.id,
+      name: group.name,
+      is_public: group.is_public,
+      requires_approval: group.requires_approval,
+      is_active: group.is_active
+    })
+
     if (!group.is_active) {
       return NextResponse.json({ error: 'Group is not active' }, { status: 400 })
     }
 
     // Private groups are allowed - they just require approval
-    // if (!group.is_public) {
-    //   return NextResponse.json({ error: 'Group is private' }, { status: 403 })
-    // }
+    console.log('Allowing private group join request for:', group.name)
 
     // Check if user is already a member
     const { data: existingMembership } = await supabase
