@@ -372,13 +372,13 @@ export function FaithJournal() {
                     }}
                     className="max-w-md"
                   />
-                  {formData.imageUrls.length > 0 && (
+                  {formData.imageUrls && formData.imageUrls.length > 0 && (
                     <div className="mt-2">
                       <p className="text-xs text-muted-foreground mb-2">
-                        Uploaded images ({formData.imageUrls.length}/3):
+                        Uploaded images ({(formData.imageUrls || []).length}/3):
                       </p>
                       <div className="flex gap-2 flex-wrap">
-                        {formData.imageUrls.map((url, index) => (
+                        {(formData.imageUrls || []).map((url, index) => (
                           <div key={index} className="relative">
                             <img
                               src={url}
