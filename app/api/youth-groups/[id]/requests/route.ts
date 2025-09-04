@@ -67,6 +67,11 @@ export async function GET(
     }
 
     logIfEnabled(`✅ Join requests fetched for group ${groupId}: ${requests?.length || 0} requests`)
+    
+    // Debug: Log the actual requests data
+    if (requests && requests.length > 0) {
+      logIfEnabled(`📋 Requests data:`, requests.map(r => ({ id: r.id, status: r.status, user_id: r.user_id })))
+    }
 
     return NextResponse.json({
       success: true,

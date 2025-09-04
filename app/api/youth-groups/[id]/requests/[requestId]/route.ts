@@ -88,6 +88,9 @@ export async function PUT(
       return NextResponse.json({ error: 'Failed to update request' }, { status: 500 })
     }
 
+    logIfEnabled(`✅ Request ${requestId} updated to status: ${action === 'approve' ? 'approved' : 'rejected'}`)
+    logIfEnabled(`✅ Updated request data:`, updatedRequest)
+
     if (action === 'approve') {
       // Check if user is already a member
       const { data: existingMember } = await supabase
