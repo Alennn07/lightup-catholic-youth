@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Search, Filter, Clock, Users, Heart, BookOpen, Calendar, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -44,7 +44,7 @@ interface SearchResponse {
   type: string
 }
 
-export default function SearchPage() {
+function SearchContent() {
   const [query, setQuery] = useState('')
   const [searchType, setSearchType] = useState<'all' | 'prayers' | 'journal' | 'groups' | 'events'>('all')
   const [isLoading, setIsLoading] = useState(false)
@@ -351,5 +351,20 @@ export default function SearchPage() {
         ) : null}
       </div>
     </div>
+  )
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+          <p className="text-gray-500">Loading search...</p>
+        </div>
+      </div>
+    }>
+      <SearchContent />
+    </Suspense>
   )
 }
