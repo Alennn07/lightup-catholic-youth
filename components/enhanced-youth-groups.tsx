@@ -202,6 +202,18 @@ export default function EnhancedYouthGroups() {
   }
 
   const handleJoinGroup = async (groupId: string) => {
+    // Find the group to check if it requires approval
+    const group = groups.find(g => g.id === groupId)
+    if (!group) return
+
+    // If group requires approval, show modal for join request
+    if (group.requires_approval) {
+      setSelectedGroup(group)
+      setShowGroupDetails(true)
+      return
+    }
+
+    // If no approval required, join directly
     try {
       const token = await getAccessToken()
       if (!token) return
@@ -386,22 +398,15 @@ export default function EnhancedYouthGroups() {
       )
     }
     
-    if (group.is_public) {
-      return (
-        <Button
-          onClick={() => handleJoinGroup(group.id)}
-          size="sm"
-        >
-          <UserPlus className="h-4 w-4 mr-2" />
-          Join
-        </Button>
-      )
-    }
-    
+    // For any group that's not owned by user and user is not a member
     return (
-      <Badge variant="outline" className="text-gray-500">
-        Private
-      </Badge>
+      <Button
+        onClick={() => handleJoinGroup(group.id)}
+        size="sm"
+      >
+        <UserPlus className="h-4 w-4 mr-2" />
+        {group.requires_approval ? 'Request to Join' : 'Join Group'}
+      </Button>
     )
   }
 
