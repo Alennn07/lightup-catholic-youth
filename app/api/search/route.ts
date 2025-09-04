@@ -123,7 +123,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Search journal entries (respect RLS - only show user's own entries)
-    if ((searchType === 'all' || searchType === 'journal') && searchUserId) {
+    if (searchType === 'all' || searchType === 'journal') {
       try {
         console.log(`🔍 Searching journal for: "${searchQuery}"`)
         
@@ -140,9 +140,13 @@ export async function GET(request: NextRequest) {
             created_at,
             image_urls
           `)
-          .eq('user_id', searchUserId)
           .or(`content.ilike.%${searchQuery}%,title.ilike.%${searchQuery}%,mood.ilike.%${searchQuery}%`)
           .order('created_at', { ascending: false })
+
+        // Apply RLS: only show user's own entries if user ID provided
+        if (searchUserId) {
+          journalQuery = journalQuery.eq('user_id', searchUserId)
+        }
 
         const { data: journalEntries, error: journalError } = await journalQuery
           .range(offset, offset + limitNum - 1)
