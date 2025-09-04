@@ -54,7 +54,7 @@ export function MemberRequestModal({
       const token = await getAccessToken()
       if (!token) return
 
-      const response = await fetch(`/api/youth-groups/${groupId}/requests`, {
+      const response = await fetch(`/api/youth-groups/${groupId}/requests?t=${Date.now()}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -137,22 +137,19 @@ export function MemberRequestModal({
         
         // Remove the processed request from the list immediately
         setRequests(prev => {
+          console.log(`🔄 BEFORE REMOVAL - Current requests:`, prev.map(r => ({ id: r.id, status: r.status })))
           const filtered = prev.filter(req => req.id !== requestId)
           console.log(`✅ REMOVED request ${requestId} from UI, remaining requests: ${filtered.length}`)
+          console.log(`🔄 AFTER REMOVAL - Remaining requests:`, filtered.map(r => ({ id: r.id, status: r.status })))
           return filtered
         })
         
         // Refresh the parent component data
         onRequestProcessed()
         
-        // Force refresh the requests list to get updated status
-        console.log('🔄 Forcing fresh fetch of requests...')
-        await fetchJoinRequests()
-        
         // Close the modal immediately after successful approval
         if (action === 'approve') {
           console.log('✅ APPROVAL SUCCESSFUL - Closing modal immediately')
-          console.log('Current requests after refresh:', requests.length)
           
           // Small delay to prevent immediate reopening
           setTimeout(() => {
