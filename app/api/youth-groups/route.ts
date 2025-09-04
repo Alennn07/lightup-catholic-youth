@@ -25,10 +25,13 @@ export async function GET(request: NextRequest) {
     )
 
     // If token is provided, verify it, otherwise use service role
+    let user = null
     if (token) {
-      const { data: { user }, error: authError } = await supabase.auth.getUser(token)
-      if (authError || !user) {
+      const { data: { user: authUser }, error: authError } = await supabase.auth.getUser(token)
+      if (authError || !authUser) {
         console.log('⚠️ Invalid token, using service role for now')
+      } else {
+        user = authUser
       }
     } else {
       console.log('⚠️ No token provided, using service role')
@@ -74,19 +77,24 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ groups: [] })
     }
 
-    // 🚀 OPTIMIZED: Batch fetch user memberships and pending requests
-    const [membershipsResult, pendingRequestsResult] = await Promise.all([
-      supabase
-        .from('youth_group_members')
-        .select('group_id, role, status')
-        .eq('user_id', user.id)
-        .eq('status', 'active'),
-      supabase
-        .from('group_join_requests')
-        .select('group_id, status')
-        .eq('user_id', user.id)
-        .eq('status', 'pending')
-    ])
+    // 🚀 OPTIMIZED: Batch fetch user memberships and pending requests (only if user is authenticated)
+    let membershipsResult = { data: [], error: null }
+    let pendingRequestsResult = { data: [], error: null }
+    
+    if (user) {
+      [membershipsResult, pendingRequestsResult] = await Promise.all([
+        supabase
+          .from('youth_group_members')
+          .select('group_id, role, status')
+          .eq('user_id', user.id)
+          .eq('status', 'active'),
+        supabase
+          .from('group_join_requests')
+          .select('group_id, status')
+          .eq('user_id', user.id)
+          .eq('status', 'pending')
+      ])
+    }
 
     const userMemberships = membershipsResult.data || []
     const pendingRequests = pendingRequestsResult.data || []
