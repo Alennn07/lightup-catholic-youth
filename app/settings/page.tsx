@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { SmartBackButton } from "@/components/smart-back-button"
 import { 
   Lock, 
   User, 
@@ -190,12 +191,12 @@ export default function SettingsPage() {
       <Navigation />
       <div className="max-w-4xl mx-auto pt-24 px-4">
         <div className="flex items-center gap-4 mb-8">
-          <Link href="/dashboard">
-            <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-900 hover:bg-gray-100">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Dashboard
-            </Button>
-          </Link>
+          <SmartBackButton 
+            fallbackPath="/dashboard"
+            showHomeButton={true}
+            variant="ghost"
+            size="sm"
+          />
         </div>
 
         <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">

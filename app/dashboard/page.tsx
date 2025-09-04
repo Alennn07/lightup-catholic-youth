@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 import { Navigation } from "@/components/navigation"
 import { PrayerSessionModal } from "@/components/prayer-session-modal"
+import { SmartBackButton } from "@/components/smart-back-button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -553,6 +554,15 @@ export default function DashboardPage() {
         <Navigation />
         
         <div className="container mx-auto px-3 sm:px-4 pt-16 sm:pt-20 md:pt-24 pb-4 sm:pb-6 md:pb-8">
+          {/* Back Button */}
+          <div className="mb-6">
+            <SmartBackButton 
+              fallbackPath="/"
+              showHomeButton={false}
+              variant="ghost"
+              size="sm"
+            />
+          </div>
           {/* Welcome Header with Notifications */}
           <div className="text-center mb-6 sm:mb-8 md:mb-12">
             <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-gray-800 mb-2 sm:mb-3 md:mb-4 px-2">

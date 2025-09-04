@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { Navigation } from "@/components/navigation"
 import { BackToTop } from "@/components/back-to-top"
+import { SmartBackButton } from "@/components/smart-back-button"
 import { FeatureCard } from "@/components/feature-card"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -299,6 +300,16 @@ export default function FeaturesPage() {
       <Navigation />
       
       <div className="container mx-auto px-4 pt-24 pb-8">
+        {/* Back Button */}
+        <div className="mb-6">
+          <SmartBackButton 
+            fallbackPath="/"
+            showHomeButton={false}
+            variant="ghost"
+            size="sm"
+          />
+        </div>
+        
         {/* Header */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }} 

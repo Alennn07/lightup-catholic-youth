@@ -2,26 +2,19 @@
 
 import { FaithJournal } from "@/components/faith-journal"
 import { Navigation } from "@/components/navigation"
-import { Button } from "@/components/ui/button"
-import { ArrowLeft } from "lucide-react"
-import { useRouter } from "next/navigation"
+import { SmartBackButton } from "@/components/smart-back-button"
 
 export default function FaithJournalPage() {
-  const router = useRouter()
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       <Navigation />
       <div className="container mx-auto px-4 pt-24 pb-8">
-        {/* Back Button */}
+        {/* Smart Back Button */}
         <div className="mb-6">
-          <Button 
-            variant="outline" 
-            onClick={() => router.back()}
-            className="flex items-center gap-2"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back
-          </Button>
+          <SmartBackButton 
+            fallbackPath="/dashboard"
+            showHomeButton={true}
+          />
         </div>
         
         <div className="text-center mb-8">

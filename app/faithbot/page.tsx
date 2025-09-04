@@ -2,23 +2,19 @@
 
 import { FaithBot } from "@/components/faith-bot"
 import { Navigation } from "@/components/navigation"
-import { Button } from "@/components/ui/button"
-import { ArrowLeft } from "lucide-react"
-import Link from "next/link"
+import { SmartBackButton } from "@/components/smart-back-button"
 
 export default function FaithBotPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       <Navigation />
       <div className="container mx-auto px-4 pt-24 pb-8">
-        {/* Back Button */}
+        {/* Smart Back Button */}
         <div className="mb-6">
-          <Link href="/features">
-            <Button variant="outline" className="flex items-center gap-2">
-              <ArrowLeft className="h-4 w-4" />
-              Back to Features
-            </Button>
-          </Link>
+          <SmartBackButton 
+            fallbackPath="/features"
+            showHomeButton={true}
+          />
         </div>
         
         <div className="text-center mb-8">

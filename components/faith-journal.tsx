@@ -14,6 +14,7 @@ import { BookOpen, Plus, Search, Edit, Trash2, Calendar } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { useAuth } from "@/contexts/auth-context"
 import { format, formatDistanceToNow, isAfter, subDays } from "date-fns"
+import { useUnsavedData } from "@/components/unsaved-data-guard"
 import { JournalImageUpload } from "@/components/image-upload"
 
 interface JournalEntry {
@@ -47,6 +48,15 @@ export function FaithJournal() {
   })
   const { toast } = useToast()
   const { user } = useAuth()
+  
+  // Track unsaved changes
+  const { markAsUnsaved, markAsSaved, hasUnsavedChanges } = useUnsavedData('journal-form')
+
+  // Handle form changes and mark as unsaved
+  const handleFormChange = (updates: Partial<typeof formData>) => {
+    setFormData(prev => ({ ...prev, ...updates }))
+    markAsUnsaved()
+  }
 
   const moods = [
     { value: "joyful", label: "Joyful", icon: "😊", color: "text-yellow-400" },
@@ -99,6 +109,7 @@ export function FaithJournal() {
       imageUrls: [],
     })
     setEditingEntry(null)
+    markAsSaved() // Mark as saved when resetting
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -106,6 +117,7 @@ export function FaithJournal() {
     if (!user) return
 
     setIsSubmitting(true)
+    markAsSaved() // Mark as saved when submitting
     try {
       const entryData = {
         user_id: user.id,
@@ -312,13 +324,13 @@ export function FaithJournal() {
                 <Input
                   placeholder="Entry title..."
                   value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  onChange={(e) => handleFormChange({ title: e.target.value })}
                   className="bg-muted border-border text-foreground placeholder:text-muted-foreground focus:bg-background focus:border-amber-400 focus:ring-amber-400"
                   required
                 />
 
                 <div className="grid grid-cols-2 gap-4">
-                  <Select value={formData.mood} onValueChange={(value) => setFormData({ ...formData, mood: value })}>
+                  <Select value={formData.mood} onValueChange={(value) => handleFormChange({ mood: value })}>
                     <SelectTrigger className="bg-muted border-border text-foreground focus:bg-background focus:border-amber-400 focus:ring-amber-400">
                       <SelectValue placeholder="How are you feeling?" />
                     </SelectTrigger>
@@ -337,7 +349,7 @@ export function FaithJournal() {
                   <Input
                     type="date"
                     value={formData.date}
-                    onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                    onChange={(e) => handleFormChange({ date: e.target.value })}
                     className="bg-muted border-border text-foreground focus:bg-background focus:border-amber-400 focus:ring-amber-400"
                     required
                   />
@@ -346,7 +358,7 @@ export function FaithJournal() {
                 <Textarea
                   placeholder="Write about your faith journey, prayers, reflections, or anything on your heart..."
                   value={formData.content}
-                  onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+                  onChange={(e) => handleFormChange({ content: e.target.value })}
                   className="bg-muted border-border text-foreground placeholder:text-muted-foreground focus:bg-background focus:border-amber-400 focus:ring-amber-400 min-h-[200px] resize-none"
                   required
                 />
@@ -354,7 +366,7 @@ export function FaithJournal() {
                 <Input
                   placeholder="Tags (comma separated, e.g., prayer, mass, reflection)"
                   value={formData.tags}
-                  onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
+                  onChange={(e) => handleFormChange({ tags: e.target.value })}
                   className="bg-muted border-border text-foreground placeholder:text-muted-foreground focus:bg-background focus:border-amber-400 focus:ring-amber-400"
                 />
 
@@ -364,7 +376,7 @@ export function FaithJournal() {
                     Journal Images (Optional - up to 3 images)
                   </label>
                   <JournalImageUpload
-                    onUpload={(url) => setFormData({ ...formData, imageUrls: [...formData.imageUrls, url] })}
+                    onUpload={(url) => handleFormChange({ imageUrls: [...formData.imageUrls, url] })}
                     onError={(error) => {
                       toast({
                         title: "Upload failed",
@@ -389,8 +401,7 @@ export function FaithJournal() {
                             />
                             <button
                               type="button"
-                              onClick={() => setFormData({ 
-                                ...formData, 
+                              onClick={() => handleFormChange({ 
                                 imageUrls: formData.imageUrls.filter((_, i) => i !== index) 
                               })}
                               className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full text-xs hover:bg-red-600"
