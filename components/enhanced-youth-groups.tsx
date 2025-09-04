@@ -244,6 +244,7 @@ export default function EnhancedYouthGroups() {
 
       if (response.ok) {
         const data = await response.json()
+        console.log('Join request successful:', data)
         toast({
           title: "Success",
           description: data.message || "Join request submitted successfully"
@@ -251,7 +252,9 @@ export default function EnhancedYouthGroups() {
         setJoinRequestMessage('')
         setShowGroupDetails(false)
         setSelectedGroup(null)
-        fetchGroups()
+        console.log('Refreshing groups list...')
+        await fetchGroups()
+        console.log('Groups refreshed')
       } else {
         const error = await response.json()
         toast({
