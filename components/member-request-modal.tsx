@@ -17,16 +17,6 @@ interface JoinRequest {
   message: string
   status: string
   requested_at: string
-  users: {
-    id: string
-    email: string
-    user_metadata: {
-      name?: string
-      username?: string
-      age?: number
-      parish?: string
-    }
-  }
 }
 
 interface MemberRequestModalProps {
@@ -141,10 +131,9 @@ export function MemberRequestModal({
     }
   }
 
-  const getUserDisplayName = (user: JoinRequest['users']) => {
-    return user.user_metadata?.name || 
-           user.user_metadata?.username || 
-           user.email.split('@')[0]
+  const getUserDisplayName = (request: JoinRequest) => {
+    // For now, just use the user_id since we don't have user details
+    return `User ${request.user_id.slice(0, 8)}...`
   }
 
   return (
@@ -181,23 +170,13 @@ export function MemberRequestModal({
                         </div>
                         <div>
                           <h4 className="font-semibold text-gray-900">
-                            {getUserDisplayName(request.users)}
+                            {getUserDisplayName(request)}
                           </h4>
-                          <p className="text-sm text-gray-500">{request.users.email}</p>
+                          <p className="text-sm text-gray-500">ID: {request.user_id}</p>
                           <div className="flex items-center space-x-2 mt-1">
                             <Badge variant="secondary" className="text-xs">
                               {formatDistanceToNow(new Date(request.requested_at), { addSuffix: true })}
                             </Badge>
-                            {request.users.user_metadata?.age && (
-                              <Badge variant="outline" className="text-xs">
-                                Age {request.users.user_metadata.age}
-                              </Badge>
-                            )}
-                            {request.users.user_metadata?.parish && (
-                              <Badge variant="outline" className="text-xs">
-                                {request.users.user_metadata.parish}
-                              </Badge>
-                            )}
                           </div>
                         </div>
                       </div>
