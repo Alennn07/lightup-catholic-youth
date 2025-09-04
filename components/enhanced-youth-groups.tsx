@@ -357,6 +357,17 @@ export default function EnhancedYouthGroups() {
   })
 
   const getGroupActionButton = (group: YouthGroup) => {
+    // Debug logging
+    console.log('Group data:', {
+      id: group.id,
+      name: group.name,
+      is_owner: group.is_owner,
+      is_member: group.is_member,
+      is_pending: group.is_pending,
+      requires_approval: group.requires_approval,
+      is_public: group.is_public
+    })
+
     if (group.is_owner) {
       return (
         <div className="flex space-x-2">
@@ -403,9 +414,24 @@ export default function EnhancedYouthGroups() {
       <Button
         onClick={() => handleJoinGroup(group.id)}
         size="sm"
+        className="bg-blue-600 hover:bg-blue-700"
       >
         <UserPlus className="h-4 w-4 mr-2" />
         {group.requires_approval ? 'Request to Join' : 'Join Group'}
+      </Button>
+    )
+  }
+
+  // Fallback function to ensure a button always shows
+  const getFallbackButton = (group: YouthGroup) => {
+    return (
+      <Button
+        onClick={() => handleJoinGroup(group.id)}
+        size="sm"
+        className="bg-green-600 hover:bg-green-700"
+      >
+        <UserPlus className="h-4 w-4 mr-2" />
+        Join Group
       </Button>
     )
   }
@@ -521,7 +547,13 @@ export default function EnhancedYouthGroups() {
                     <span>Ages {group.age_range}</span>
                   )}
                 </div>
-                {getGroupActionButton(group)}
+                <div>
+                  {getGroupActionButton(group) || getFallbackButton(group)}
+                  {/* Debug info */}
+                  <div className="text-xs text-gray-400 mt-1">
+                    Debug: Owner={String(group.is_owner)}, Member={String(group.is_member)}, Pending={String(group.is_pending)}
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
