@@ -48,9 +48,34 @@ export async function GET() {
       }, { status: 404 })
     }
 
-    // Step 4: Try to insert a test member
+    // Step 4: Check if user is already a member
     const testUserId = 'd2adf254-832d-4178-8fe6-bea77a02a57f'
+    
+    const { data: existingMember, error: checkError } = await supabase
+      .from('youth_group_members')
+      .select('*')
+      .eq('group_id', lygggGroup.id)
+      .eq('user_id', testUserId)
+      .single()
 
+    if (checkError && checkError.code !== 'PGRST116') {
+      return NextResponse.json({ 
+        error: 'Failed to check existing membership', 
+        details: checkError.message 
+      }, { status: 500 })
+    }
+
+    if (existingMember) {
+      return NextResponse.json({ 
+        success: true, 
+        message: 'User is already a member (this is expected)',
+        groupId: lygggGroup.id,
+        existingMember: existingMember,
+        note: 'The table is working correctly! Now try the real approve/reject feature.'
+      })
+    }
+
+    // If not a member, try to insert
     const { data, error } = await supabase
       .from('youth_group_members')
       .insert({
