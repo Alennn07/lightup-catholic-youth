@@ -4,7 +4,7 @@ import { logIfEnabled } from '@/lib/performance-monitor'
 
 export const dynamic = 'force-dynamic'
 
-export async function GET(request: NextRequest) {
+export async function PUT(request: NextRequest) {
   try {
     const authHeader = request.headers.get('authorization')
     const token = authHeader?.replace('Bearer ', '')
@@ -30,63 +30,35 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url)
     const groupId = searchParams.get('group_id')
-    const limit = parseInt(searchParams.get('limit') || '50')
-    const offset = parseInt(searchParams.get('offset') || '0')
 
     // Build query
     let query = supabase
       .from('group_notifications')
-      .select(`
-        id,
-        type,
-        title,
-        message,
-        is_read,
-        created_at,
-        data,
-        group_id,
-        youth_groups!inner(
-          id,
-          name
-        )
-      `)
+      .update({ is_read: true })
       .eq('user_id', user.id)
-      .order('created_at', { ascending: false })
-      .range(offset, offset + limit - 1)
+      .eq('is_read', false)
 
     if (groupId) {
       query = query.eq('group_id', groupId)
     }
 
-    const { data: notifications, error: notificationsError } = await query
+    const { data: notifications, error: updateError } = await query.select()
 
-    if (notificationsError) {
-      logIfEnabled(`❌ Error fetching notifications: ${notificationsError.message}`, 'error')
-      return NextResponse.json({ error: 'Failed to fetch notifications' }, { status: 500 })
+    if (updateError) {
+      logIfEnabled(`❌ Error marking all notifications as read: ${updateError.message}`, 'error')
+      return NextResponse.json({ error: 'Failed to mark notifications as read' }, { status: 500 })
     }
 
-    // Get unread count
-    const { count: unreadCount, error: countError } = await supabase
-      .from('group_notifications')
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', user.id)
-      .eq('is_read', false)
-
-    if (countError) {
-      logIfEnabled(`❌ Error fetching unread count: ${countError.message}`, 'error')
-    }
-
-    logIfEnabled(`✅ Notifications fetched for user ${user.id}`)
+    logIfEnabled(`✅ All notifications marked as read for user ${user.id}`)
 
     return NextResponse.json({
       success: true,
-      notifications: notifications || [],
-      unread_count: unreadCount || 0,
-      total: notifications?.length || 0
+      message: 'All notifications marked as read',
+      updated_count: notifications?.length || 0
     })
 
   } catch (error: any) {
-    logIfEnabled(`❌ Error in notifications API: ${error.message}`, 'error')
+    logIfEnabled(`❌ Error in mark all notifications as read API: ${error.message}`, 'error')
     return NextResponse.json({ 
       error: 'Internal server error',
       details: error.message 
