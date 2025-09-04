@@ -149,8 +149,12 @@ export function MemberRequestModal({
         if (action === 'approve') {
           console.log('✅ APPROVAL SUCCESSFUL - Closing modal immediately')
           console.log('Current requests before close:', requests.length)
-          onClose()
-          console.log('✅ Modal closed after approval')
+          
+          // Small delay to prevent immediate reopening
+          setTimeout(() => {
+            onClose()
+            console.log('✅ Modal closed after approval')
+          }, 100)
         }
       } else {
         const error = await response.json()
