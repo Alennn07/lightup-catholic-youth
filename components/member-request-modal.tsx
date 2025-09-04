@@ -109,7 +109,12 @@ export function MemberRequestModal({
         
         // Remove the processed request from the list
         setRequests(prev => prev.filter(req => req.id !== requestId))
+        
+        // Refresh the parent component data
         onRequestProcessed()
+        
+        // Also refresh the requests in this modal
+        await fetchRequests()
       } else {
         const error = await response.json()
         toast({
