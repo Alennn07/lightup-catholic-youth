@@ -138,7 +138,7 @@ export function MemberRequestModal({
         // Remove the processed request from the list immediately
         setRequests(prev => {
           const filtered = prev.filter(req => req.id !== requestId)
-          console.log(`Removed request ${requestId}, remaining requests: ${filtered.length}`)
+          console.log(`✅ REMOVED request ${requestId} from UI, remaining requests: ${filtered.length}`)
           return filtered
         })
         
@@ -147,10 +147,10 @@ export function MemberRequestModal({
         
         // Close the modal immediately after successful approval
         if (action === 'approve') {
-          console.log('Attempting to close modal after approval.')
+          console.log('✅ APPROVAL SUCCESSFUL - Closing modal immediately')
           console.log('Current requests before close:', requests.length)
           onClose()
-          console.log('onClose() called')
+          console.log('✅ Modal closed after approval')
         }
       } else {
         const error = await response.json()
