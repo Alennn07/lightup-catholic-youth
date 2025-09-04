@@ -6,6 +6,7 @@ import { Progress } from '@/components/ui/progress'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Upload, X, Image as ImageIcon, CheckCircle, AlertCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useAuth } from '@/contexts/auth-context'
 
 interface ImageUploadProps {
   onUpload: (url: string) => void
@@ -37,6 +38,7 @@ export function ImageUpload({
   accept = 'image/*',
   placeholder = 'Click to upload or drag and drop'
 }: ImageUploadProps) {
+  const { getAccessToken } = useAuth()
   const [uploadState, setUploadState] = useState<UploadState>({
     isUploading: false,
     progress: 0,
@@ -77,7 +79,6 @@ export function ImageUpload({
         }
 
         // Get auth token using the auth context
-        const { getAccessToken } = await import('@/lib/supabase')
         const token = await getAccessToken()
         if (!token) {
           throw new Error('Not authenticated')
@@ -127,7 +128,7 @@ export function ImageUpload({
       })
       onError?.(errorMessage)
     }
-  }, [type, context, maxFiles, disabled, onUpload, onError])
+  }, [type, context, maxFiles, disabled, onUpload, onError, getAccessToken])
 
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault()
