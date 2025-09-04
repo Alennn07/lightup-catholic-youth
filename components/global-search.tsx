@@ -1,13 +1,14 @@
 "use client"
 
 import React, { useState, useEffect, useCallback } from 'react'
-import { Search, X, Clock, Users, Heart, BookOpen, Calendar, Loader2 } from 'lucide-react'
+import { Search, X, Clock, Users, Heart, BookOpen, Calendar, Loader2, ArrowRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { useToast } from '@/hooks/use-toast'
 import { useAuth } from '@/contexts/auth-context'
 import { formatDistanceToNow } from 'date-fns'
+import { useRouter } from 'next/navigation'
 
 interface SearchResult {
   id: string
@@ -62,6 +63,7 @@ export function GlobalSearch({
   
   const { toast } = useToast()
   const { user } = useAuth()
+  const router = useRouter()
 
   // Debounced search function
   const performSearch = useCallback(async (searchQuery: string, type: string = 'all', pageNum: number = 1) => {
@@ -136,6 +138,24 @@ export function GlobalSearch({
   const handleResultClick = (result: SearchResult) => {
     if (onResultClick) {
       onResultClick(result)
+    } else {
+      // Navigate to appropriate page based on result type
+      switch (result.type) {
+        case 'prayer':
+          router.push('/prayer-wall')
+          break
+        case 'journal':
+          router.push('/faith-journal')
+          break
+        case 'group':
+          router.push('/youth-groups')
+          break
+        case 'event':
+          router.push('/youth-groups') // Events are shown on youth groups page
+          break
+        default:
+          break
+      }
     }
     setIsOpen(false)
     setQuery('')
@@ -165,7 +185,7 @@ export function GlobalSearch({
     <div
       key={`${result.type}-${result.id}`}
       onClick={() => handleResultClick(result)}
-      className="p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+      className="p-3 hover:bg-blue-50 hover:border-blue-200 cursor-pointer border-b border-gray-100 last:border-b-0 transition-all duration-200 group"
     >
       <div className="flex items-start gap-3">
         <div className="flex-shrink-0 mt-1">
@@ -173,12 +193,13 @@ export function GlobalSearch({
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
-            <h4 className="text-sm font-medium text-gray-900 truncate">
+            <h4 className="text-sm font-medium text-gray-900 truncate group-hover:text-blue-600 transition-colors">
               {result.title}
             </h4>
             <Badge variant="secondary" className="text-xs">
               {getResultTypeLabel(result.type)}
             </Badge>
+            <ArrowRight className="h-3 w-3 text-gray-400 group-hover:text-blue-500 group-hover:translate-x-1 transition-all duration-200 ml-auto" />
           </div>
           <p className="text-sm text-gray-600 line-clamp-2 mb-2">
             {result.content}
