@@ -28,6 +28,7 @@ interface PrayerRequest {
   is_anonymous: boolean
   prayer_count: number
   created_at: string
+  image_url?: string | null
   user?: {
     name: string
     avatar_url?: string
@@ -390,6 +391,17 @@ export function PrayerWall() {
                 </div>
 
                 <p className="text-gray-700 text-base leading-relaxed mb-4">{request.request}</p>
+
+                {/* Display uploaded image if exists */}
+                {request.image_url && (
+                  <div className="mb-4">
+                    <img 
+                      src={request.image_url} 
+                      alt="Prayer request image" 
+                      className="w-full max-w-md h-48 object-cover rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
+                    />
+                  </div>
+                )}
 
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 text-sm text-gray-600">
