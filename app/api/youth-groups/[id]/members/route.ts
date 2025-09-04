@@ -1,23 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { logIfEnabled, logPerformanceIfEnabled } from '@/lib/performance-monitor'
+import { logIfEnabled } from '@/lib/performance-monitor'
 
 export const dynamic = 'force-dynamic'
 
-export async function POST(
+export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const startTime = Date.now()
-  
   try {
     const { id: groupId } = params
-    const { email } = await request.json()
-    
-    if (!email) {
-      return NextResponse.json({ error: 'Email is required' }, { status: 400 })
-    }
-
     const authHeader = request.headers.get('authorization')
     const token = authHeader?.replace('Bearer ', '')
     
@@ -25,7 +17,6 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Create Supabase client with optimized settings
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!,
@@ -35,13 +26,93 @@ export async function POST(
       }
     )
 
-    // 🚀 OPTIMIZED: Quick user verification
-    const { data: { user: currentUser }, error: authError } = await supabase.auth.getUser(token)
-    if (authError || !currentUser) {
+    // Verify user authentication
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+    if (authError || !user) {
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
     }
 
-    // 🚀 OPTIMIZED: Quick group ownership verification
+    // Check if user is group owner or member
+    const { data: membership, error: membershipError } = await supabase
+      .from('youth_group_members')
+      .select('role, status')
+      .eq('group_id', groupId)
+      .eq('user_id', user.id)
+      .single()
+
+    if (membershipError || !membership) {
+      return NextResponse.json({ error: 'Access denied' }, { status: 403 })
+    }
+
+    // Get all group members
+    const { data: members, error: membersError } = await supabase
+      .from('youth_group_members')
+      .select(`
+        id,
+        user_id,
+        role,
+        status,
+        joined_at,
+        user:user_id (
+          id,
+          email,
+          user_metadata
+        )
+      `)
+      .eq('group_id', groupId)
+      .eq('status', 'active')
+      .order('joined_at', { ascending: false })
+
+    if (membersError) {
+      logIfEnabled(`❌ Error fetching members: ${membersError.message}`, 'error')
+      return NextResponse.json({ error: 'Failed to fetch members' }, { status: 500 })
+    }
+
+    logIfEnabled(`✅ Members fetched for group ${groupId}: ${members?.length || 0} members`)
+    
+    return NextResponse.json({
+      success: true,
+      members: members || []
+    })
+
+  } catch (error: any) {
+    logIfEnabled(`❌ Error in members API: ${error.message}`, 'error')
+    return NextResponse.json({ 
+      error: 'Internal server error',
+      details: error.message 
+    }, { status: 500 })
+  }
+}
+
+export async function POST(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const { id: groupId } = params
+    const authHeader = request.headers.get('authorization')
+    const token = authHeader?.replace('Bearer ', '')
+    
+    if (!token) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      { 
+        auth: { autoRefreshToken: false, persistSession: false },
+        db: { schema: 'public' }
+      }
+    )
+
+    // Verify user authentication
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
+    }
+
+    // Check if user is group owner
     const { data: group, error: groupError } = await supabase
       .from('youth_groups')
       .select('owner_id')
@@ -52,72 +123,55 @@ export async function POST(
       return NextResponse.json({ error: 'Group not found' }, { status: 404 })
     }
 
-    if (group.owner_id !== currentUser.id) {
+    if (group.owner_id !== user.id) {
       return NextResponse.json({ error: 'Only group owners can add members' }, { status: 403 })
     }
 
-    // 🚀 OPTIMIZED: Use proper Supabase auth method for user lookup
-    const { data: targetUser, error: userError } = await supabase.auth.admin.listUsers()
-    if (userError) {
-      logIfEnabled(`❌ Error listing users: ${userError.message}`, 'error')
-      return NextResponse.json({ error: 'Failed to find user' }, { status: 500 })
+    const { email } = await request.json()
+    
+    if (!email) {
+      return NextResponse.json({ error: 'Email is required' }, { status: 400 })
     }
 
-    const userToAdd = targetUser.users.find(u => u.email === email)
-    if (!userToAdd) {
-      return NextResponse.json({ error: 'User with this email not found' }, { status: 404 })
-    }
-
-    // 🚀 OPTIMIZED: Quick membership check
-    const { data: existingMember } = await supabase
-      .from('group_members')
+    // Find user by email
+    const { data: targetUser, error: userError } = await supabase
+      .from('auth.users')
       .select('id')
-      .eq('group_id', groupId)
-      .eq('user_id', userToAdd.id)
-      .maybeSingle()
+      .eq('email', email)
+      .single()
 
-    if (existingMember) {
-      return NextResponse.json({ error: 'User is already a member of this group' }, { status: 400 })
+    if (userError || !targetUser) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
-    // 🚀 OPTIMIZED: Add member with minimal data
-    const { data: newMember, error: insertError } = await supabase
-      .from('group_members')
+    // Add member to group
+    const { data: member, error: addError } = await supabase
+      .from('youth_group_members')
       .insert({
         group_id: groupId,
-        user_id: userToAdd.id,
+        user_id: targetUser.id,
         role: 'member',
         status: 'active',
         joined_at: new Date().toISOString()
       })
-      .select('id, user_id, role, status, joined_at')
+      .select()
       .single()
 
-    if (insertError) {
-      logIfEnabled(`❌ Error adding member: ${insertError.message}`, 'error')
+    if (addError) {
+      logIfEnabled(`❌ Error adding member: ${addError.message}`, 'error')
       return NextResponse.json({ error: 'Failed to add member' }, { status: 500 })
     }
 
-    const endTime = Date.now()
-    const totalDuration = endTime - startTime
-    logPerformanceIfEnabled('Youth Groups Members API - POST', totalDuration)
+    logIfEnabled(`✅ Member added to group ${groupId}: ${email}`)
     
-    logIfEnabled(`✅ Member added successfully in ${totalDuration}ms`)
-    
-    return NextResponse.json({ 
-      success: true, 
+    return NextResponse.json({
+      success: true,
       message: 'Member added successfully',
-      member: newMember,
-      loadTime: `${totalDuration}ms`
+      member
     })
 
   } catch (error: any) {
-    const endTime = Date.now()
-    const totalDuration = endTime - startTime
-    
-    logIfEnabled(`❌ Error in Youth Groups Members API after ${totalDuration}ms: ${error.message || 'Unknown error'}`, 'error')
-    logPerformanceIfEnabled('Youth Groups Members API - Error', totalDuration)
-    
+    logIfEnabled(`❌ Error in add member API: ${error.message}`, 'error')
     return NextResponse.json({ 
       error: 'Internal server error',
       details: error.message 
