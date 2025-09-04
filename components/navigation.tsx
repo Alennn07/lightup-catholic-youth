@@ -49,22 +49,44 @@ export function Navigation() {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200">
       <div className="container mx-auto px-3 sm:px-4">
-        <div className="flex items-center justify-between h-12 sm:h-14 md:h-16">
+        <div className="flex items-center justify-between h-14 md:h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2">
-            <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-purple-500 to-blue-600 rounded-lg flex items-center justify-center">
-              <Heart className="w-3 h-3 sm:w-5 sm:h-5 text-white" />
+          <Link href="/" className="flex items-center space-x-2 flex-shrink-0">
+            <div className="w-7 h-7 md:w-8 md:h-8 bg-gradient-to-br from-purple-500 to-blue-600 rounded-lg flex items-center justify-center">
+              <Heart className="w-4 h-4 md:w-5 md:h-5 text-white" />
             </div>
-            <span className="text-base sm:text-lg md:text-xl font-bold text-gray-900">LightUp</span>
+            <span className="text-lg md:text-xl font-bold text-gray-900">LightUp</span>
           </Link>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-1">
+          {/* Medium Screen Navigation (shows only key items) */}
+          <div className="hidden md:flex xl:hidden items-center space-x-1 ml-4">
+            <Link
+              href="/"
+              className="px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-all duration-200 font-medium whitespace-nowrap"
+            >
+              Home
+            </Link>
+            <Link
+              href="/features"
+              className="px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-all duration-200 font-medium whitespace-nowrap"
+            >
+              Features
+            </Link>
+            <Link
+              href="/community"
+              className="px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-all duration-200 font-medium whitespace-nowrap"
+            >
+              Community
+            </Link>
+          </div>
+
+          {/* Large Screen Navigation (shows all items) */}
+          <div className="hidden xl:flex items-center space-x-1 ml-8">
             {navItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className="px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-all duration-200 font-medium"
+                className="px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-all duration-200 font-medium whitespace-nowrap"
               >
                 {item.label}
               </Link>
@@ -72,9 +94,9 @@ export function Navigation() {
 
             {/* Support Dropdown */}
             <div className="relative group">
-              <button className="flex items-center space-x-1 px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-all duration-200 font-medium">
+              <button className="flex items-center space-x-1 px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-all duration-200 font-medium whitespace-nowrap">
                 <span>Support</span>
-                <ChevronDown className="w-4 h-4 transition-transform duration-200 group-hover:rotate-180" />
+                <ChevronDown className="w-3 h-3 transition-transform duration-200 group-hover:rotate-180" />
               </button>
               
               <div className="absolute top-full left-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
@@ -82,7 +104,7 @@ export function Navigation() {
                   <Link
                     key={item.href}
                     href={item.href}
-                    className="block px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors"
+                    className="block px-4 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors"
                   >
                     {item.label}
                   </Link>
@@ -92,7 +114,7 @@ export function Navigation() {
           </div>
 
           {/* Global Search */}
-          <div className="hidden md:block flex-1 max-w-md mx-4">
+          <div className="hidden md:block flex-1 max-w-lg mx-6">
             <GlobalSearch 
               placeholder="Search prayers, journal, groups..."
               className="w-full"
@@ -100,7 +122,7 @@ export function Navigation() {
           </div>
 
           {/* Desktop Auth & Profile */}
-          <div className="hidden md:flex items-center space-x-3">
+          <div className="hidden md:flex items-center space-x-2 flex-shrink-0">
             <LanguageSwitcher />
             {isLoading ? (
               <div className="flex items-center space-x-3">
@@ -114,15 +136,15 @@ export function Navigation() {
                   <div className="relative">
                     <button
                       onClick={toggleProfile}
-                      className="flex items-center space-x-2 px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-all duration-200 font-medium"
+                      className="flex items-center space-x-2 px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-all duration-200 font-medium"
                     >
                       <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
                         <span className="text-white text-sm font-semibold">
                           {user.name ? user.name.charAt(0).toUpperCase() : '?'}
                         </span>
                       </div>
-                      <span>{user.username ? `@${user.username}` : (user.name || 'Set Your Name')}</span>
-                      <ChevronDown className="h-4 w-4 transition-transform duration-200" />
+                      <span className="hidden lg:block text-sm">{user.username ? `@${user.username}` : (user.name || 'Set Your Name')}</span>
+                      <ChevronDown className="h-3 w-3 transition-transform duration-200" />
                     </button>
 
                     {/* Profile Dropdown */}
@@ -198,9 +220,11 @@ export function Navigation() {
                 ) : (
                   <>
                     {/* Sign In Button */}
-                    <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
-                      <Link href="/auth/sign-in">Sign In</Link>
-                    </Button>
+                    <Link href="/auth/sign-in">
+                      <Button size="sm" variant="ghost" className="text-gray-600 hover:text-gray-900">
+                        Sign In
+                      </Button>
+                    </Link>
                     <Link href="/auth/sign-up">
                       <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
                         Join Us
@@ -215,9 +239,9 @@ export function Navigation() {
           {/* Mobile Menu Button */}
           <button
             onClick={toggleMenu}
-            className="md:hidden p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors touch-manipulation"
+            className="md:hidden p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors touch-manipulation flex-shrink-0"
           >
-            {isOpen ? <X className="w-5 h-5 sm:w-6 sm:h-6" /> : <Menu className="w-5 h-5 sm:w-6 sm:h-6" />}
+            {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
         </div>
 
