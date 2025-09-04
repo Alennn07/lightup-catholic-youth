@@ -64,7 +64,11 @@ export function MemberRequestModal({
         const data = await response.json()
         console.log('Fetched requests data:', data)
         console.log('Number of requests:', data.requests?.length || 0)
-        setRequests(data.requests || [])
+        
+        // Filter out approved/rejected requests to only show pending ones
+        const pendingRequests = (data.requests || []).filter((req: any) => req.status === 'pending')
+        console.log('Filtered pending requests:', pendingRequests.length)
+        setRequests(pendingRequests)
       } else {
         const error = await response.json()
         toast({
