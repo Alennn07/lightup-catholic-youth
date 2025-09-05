@@ -49,13 +49,10 @@ export async function GET(request: Request) {
     // Determine the correct origin for redirects
     let baseOrigin = requestUrl.origin
     
-    // In development, always use localhost to avoid Vercel redirects
+    // In development, ALWAYS force localhost regardless of request origin
     if (process.env.NODE_ENV === 'development') {
-      // Check if we're on localhost, if not, force localhost
-      if (!baseOrigin.includes('localhost')) {
-        baseOrigin = 'http://localhost:3000' // Use the port you're running on
-        logIfEnabled(`🔧 Forcing localhost origin: ${baseOrigin}`)
-      }
+      baseOrigin = 'http://localhost:3000' // Always use localhost in development
+      logIfEnabled(`🔧 Forcing localhost origin for development: ${baseOrigin}`)
     } else if (process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_SITE_URL) {
       baseOrigin = process.env.NEXT_PUBLIC_SITE_URL
       logIfEnabled(`🚀 Using production origin: ${baseOrigin}`)
