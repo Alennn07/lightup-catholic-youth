@@ -375,7 +375,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.log('✅ Supabase connection successful')
       } catch (connectionError) {
         console.error('❌ Connection test failed:', connectionError)
-        throw new Error(`Cannot connect to database: ${connectionError.message}`)
+        throw new Error(`Cannot connect to database: ${connectionError instanceof Error ? connectionError.message : 'Unknown error'}`)
       }
       
       // Now test the actual query
@@ -391,10 +391,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .select("count")
         .limit(1)
       
-      const { data: testData, error: testError } = await Promise.race([
+      const result = await Promise.race([
         supabasePromise,
         timeoutPromise
-      ])
+      ]) as { data: any; error: any }
+      
+      const { data: testData, error: testError } = result
       
       console.log('🔍 Supabase response:', { data: testData, error: testError })
       
