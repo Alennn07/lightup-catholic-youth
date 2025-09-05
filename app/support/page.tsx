@@ -761,59 +761,94 @@ export default function SupportPage() {
                               </div>
                             </div>
 
-                            {/* Smart Form Fields */}
-                            <form name="contactForm" onSubmit={handleFormSubmit} className="space-y-4">
-                              <div>
-                                <label className="text-sm font-medium text-gray-700">Your Name</label>
-                                <input
-                                  type="text"
-                                  name="name"
-                                  value={contactForm.name}
-                                  onChange={(e) => handleFormChange('name', e.target.value)}
-                                  className="w-full mt-1 px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/50"
-                                  placeholder="Enter your full name"
-                                  required
-                                />
+                            {/* 🚀 BILLION-DOLLAR AI CONTACT FORM 🚀 */}
+                            <div className="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 rounded-3xl p-8 border border-purple-500/20 shadow-2xl">
+                              {/* Section Header */}
+                              <div className="text-center mb-8">
+                                <div className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600/20 to-pink-600/20 border border-purple-400/30 rounded-full mb-4">
+                                  <span className="text-2xl">🧠</span>
+                                  <span className="text-purple-200 font-bold text-lg">AI-POWERED CONTACT FORM</span>
+                                  <span className="text-2xl">⚡</span>
+                                </div>
+                                <h3 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 mb-2">
+                                  INTELLIGENT MESSAGE COMPOSER
+                                </h3>
+                                <p className="text-purple-200 text-lg">Advanced AI analyzes and optimizes your message for maximum impact</p>
                               </div>
-                              <div>
-                                <label className="text-sm font-medium text-gray-700">Email Address</label>
-                                <input
-                                  type="email"
-                                  name="email"
-                                  value={contactForm.email}
-                                  onChange={(e) => handleFormChange('email', e.target.value)}
-                                  className="w-full mt-1 px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/50"
-                                  placeholder="your.email@example.com"
-                                  required
-                                />
-                              </div>
-                              <div>
-                                <label className="text-sm font-medium text-gray-700">Priority Level</label>
-                                <select 
-                                  name="priority"
-                                  value={contactForm.priority}
-                                  onChange={(e) => handleFormChange('priority', e.target.value)}
-                                  className="w-full mt-1 px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/50"
-                                >
-                                  <option>Low - General question</option>
-                                  <option>Medium - Need assistance</option>
-                                  <option>High - Urgent issue</option>
-                                  <option>Critical - App not working</option>
-                                </select>
-                              </div>
-                              <div>
-                                <label className="text-sm font-medium text-gray-700">Describe your issue</label>
-                                <textarea
-                                  name="message"
-                                  value={contactForm.message}
-                                  onChange={(e) => handleFormChange('message', e.target.value)}
-                                  rows={4}
-                                  className="w-full mt-1 px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/50 resize-none"
-                                  placeholder="Please provide as much detail as possible..."
-                                  required
-                                />
-                              </div>
-                            </form>
+
+                              {/* Billion Dollar Form */}
+                              <form name="contactForm" onSubmit={handleFormSubmit} className="space-y-6">
+                                <div className="relative">
+                                  <div className="flex items-center gap-2 mb-3">
+                                    <span className="text-2xl">👤</span>
+                                    <label className="text-lg font-bold text-purple-200">Your Name</label>
+                                    <span className="px-2 py-1 bg-blue-500/20 text-blue-300 text-xs font-bold rounded-full border border-blue-400/30">REQUIRED</span>
+                                  </div>
+                                  <input
+                                    type="text"
+                                    name="name"
+                                    value={contactForm.name}
+                                    onChange={(e) => handleFormChange('name', e.target.value)}
+                                    className="w-full px-6 py-4 bg-white/10 backdrop-blur-sm border-2 border-purple-400/30 rounded-2xl focus:ring-4 focus:ring-purple-500/30 focus:border-purple-400 text-white placeholder-purple-300 text-lg font-medium transition-all duration-300 hover:bg-white/20"
+                                    placeholder="Enter your full name"
+                                    required
+                                  />
+                                </div>
+
+                                <div className="relative">
+                                  <div className="flex items-center gap-2 mb-3">
+                                    <span className="text-2xl">📧</span>
+                                    <label className="text-lg font-bold text-purple-200">Email Address</label>
+                                    <span className="px-2 py-1 bg-green-500/20 text-green-300 text-xs font-bold rounded-full border border-green-400/30">VERIFIED</span>
+                                  </div>
+                                  <input
+                                    type="email"
+                                    name="email"
+                                    value={contactForm.email}
+                                    onChange={(e) => handleFormChange('email', e.target.value)}
+                                    className="w-full px-6 py-4 bg-white/10 backdrop-blur-sm border-2 border-purple-400/30 rounded-2xl focus:ring-4 focus:ring-purple-500/30 focus:border-purple-400 text-white placeholder-purple-300 text-lg font-medium transition-all duration-300 hover:bg-white/20"
+                                    placeholder="your.email@example.com"
+                                    required
+                                  />
+                                </div>
+
+                                <div className="relative">
+                                  <div className="flex items-center gap-2 mb-3">
+                                    <span className="text-2xl">⚡</span>
+                                    <label className="text-lg font-bold text-purple-200">Priority Level</label>
+                                    <span className="px-2 py-1 bg-yellow-500/20 text-yellow-300 text-xs font-bold rounded-full border border-yellow-400/30">AI-ANALYZED</span>
+                                  </div>
+                                  <select 
+                                    name="priority"
+                                    value={contactForm.priority}
+                                    onChange={(e) => handleFormChange('priority', e.target.value)}
+                                    className="w-full px-6 py-4 bg-white/10 backdrop-blur-sm border-2 border-purple-400/30 rounded-2xl focus:ring-4 focus:ring-purple-500/30 focus:border-purple-400 text-white text-lg font-medium transition-all duration-300 hover:bg-white/20"
+                                  >
+                                    <option value="Low - General question" className="bg-slate-800 text-white">🟢 Low - General question</option>
+                                    <option value="Medium - Need assistance" className="bg-slate-800 text-white">🟡 Medium - Need assistance</option>
+                                    <option value="High - Urgent issue" className="bg-slate-800 text-white">🟠 High - Urgent issue</option>
+                                    <option value="Critical - App not working" className="bg-slate-800 text-white">🔴 Critical - App not working</option>
+                                  </select>
+                                </div>
+
+                                <div className="relative">
+                                  <div className="flex items-center gap-2 mb-3">
+                                    <span className="text-2xl">💬</span>
+                                    <label className="text-lg font-bold text-purple-200">Describe your issue</label>
+                                    <span className="px-2 py-1 bg-purple-500/20 text-purple-300 text-xs font-bold rounded-full border border-purple-400/30">AI-PROCESSED</span>
+                                  </div>
+                                  <textarea
+                                    name="message"
+                                    value={contactForm.message}
+                                    onChange={(e) => handleFormChange('message', e.target.value)}
+                                    rows={5}
+                                    className="w-full px-6 py-4 bg-white/10 backdrop-blur-sm border-2 border-purple-400/30 rounded-2xl focus:ring-4 focus:ring-purple-500/30 focus:border-purple-400 text-white placeholder-purple-300 text-lg font-medium transition-all duration-300 hover:bg-white/20 resize-none"
+                                    placeholder="Please provide as much detail as possible... Our AI will analyze your message and provide instant suggestions!"
+                                    required
+                                  />
+                                </div>
+                              </form>
+                            </div>
                           </div>
                         </div>
 
@@ -977,35 +1012,61 @@ export default function SupportPage() {
                         </div>
                       </div>
 
-                      {/* Submit Button */}
-                      <div className="mt-8 pt-6 border-t border-gray-200">
-                        <div className="flex flex-col sm:flex-row gap-4">
+                      {/* 🚀 BILLION-DOLLAR SUBMIT SECTION 🚀 */}
+                      <div className="mt-8 pt-8 border-t-2 border-gradient-to-r from-purple-500/30 to-pink-500/30">
+                        <div className="text-center mb-6">
+                          <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500/20 to-cyan-500/20 border border-green-400/30 rounded-full mb-4">
+                            <span className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></span>
+                            <span className="text-green-300 font-bold text-sm">AI ANALYSIS ACTIVE</span>
+                          </div>
+                          <h3 className="text-2xl font-black text-gray-800 mb-2">Ready to Send Your Message?</h3>
+                          <p className="text-gray-600">Our advanced AI will analyze and optimize your message for the best response</p>
+                        </div>
+                        
+                        <div className="flex flex-col sm:flex-row gap-6">
                           <Button
                             type="submit"
                             size="lg"
                             disabled={isSubmitting}
-                            className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50"
+                            className="flex-1 bg-gradient-to-r from-purple-600 via-pink-600 to-cyan-600 hover:from-purple-700 hover:via-pink-700 hover:to-cyan-700 text-white font-black py-6 rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-500 disabled:opacity-50 transform hover:scale-105"
                             onClick={handleFormSubmit}
                           >
-                            <Send className="w-5 h-5 mr-2" />
-                            {isSubmitting ? 'Sending...' : 'Send Message with AI Analysis'}
+                            {isSubmitting ? (
+                              <div className="flex items-center gap-3">
+                                <div className="w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
+                                <span>AI PROCESSING...</span>
+                              </div>
+                            ) : (
+                              <div className="flex items-center gap-3">
+                                <Send className="w-6 h-6" />
+                                <span>SEND WITH AI ANALYSIS</span>
+                                <span className="text-2xl">🚀</span>
+                              </div>
+                            )}
                           </Button>
+                          
                           <Button
                             type="button"
                             size="lg"
                             variant="outline"
-                            className="px-8 py-4 rounded-xl border-2 border-gray-300 hover:border-gray-400"
+                            className="px-8 py-6 rounded-2xl border-2 border-gray-300 hover:border-red-400 hover:bg-red-50 text-gray-700 font-bold transition-all duration-300 hover:scale-105"
                             onClick={() => {
                               setContactForm({ name: '', email: '', priority: 'Low - General question', message: '' })
                               setSelectedCategory('other')
                             }}
                           >
-                            Clear Form
+                            <div className="flex items-center gap-2">
+                              <span className="text-xl">🗑️</span>
+                              <span>CLEAR FORM</span>
+                            </div>
                           </Button>
                         </div>
-                        <p className="text-sm text-gray-500 mt-3 text-center">
-                          Our AI will analyze your message and provide instant suggestions before sending
-                        </p>
+                        
+                        <div className="text-center mt-6">
+                          <p className="text-sm text-gray-500">
+                            <span className="font-bold">💡 AI Features:</span> Smart categorization, priority detection, instant suggestions, and response optimization
+                          </p>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
