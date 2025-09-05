@@ -51,7 +51,9 @@ export async function GET(request: Request) {
     
     // ALWAYS force localhost if we detect localhost in the request
     if (requestUrl.hostname === 'localhost' || process.env.NODE_ENV === 'development') {
-      baseOrigin = 'http://localhost:3000' // Always use localhost in development
+      // Use the actual port from the request URL
+      const port = requestUrl.port || '3000'
+      baseOrigin = `http://localhost:${port}` // Use the actual port
       logIfEnabled(`🔧 FORCING localhost origin: ${baseOrigin}`)
     } else if (process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_SITE_URL) {
       baseOrigin = process.env.NEXT_PUBLIC_SITE_URL

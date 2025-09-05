@@ -301,7 +301,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       // Force localhost in development regardless of environment variables
       if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
-        redirectUrl = 'http://localhost:3000/auth/callback'
+        // Use the actual port from the current window location
+        const currentPort = window.location.port || '3000'
+        redirectUrl = `http://localhost:${currentPort}/auth/callback`
         logIfEnabled(`🔧 FORCING localhost redirect: ${redirectUrl}`)
       } else {
         logIfEnabled(`🚀 Using redirect URL: ${redirectUrl}`)
