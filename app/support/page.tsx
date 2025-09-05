@@ -725,12 +725,12 @@ export default function SupportPage() {
                 </div>
 
                 {/* Smart Contact Form */}
-                <div className="max-w-4xl mx-auto">
+                <div className="max-w-7xl mx-auto">
                   <Card className="border-0 shadow-xl bg-white/80 backdrop-blur-sm">
                     <CardContent className="p-8">
-                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                        {/* Left Side - Smart Form */}
-                        <div className="space-y-6">
+                      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+                        {/* Left Side - Smart Form - Takes 2 columns */}
+                        <div className="xl:col-span-2 space-y-6">
                           <div>
                             <h3 className="text-xl font-semibold text-gray-800 mb-4">Tell us what you need help with</h3>
                             
@@ -776,10 +776,10 @@ export default function SupportPage() {
                                 <p className="text-purple-200 text-lg">Advanced AI analyzes and optimizes your message for maximum impact</p>
                               </div>
 
-                              {/* Billion Dollar Form - Horizontal Layout */}
+                              {/* Billion Dollar Form - Full Width Layout */}
                               <form name="contactForm" onSubmit={handleFormSubmit} className="space-y-6">
                                 {/* First Row - Name and Email */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                                   <div className="relative">
                                     <div className="flex items-center gap-2 mb-3">
                                       <span className="text-2xl">👤</span>
@@ -815,42 +815,43 @@ export default function SupportPage() {
                                   </div>
                                 </div>
 
-                                {/* Second Row - Priority Level */}
-                                <div className="relative">
-                                  <div className="flex items-center gap-2 mb-3">
-                                    <span className="text-2xl">⚡</span>
-                                    <label className="text-lg font-bold text-purple-200">Priority Level</label>
-                                    <span className="px-2 py-1 bg-yellow-500/20 text-yellow-300 text-xs font-bold rounded-full border border-yellow-400/30">AI-ANALYZED</span>
+                                {/* Second Row - Priority Level and Message Side by Side */}
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                  <div className="relative">
+                                    <div className="flex items-center gap-2 mb-3">
+                                      <span className="text-2xl">⚡</span>
+                                      <label className="text-lg font-bold text-purple-200">Priority Level</label>
+                                      <span className="px-2 py-1 bg-yellow-500/20 text-yellow-300 text-xs font-bold rounded-full border border-yellow-400/30">AI-ANALYZED</span>
+                                    </div>
+                                    <select 
+                                      name="priority"
+                                      value={contactForm.priority}
+                                      onChange={(e) => handleFormChange('priority', e.target.value)}
+                                      className="w-full px-6 py-4 bg-white/10 backdrop-blur-sm border-2 border-purple-400/30 rounded-2xl focus:ring-4 focus:ring-purple-500/30 focus:border-purple-400 text-white text-lg font-medium transition-all duration-300 hover:bg-white/20"
+                                    >
+                                      <option value="Low - General question" className="bg-slate-800 text-white">🟢 Low - General question</option>
+                                      <option value="Medium - Need assistance" className="bg-slate-800 text-white">🟡 Medium - Need assistance</option>
+                                      <option value="High - Urgent issue" className="bg-slate-800 text-white">🟠 High - Urgent issue</option>
+                                      <option value="Critical - App not working" className="bg-slate-800 text-white">🔴 Critical - App not working</option>
+                                    </select>
                                   </div>
-                                  <select 
-                                    name="priority"
-                                    value={contactForm.priority}
-                                    onChange={(e) => handleFormChange('priority', e.target.value)}
-                                    className="w-full px-6 py-4 bg-white/10 backdrop-blur-sm border-2 border-purple-400/30 rounded-2xl focus:ring-4 focus:ring-purple-500/30 focus:border-purple-400 text-white text-lg font-medium transition-all duration-300 hover:bg-white/20"
-                                  >
-                                    <option value="Low - General question" className="bg-slate-800 text-white">🟢 Low - General question</option>
-                                    <option value="Medium - Need assistance" className="bg-slate-800 text-white">🟡 Medium - Need assistance</option>
-                                    <option value="High - Urgent issue" className="bg-slate-800 text-white">🟠 High - Urgent issue</option>
-                                    <option value="Critical - App not working" className="bg-slate-800 text-white">🔴 Critical - App not working</option>
-                                  </select>
-                                </div>
 
-                                {/* Third Row - Message */}
-                                <div className="relative">
-                                  <div className="flex items-center gap-2 mb-3">
-                                    <span className="text-2xl">💬</span>
-                                    <label className="text-lg font-bold text-purple-200">Describe your issue</label>
-                                    <span className="px-2 py-1 bg-purple-500/20 text-purple-300 text-xs font-bold rounded-full border border-purple-400/30">AI-PROCESSED</span>
+                                  <div className="relative">
+                                    <div className="flex items-center gap-2 mb-3">
+                                      <span className="text-2xl">💬</span>
+                                      <label className="text-lg font-bold text-purple-200">Describe your issue</label>
+                                      <span className="px-2 py-1 bg-purple-500/20 text-purple-300 text-xs font-bold rounded-full border border-purple-400/30">AI-PROCESSED</span>
+                                    </div>
+                                    <textarea
+                                      name="message"
+                                      value={contactForm.message}
+                                      onChange={(e) => handleFormChange('message', e.target.value)}
+                                      rows={4}
+                                      className="w-full px-6 py-4 bg-white/10 backdrop-blur-sm border-2 border-purple-400/30 rounded-2xl focus:ring-4 focus:ring-purple-500/30 focus:border-purple-400 text-white placeholder-purple-300 text-lg font-medium transition-all duration-300 hover:bg-white/20 resize-none"
+                                      placeholder="Please provide as much detail as possible... Our AI will analyze your message and provide instant suggestions!"
+                                      required
+                                    />
                                   </div>
-                                  <textarea
-                                    name="message"
-                                    value={contactForm.message}
-                                    onChange={(e) => handleFormChange('message', e.target.value)}
-                                    rows={4}
-                                    className="w-full px-6 py-4 bg-white/10 backdrop-blur-sm border-2 border-purple-400/30 rounded-2xl focus:ring-4 focus:ring-purple-500/30 focus:border-purple-400 text-white placeholder-purple-300 text-lg font-medium transition-all duration-300 hover:bg-white/20 resize-none"
-                                    placeholder="Please provide as much detail as possible... Our AI will analyze your message and provide instant suggestions!"
-                                    required
-                                  />
                                 </div>
                               </form>
                             </div>
