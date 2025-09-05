@@ -51,6 +51,8 @@ export async function middleware(request: NextRequest) {
   const isProtectedRoute = protectedRoutes.some(route => 
     request.nextUrl.pathname.startsWith(route)
   )
+  
+  console.log(`🔍 Middleware: Path ${request.nextUrl.pathname} is protected: ${isProtectedRoute}`)
 
   // Check authentication for protected routes
   if (isProtectedRoute) {

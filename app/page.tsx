@@ -353,7 +353,7 @@ export default function HomePage() {
             {features.map((feature) => {
               const IconComponent = feature.icon
               return (
-                <Link key={feature.id} href={feature.href}>
+                <Link key={feature.id} href={feature.href} onClick={() => console.log(`🔍 Clicking on feature: ${feature.name} -> ${feature.href}`)}>
                   <Card className="group h-full bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 hover:scale-105 border-0 overflow-hidden">
                     <CardContent className="p-6">
                       {/* Icon with Animation */}
