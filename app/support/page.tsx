@@ -57,6 +57,7 @@ export default function SupportPage() {
     priority: 'Low - General question',
     message: ''
   })
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   // Auto-minimize AI chat when navigating away
   useEffect(() => {
