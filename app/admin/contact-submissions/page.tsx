@@ -75,7 +75,7 @@ export default function ContactSubmissionsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 p-8">
+      <div className="p-8">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center justify-center h-64">
             <RefreshCw className="w-8 h-8 animate-spin text-blue-600" />
@@ -88,7 +88,7 @@ export default function ContactSubmissionsPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 p-8">
+      <div className="p-8">
         <div className="max-w-6xl mx-auto">
           <Card className="border-red-200 bg-red-50">
             <CardContent className="p-6">
@@ -106,7 +106,7 @@ export default function ContactSubmissionsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
+    <div className="p-8">
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
