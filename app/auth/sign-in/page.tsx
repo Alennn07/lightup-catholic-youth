@@ -24,6 +24,7 @@ export default function SignInPage() {
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [isGoogleLoading, setIsGoogleLoading] = useState(false)
+  const [isSigningIn, setIsSigningIn] = useState(false) // Local loading state for sign-in button
   const router = useRouter()
   const { toast } = useToast()
   const { login, signInWithGoogle, isLoading, user } = useAuth()
@@ -41,6 +42,7 @@ export default function SignInPage() {
     logIfEnabled('Starting sign-in process...')
 
     try {
+      setIsSigningIn(true) // Set local loading state
       logIfEnabled('Calling login function...')
       await login(email, password)
       logIfEnabled('Login successful!')
@@ -80,6 +82,8 @@ export default function SignInPage() {
         description: errorDescription,
         variant: "destructive",
       })
+    } finally {
+      setIsSigningIn(false) // Clear local loading state
     }
   }
 
@@ -237,9 +241,9 @@ export default function SignInPage() {
                 <Button
                   type="submit"
                   className="w-full h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium text-base shadow-lg hover:shadow-xl transition-all duration-200"
-                  disabled={isLoading}
+                  disabled={isSigningIn}
                 >
-                  {isLoading ? (
+                  {isSigningIn ? (
                     <>
                       <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
                       {t("auth.signingIn")}...

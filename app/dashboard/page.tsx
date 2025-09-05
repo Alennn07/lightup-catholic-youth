@@ -58,8 +58,8 @@ export default function DashboardPage() {
   const [bibleCompletedToday, setBibleCompletedToday] = useState(false)
   const [bibleCompletedThisWeek, setBibleCompletedThisWeek] = useState(0)
   const [totalActivities, setTotalActivities] = useState(0)
-  const [communityActivity, setCommunityActivity] = useState<any[]>([])
-  const [loadingCommunity, setLoadingCommunity] = useState(false)
+  const [youthGroupActivity, setYouthGroupActivity] = useState<any[]>([])
+  const [loadingYouthGroup, setLoadingYouthGroup] = useState(false)
   const [notifications, setNotifications] = useState<any[]>([])
   const [loadingNotifications, setLoadingNotifications] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -258,20 +258,20 @@ export default function DashboardPage() {
     }
   }, [user?.id, getCachedData, setCachedData])
 
-  // Fetch community activity with caching and parallel requests
-  const fetchCommunityActivity = useCallback(async (forceRefresh = false) => {
+  // Fetch youth group activity with caching and parallel requests
+  const fetchYouthGroupActivity = useCallback(async (forceRefresh = false) => {
     if (!user?.id) return
     
-    const cacheKey = 'community-activity'
+    const cacheKey = 'youth-group-activity'
     if (!forceRefresh) {
       const cached = getCachedData(cacheKey)
       if (cached) {
-        setCommunityActivity(cached)
+        setYouthGroupActivity(cached)
         return
       }
     }
     
-    setLoadingCommunity(true)
+    setLoadingYouthGroup(true)
     try {
       // Parallel fetch of prayer requests and events
       const [prayerResponse, eventsResponse] = await Promise.all([
@@ -305,12 +305,12 @@ export default function DashboardPage() {
       ].sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
       
       const finalActivities = activities.slice(0, 3)
-      setCommunityActivity(finalActivities)
+      setYouthGroupActivity(finalActivities)
       setCachedData(cacheKey, finalActivities)
     } catch (e) {
-      console.error('Error fetching community activity', e)
+      console.error('Error fetching youth group activity', e)
     } finally {
-      setLoadingCommunity(false)
+      setLoadingYouthGroup(false)
     }
   }, [user?.id, getCachedData, setCachedData])
 
@@ -455,7 +455,7 @@ export default function DashboardPage() {
         fetchRecentSessions(true),
         fetchUserStats(true),
         fetchBibleProgress(true),
-        fetchCommunityActivity(true),
+        fetchYouthGroupActivity(true),
         fetchNotifications(true)
       ]).catch(error => {
         console.error('Error refreshing data:', error)
@@ -466,7 +466,7 @@ export default function DashboardPage() {
         })
       })
     })
-  }, [user?.id, fetchInsights, fetchWeeklyChallenges, fetchRecentSessions, fetchUserStats, fetchBibleProgress, fetchCommunityActivity, fetchNotifications, toast])
+  }, [user?.id, fetchInsights, fetchWeeklyChallenges, fetchRecentSessions, fetchUserStats, fetchBibleProgress, fetchYouthGroupActivity, fetchNotifications, toast])
 
   // SUPER FAST: Set basic stats immediately
   useEffect(() => {
@@ -494,14 +494,14 @@ export default function DashboardPage() {
         fetchRecentSessions(),
         fetchUserStats(),
         fetchBibleProgress(),
-        fetchCommunityActivity(),
+        fetchYouthGroupActivity(),
         fetchNotifications()
       ]).catch(error => {
         console.error('Error in parallel data fetching:', error)
         setError('Failed to load some data. Please refresh the page.')
       })
     }
-  }, [user?.id, fetchInsights, fetchWeeklyChallenges, fetchRecentSessions, fetchBibleProgress, fetchUserStats, fetchCommunityActivity, fetchNotifications])
+  }, [user?.id, fetchInsights, fetchWeeklyChallenges, fetchRecentSessions, fetchBibleProgress, fetchUserStats, fetchYouthGroupActivity, fetchNotifications])
 
   // SUPER FAST: Redirect if not authenticated
   useEffect(() => {
@@ -854,15 +854,15 @@ export default function DashboardPage() {
                       <div>
                         <p className="font-medium text-gray-800">Join a youth group event</p>
                         <p className="text-sm text-gray-500">
-                          {communityActivity.find(a => a.type === 'event') 
-                            ? `Next event: ${new Date(communityActivity.find(a => a.type === 'event')?.time).toLocaleDateString()}`
+                          {youthGroupActivity.find(a => a.type === 'event') 
+                            ? `Next event: ${new Date(youthGroupActivity.find(a => a.type === 'event')?.time).toLocaleDateString()}`
                             : 'No upcoming events'
                           }
                         </p>
                       </div>
                     </div>
                     <div className="w-16 bg-gray-200 rounded-full h-2">
-                      <div className="bg-green-500 h-2 rounded-full" style={{width: communityActivity.find(a => a.type === 'event') ? '25%' : '0%'}}></div>
+                      <div className="bg-green-500 h-2 rounded-full" style={{width: youthGroupActivity.find(a => a.type === 'event') ? '25%' : '0%'}}></div>
                     </div>
                   </div>
                 </div>
@@ -907,8 +907,8 @@ export default function DashboardPage() {
                     <div className="w-12 h-12 bg-gradient-to-r from-green-400 to-green-600 rounded-full flex items-center justify-center mx-auto mb-2">
                       <span className="text-white font-bold text-lg">🤝</span>
                     </div>
-                    <p className="text-sm font-medium text-gray-800">Community</p>
-                    <p className="text-xs text-gray-500">{communityActivity.length > 0 ? 'Active' : 'Join us!'}</p>
+                    <p className="text-sm font-medium text-gray-800">Youth Groups</p>
+                    <p className="text-xs text-gray-500">{youthGroupActivity.length > 0 ? 'Active' : 'Join us!'}</p>
                   </div>
                   
                   <div className="text-center p-4 bg-white rounded-lg border border-indigo-100">
@@ -963,7 +963,7 @@ export default function DashboardPage() {
                   {userStats.prayersShared > 0 && <Badge variant="outline" className="bg-white">Prayer Warrior</Badge>}
                   {bibleCompletedThisWeek > 0 && <Badge variant="outline" className="bg-white">Scripture Reader</Badge>}
                   {userStats.journalEntries > 0 && <Badge variant="outline" className="bg-white">Journal Keeper</Badge>}
-                  {communityActivity.length > 0 && <Badge variant="outline" className="bg-white">Community Member</Badge>}
+                  {youthGroupActivity.length > 0 && <Badge variant="outline" className="bg-white">Youth Group Member</Badge>}
                   {prayerStreakDays >= 3 && <Badge variant="outline" className="bg-white">Streak Master</Badge>}
                 </div>
               </CardContent>
@@ -1020,7 +1020,7 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* Community Activity Feed - Now Dynamic */}
+        {/* Youth Group Activity Feed - Now Dynamic */}
         {user && (
           <div className="mb-8">
             <Card className="bg-white shadow-lg border border-gray-100">
@@ -1037,13 +1037,13 @@ export default function DashboardPage() {
                     View All
                   </Button>
                 </div>
-                {loadingCommunity ? (
+                {loadingYouthGroup ? (
                   <div className="space-y-3">
                     <div className="h-4 bg-gray-200 rounded w-full animate-pulse" />
                     <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse" />
                     <div className="h-4 bg-gray-200 rounded w-2/3 animate-pulse" />
                   </div>
-                ) : communityActivity.length === 0 ? (
+                ) : youthGroupActivity.length === 0 ? (
                   <div className="text-center py-8">
                     <Users className="h-12 w-12 text-gray-400 mx-auto mb-3" />
                     <p className="text-gray-600 mb-3">No recent youth group activity</p>
@@ -1059,7 +1059,7 @@ export default function DashboardPage() {
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    {communityActivity.map((activity, idx) => {
+                    {youthGroupActivity.map((activity, idx) => {
                       const IconComponent = activity.icon
                       const timeAgo = new Date(activity.time).toLocaleString()
                       return (
