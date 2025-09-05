@@ -18,10 +18,10 @@ module.exports = {
     },
     extend: {
       fontFamily: {
-        'sans': ['var(--font-poppins)', 'var(--font-outfit)', 'var(--font-nunito)', 'system-ui', 'sans-serif'],
+        'sans': ['var(--font-poppins)', 'var(--font-outfit)', 'var(--font-nunito-sans)', 'system-ui', 'sans-serif'],
         'display': ['var(--font-playfair)', 'serif'],
         'heading': ['var(--font-outfit)', 'var(--font-poppins)', 'sans-serif'],
-        'body': ['var(--font-nunito)', 'var(--font-poppins)', 'sans-serif'],
+        'body': ['var(--font-nunito-sans)', 'var(--font-poppins)', 'sans-serif'],
         'mono': ['var(--font-inter)', 'monospace'],
       },
       colors: {
