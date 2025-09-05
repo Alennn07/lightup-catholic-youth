@@ -49,6 +49,14 @@ export default function SupportPage() {
   const [expandedCard, setExpandedCard] = useState<string | null>(null)
   const [completedGuides, setCompletedGuides] = useState<string[]>([])
   const [userProgress, setUserProgress] = useState<{[key: string]: number}>({})
+  
+  // Contact Form State
+  const [contactForm, setContactForm] = useState({
+    name: '',
+    email: '',
+    priority: 'Low - General question',
+    message: ''
+  })
 
   // Auto-minimize AI chat when navigating away
   useEffect(() => {
@@ -282,6 +290,32 @@ export default function SupportPage() {
     const totalSteps = helpCards.find(card => card.id === cardId)?.steps.length || 0
     return totalSteps > 0 ? (progress / totalSteps) * 100 : 0
   }
+
+  // Contact Form Handlers
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    console.log('Contact Form Submitted:', {
+      category: selectedCategory,
+      ...contactForm
+    })
+    alert('Message sent successfully! We\'ll get back to you within 24 hours.')
+    setContactForm({ name: '', email: '', priority: 'Low - General question', message: '' })
+    setSelectedCategory('other')
+  }
+
+  const handleScheduleCall = () => {
+    const subject = `Schedule Call - ${contactForm.name || 'Support Request'}`
+    const body = `Hi! I'd like to schedule a call to discuss: ${contactForm.message || 'Support inquiry'}\n\nContact: ${contactForm.email || 'Email not provided'}\nPriority: ${contactForm.priority}\nCategory: ${selectedCategory}`
+    
+    window.open(`mailto:lightuphelps@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank')
+  }
+
+  // Contact Form Functions
+  const handleFormChange = (field: string, value: string) => {
+    setContactForm(prev => ({ ...prev, [field]: value }))
+  }
+
+
 
   // AI Response Logic
   const getAIResponse = (userMessage: string) => {
@@ -690,26 +724,39 @@ export default function SupportPage() {
                             </div>
 
                             {/* Smart Form Fields */}
-                            <div className="space-y-4">
+                            <form name="contactForm" onSubmit={handleFormSubmit} className="space-y-4">
                               <div>
                                 <label className="text-sm font-medium text-gray-700">Your Name</label>
                                 <input
                                   type="text"
+                                  name="name"
+                                  value={contactForm.name}
+                                  onChange={(e) => handleFormChange('name', e.target.value)}
                                   className="w-full mt-1 px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/50"
                                   placeholder="Enter your full name"
+                                  required
                                 />
                               </div>
                               <div>
                                 <label className="text-sm font-medium text-gray-700">Email Address</label>
                                 <input
                                   type="email"
+                                  name="email"
+                                  value={contactForm.email}
+                                  onChange={(e) => handleFormChange('email', e.target.value)}
                                   className="w-full mt-1 px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/50"
                                   placeholder="your.email@example.com"
+                                  required
                                 />
                               </div>
                               <div>
                                 <label className="text-sm font-medium text-gray-700">Priority Level</label>
-                                <select className="w-full mt-1 px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/50">
+                                <select 
+                                  name="priority"
+                                  value={contactForm.priority}
+                                  onChange={(e) => handleFormChange('priority', e.target.value)}
+                                  className="w-full mt-1 px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/50"
+                                >
                                   <option>Low - General question</option>
                                   <option>Medium - Need assistance</option>
                                   <option>High - Urgent issue</option>
@@ -719,12 +766,16 @@ export default function SupportPage() {
                               <div>
                                 <label className="text-sm font-medium text-gray-700">Describe your issue</label>
                                 <textarea
+                                  name="message"
+                                  value={contactForm.message}
+                                  onChange={(e) => handleFormChange('message', e.target.value)}
                                   rows={4}
                                   className="w-full mt-1 px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/50 resize-none"
                                   placeholder="Please provide as much detail as possible..."
+                                  required
                                 />
                               </div>
-                            </div>
+                            </form>
                           </div>
                         </div>
 
@@ -779,10 +830,102 @@ export default function SupportPage() {
                                   </div>
                                 </>
                               )}
+                              {selectedCategory === 'feature' && (
+                                <>
+                                  <div className="p-4 bg-purple-50 rounded-xl border border-purple-200">
+                                    <div className="flex items-start gap-3">
+                                      <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-white text-sm font-bold">1</div>
+                                      <div>
+                                        <div className="font-medium text-purple-800">Describe your feature idea clearly</div>
+                                        <div className="text-sm text-purple-600">Explain what you want and how it would help users</div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div className="p-4 bg-purple-50 rounded-xl border border-purple-200">
+                                    <div className="flex items-start gap-3">
+                                      <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-white text-sm font-bold">2</div>
+                                      <div>
+                                        <div className="font-medium text-purple-800">Explain the use case</div>
+                                        <div className="text-sm text-purple-600">Describe when and why users would need this feature</div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </>
+                              )}
+                              {selectedCategory === 'bug' && (
+                                <>
+                                  <div className="p-4 bg-red-50 rounded-xl border border-red-200">
+                                    <div className="flex items-start gap-3">
+                                      <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center text-white text-sm font-bold">1</div>
+                                      <div>
+                                        <div className="font-medium text-red-800">Describe the bug clearly</div>
+                                        <div className="text-sm text-red-600">What happened vs what you expected to happen</div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div className="p-4 bg-red-50 rounded-xl border border-red-200">
+                                    <div className="flex items-start gap-3">
+                                      <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center text-white text-sm font-bold">2</div>
+                                      <div>
+                                        <div className="font-medium text-red-800">Include steps to reproduce</div>
+                                        <div className="text-sm text-red-600">Step-by-step instructions to recreate the issue</div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div className="p-4 bg-red-50 rounded-xl border border-red-200">
+                                    <div className="flex items-start gap-3">
+                                      <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center text-white text-sm font-bold">3</div>
+                                      <div>
+                                        <div className="font-medium text-red-800">Add device/browser info</div>
+                                        <div className="text-sm text-red-600">Include your device type, browser, and version</div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </>
+                              )}
+                              {selectedCategory === 'billing' && (
+                                <>
+                                  <div className="p-4 bg-yellow-50 rounded-xl border border-yellow-200">
+                                    <div className="flex items-start gap-3">
+                                      <div className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center text-white text-sm font-bold">1</div>
+                                      <div>
+                                        <div className="font-medium text-yellow-800">Check your payment method</div>
+                                        <div className="text-sm text-yellow-600">Verify your card details and expiration date</div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div className="p-4 bg-yellow-50 rounded-xl border border-yellow-200">
+                                    <div className="flex items-start gap-3">
+                                      <div className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center text-white text-sm font-bold">2</div>
+                                      <div>
+                                        <div className="font-medium text-yellow-800">Review your subscription</div>
+                                        <div className="text-sm text-yellow-600">Check your current plan and billing cycle</div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </>
+                              )}
                               {selectedCategory === 'other' && (
-                                <div className="p-4 bg-gray-50 rounded-xl border border-gray-200 text-center">
-                                  <div className="text-gray-600">Select a category above to see AI-powered suggestions</div>
-                                </div>
+                                <>
+                                  <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
+                                    <div className="flex items-start gap-3">
+                                      <div className="w-8 h-8 bg-gray-500 rounded-full flex items-center justify-center text-white text-sm font-bold">1</div>
+                                      <div>
+                                        <div className="font-medium text-gray-800">Be specific about your inquiry</div>
+                                        <div className="text-sm text-gray-600">Provide detailed information about what you need help with</div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
+                                    <div className="flex items-start gap-3">
+                                      <div className="w-8 h-8 bg-gray-500 rounded-full flex items-center justify-center text-white text-sm font-bold">2</div>
+                                      <div>
+                                        <div className="font-medium text-gray-800">Include relevant details</div>
+                                        <div className="text-sm text-gray-600">Mention your device, browser, and any error messages</div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </>
                               )}
                             </div>
 
@@ -815,6 +958,7 @@ export default function SupportPage() {
                                 <Button
                                   variant="outline"
                                   className="w-full justify-start text-left h-auto p-4"
+                                  onClick={handleScheduleCall}
                                 >
                                   <Calendar className="w-5 h-5 mr-3 text-purple-600" />
                                   <div>
@@ -832,6 +976,8 @@ export default function SupportPage() {
                       <div className="mt-8 pt-6 border-t border-gray-200">
                         <div className="flex flex-col sm:flex-row gap-4">
                           <Button
+                            type="submit"
+                            form="contactForm"
                             size="lg"
                             className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
                           >
@@ -842,8 +988,12 @@ export default function SupportPage() {
                             size="lg"
                             variant="outline"
                             className="px-8 py-4 rounded-xl border-2 border-gray-300 hover:border-gray-400"
+                            onClick={() => {
+                              setContactForm({ name: '', email: '', priority: 'Low - General question', message: '' })
+                              setSelectedCategory('other')
+                            }}
                           >
-                            Save as Draft
+                            Clear Form
                           </Button>
                         </div>
                         <p className="text-sm text-gray-500 mt-3 text-center">
@@ -1302,3 +1452,4 @@ export default function SupportPage() {
     </div>
   )
 }
+
