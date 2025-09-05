@@ -50,6 +50,43 @@ export default function SupportPage() {
   const [completedGuides, setCompletedGuides] = useState<string[]>([])
   const [userProgress, setUserProgress] = useState<{[key: string]: number}>({})
 
+  // Auto-minimize AI chat when navigating away
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      setIsChatOpen(false)
+    }
+    
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        setIsChatOpen(false)
+      }
+    }
+
+    const handleTabChange = () => {
+      setIsChatOpen(false)
+    }
+
+    // Auto-minimize when user clicks on other tabs or navigates
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement
+      if (isChatOpen && !target.closest('.ai-chat-container')) {
+        setIsChatOpen(false)
+      }
+    }
+
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    window.addEventListener('blur', handleTabChange)
+    document.addEventListener('click', handleClickOutside)
+    
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+      window.removeEventListener('blur', handleTabChange)
+      document.removeEventListener('click', handleClickOutside)
+    }
+  }, [isChatOpen])
+
   // Smart Help Center Data
   const helpCategories = [
     { id: 'all', name: 'All Topics', icon: '📚' },
@@ -160,6 +197,57 @@ export default function SupportPage() {
         'Update profile picture'
       ],
       estimatedTime: '3 minutes',
+      difficulty: 'Easy'
+    },
+    {
+      id: 'troubleshooting-login',
+      category: 'troubleshooting',
+      title: 'Login Issues',
+      description: 'Having trouble logging in? Find solutions for common login problems.',
+      icon: Shield,
+      color: 'from-red-500 to-red-600',
+      steps: [
+        'Check your internet connection',
+        'Clear browser cache and cookies',
+        'Try using incognito/private mode',
+        'Reset your password if needed',
+        'Contact support if issues persist'
+      ],
+      estimatedTime: '5 minutes',
+      difficulty: 'Easy'
+    },
+    {
+      id: 'troubleshooting-groups',
+      category: 'troubleshooting',
+      title: 'Group Joining Problems',
+      description: 'Can\'t join a youth group? Here are common solutions.',
+      icon: Users,
+      color: 'from-orange-500 to-orange-600',
+      steps: [
+        'Verify the group is still active',
+        'Check if you meet age requirements',
+        'Ensure your profile is complete',
+        'Contact the group administrator',
+        'Try refreshing the page'
+      ],
+      estimatedTime: '7 minutes',
+      difficulty: 'Medium'
+    },
+    {
+      id: 'troubleshooting-performance',
+      category: 'troubleshooting',
+      title: 'App Performance Issues',
+      description: 'Is the app running slowly? Try these optimization tips.',
+      icon: Clock,
+      color: 'from-yellow-500 to-yellow-600',
+      steps: [
+        'Close other browser tabs',
+        'Update your browser to latest version',
+        'Clear browser cache and cookies',
+        'Restart your device',
+        'Check your internet speed'
+      ],
+      estimatedTime: '4 minutes',
       difficulty: 'Easy'
     }
   ]
@@ -494,6 +582,8 @@ export default function SupportPage() {
                                   e.stopPropagation()
                                   setSearchQuery('')
                                   setSelectedCategory('all')
+                                  setExpandedCard(null)
+                                  setUserProgress({...userProgress, [card.id]: 0})
                                 }}
                                 className="px-3"
                               >
@@ -920,7 +1010,7 @@ export default function SupportPage() {
       <BackToTop />
 
       {/* AI Support Assistant Chat */}
-      <div className="fixed bottom-4 left-4 z-40">
+      <div className="fixed bottom-4 left-4 z-40 ai-chat-container">
         {/* Chat Toggle Button */}
         {!isChatOpen && (
           <Button
