@@ -1,9 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase-client'
+import { createServerClient } from '@supabase/ssr'
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createClient()
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          get(name: string) {
+            return request.cookies.get(name)?.value
+          },
+          set(name: string, value: string, options: any) {
+            // Don't set cookies in this test endpoint
+          },
+          remove(name: string, options: any) {
+            // Don't remove cookies in this test endpoint
+          },
+        },
+      }
+    )
     
     // Try to get session
     const { data: { session }, error: sessionError } = await supabase.auth.getSession()
