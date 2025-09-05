@@ -304,10 +304,45 @@ export default function SupportPage() {
   }
 
   const handleScheduleCall = () => {
-    const subject = `Schedule Call - ${contactForm.name || 'Support Request'}`
-    const body = `Hi! I'd like to schedule a call to discuss: ${contactForm.message || 'Support inquiry'}\n\nContact: ${contactForm.email || 'Email not provided'}\nPriority: ${contactForm.priority}\nCategory: ${selectedCategory}`
+    const subject = `Schedule Call Request - ${contactForm.name || 'Support'}`;
+    const body = `Hi! I'd like to schedule a support call.
+
+Name: ${contactForm.name || 'Not provided'}
+Email: ${contactForm.email || 'Not provided'}
+Issue: ${contactForm.message || 'Support inquiry'}
+Category: ${selectedCategory}
+Priority: ${contactForm.priority}
+
+Please let me know your available time slots for a 15-30 minute call.
+
+Thank you!`;
+
+    // Try to copy to clipboard first
+    const fullText = `To: lightuphelps@gmail.com\nSubject: ${subject}\n\n${body}`;
     
-    window.open(`mailto:lightuphelps@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank')
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(fullText).then(() => {
+        alert('Call request details copied to clipboard! You can now paste them into your email client.');
+      }).catch(() => {
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = fullText;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        alert('Call request details copied to clipboard! You can now paste them into your email client.');
+      });
+    } else {
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = fullText;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      alert('Call request details copied to clipboard! You can now paste them into your email client.');
+    }
   }
 
   // Contact Form Functions
