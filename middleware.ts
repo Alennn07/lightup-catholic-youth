@@ -14,11 +14,9 @@ export async function middleware(request: NextRequest) {
           return request.cookies.get(name)?.value
         },
         set(name: string, value: string, options: any) {
-          request.cookies.set({ name, value, ...options })
           res.cookies.set({ name, value, ...options })
         },
         remove(name: string, options: any) {
-          request.cookies.set({ name, value: '', ...options })
           res.cookies.set({ name, value: '', ...options })
         },
       },
@@ -57,6 +55,10 @@ export async function middleware(request: NextRequest) {
   // Check authentication for protected routes
   if (isProtectedRoute) {
     console.log(`🔍 Middleware: Checking auth for ${request.nextUrl.pathname}`)
+    
+    // Debug: Log all cookies
+    const allCookies = request.cookies.getAll()
+    console.log(`🔍 Middleware: All cookies:`, allCookies.map(c => ({ name: c.name, value: c.value.substring(0, 20) + '...' })))
     
     try {
       // Try to get session
