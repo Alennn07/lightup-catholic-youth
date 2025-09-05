@@ -54,13 +54,19 @@ export async function middleware(request: NextRequest) {
 
   // Check authentication for protected routes
   if (isProtectedRoute) {
-    const { data: { session } } = await supabase.auth.getSession()
+    console.log(`🔍 Middleware: Checking auth for ${request.nextUrl.pathname}`)
+    const { data: { session }, error } = await supabase.auth.getSession()
+    
+    console.log(`🔍 Middleware: Session check result:`, { hasSession: !!session, error: error?.message })
     
     if (!session) {
+      console.log(`🔍 Middleware: No session, redirecting to sign-in`)
       // Redirect to sign-in if not authenticated
       const redirectUrl = new URL("/auth/sign-in", request.url)
       redirectUrl.searchParams.set("redirectTo", request.nextUrl.pathname)
       return NextResponse.redirect(redirectUrl)
+    } else {
+      console.log(`🔍 Middleware: Session found, allowing access to ${request.nextUrl.pathname}`)
     }
   }
 
