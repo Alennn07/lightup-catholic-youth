@@ -49,10 +49,10 @@ export async function GET(request: Request) {
     // Determine the correct origin for redirects
     let baseOrigin = requestUrl.origin
     
-    // In development, ALWAYS force localhost regardless of request origin
-    if (process.env.NODE_ENV === 'development') {
+    // ALWAYS force localhost if we detect localhost in the request
+    if (requestUrl.hostname === 'localhost' || process.env.NODE_ENV === 'development') {
       baseOrigin = 'http://localhost:3000' // Always use localhost in development
-      logIfEnabled(`🔧 Forcing localhost origin for development: ${baseOrigin}`)
+      logIfEnabled(`🔧 FORCING localhost origin: ${baseOrigin}`)
     } else if (process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_SITE_URL) {
       baseOrigin = process.env.NEXT_PUBLIC_SITE_URL
       logIfEnabled(`🚀 Using production origin: ${baseOrigin}`)

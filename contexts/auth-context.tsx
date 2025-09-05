@@ -298,7 +298,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       let redirectUrl = process.env.NODE_ENV === 'development' 
         ? 'http://localhost:3000/auth/callback'
         : (process.env.NEXT_PUBLIC_SITE_URL + '/auth/callback')
-      logIfEnabled(`🚀 Using redirect URL: ${redirectUrl}`)
+      
+      // Force localhost in development regardless of environment variables
+      if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+        redirectUrl = 'http://localhost:3000/auth/callback'
+        logIfEnabled(`🔧 FORCING localhost redirect: ${redirectUrl}`)
+      } else {
+        logIfEnabled(`🚀 Using redirect URL: ${redirectUrl}`)
+      }
        
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
