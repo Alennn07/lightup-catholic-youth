@@ -303,6 +303,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const currentPort = window.location.port || '3000'
           redirectUrl = `http://localhost:${currentPort}/auth/callback`
           logIfEnabled(`🔧 FORCING localhost redirect: ${redirectUrl}`)
+          
+          // Override Supabase's redirect URL by modifying the URL after OAuth
+          window.addEventListener('message', (event) => {
+            if (event.origin === 'https://lightup-catholic-youth.vercel.app') {
+              // Redirect back to localhost
+              window.location.href = `http://localhost:${currentPort}`
+            }
+          })
         } else {
           // Only use production URL if we're actually on production
           redirectUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://lightup-catholic-youth.vercel.app') + '/auth/callback'
@@ -317,7 +325,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
-          }
+          },
+          // Force localhost redirect
+          skipBrowserRedirect: false
         }
       })
       
