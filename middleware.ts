@@ -53,10 +53,39 @@ export async function middleware(request: NextRequest) {
   
   console.log(`🔍 Middleware: Path ${request.nextUrl.pathname} is protected: ${isProtectedRoute}`)
 
-  // TEMPORARILY DISABLE AUTH CHECK FOR TESTING
+  // Check authentication for protected routes
   if (isProtectedRoute) {
-    console.log(`🔍 Middleware: TEMPORARILY ALLOWING ACCESS to ${request.nextUrl.pathname}`)
-    // TODO: Re-enable auth check once session storage is fixed
+    console.log(`🔍 Middleware: Checking auth for ${request.nextUrl.pathname}`)
+    
+    try {
+      // Try to get session from cookies
+      const { data: { session }, error } = await supabase.auth.getSession()
+      
+      console.log(`🔍 Middleware: Session check result:`, { 
+        hasSession: !!session, 
+        userId: session?.user?.id,
+        error: error?.message 
+      })
+      
+      if (!session) {
+        console.log(`🔍 Middleware: No session, redirecting to sign-in`)
+        // Redirect to sign-in if not authenticated
+        const redirectUrl = new URL("/auth/sign-in", request.url)
+        redirectUrl.searchParams.set("redirectTo", request.nextUrl.pathname)
+        return NextResponse.redirect(redirectUrl)
+      } else {
+        console.log(`🔍 Middleware: Session found, allowing access to ${request.nextUrl.pathname}`)
+        // Add user info to headers for debugging
+        res.headers.set('x-user-id', session.user.id)
+        res.headers.set('x-user-email', session.user.email || '')
+      }
+    } catch (error) {
+      console.log(`🔍 Middleware: Error checking session:`, error)
+      // If there's an error checking session, redirect to sign-in
+      const redirectUrl = new URL("/auth/sign-in", request.url)
+      redirectUrl.searchParams.set("redirectTo", request.nextUrl.pathname)
+      return NextResponse.redirect(redirectUrl)
+    }
   }
 
   return res
