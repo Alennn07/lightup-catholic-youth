@@ -725,12 +725,12 @@ export default function SupportPage() {
                 </div>
 
                 {/* Smart Contact Form */}
-                <div className="max-w-7xl mx-auto">
+                <div className="max-w-full mx-auto px-4">
                   <Card className="border-0 shadow-xl bg-white/80 backdrop-blur-sm">
                     <CardContent className="p-8">
-                      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-                        {/* Left Side - Smart Form - Takes 2 columns */}
-                        <div className="xl:col-span-2 space-y-6">
+                      <div className="grid grid-cols-1 xl:grid-cols-5 gap-8">
+                        {/* Left Side - Smart Form - Takes 3 columns */}
+                        <div className="xl:col-span-3 space-y-6">
                           <div>
                             <h3 className="text-xl font-semibold text-gray-800 mb-4">Tell us what you need help with</h3>
                             
@@ -777,9 +777,9 @@ export default function SupportPage() {
                               </div>
 
                               {/* Billion Dollar Form - Full Width Layout */}
-                              <form name="contactForm" onSubmit={handleFormSubmit} className="space-y-6">
+                              <form name="contactForm" onSubmit={handleFormSubmit} className="space-y-8">
                                 {/* First Row - Name and Email */}
-                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
                                   <div className="relative">
                                     <div className="flex items-center gap-2 mb-3">
                                       <span className="text-2xl">👤</span>
@@ -816,7 +816,7 @@ export default function SupportPage() {
                                 </div>
 
                                 {/* Second Row - Priority Level and Message Side by Side */}
-                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
                                   <div className="relative">
                                     <div className="flex items-center gap-2 mb-3">
                                       <span className="text-2xl">⚡</span>
