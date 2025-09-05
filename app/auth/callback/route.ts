@@ -43,18 +43,25 @@ export async function GET(request: Request) {
       logIfEnabled(`Auth callback successful: ${JSON.stringify(data)}`)
     }
 
-    // 🚀 FIX: Use environment variable for redirect URL in production
+    // Check for redirectTo parameter first
+    const redirectTo = requestUrl.searchParams.get('redirectTo')
     let redirectUrl = requestUrl.origin + '/'
     
-    // Check if we're in production and use environment variable if available
-    if (process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_SITE_URL) {
-      redirectUrl = process.env.NEXT_PUBLIC_SITE_URL + '/'
-      logIfEnabled(`🚀 Using production redirect URL: ${redirectUrl}`)
+    if (redirectTo) {
+      // Use the redirectTo parameter if it exists
+      redirectUrl = requestUrl.origin + redirectTo
+      logIfEnabled(`🔄 Redirecting to requested URL: ${redirectUrl}`)
     } else {
-      logIfEnabled(`🔧 Using development redirect URL: ${redirectUrl}`)
+      // Check if we're in production and use environment variable if available
+      if (process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_SITE_URL) {
+        redirectUrl = process.env.NEXT_PUBLIC_SITE_URL + '/'
+        logIfEnabled(`🚀 Using production redirect URL: ${redirectUrl}`)
+      } else {
+        logIfEnabled(`🔧 Using development redirect URL: ${redirectUrl}`)
+      }
     }
     
-    logIfEnabled(`Redirecting to: ${redirectUrl}`)
+    logIfEnabled(`Final redirect URL: ${redirectUrl}`)
     
     return NextResponse.redirect(redirectUrl)
   } catch (error) {
