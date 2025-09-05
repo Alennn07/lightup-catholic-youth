@@ -3,6 +3,7 @@ import type { NextRequest } from "next/server"
 import { createServerClient } from "@supabase/ssr"
 
 export async function middleware(request: NextRequest) {
+  console.log(`🔍 Middleware: Running for ${request.nextUrl.pathname}`)
   const res = NextResponse.next()
   
   const supabase = createServerClient(
