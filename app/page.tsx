@@ -247,7 +247,7 @@ export default function HomePage() {
               </div>
             </div>
             
-old ho            {/* Main Headline - Dynamic based on user state */}
+            {/* Main Headline - Dynamic based on user state */}
             {user ? (
               <>
                 <h2 className="text-6xl md:text-7xl font-bold mb-8 leading-tight font-display">
