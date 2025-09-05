@@ -53,7 +53,7 @@ export async function GET(request: Request) {
     if (process.env.NODE_ENV === 'development') {
       // Check if we're on localhost, if not, force localhost
       if (!baseOrigin.includes('localhost')) {
-        baseOrigin = 'http://localhost:3004' // Use the port you're running on
+        baseOrigin = 'http://localhost:3000' // Use the port you're running on
         logIfEnabled(`🔧 Forcing localhost origin: ${baseOrigin}`)
       }
     } else if (process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_SITE_URL) {
