@@ -294,56 +294,32 @@ export default function SupportPage() {
   // Contact Form Handlers
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    console.log('Contact Form Submitted:', {
+    
+    // Form data object for developer visibility
+    const formData = {
+      ...contactForm,
       category: selectedCategory,
-      ...contactForm
+      timestamp: new Date().toISOString(),
+      userAgent: navigator.userAgent,
+      url: window.location.href
+    }
+    
+    // 🔍 DEVELOPER: Form data is logged here - check browser console!
+    console.log('📝 CONTACT FORM SUBMISSION:', formData)
+    console.log('📊 Form Data Summary:', {
+      'User Name': formData.name,
+      'Email': formData.email,
+      'Category': formData.category,
+      'Priority': formData.priority,
+      'Message Length': formData.message.length,
+      'Submitted At': formData.timestamp
     })
+    
     alert('Message sent successfully! We\'ll get back to you within 24 hours.')
     setContactForm({ name: '', email: '', priority: 'Low - General question', message: '' })
     setSelectedCategory('other')
   }
 
-  const handleScheduleCall = () => {
-    const subject = `Schedule Call Request - ${contactForm.name || 'Support'}`;
-    const body = `Hi! I'd like to schedule a support call.
-
-Name: ${contactForm.name || 'Not provided'}
-Email: ${contactForm.email || 'Not provided'}
-Issue: ${contactForm.message || 'Support inquiry'}
-Category: ${selectedCategory}
-Priority: ${contactForm.priority}
-
-Please let me know your available time slots for a 15-30 minute call.
-
-Thank you!`;
-
-    // Try to copy to clipboard first
-    const fullText = `To: lightuphelps@gmail.com\nSubject: ${subject}\n\n${body}`;
-    
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(fullText).then(() => {
-        alert('Call request details copied to clipboard! You can now paste them into your email client.');
-      }).catch(() => {
-        // Fallback for older browsers
-        const textArea = document.createElement('textarea');
-        textArea.value = fullText;
-        document.body.appendChild(textArea);
-        textArea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textArea);
-        alert('Call request details copied to clipboard! You can now paste them into your email client.');
-      });
-    } else {
-      // Fallback for older browsers
-      const textArea = document.createElement('textarea');
-      textArea.value = fullText;
-      document.body.appendChild(textArea);
-      textArea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textArea);
-      alert('Call request details copied to clipboard! You can now paste them into your email client.');
-    }
-  }
 
   // Contact Form Functions
   const handleFormChange = (field: string, value: string) => {
@@ -739,7 +715,6 @@ Thank you!`;
                                   { id: 'technical', label: 'Technical Support', icon: '🔧', color: 'from-green-500 to-green-600' },
                                   { id: 'feature', label: 'Feature Request', icon: '💡', color: 'from-purple-500 to-purple-600' },
                                   { id: 'bug', label: 'Bug Report', icon: '🐛', color: 'from-red-500 to-red-600' },
-                                  { id: 'billing', label: 'Billing & Payment', icon: '💳', color: 'from-yellow-500 to-yellow-600' },
                                   { id: 'other', label: 'Other', icon: '❓', color: 'from-gray-500 to-gray-600' }
                                 ].map((category) => (
                                   <button
@@ -918,28 +893,6 @@ Thank you!`;
                                   </div>
                                 </>
                               )}
-                              {selectedCategory === 'billing' && (
-                                <>
-                                  <div className="p-4 bg-yellow-50 rounded-xl border border-yellow-200">
-                                    <div className="flex items-start gap-3">
-                                      <div className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center text-white text-sm font-bold">1</div>
-                                      <div>
-                                        <div className="font-medium text-yellow-800">Check your payment method</div>
-                                        <div className="text-sm text-yellow-600">Verify your card details and expiration date</div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                  <div className="p-4 bg-yellow-50 rounded-xl border border-yellow-200">
-                                    <div className="flex items-start gap-3">
-                                      <div className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center text-white text-sm font-bold">2</div>
-                                      <div>
-                                        <div className="font-medium text-yellow-800">Review your subscription</div>
-                                        <div className="text-sm text-yellow-600">Check your current plan and billing cycle</div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </>
-                              )}
                               {selectedCategory === 'other' && (
                                 <>
                                   <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
@@ -988,17 +941,6 @@ Thank you!`;
                                   <div>
                                     <div className="font-medium">Live Chat Support</div>
                                     <div className="text-sm text-gray-500">Get instant help from our AI assistant</div>
-                                  </div>
-                                </Button>
-                                <Button
-                                  variant="outline"
-                                  className="w-full justify-start text-left h-auto p-4"
-                                  onClick={handleScheduleCall}
-                                >
-                                  <Calendar className="w-5 h-5 mr-3 text-purple-600" />
-                                  <div>
-                                    <div className="font-medium">Schedule Call</div>
-                                    <div className="text-sm text-gray-500">Book a 1-on-1 support session</div>
                                   </div>
                                 </Button>
                               </div>
