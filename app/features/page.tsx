@@ -317,10 +317,10 @@ export default function FeaturesPage() {
           transition={{ duration: 0.6 }}
           className="text-center mb-16 mt-8"
         >
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-6">
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-6 font-outfit">
             {t("features.title")}
           </h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed font-nunito-sans">
             {t("features.subtitle")}
           </p>
         </motion.div>
@@ -334,22 +334,22 @@ export default function FeaturesPage() {
         >
           <Card className="bg-white shadow-lg border-0">
             <CardContent className="p-6 text-center">
-              <div className="text-3xl font-bold text-blue-600 mb-2">{features.length}</div>
-              <div className="text-gray-600 font-medium">Total Features</div>
+              <div className="text-3xl font-bold text-blue-600 mb-2 font-outfit">{features.length}</div>
+              <div className="text-gray-600 font-medium font-nunito-sans">Total Features</div>
             </CardContent>
           </Card>
           
           <Card className="bg-white shadow-lg border-0">
             <CardContent className="p-6 text-center">
-              <div className="text-3xl font-bold text-green-600 mb-2">{totalUsers.toLocaleString()}</div>
-              <div className="text-gray-600 font-medium">Total Users</div>
+              <div className="text-3xl font-bold text-green-600 mb-2 font-outfit">{totalUsers.toLocaleString()}</div>
+              <div className="text-gray-600 font-medium font-nunito-sans">Total Users</div>
             </CardContent>
           </Card>
           
           <Card className="bg-white shadow-lg border-0">
             <CardContent className="p-6 text-center">
-              <div className="text-3xl font-bold text-purple-600 mb-2">{averageRating.toFixed(1)}</div>
-              <div className="text-gray-600 font-medium">Average Rating</div>
+              <div className="text-3xl font-bold text-purple-600 mb-2 font-outfit">{averageRating.toFixed(1)}</div>
+              <div className="text-gray-600 font-medium font-nunito-sans">Average Rating</div>
             </CardContent>
           </Card>
         </motion.div>

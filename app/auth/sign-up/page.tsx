@@ -214,8 +214,8 @@ export default function SignUpPage() {
 
         <Card className="shadow-2xl border border-gray-200 bg-white/95 backdrop-blur-sm">
           <CardHeader className="text-center pb-4">
-            <CardTitle className="text-2xl font-bold text-gray-900">{t("auth.createAccount")}</CardTitle>
-            <CardDescription className="text-gray-600">
+            <CardTitle className="text-2xl font-bold text-gray-900 font-outfit">{t("auth.createAccount")}</CardTitle>
+            <CardDescription className="text-gray-600 font-nunito-sans">
               {t("auth.joinLightUp")}
             </CardDescription>
           </CardHeader>

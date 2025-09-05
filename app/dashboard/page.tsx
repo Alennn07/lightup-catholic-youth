@@ -565,10 +565,10 @@ export default function DashboardPage() {
           </div>
           {/* Welcome Header with Notifications */}
           <div className="text-center mb-6 sm:mb-8 md:mb-12">
-            <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-gray-800 mb-2 sm:mb-3 md:mb-4 px-2">
+            <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-gray-800 mb-2 sm:mb-3 md:mb-4 px-2 font-outfit">
               {t("dashboard.welcomeBack", { name: userDisplayName })}
             </h1>
-            <p className="text-sm sm:text-base md:text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed px-2">
+            <p className="text-sm sm:text-base md:text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed px-2 font-nunito-sans">
               {t("dashboard.subtitle")}
             </p>
             
@@ -658,8 +658,8 @@ export default function DashboardPage() {
                     <Sparkles className="h-5 w-5 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold text-gray-800">Your Faith Insights</h3>
-                    <p className="text-gray-600 text-sm">Personalized recommendations for your spiritual growth</p>
+                    <h3 className="text-xl font-bold text-gray-800 font-outfit">Your Faith Insights</h3>
+                    <p className="text-gray-600 text-sm font-nunito-sans">Personalized recommendations for your spiritual growth</p>
                   </div>
                 </div>
                 
@@ -752,8 +752,8 @@ export default function DashboardPage() {
                       <Heart className="h-5 w-5 text-white" />
                     </div>
                     <div>
-                      <h3 className="text-xl font-bold text-gray-800">Recent Prayer Sessions</h3>
-                      <p className="text-gray-600 text-sm">Your last few prayer times</p>
+                      <h3 className="text-xl font-bold text-gray-800 font-outfit">Recent Prayer Sessions</h3>
+                      <p className="text-gray-600 text-sm font-nunito-sans">Your last few prayer times</p>
                     </div>
                   </div>
                 </div>
@@ -800,8 +800,8 @@ export default function DashboardPage() {
                       <TrendingUp className="h-5 w-5 text-white" />
                     </div>
                     <div>
-                      <h3 className="text-xl font-bold text-gray-800">Spiritual Goals</h3>
-                      <p className="text-gray-600 text-sm">Set and track your faith journey milestones</p>
+                      <h3 className="text-xl font-bold text-gray-800 font-outfit">Spiritual Goals</h3>
+                      <p className="text-gray-600 text-sm font-nunito-sans">Set and track your faith journey milestones</p>
                     </div>
                   </div>
                   <Button 
@@ -881,8 +881,8 @@ export default function DashboardPage() {
                     <Activity className="h-5 w-5 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold text-gray-800">Faith Milestones</h3>
-                    <p className="text-gray-600 text-sm">Celebrate your spiritual achievements</p>
+                    <h3 className="text-xl font-bold text-gray-800 font-outfit">Faith Milestones</h3>
+                    <p className="text-gray-600 text-sm font-nunito-sans">Celebrate your spiritual achievements</p>
                   </div>
                 </div>
                 
@@ -935,7 +935,7 @@ export default function DashboardPage() {
                       <TrendingUp className="h-6 w-6 text-white" />
                     </div>
                     <div>
-                      <h3 className="text-xl font-bold text-gray-800">Your Faith Journey</h3>
+                      <h3 className="text-xl font-bold text-gray-800 font-outfit">Your Faith Journey</h3>
                       <p className="text-gray-600">Track your spiritual growth and milestones</p>
                     </div>
                   </div>
@@ -976,7 +976,7 @@ export default function DashboardPage() {
           <div className="mb-8">
             <Card className="bg-white shadow-lg border border-gray-100">
               <CardContent className="p-6">
-                <h3 className="text-xl font-bold text-gray-800 mb-4">Quick Actions</h3>
+                <h3 className="text-xl font-bold text-gray-800 font-outfit mb-4">Quick Actions</h3>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <Button 
                     variant="outline" 
@@ -1026,7 +1026,7 @@ export default function DashboardPage() {
             <Card className="bg-white shadow-lg border border-gray-100">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-xl font-bold text-gray-800">Youth Group Activity</h3>
+                  <h3 className="text-xl font-bold text-gray-800 font-outfit">Youth Group Activity</h3>
                   <Button 
                     variant="ghost" 
                     size="sm" 

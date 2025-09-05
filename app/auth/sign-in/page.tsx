@@ -134,7 +134,7 @@ export default function SignInPage() {
               <Heart className="h-12 w-12 text-blue-600 fill-blue-600" />
               <div className="absolute -top-1 -right-1 w-4 h-4 bg-yellow-400 rounded-full animate-pulse shadow-sm"></div>
             </div>
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent font-outfit">
               LightUp
             </h1>
           </div>
@@ -146,8 +146,8 @@ export default function SignInPage() {
 
         <Card className="shadow-2xl border border-gray-200 bg-white/95 backdrop-blur-sm">
           <CardHeader className="text-center pb-4">
-            <CardTitle className="text-2xl font-bold text-gray-900">{t("auth.signIn")}</CardTitle>
-            <CardDescription className="text-gray-600">{t("auth.signIn")} to your LightUp account</CardDescription>
+            <CardTitle className="text-2xl font-bold text-gray-900 font-outfit">{t("auth.signIn")}</CardTitle>
+            <CardDescription className="text-gray-600 font-nunito-sans">{t("auth.signIn")} to your LightUp account</CardDescription>
           </CardHeader>
           
           <CardContent className="space-y-6">
