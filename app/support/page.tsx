@@ -545,19 +545,21 @@ export default function SupportPage() {
                                     {userProgress[card.id] > index ? '✓' : index + 1}
                                   </div>
                                   <p className="text-sm text-gray-700 flex-1">{step}</p>
-                                  {userProgress[card.id] === index && (
-                                    <Button
-                                      size="sm"
-                                      variant="default"
-                                      onClick={(e) => {
-                                        e.stopPropagation()
-                                        updateProgress(card.id, index)
-                                      }}
-                                      className={`text-xs px-3 py-1 bg-gradient-to-r ${card.color} text-white hover:opacity-90 border-0 shadow-sm`}
-                                    >
-                                      ✓ Mark Done
-                                    </Button>
-                                  )}
+                                  <Button
+                                    size="sm"
+                                    variant="default"
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      updateProgress(card.id, index)
+                                    }}
+                                    className={`text-xs px-3 py-1 ${
+                                      userProgress[card.id] > index 
+                                        ? 'bg-green-500 text-white hover:bg-green-600' 
+                                        : `bg-gradient-to-r ${card.color} text-white hover:opacity-90`
+                                    } border-0 shadow-sm`}
+                                  >
+                                    {userProgress[card.id] > index ? '✓ Done' : '✓ Mark Done'}
+                                  </Button>
                                 </div>
                               ))}
                             </div>
