@@ -21,10 +21,6 @@ export async function middleware(request: NextRequest) {
           res.cookies.set({ name, value: '', ...options })
         },
       },
-      auth: {
-        persistSession: true,
-        autoRefreshToken: true,
-      },
     }
   )
 

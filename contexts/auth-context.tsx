@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { createContext, useContext, useState, useEffect } from "react"
-import { supabase } from "@/lib/supabase"
+import { createClient } from "@/lib/supabase-client"
 import type { User as SupabaseUser } from "@supabase/supabase-js"
 import type { User } from "@/lib/supabase"
 import { logIfEnabled } from "@/lib/performance-monitor"
@@ -37,6 +37,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [supabaseUser, setSupabaseUser] = useState<SupabaseUser | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [lastRefreshTime, setLastRefreshTime] = useState(0)
+  
+  // Create Supabase client
+  const supabase = createClient()
 
   useEffect(() => {
     // Get initial session
