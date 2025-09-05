@@ -45,20 +45,30 @@ export async function GET(request: Request) {
 
     // Check for redirectTo parameter first
     const redirectTo = requestUrl.searchParams.get('redirectTo')
-    let redirectUrl = requestUrl.origin + '/'
+    
+    // Determine the correct origin for redirects
+    let baseOrigin = requestUrl.origin
+    
+    // In development, always use localhost to avoid Vercel redirects
+    if (process.env.NODE_ENV === 'development') {
+      // Check if we're on localhost, if not, force localhost
+      if (!baseOrigin.includes('localhost')) {
+        baseOrigin = 'http://localhost:3004' // Use the port you're running on
+        logIfEnabled(`🔧 Forcing localhost origin: ${baseOrigin}`)
+      }
+    } else if (process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_SITE_URL) {
+      baseOrigin = process.env.NEXT_PUBLIC_SITE_URL
+      logIfEnabled(`🚀 Using production origin: ${baseOrigin}`)
+    }
+    
+    let redirectUrl = baseOrigin + '/'
     
     if (redirectTo) {
       // Use the redirectTo parameter if it exists
-      redirectUrl = requestUrl.origin + redirectTo
+      redirectUrl = baseOrigin + redirectTo
       logIfEnabled(`🔄 Redirecting to requested URL: ${redirectUrl}`)
     } else {
-      // Check if we're in production and use environment variable if available
-      if (process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_SITE_URL) {
-        redirectUrl = process.env.NEXT_PUBLIC_SITE_URL + '/'
-        logIfEnabled(`🚀 Using production redirect URL: ${redirectUrl}`)
-      } else {
-        logIfEnabled(`🔧 Using development redirect URL: ${redirectUrl}`)
-      }
+      logIfEnabled(`🔧 Using base origin: ${baseOrigin}`)
     }
     
     logIfEnabled(`Final redirect URL: ${redirectUrl}`)
