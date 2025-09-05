@@ -42,6 +42,156 @@ export default function SupportPage() {
   ])
   const [userInput, setUserInput] = useState('')
   const [isTyping, setIsTyping] = useState(false)
+  
+  // Smart Help Center State
+  const [searchQuery, setSearchQuery] = useState('')
+  const [selectedCategory, setSelectedCategory] = useState('all')
+  const [expandedCard, setExpandedCard] = useState<string | null>(null)
+  const [completedGuides, setCompletedGuides] = useState<string[]>([])
+  const [userProgress, setUserProgress] = useState<{[key: string]: number}>({})
+
+  // Smart Help Center Data
+  const helpCategories = [
+    { id: 'all', name: 'All Topics', icon: '📚' },
+    { id: 'getting-started', name: 'Getting Started', icon: '🚀' },
+    { id: 'features', name: 'Features', icon: '⭐' },
+    { id: 'troubleshooting', name: 'Troubleshooting', icon: '🔧' },
+    { id: 'account', name: 'Account', icon: '👤' }
+  ]
+
+  const helpCards = [
+    {
+      id: 'getting-started',
+      category: 'getting-started',
+      title: 'Getting Started',
+      description: 'New to LightUp? Learn how to create your account and start your faith journey.',
+      icon: BookOpen,
+      color: 'from-blue-500 to-blue-600',
+      steps: [
+        'Create your account with Google or email',
+        'Complete your profile with your interests',
+        'Explore youth groups in your area',
+        'Start your first prayer session',
+        'Join the community and make connections'
+      ],
+      estimatedTime: '5 minutes',
+      difficulty: 'Beginner'
+    },
+    {
+      id: 'youth-groups',
+      category: 'features',
+      title: 'Youth Groups',
+      description: 'Find and join Catholic youth groups in your area. Learn about group features and management.',
+      icon: Users,
+      color: 'from-green-500 to-green-600',
+      steps: [
+        'Browse available youth groups',
+        'Filter by location and interests',
+        'Request to join a group',
+        'Participate in group activities',
+        'Create your own group (if eligible)'
+      ],
+      estimatedTime: '10 minutes',
+      difficulty: 'Easy'
+    },
+    {
+      id: 'faithbot-ai',
+      category: 'features',
+      title: 'FaithBot AI',
+      description: 'Get instant answers to your Catholic faith questions from our AI assistant.',
+      icon: Bot,
+      color: 'from-purple-500 to-purple-600',
+      steps: [
+        'Click on FaithBot in the navigation',
+        'Type your faith-related question',
+        'Get instant, accurate answers',
+        'Ask follow-up questions',
+        'Save important responses'
+      ],
+      estimatedTime: '2 minutes',
+      difficulty: 'Easy'
+    },
+    {
+      id: 'prayer-wall',
+      category: 'features',
+      title: 'Prayer Wall',
+      description: 'Share prayer requests and pray for others in your Catholic community.',
+      icon: Heart,
+      color: 'from-red-500 to-red-600',
+      steps: [
+        'Visit the Prayer Wall page',
+        'Read existing prayer requests',
+        'Add your own prayer request',
+        'Pray for others and mark as prayed',
+        'Share encouraging messages'
+      ],
+      estimatedTime: '5 minutes',
+      difficulty: 'Easy'
+    },
+    {
+      id: 'faith-journal',
+      category: 'features',
+      title: 'Faith Journal',
+      description: 'Document your spiritual journey with private reflections and prayers.',
+      icon: PenTool,
+      color: 'from-orange-500 to-orange-600',
+      steps: [
+        'Navigate to Faith Journal',
+        'Create your first journal entry',
+        'Set daily reflection reminders',
+        'Track your spiritual growth',
+        'Export your journal entries'
+      ],
+      estimatedTime: '8 minutes',
+      difficulty: 'Easy'
+    },
+    {
+      id: 'account-settings',
+      category: 'account',
+      title: 'Account Settings',
+      description: 'Manage your profile, privacy settings, and account preferences.',
+      icon: FileText,
+      color: 'from-indigo-500 to-indigo-600',
+      steps: [
+        'Go to your profile page',
+        'Update personal information',
+        'Change privacy settings',
+        'Manage notification preferences',
+        'Update profile picture'
+      ],
+      estimatedTime: '3 minutes',
+      difficulty: 'Easy'
+    }
+  ]
+
+  // Smart Help Functions
+  const filteredCards = helpCards.filter(card => {
+    const matchesSearch = card.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         card.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         card.steps.some(step => step.toLowerCase().includes(searchQuery.toLowerCase()))
+    const matchesCategory = selectedCategory === 'all' || card.category === selectedCategory
+    return matchesSearch && matchesCategory
+  })
+
+  const toggleCardExpansion = (cardId: string) => {
+    setExpandedCard(expandedCard === cardId ? null : cardId)
+  }
+
+  const markGuideComplete = (cardId: string) => {
+    if (!completedGuides.includes(cardId)) {
+      setCompletedGuides([...completedGuides, cardId])
+    }
+  }
+
+  const updateProgress = (cardId: string, stepIndex: number) => {
+    setUserProgress({...userProgress, [cardId]: stepIndex + 1})
+  }
+
+  const getProgressPercentage = (cardId: string) => {
+    const progress = userProgress[cardId] || 0
+    const totalSteps = helpCards.find(card => card.id === cardId)?.steps.length || 0
+    return totalSteps > 0 ? (progress / totalSteps) * 100 : 0
+  }
 
   // AI Response Logic
   const getAIResponse = (userMessage: string) => {
@@ -178,84 +328,220 @@ export default function SupportPage() {
 
             {/* Help Center Tab */}
             <TabsContent value="help-center" className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-2">
-                      <BookOpen className="w-6 h-6 text-blue-600" />
+              {/* Smart Search and Filters */}
+              <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-6 border border-blue-100">
+                <div className="flex flex-col lg:flex-row gap-4 mb-6">
+                  <div className="flex-1">
+                    <div className="relative">
+                      <HelpCircle className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                      <input
+                        type="text"
+                        placeholder="Search help topics, guides, or ask a question..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white shadow-sm"
+                      />
                     </div>
-                    <CardTitle className="text-lg">Getting Started</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-gray-600 mb-4">
-                      New to LightUp? Learn how to create your account and start your faith journey.
-                    </p>
-                    <Button variant="outline" size="sm" className="border-gray-400 text-gray-700 hover:bg-gray-50 hover:border-gray-500 bg-white">View Guide</Button>
-                  </CardContent>
-                </Card>
-
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-2">
-                      <Users className="w-6 h-6 text-green-600" />
-                    </div>
-                    <CardTitle className="text-lg">Youth Groups</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-gray-600 mb-4">
-                      Find and join Catholic youth groups in your area. Learn about group features and management.
-                    </p>
-                    <Button variant="outline" size="sm" className="border-gray-400 text-gray-700 hover:bg-gray-50 hover:border-gray-500 bg-white">Learn More</Button>
-                  </CardContent>
-                </Card>
-
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-2">
-                      <MessageCircle className="w-6 h-6 text-purple-600" />
-                    </div>
-                    <CardTitle className="text-lg">FaithBot AI</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-gray-600 mb-4">
-                      Get instant answers to your Catholic faith questions from our AI assistant.
-                    </p>
-                    <Button variant="outline" size="sm" className="border-gray-400 text-gray-700 hover:bg-gray-50 hover:border-gray-500 bg-white">Try FaithBot</Button>
-                  </CardContent>
-                </Card>
-
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mb-2">
-                      <Heart className="w-6 h-6 text-red-600" />
-                    </div>
-                    <CardTitle className="text-lg">Prayer Wall</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-gray-600 mb-4">
-                      Share prayer requests and pray for others in your Catholic community.
-                    </p>
-                    <Button variant="outline" size="sm" className="border-gray-400 text-gray-700 hover:bg-gray-50 hover:border-gray-500 bg-white">Visit Prayer Wall</Button>
-                  </CardContent>
-                </Card>
-
-
-
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mb-2">
-                      <PenTool className="w-6 h-6 text-orange-600" />
-                    </div>
-                    <CardTitle className="text-lg">Faith Journal</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-gray-600 mb-4">
-                      Document your spiritual journey with private reflections and prayers.
-                    </p>
-                    <Button variant="outline" size="sm" className="border-gray-400 text-gray-700 hover:bg-gray-50 hover:border-gray-500 bg-white">Start Journaling</Button>
-                  </CardContent>
-                </Card>
+                  </div>
+                  <div className="flex gap-2 overflow-x-auto">
+                    {helpCategories.map((category) => (
+                      <Button
+                        key={category.id}
+                        variant={selectedCategory === category.id ? "default" : "outline"}
+                        onClick={() => setSelectedCategory(category.id)}
+                        className={`whitespace-nowrap ${
+                          selectedCategory === category.id
+                            ? "bg-blue-600 text-white"
+                            : "bg-white text-gray-700 hover:bg-blue-50"
+                        }`}
+                      >
+                        <span className="mr-2">{category.icon}</span>
+                        {category.name}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+                
+                {/* Quick Stats */}
+                <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span>{completedGuides.length} guides completed</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                    <span>{filteredCards.length} topics available</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                    <span>AI-powered assistance</span>
+                  </div>
+                </div>
               </div>
+
+              {/* Smart Help Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredCards.map((card) => {
+                  const IconComponent = card.icon
+                  const isExpanded = expandedCard === card.id
+                  const isCompleted = completedGuides.includes(card.id)
+                  const progress = getProgressPercentage(card.id)
+                  
+                  return (
+                    <Card 
+                      key={card.id} 
+                      className={`hover:shadow-xl transition-all duration-300 cursor-pointer ${
+                        isExpanded ? 'ring-2 ring-blue-500 shadow-xl' : 'hover:shadow-lg'
+                      } ${isCompleted ? 'bg-green-50 border-green-200' : 'bg-white'}`}
+                      onClick={() => toggleCardExpansion(card.id)}
+                    >
+                      <CardHeader className="pb-3">
+                        <div className="flex items-start justify-between">
+                          <div className={`w-12 h-12 bg-gradient-to-r ${card.color} rounded-lg flex items-center justify-center mb-3`}>
+                            <IconComponent className="w-6 h-6 text-white" />
+                          </div>
+                          {isCompleted && (
+                            <Badge className="bg-green-100 text-green-800 border-green-200">
+                              ✓ Completed
+                            </Badge>
+                          )}
+                        </div>
+                        <CardTitle className="text-lg font-semibold">{card.title}</CardTitle>
+                        <p className="text-gray-600 text-sm leading-relaxed">
+                          {card.description}
+                        </p>
+                      </CardHeader>
+                      
+                      <CardContent className="pt-0">
+                        {/* Progress Bar */}
+                        {progress > 0 && (
+                          <div className="mb-4">
+                            <div className="flex justify-between text-xs text-gray-600 mb-1">
+                              <span>Progress</span>
+                              <span>{Math.round(progress)}%</span>
+                            </div>
+                            <div className="w-full bg-gray-200 rounded-full h-2">
+                              <div 
+                                className={`bg-gradient-to-r ${card.color} h-2 rounded-full transition-all duration-300`}
+                                style={{ width: `${progress}%` }}
+                              ></div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Card Meta Info */}
+                        <div className="flex items-center justify-between text-xs text-gray-500 mb-4">
+                          <div className="flex items-center gap-1">
+                            <Clock className="w-3 h-3" />
+                            <span>{card.estimatedTime}</span>
+                          </div>
+                          <Badge variant="outline" className="text-xs">
+                            {card.difficulty}
+                          </Badge>
+                        </div>
+
+                        {/* Expanded Content */}
+                        {isExpanded && (
+                          <div className="mt-4 pt-4 border-t border-gray-100">
+                            <h4 className="font-semibold text-gray-800 mb-3">Step-by-Step Guide:</h4>
+                            <div className="space-y-3">
+                              {card.steps.map((step, index) => (
+                                <div key={index} className="flex items-start gap-3">
+                                  <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold ${
+                                    userProgress[card.id] > index 
+                                      ? `bg-gradient-to-r ${card.color} text-white` 
+                                      : 'bg-gray-100 text-gray-600'
+                                  }`}>
+                                    {userProgress[card.id] > index ? '✓' : index + 1}
+                                  </div>
+                                  <p className="text-sm text-gray-700 flex-1">{step}</p>
+                                  {userProgress[card.id] === index && (
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={(e) => {
+                                        e.stopPropagation()
+                                        updateProgress(card.id, index)
+                                      }}
+                                      className="text-xs px-2 py-1"
+                                    >
+                                      Mark Done
+                                    </Button>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                            
+                            <div className="flex gap-2 mt-4">
+                              <Button
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  markGuideComplete(card.id)
+                                }}
+                                className={`flex-1 ${
+                                  isCompleted 
+                                    ? 'bg-green-100 text-green-800 hover:bg-green-200' 
+                                    : `bg-gradient-to-r ${card.color} text-white hover:opacity-90`
+                                }`}
+                              >
+                                {isCompleted ? '✓ Completed' : 'Mark Complete'}
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  setSearchQuery('')
+                                  setSelectedCategory('all')
+                                }}
+                                className="px-3"
+                              >
+                                Reset
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Collapsed View Button */}
+                        {!isExpanded && (
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="w-full border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              toggleCardExpansion(card.id)
+                            }}
+                          >
+                            {progress > 0 ? `Continue (${Math.round(progress)}%)` : 'View Guide'}
+                          </Button>
+                        )}
+                      </CardContent>
+                    </Card>
+                  )
+                })}
+              </div>
+
+              {/* No Results */}
+              {filteredCards.length === 0 && (
+                <div className="text-center py-12">
+                  <HelpCircle className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-gray-600 mb-2">No help topics found</h3>
+                  <p className="text-gray-500 mb-4">
+                    Try adjusting your search terms or category filter
+                  </p>
+                  <Button 
+                    onClick={() => {
+                      setSearchQuery('')
+                      setSelectedCategory('all')
+                    }}
+                    variant="outline"
+                  >
+                    Clear Filters
+                  </Button>
+                </div>
+              )}
             </TabsContent>
 
             {/* Contact Tab */}
