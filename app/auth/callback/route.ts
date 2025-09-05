@@ -55,8 +55,9 @@ export async function GET(request: Request) {
       const port = requestUrl.port || '3000'
       baseOrigin = `http://localhost:${port}` // Use the actual port
       logIfEnabled(`🔧 FORCING localhost origin: ${baseOrigin}`)
-    } else if (process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_SITE_URL) {
-      baseOrigin = process.env.NEXT_PUBLIC_SITE_URL
+    } else {
+      // Only use production URL if we're actually on production domain
+      baseOrigin = process.env.NEXT_PUBLIC_SITE_URL || 'https://lightup-catholic-youth.vercel.app'
       logIfEnabled(`🚀 Using production origin: ${baseOrigin}`)
     }
     
