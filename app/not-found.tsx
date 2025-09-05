@@ -53,8 +53,8 @@ export default function NotFound() {
                   <div className="text-blue-600 font-medium">Features</div>
                   <div className="text-sm text-gray-600">Explore all our tools</div>
                 </Link>
-                <Link href="/community" className="p-4 bg-white rounded-lg hover:shadow-md transition-shadow">
-                  <div className="text-green-600 font-medium">Community</div>
+                <Link href="/youth-groups" className="p-4 bg-white rounded-lg hover:shadow-md transition-shadow">
+                  <div className="text-green-600 font-medium">Youth Groups</div>
                   <div className="text-sm text-gray-600">Connect with others</div>
                 </Link>
                 <Link href="/about" className="p-4 bg-white rounded-lg hover:shadow-md transition-shadow">

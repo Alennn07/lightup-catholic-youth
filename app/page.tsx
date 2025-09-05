@@ -5,7 +5,6 @@ import { ModernHero } from "@/components/modern-hero"
 import { Navigation } from "@/components/navigation"
 import { DailyBibleVerse } from "@/components/daily-bible-verse"
 import { Heart, Users, BookOpen } from "lucide-react"
-import { CommunitySection } from "@/components/community-section"
 import { SimpleFooter } from "@/components/simple-footer"
 import { supabase } from "@/lib/supabase"
 import { useTranslation } from "@/lib/i18n"
@@ -193,7 +192,6 @@ export default function HomePage() {
         </div>
       </section>
       
-      <CommunitySection />
       <SimpleFooter />
     </div>
   )

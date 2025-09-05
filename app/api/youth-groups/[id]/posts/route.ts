@@ -32,7 +32,7 @@ export async function GET(
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
     }
 
-    // Check if user is group member
+    // Check if user is group owner or member
     const { data: membership, error: membershipError } = await supabase
       .from('youth_group_members')
       .select('role, status')
@@ -40,7 +40,24 @@ export async function GET(
       .eq('user_id', user.id)
       .single()
 
-    if (membershipError || !membership) {
+    // Also check if user is group owner
+    const { data: group, error: groupError } = await supabase
+      .from('youth_groups')
+      .select('owner_id')
+      .eq('id', groupId)
+      .single()
+
+    const isOwner = group && group.owner_id === user.id
+    const isMember = membership && membership.status === 'active'
+
+    if (!isOwner && !isMember) {
+      console.log('❌ Access denied - User is neither owner nor member:', {
+        userId: user.id,
+        groupId,
+        isOwner,
+        isMember,
+        membershipError: membershipError?.message
+      })
       return NextResponse.json({ error: 'Access denied' }, { status: 403 })
     }
 
@@ -112,7 +129,7 @@ export async function POST(
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
     }
 
-    // Check if user is group member
+    // Check if user is group owner or member
     const { data: membership, error: membershipError } = await supabase
       .from('youth_group_members')
       .select('role, status')
@@ -120,7 +137,24 @@ export async function POST(
       .eq('user_id', user.id)
       .single()
 
-    if (membershipError || !membership) {
+    // Also check if user is group owner
+    const { data: group, error: groupError } = await supabase
+      .from('youth_groups')
+      .select('owner_id')
+      .eq('id', groupId)
+      .single()
+
+    const isOwner = group && group.owner_id === user.id
+    const isMember = membership && membership.status === 'active'
+
+    if (!isOwner && !isMember) {
+      console.log('❌ Access denied - User is neither owner nor member:', {
+        userId: user.id,
+        groupId,
+        isOwner,
+        isMember,
+        membershipError: membershipError?.message
+      })
       return NextResponse.json({ error: 'Access denied' }, { status: 403 })
     }
 

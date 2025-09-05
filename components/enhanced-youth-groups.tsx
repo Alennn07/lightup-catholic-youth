@@ -79,7 +79,11 @@ export default function EnhancedYouthGroups() {
   const [newMemberEmail, setNewMemberEmail] = useState('')
   const [joinRequestMessage, setJoinRequestMessage] = useState('')
   const [groupMembers, setGroupMembers] = useState<any[]>([])
+  const [groupEvents, setGroupEvents] = useState<any[]>([])
+  const [groupPosts, setGroupPosts] = useState<any[]>([])
   const [loadingMembers, setLoadingMembers] = useState(false)
+  const [loadingEvents, setLoadingEvents] = useState(false)
+  const [loadingPosts, setLoadingPosts] = useState(false)
   
   // Event form state
   const [eventForm, setEventForm] = useState({
@@ -134,10 +138,13 @@ export default function EnhancedYouthGroups() {
     fetchGroups()
   }, [])
 
-  // Fetch members when group details modal opens
+  // Fetch data when group details modal opens
   useEffect(() => {
     if (showGroupDetails && selectedGroup) {
+      console.log('🔄 Modal opened, fetching all group data...')
       fetchGroupMembers()
+      fetchGroupEvents()
+      fetchGroupPosts()
     }
   }, [showGroupDetails, selectedGroup])
 
@@ -424,29 +431,167 @@ export default function EnhancedYouthGroups() {
 
   // Fetch group members
   const fetchGroupMembers = async () => {
-    if (!selectedGroup) return
+    if (!selectedGroup) {
+      console.log('❌ No selected group for fetching members')
+      return
+    }
     
     try {
+      console.log('🔄 Fetching members for group:', selectedGroup.id)
       setLoadingMembers(true)
       const token = await getAccessToken()
-      if (!token) return
+      if (!token) {
+        console.log('❌ No access token for fetching members')
+        return
+      }
 
+      // Debug membership status first
+      console.log('🔍 Debugging membership status...')
+      const debugResponse = await fetch(`/api/debug-membership?groupId=${selectedGroup.id}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      
+      if (debugResponse.ok) {
+        const debugData = await debugResponse.json()
+        console.log('🔍 Debug membership data:', debugData.debug)
+      }
+
+      console.log('🔄 Calling members API...')
       const response = await fetch(`/api/youth-groups/${selectedGroup.id}/members`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       })
 
+      console.log('📡 Members API response status:', response.status)
+      
       if (response.ok) {
         const data = await response.json()
+        console.log('✅ Members data received:', data)
         setGroupMembers(data.members || [])
+        console.log('✅ Members set in state:', data.members?.length || 0)
       } else {
-        console.error('Failed to fetch members')
+        const error = await response.json()
+        console.error('❌ Failed to fetch members:', error)
+        toast({
+          title: "Error",
+          description: error.error || "Failed to fetch members",
+          variant: "destructive"
+        })
       }
     } catch (error) {
-      console.error('Error fetching members:', error)
+      console.error('❌ Error fetching members:', error)
+      toast({
+        title: "Error",
+        description: "Failed to fetch members",
+        variant: "destructive"
+      })
     } finally {
       setLoadingMembers(false)
+    }
+  }
+
+  // Fetch group events
+  const fetchGroupEvents = async () => {
+    if (!selectedGroup) {
+      console.log('❌ No selected group for fetching events')
+      return
+    }
+    
+    try {
+      console.log('🔄 Fetching events for group:', selectedGroup.id)
+      setLoadingEvents(true)
+      const token = await getAccessToken()
+      if (!token) {
+        console.log('❌ No access token for fetching events')
+        return
+      }
+
+      console.log('🔄 Calling events API...')
+      const response = await fetch(`/api/youth-groups/${selectedGroup.id}/events`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+
+      console.log('📡 Events API response status:', response.status)
+      
+      if (response.ok) {
+        const data = await response.json()
+        console.log('✅ Events data received:', data)
+        setGroupEvents(data.events || [])
+        console.log('✅ Events set in state:', data.events?.length || 0)
+      } else {
+        const error = await response.json()
+        console.error('❌ Failed to fetch events:', error)
+        toast({
+          title: "Error",
+          description: error.error || "Failed to fetch events",
+          variant: "destructive"
+        })
+      }
+    } catch (error) {
+      console.error('❌ Error fetching events:', error)
+      toast({
+        title: "Error",
+        description: "Failed to fetch events",
+        variant: "destructive"
+      })
+    } finally {
+      setLoadingEvents(false)
+    }
+  }
+
+  // Fetch group posts
+  const fetchGroupPosts = async () => {
+    if (!selectedGroup) {
+      console.log('❌ No selected group for fetching posts')
+      return
+    }
+    
+    try {
+      console.log('🔄 Fetching posts for group:', selectedGroup.id)
+      setLoadingPosts(true)
+      const token = await getAccessToken()
+      if (!token) {
+        console.log('❌ No access token for fetching posts')
+        return
+      }
+
+      console.log('🔄 Calling posts API...')
+      const response = await fetch(`/api/youth-groups/${selectedGroup.id}/posts`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+
+      console.log('📡 Posts API response status:', response.status)
+      
+      if (response.ok) {
+        const data = await response.json()
+        console.log('✅ Posts data received:', data)
+        setGroupPosts(data.posts || [])
+        console.log('✅ Posts set in state:', data.posts?.length || 0)
+      } else {
+        const error = await response.json()
+        console.error('❌ Failed to fetch posts:', error)
+        toast({
+          title: "Error",
+          description: error.error || "Failed to fetch posts",
+          variant: "destructive"
+        })
+      }
+    } catch (error) {
+      console.error('❌ Error fetching posts:', error)
+      toast({
+        title: "Error",
+        description: "Failed to fetch posts",
+        variant: "destructive"
+      })
+    } finally {
+      setLoadingPosts(false)
     }
   }
 
@@ -482,6 +627,7 @@ export default function EnhancedYouthGroups() {
           maxAttendees: ''
         })
         setShowCreateEvent(false)
+        fetchGroupEvents() // Refresh events list
       } else {
         const error = await response.json()
         toast({
@@ -529,6 +675,7 @@ export default function EnhancedYouthGroups() {
           type: 'announcement'
         })
         setShowCreatePost(false)
+        fetchGroupPosts() // Refresh posts list
       } else {
         const error = await response.json()
         toast({
@@ -1223,11 +1370,49 @@ export default function EnhancedYouthGroups() {
                     
                     {/* Events List */}
                     <div className="space-y-3">
-                      <div className="text-center py-8 text-gray-500">
-                        <Calendar className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                        <p>Events will be displayed here</p>
-                        <p className="text-sm">This feature will show upcoming and past group events</p>
-                      </div>
+                      {loadingEvents ? (
+                        <div className="text-center py-8 text-gray-500">
+                          <RefreshCw className="h-8 w-8 mx-auto mb-4 text-gray-300 animate-spin" />
+                          <p>Loading events...</p>
+                        </div>
+                      ) : groupEvents.length > 0 ? (
+                        <div className="space-y-2">
+                          {groupEvents.map((event, index) => (
+                            <div key={event.id || index} className="p-4 bg-gray-50 rounded-lg border">
+                              <div className="flex items-start justify-between">
+                                <div className="flex-1">
+                                  <h4 className="font-semibold text-gray-900 mb-1">{event.title}</h4>
+                                  <p className="text-sm text-gray-600 mb-2">{event.description}</p>
+                                  <div className="flex items-center space-x-4 text-xs text-gray-500">
+                                    <div className="flex items-center space-x-1">
+                                      <Calendar className="h-3 w-3" />
+                                      <span>{event.event_date}</span>
+                                    </div>
+                                    {event.event_time && (
+                                      <div className="flex items-center space-x-1">
+                                        <Clock className="h-3 w-3" />
+                                        <span>{event.event_time}</span>
+                                      </div>
+                                    )}
+                                    {event.location && (
+                                      <div className="flex items-center space-x-1">
+                                        <MapPin className="h-3 w-3" />
+                                        <span>{event.location}</span>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-center py-8 text-gray-500">
+                          <Calendar className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                          <p>No events found</p>
+                          <p className="text-sm">Events will appear here once they are created</p>
+                        </div>
+                      )}
                     </div>
                   </TabsContent>
 
@@ -1248,11 +1433,46 @@ export default function EnhancedYouthGroups() {
                     
                     {/* Posts List */}
                     <div className="space-y-3">
-                      <div className="text-center py-8 text-gray-500">
-                        <MessageSquare className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                        <p>Posts will be displayed here</p>
-                        <p className="text-sm">This feature will show group announcements and discussions</p>
-                      </div>
+                      {loadingPosts ? (
+                        <div className="text-center py-8 text-gray-500">
+                          <RefreshCw className="h-8 w-8 mx-auto mb-4 text-gray-300 animate-spin" />
+                          <p>Loading posts...</p>
+                        </div>
+                      ) : groupPosts.length > 0 ? (
+                        <div className="space-y-2">
+                          {groupPosts.map((post, index) => (
+                            <div key={post.id || index} className="p-4 bg-gray-50 rounded-lg border">
+                              <div className="flex items-start justify-between">
+                                <div className="flex-1">
+                                  <div className="flex items-center space-x-2 mb-2">
+                                    <h4 className="font-semibold text-gray-900">{post.title}</h4>
+                                    <Badge variant="outline" className="text-xs">
+                                      {post.type}
+                                    </Badge>
+                                  </div>
+                                  <p className="text-sm text-gray-600 mb-2">{post.content}</p>
+                                  <div className="flex items-center space-x-4 text-xs text-gray-500">
+                                    <div className="flex items-center space-x-1">
+                                      <Users className="h-3 w-3" />
+                                      <span>{post.user?.email || 'Unknown User'}</span>
+                                    </div>
+                                    <div className="flex items-center space-x-1">
+                                      <Clock className="h-3 w-3" />
+                                      <span>{new Date(post.created_at).toLocaleDateString()}</span>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-center py-8 text-gray-500">
+                          <MessageSquare className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                          <p>No posts found</p>
+                          <p className="text-sm">Posts will appear here once they are created</p>
+                        </div>
+                      )}
                     </div>
                   </TabsContent>
                 </div>

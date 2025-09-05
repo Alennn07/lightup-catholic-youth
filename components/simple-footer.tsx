@@ -29,11 +29,6 @@ export function SimpleFooter() {
                 </Link>
               </li>
               <li>
-                <Link href="/community" className="text-gray-600 hover:text-gray-900 transition-colors">
-                  Community
-                </Link>
-              </li>
-              <li>
                 <Link href="/about" className="text-gray-600 hover:text-gray-900 transition-colors">
                   About
                 </Link>

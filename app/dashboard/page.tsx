@@ -718,15 +718,15 @@ export default function DashboardPage() {
                       
                       <div className="p-4 bg-white rounded-lg border border-orange-100">
                         <h4 className="font-semibold text-gray-800 mb-2">Weekly Challenge</h4>
-                        <p className="text-sm text-gray-600 mb-3">Share one prayer request with the community this week.</p>
+                        <p className="text-sm text-gray-600 mb-3">Share one prayer request on the prayer wall this week.</p>
                         <Button 
                           size="sm" 
                           variant="outline" 
                           className="text-orange-600 border-orange-300 hover:bg-orange-50"
                           disabled={isPending}
                           onClick={() => {
-                            // For weekly challenge, redirect to community page to share prayer requests
-                            router.push('/community')
+                            // For weekly challenge, redirect to prayer wall to share prayer requests
+                            router.push('/prayer-wall')
                           }}
                         >
                           {isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
@@ -1026,12 +1026,12 @@ export default function DashboardPage() {
             <Card className="bg-white shadow-lg border border-gray-100">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-xl font-bold text-gray-800">Community Activity</h3>
+                  <h3 className="text-xl font-bold text-gray-800">Youth Group Activity</h3>
                   <Button 
                     variant="ghost" 
                     size="sm" 
                     disabled={isPending}
-                    onClick={() => router.push('/community')}
+                    onClick={() => router.push('/youth-groups')}
                   >
                     {isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
                     View All
@@ -1046,15 +1046,15 @@ export default function DashboardPage() {
                 ) : communityActivity.length === 0 ? (
                   <div className="text-center py-8">
                     <Users className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-                    <p className="text-gray-600 mb-3">No recent community activity</p>
+                    <p className="text-gray-600 mb-3">No recent youth group activity</p>
                     <Button 
                       variant="outline" 
                       size="sm" 
                       disabled={isPending}
-                      onClick={() => router.push('/community')}
+                      onClick={() => router.push('/youth-groups')}
                     >
                       {isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                      Join the Community
+                      Join Youth Groups
                     </Button>
                   </div>
                 ) : (

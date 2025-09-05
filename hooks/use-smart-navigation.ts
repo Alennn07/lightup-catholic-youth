@@ -135,7 +135,6 @@ export function useSmartNavigation(options: SmartNavigationOptions = {}) {
       '/': 'Home',
       '/dashboard': 'Dashboard',
       '/features': 'Features',
-      '/community': 'Community',
       '/prayer-wall': 'Prayer Wall',
       '/faith-journal': 'Faith Journal',
       '/youth-groups': 'Youth Groups',

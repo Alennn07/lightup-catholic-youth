@@ -29,15 +29,6 @@ export const ROUTES: Record<string, RouteConfig> = {
     description: 'Explore LightUp features and capabilities',
     category: 'public'
   },
-  community: {
-    path: '/community',
-    name: 'Community',
-    requireAuth: false,
-    unsavedDataTypes: [],
-    preload: true,
-    description: 'Connect with Catholic youth community',
-    category: 'public'
-  },
   about: {
     path: '/about',
     name: 'About',
