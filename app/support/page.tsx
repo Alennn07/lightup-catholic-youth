@@ -641,90 +641,254 @@ export default function SupportPage() {
 
             {/* Contact Tab */}
             <TabsContent value="contact" className="space-y-6">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Mail className="w-5 h-5 text-blue-600" />
-                      Get in Touch
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="flex items-center gap-3">
-                      <Mail className="w-5 h-5 text-gray-500" />
-                      <div>
-                        <div className="font-medium">Email Support</div>
-                        <div className="text-sm text-gray-600">lightuphelps@gmail.com</div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <Phone className="w-5 h-5 text-gray-500" />
-                      <div>
-                        <div className="font-medium">Phone Support</div>
-                        <div className="text-sm text-gray-600">+1 (555) 123-4567</div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <Clock className="w-5 h-5 text-gray-500" />
-                      <div>
-                        <div className="font-medium">Support Hours</div>
-                        <div className="text-sm text-gray-600">Mon-Fri: 9AM-6PM EST</div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <MapPin className="w-5 h-5 text-gray-500" />
-                      <div>
-                        <div className="font-medium">Office Location</div>
-                        <div className="text-sm text-gray-600">123 Faith Street, City, State</div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+              {/* AI-Powered Contact Assistant */}
+              <div className="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 rounded-2xl p-8 border border-blue-100">
+                <div className="text-center mb-8">
+                  <div className="w-20 h-20 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Bot className="w-10 h-10 text-white" />
+                  </div>
+                  <h2 className="text-3xl font-bold text-gray-800 mb-2">AI-Powered Contact Assistant</h2>
+                  <p className="text-gray-600 text-lg">Get instant help with our intelligent support system</p>
+                </div>
 
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Send us a Message</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Name</label>
-                      <input
-                        type="text"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="Your name"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Email</label>
-                      <input
-                        type="email"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="your@email.com"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Subject</label>
-                      <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option>General Question</option>
-                        <option>Technical Issue</option>
-                        <option>Feature Request</option>
-                        <option>Account Help</option>
-                        <option>Other</option>
-                      </select>
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Message</label>
-                      <textarea
-                        rows={4}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="How can we help you?"
-                      />
-                    </div>
-                    <Button className="w-full bg-blue-600 hover:bg-blue-700">
-                      Send Message
+                {/* Smart Contact Form */}
+                <div className="max-w-4xl mx-auto">
+                  <Card className="border-0 shadow-xl bg-white/80 backdrop-blur-sm">
+                    <CardContent className="p-8">
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        {/* Left Side - Smart Form */}
+                        <div className="space-y-6">
+                          <div>
+                            <h3 className="text-xl font-semibold text-gray-800 mb-4">Tell us what you need help with</h3>
+                            
+                            {/* Smart Category Selection */}
+                            <div className="mb-6">
+                              <label className="text-sm font-medium text-gray-700 mb-3 block">What's your inquiry about?</label>
+                              <div className="grid grid-cols-2 gap-3">
+                                {[
+                                  { id: 'account', label: 'Account Issues', icon: '👤', color: 'from-blue-500 to-blue-600' },
+                                  { id: 'technical', label: 'Technical Support', icon: '🔧', color: 'from-green-500 to-green-600' },
+                                  { id: 'feature', label: 'Feature Request', icon: '💡', color: 'from-purple-500 to-purple-600' },
+                                  { id: 'bug', label: 'Bug Report', icon: '🐛', color: 'from-red-500 to-red-600' },
+                                  { id: 'billing', label: 'Billing & Payment', icon: '💳', color: 'from-yellow-500 to-yellow-600' },
+                                  { id: 'other', label: 'Other', icon: '❓', color: 'from-gray-500 to-gray-600' }
+                                ].map((category) => (
+                                  <button
+                                    key={category.id}
+                                    className={`p-4 rounded-xl border-2 transition-all duration-200 ${
+                                      selectedCategory === category.id
+                                        ? `border-blue-500 bg-blue-50 shadow-md`
+                                        : 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
+                                    }`}
+                                    onClick={() => setSelectedCategory(category.id)}
+                                  >
+                                    <div className="text-2xl mb-2">{category.icon}</div>
+                                    <div className="text-sm font-medium text-gray-700">{category.label}</div>
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+
+                            {/* Smart Form Fields */}
+                            <div className="space-y-4">
+                              <div>
+                                <label className="text-sm font-medium text-gray-700">Your Name</label>
+                                <input
+                                  type="text"
+                                  className="w-full mt-1 px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/50"
+                                  placeholder="Enter your full name"
+                                />
+                              </div>
+                              <div>
+                                <label className="text-sm font-medium text-gray-700">Email Address</label>
+                                <input
+                                  type="email"
+                                  className="w-full mt-1 px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/50"
+                                  placeholder="your.email@example.com"
+                                />
+                              </div>
+                              <div>
+                                <label className="text-sm font-medium text-gray-700">Priority Level</label>
+                                <select className="w-full mt-1 px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/50">
+                                  <option>Low - General question</option>
+                                  <option>Medium - Need assistance</option>
+                                  <option>High - Urgent issue</option>
+                                  <option>Critical - App not working</option>
+                                </select>
+                              </div>
+                              <div>
+                                <label className="text-sm font-medium text-gray-700">Describe your issue</label>
+                                <textarea
+                                  rows={4}
+                                  className="w-full mt-1 px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/50 resize-none"
+                                  placeholder="Please provide as much detail as possible..."
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Right Side - AI Suggestions & Quick Actions */}
+                        <div className="space-y-6">
+                          <div>
+                            <h3 className="text-xl font-semibold text-gray-800 mb-4">AI Suggestions</h3>
+                            
+                            {/* Smart Suggestions Based on Category */}
+                            <div className="space-y-3 mb-6">
+                              {selectedCategory === 'account' && (
+                                <>
+                                  <div className="p-4 bg-blue-50 rounded-xl border border-blue-200">
+                                    <div className="flex items-start gap-3">
+                                      <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-bold">1</div>
+                                      <div>
+                                        <div className="font-medium text-blue-800">Check your login credentials</div>
+                                        <div className="text-sm text-blue-600">Make sure your email and password are correct</div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div className="p-4 bg-blue-50 rounded-xl border border-blue-200">
+                                    <div className="flex items-start gap-3">
+                                      <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-bold">2</div>
+                                      <div>
+                                        <div className="font-medium text-blue-800">Try password reset</div>
+                                        <div className="text-sm text-blue-600">Use the "Forgot Password" link on the login page</div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </>
+                              )}
+                              {selectedCategory === 'technical' && (
+                                <>
+                                  <div className="p-4 bg-green-50 rounded-xl border border-green-200">
+                                    <div className="flex items-start gap-3">
+                                      <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white text-sm font-bold">1</div>
+                                      <div>
+                                        <div className="font-medium text-green-800">Clear browser cache</div>
+                                        <div className="text-sm text-green-600">This often resolves loading and performance issues</div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div className="p-4 bg-green-50 rounded-xl border border-green-200">
+                                    <div className="flex items-start gap-3">
+                                      <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white text-sm font-bold">2</div>
+                                      <div>
+                                        <div className="font-medium text-green-800">Check internet connection</div>
+                                        <div className="text-sm text-green-600">Ensure you have a stable internet connection</div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </>
+                              )}
+                              {selectedCategory === 'other' && (
+                                <div className="p-4 bg-gray-50 rounded-xl border border-gray-200 text-center">
+                                  <div className="text-gray-600">Select a category above to see AI-powered suggestions</div>
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Quick Actions */}
+                            <div>
+                              <h4 className="font-semibold text-gray-800 mb-3">Quick Actions</h4>
+                              <div className="space-y-2">
+                                <Button
+                                  variant="outline"
+                                  className="w-full justify-start text-left h-auto p-4"
+                                  onClick={() => setActiveTab('help-center')}
+                                >
+                                  <HelpCircle className="w-5 h-5 mr-3 text-blue-600" />
+                                  <div>
+                                    <div className="font-medium">Browse Help Center</div>
+                                    <div className="text-sm text-gray-500">Find answers in our knowledge base</div>
+                                  </div>
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  className="w-full justify-start text-left h-auto p-4"
+                                  onClick={() => setIsChatOpen(true)}
+                                >
+                                  <MessageCircle className="w-5 h-5 mr-3 text-green-600" />
+                                  <div>
+                                    <div className="font-medium">Live Chat Support</div>
+                                    <div className="text-sm text-gray-500">Get instant help from our AI assistant</div>
+                                  </div>
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  className="w-full justify-start text-left h-auto p-4"
+                                >
+                                  <Calendar className="w-5 h-5 mr-3 text-purple-600" />
+                                  <div>
+                                    <div className="font-medium">Schedule Call</div>
+                                    <div className="text-sm text-gray-500">Book a 1-on-1 support session</div>
+                                  </div>
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Submit Button */}
+                      <div className="mt-8 pt-6 border-t border-gray-200">
+                        <div className="flex flex-col sm:flex-row gap-4">
+                          <Button
+                            size="lg"
+                            className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                          >
+                            <Send className="w-5 h-5 mr-2" />
+                            Send Message with AI Analysis
+                          </Button>
+                          <Button
+                            size="lg"
+                            variant="outline"
+                            className="px-8 py-4 rounded-xl border-2 border-gray-300 hover:border-gray-400"
+                          >
+                            Save as Draft
+                          </Button>
+                        </div>
+                        <p className="text-sm text-gray-500 mt-3 text-center">
+                          Our AI will analyze your message and provide instant suggestions before sending
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Contact Information Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
+                  <Card className="text-center p-6 bg-white/60 backdrop-blur-sm border-0 shadow-lg">
+                    <Mail className="w-8 h-8 text-blue-600 mx-auto mb-3" />
+                    <h4 className="font-semibold text-gray-800 mb-2">Email Support</h4>
+                    <p className="text-sm text-gray-600 mb-3">lightuphelps@gmail.com</p>
+                    <Button size="sm" variant="outline" className="text-xs">
+                      Send Email
                     </Button>
-                  </CardContent>
-                </Card>
+                  </Card>
+                  <Card className="text-center p-6 bg-white/60 backdrop-blur-sm border-0 shadow-lg">
+                    <Phone className="w-8 h-8 text-green-600 mx-auto mb-3" />
+                    <h4 className="font-semibold text-gray-800 mb-2">Phone Support</h4>
+                    <p className="text-sm text-gray-600 mb-3">+1 (555) 123-4567</p>
+                    <Button size="sm" variant="outline" className="text-xs">
+                      Call Now
+                    </Button>
+                  </Card>
+                  <Card className="text-center p-6 bg-white/60 backdrop-blur-sm border-0 shadow-lg">
+                    <Clock className="w-8 h-8 text-purple-600 mx-auto mb-3" />
+                    <h4 className="font-semibold text-gray-800 mb-2">Support Hours</h4>
+                    <p className="text-sm text-gray-600 mb-3">Mon-Fri: 9AM-6PM EST</p>
+                    <Button size="sm" variant="outline" className="text-xs">
+                      View Schedule
+                    </Button>
+                  </Card>
+                  <Card className="text-center p-6 bg-white/60 backdrop-blur-sm border-0 shadow-lg">
+                    <MapPin className="w-8 h-8 text-orange-600 mx-auto mb-3" />
+                    <h4 className="font-semibold text-gray-800 mb-2">Office Location</h4>
+                    <p className="text-sm text-gray-600 mb-3">123 Faith Street, Catholic City</p>
+                    <Button size="sm" variant="outline" className="text-xs">
+                      Get Directions
+                    </Button>
+                  </Card>
+                </div>
               </div>
             </TabsContent>
 
