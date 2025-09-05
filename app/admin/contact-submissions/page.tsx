@@ -22,6 +22,7 @@ export default function ContactSubmissionsPage() {
   const [submissions, setSubmissions] = useState<ContactSubmission[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [updating, setUpdating] = useState<string | null>(null)
 
   const fetchSubmissions = async () => {
     try {
@@ -38,6 +39,96 @@ export default function ContactSubmissionsPage() {
       setError(err instanceof Error ? err.message : 'An error occurred')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleReply = (submission: ContactSubmission) => {
+    const subject = `Re: Your ${submission.category} inquiry - ${submission.name}`
+    const body = `Hi ${submission.name},
+
+Thank you for contacting us regarding your ${submission.category} inquiry.
+
+We have received your message:
+"${submission.message}"
+
+We will get back to you within 24 hours.
+
+Best regards,
+LightUp Support Team
+
+---
+Original Message:
+From: ${submission.name} (${submission.email})
+Priority: ${submission.priority}
+Category: ${submission.category}
+Message: ${submission.message}
+Submitted: ${new Date(submission.created_at).toLocaleString()}`
+
+    // Copy email details to clipboard
+    const fullText = `To: ${submission.email}\nSubject: ${subject}\n\n${body}`
+    
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(fullText).then(() => {
+        alert(`Reply template copied to clipboard for ${submission.name}! You can now paste it into your email client.`)
+      }).catch(() => {
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea')
+        textArea.value = fullText
+        document.body.appendChild(textArea)
+        textArea.select()
+        document.execCommand('copy')
+        document.body.removeChild(textArea)
+        alert(`Reply template copied to clipboard for ${submission.name}! You can now paste it into your email client.`)
+      })
+    } else {
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea')
+      textArea.value = fullText
+      document.body.appendChild(textArea)
+      textArea.select()
+      document.execCommand('copy')
+      document.body.removeChild(textArea)
+      alert(`Reply template copied to clipboard for ${submission.name}! You can now paste it into your email client.`)
+    }
+  }
+
+  const handleStatusUpdate = async (submissionId: string, newStatus: string) => {
+    try {
+      setUpdating(submissionId)
+      
+      const response = await fetch('/api/admin/contact-submissions', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id: submissionId,
+          status: newStatus
+        }),
+      })
+      
+      const data = await response.json()
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to update status')
+      }
+      
+      // Update local state
+      setSubmissions(prev => 
+        prev.map(submission => 
+          submission.id === submissionId 
+            ? { ...submission, status: newStatus, updated_at: new Date().toISOString() }
+            : submission
+        )
+      )
+      
+      alert(`Status updated to "${newStatus.replace('_', ' ')}" successfully!`)
+      
+    } catch (err) {
+      console.error('Error updating status:', err)
+      alert('Failed to update status. Please try again.')
+    } finally {
+      setUpdating(null)
     }
   }
 
@@ -170,12 +261,28 @@ export default function ContactSubmissionsPage() {
                       </div>
                     </div>
                     <div className="flex gap-2">
-                      <Button size="sm" variant="outline">
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => handleReply(submission)}
+                        className="hover:bg-blue-50 hover:border-blue-300"
+                      >
                         <Mail className="w-4 h-4 mr-2" />
                         Reply
                       </Button>
-                      <Button size="sm" variant="outline">
-                        Mark as In Progress
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => handleStatusUpdate(submission.id, submission.status === 'new' ? 'in_progress' : 'resolved')}
+                        disabled={updating === submission.id}
+                        className="hover:bg-green-50 hover:border-green-300 disabled:opacity-50"
+                      >
+                        {updating === submission.id ? (
+                          <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                        ) : null}
+                        {submission.status === 'new' ? 'Mark as In Progress' : 
+                         submission.status === 'in_progress' ? 'Mark as Resolved' : 
+                         'Mark as Closed'}
                       </Button>
                     </div>
                   </div>
