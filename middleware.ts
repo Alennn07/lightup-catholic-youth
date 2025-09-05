@@ -21,6 +21,10 @@ export async function middleware(request: NextRequest) {
           res.cookies.set({ name, value: '', ...options })
         },
       },
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+      },
     }
   )
 
@@ -62,7 +66,7 @@ export async function middleware(request: NextRequest) {
     console.log(`🔍 Middleware: All cookies:`, allCookies.map(c => ({ name: c.name, value: c.value.substring(0, 20) + '...' })))
     
     try {
-      // Try to get session
+      // Try to get session from cookies first
       const { data: { session }, error } = await supabase.auth.getSession()
       
       console.log(`🔍 Middleware: Session check result:`, { 
