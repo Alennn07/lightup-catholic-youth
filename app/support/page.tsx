@@ -268,6 +268,8 @@ export default function SupportPage() {
   const markGuideComplete = (cardId: string) => {
     if (!completedGuides.includes(cardId)) {
       setCompletedGuides([...completedGuides, cardId])
+    } else {
+      setCompletedGuides(completedGuides.filter(id => id !== cardId))
     }
   }
 
@@ -546,14 +548,14 @@ export default function SupportPage() {
                                   {userProgress[card.id] === index && (
                                     <Button
                                       size="sm"
-                                      variant="outline"
+                                      variant="default"
                                       onClick={(e) => {
                                         e.stopPropagation()
                                         updateProgress(card.id, index)
                                       }}
-                                      className="text-xs px-2 py-1"
+                                      className={`text-xs px-3 py-1 bg-gradient-to-r ${card.color} text-white hover:opacity-90 border-0 shadow-sm`}
                                     >
-                                      Mark Done
+                                      ✓ Mark Done
                                     </Button>
                                   )}
                                 </div>
@@ -567,13 +569,13 @@ export default function SupportPage() {
                                   e.stopPropagation()
                                   markGuideComplete(card.id)
                                 }}
-                                className={`flex-1 ${
+                                className={`flex-1 font-semibold ${
                                   isCompleted 
-                                    ? 'bg-green-100 text-green-800 hover:bg-green-200' 
-                                    : `bg-gradient-to-r ${card.color} text-white hover:opacity-90`
+                                    ? 'bg-green-100 text-green-800 hover:bg-green-200 border-green-300' 
+                                    : `bg-gradient-to-r ${card.color} text-white hover:opacity-90 border-0 shadow-md`
                                 }`}
                               >
-                                {isCompleted ? '✓ Completed' : 'Mark Complete'}
+                                {isCompleted ? '✓ Completed' : '✓ Mark Complete'}
                               </Button>
                               <Button
                                 size="sm"
@@ -584,8 +586,9 @@ export default function SupportPage() {
                                   setSelectedCategory('all')
                                   setExpandedCard(null)
                                   setUserProgress({...userProgress, [card.id]: 0})
+                                  setCompletedGuides(completedGuides.filter(id => id !== card.id))
                                 }}
-                                className="px-3"
+                                className="px-3 border-gray-300 text-gray-700 hover:bg-gray-50"
                               >
                                 Reset
                               </Button>
