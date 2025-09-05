@@ -292,32 +292,59 @@ export default function SupportPage() {
   }
 
   // Contact Form Handlers
-  const handleFormSubmit = (e: React.FormEvent) => {
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setIsSubmitting(true)
     
-    // Form data object for developer visibility
-    const formData = {
-      ...contactForm,
-      category: selectedCategory,
-      timestamp: new Date().toISOString(),
-      userAgent: navigator.userAgent,
-      url: window.location.href
+    try {
+      // Form data object for API submission
+      const formData = {
+        name: contactForm.name,
+        email: contactForm.email,
+        priority: contactForm.priority,
+        message: contactForm.message,
+        category: selectedCategory
+      }
+      
+      // 🔍 DEVELOPER: Form data is logged here - check browser console!
+      console.log('📝 CONTACT FORM SUBMISSION:', formData)
+      console.log('📊 Form Data Summary:', {
+        'User Name': formData.name,
+        'Email': formData.email,
+        'Category': formData.category,
+        'Priority': formData.priority,
+        'Message Length': formData.message.length,
+        'Submitted At': new Date().toISOString()
+      })
+      
+      // Submit to API endpoint
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      })
+      
+      const result = await response.json()
+      
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to submit form')
+      }
+      
+      console.log('✅ Form submitted successfully:', result)
+      alert(`Thank you ${contactForm.name}! Your ${selectedCategory} inquiry has been submitted with ${contactForm.priority} priority. We'll get back to you soon!`)
+      
+      // Reset form
+      setContactForm({ name: '', email: '', priority: 'Low - General question', message: '' })
+      setSelectedCategory('other')
+      
+    } catch (error) {
+      console.error('❌ Form submission error:', error)
+      alert('Sorry, there was an error submitting your message. Please try again or contact us directly at lightuphelps@gmail.com')
+    } finally {
+      setIsSubmitting(false)
     }
-    
-    // 🔍 DEVELOPER: Form data is logged here - check browser console!
-    console.log('📝 CONTACT FORM SUBMISSION:', formData)
-    console.log('📊 Form Data Summary:', {
-      'User Name': formData.name,
-      'Email': formData.email,
-      'Category': formData.category,
-      'Priority': formData.priority,
-      'Message Length': formData.message.length,
-      'Submitted At': formData.timestamp
-    })
-    
-    alert('Message sent successfully! We\'ll get back to you within 24 hours.')
-    setContactForm({ name: '', email: '', priority: 'Low - General question', message: '' })
-    setSelectedCategory('other')
   }
 
 
