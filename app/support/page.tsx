@@ -776,42 +776,46 @@ export default function SupportPage() {
                                 <p className="text-purple-200 text-lg">Advanced AI analyzes and optimizes your message for maximum impact</p>
                               </div>
 
-                              {/* Billion Dollar Form */}
+                              {/* Billion Dollar Form - Horizontal Layout */}
                               <form name="contactForm" onSubmit={handleFormSubmit} className="space-y-6">
-                                <div className="relative">
-                                  <div className="flex items-center gap-2 mb-3">
-                                    <span className="text-2xl">👤</span>
-                                    <label className="text-lg font-bold text-purple-200">Your Name</label>
-                                    <span className="px-2 py-1 bg-blue-500/20 text-blue-300 text-xs font-bold rounded-full border border-blue-400/30">REQUIRED</span>
+                                {/* First Row - Name and Email */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                  <div className="relative">
+                                    <div className="flex items-center gap-2 mb-3">
+                                      <span className="text-2xl">👤</span>
+                                      <label className="text-lg font-bold text-purple-200">Your Name</label>
+                                      <span className="px-2 py-1 bg-blue-500/20 text-blue-300 text-xs font-bold rounded-full border border-blue-400/30">REQUIRED</span>
+                                    </div>
+                                    <input
+                                      type="text"
+                                      name="name"
+                                      value={contactForm.name}
+                                      onChange={(e) => handleFormChange('name', e.target.value)}
+                                      className="w-full px-6 py-4 bg-white/10 backdrop-blur-sm border-2 border-purple-400/30 rounded-2xl focus:ring-4 focus:ring-purple-500/30 focus:border-purple-400 text-white placeholder-purple-300 text-lg font-medium transition-all duration-300 hover:bg-white/20"
+                                      placeholder="Enter your full name"
+                                      required
+                                    />
                                   </div>
-                                  <input
-                                    type="text"
-                                    name="name"
-                                    value={contactForm.name}
-                                    onChange={(e) => handleFormChange('name', e.target.value)}
-                                    className="w-full px-6 py-4 bg-white/10 backdrop-blur-sm border-2 border-purple-400/30 rounded-2xl focus:ring-4 focus:ring-purple-500/30 focus:border-purple-400 text-white placeholder-purple-300 text-lg font-medium transition-all duration-300 hover:bg-white/20"
-                                    placeholder="Enter your full name"
-                                    required
-                                  />
+
+                                  <div className="relative">
+                                    <div className="flex items-center gap-2 mb-3">
+                                      <span className="text-2xl">📧</span>
+                                      <label className="text-lg font-bold text-purple-200">Email Address</label>
+                                      <span className="px-2 py-1 bg-green-500/20 text-green-300 text-xs font-bold rounded-full border border-green-400/30">VERIFIED</span>
+                                    </div>
+                                    <input
+                                      type="email"
+                                      name="email"
+                                      value={contactForm.email}
+                                      onChange={(e) => handleFormChange('email', e.target.value)}
+                                      className="w-full px-6 py-4 bg-white/10 backdrop-blur-sm border-2 border-purple-400/30 rounded-2xl focus:ring-4 focus:ring-purple-500/30 focus:border-purple-400 text-white placeholder-purple-300 text-lg font-medium transition-all duration-300 hover:bg-white/20"
+                                      placeholder="your.email@example.com"
+                                      required
+                                    />
+                                  </div>
                                 </div>
 
-                                <div className="relative">
-                                  <div className="flex items-center gap-2 mb-3">
-                                    <span className="text-2xl">📧</span>
-                                    <label className="text-lg font-bold text-purple-200">Email Address</label>
-                                    <span className="px-2 py-1 bg-green-500/20 text-green-300 text-xs font-bold rounded-full border border-green-400/30">VERIFIED</span>
-                                  </div>
-                                  <input
-                                    type="email"
-                                    name="email"
-                                    value={contactForm.email}
-                                    onChange={(e) => handleFormChange('email', e.target.value)}
-                                    className="w-full px-6 py-4 bg-white/10 backdrop-blur-sm border-2 border-purple-400/30 rounded-2xl focus:ring-4 focus:ring-purple-500/30 focus:border-purple-400 text-white placeholder-purple-300 text-lg font-medium transition-all duration-300 hover:bg-white/20"
-                                    placeholder="your.email@example.com"
-                                    required
-                                  />
-                                </div>
-
+                                {/* Second Row - Priority Level */}
                                 <div className="relative">
                                   <div className="flex items-center gap-2 mb-3">
                                     <span className="text-2xl">⚡</span>
@@ -831,6 +835,7 @@ export default function SupportPage() {
                                   </select>
                                 </div>
 
+                                {/* Third Row - Message */}
                                 <div className="relative">
                                   <div className="flex items-center gap-2 mb-3">
                                     <span className="text-2xl">💬</span>
@@ -841,7 +846,7 @@ export default function SupportPage() {
                                     name="message"
                                     value={contactForm.message}
                                     onChange={(e) => handleFormChange('message', e.target.value)}
-                                    rows={5}
+                                    rows={4}
                                     className="w-full px-6 py-4 bg-white/10 backdrop-blur-sm border-2 border-purple-400/30 rounded-2xl focus:ring-4 focus:ring-purple-500/30 focus:border-purple-400 text-white placeholder-purple-300 text-lg font-medium transition-all duration-300 hover:bg-white/20 resize-none"
                                     placeholder="Please provide as much detail as possible... Our AI will analyze your message and provide instant suggestions!"
                                     required
