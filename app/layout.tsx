@@ -1,6 +1,6 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Inter, Poppins, Outfit, Nunito_Sans, Playfair_Display } from "next/font/google"
+import { Inter, Poppins, Outfit, Nunito_Sans as NunitoSans, Playfair_Display } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { AuthProvider } from "@/contexts/auth-context"
@@ -22,7 +22,7 @@ const outfit = Outfit({
   variable: "--font-outfit"
 })
 
-const nunitoSans = Nunito_Sans({ 
+const nunitoSans = NunitoSans({ 
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700", "800", "900"],
   variable: "--font-nunito-sans"
