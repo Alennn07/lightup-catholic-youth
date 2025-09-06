@@ -8,6 +8,7 @@ import { I18nProvider } from "@/lib/i18n"
 import { Toaster } from "@/components/ui/toaster"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Analytics } from "@vercel/analytics/react"
+import { ErrorBoundary } from "@/components/error-boundary"
 
 // Primary fonts inspired by Hallow's design
 const poppins = Poppins({ 
@@ -117,7 +118,9 @@ export default function RootLayout({
       <body className={`${poppins.variable} ${outfit.variable} ${nunitoSans.variable} ${playfair.variable} ${inter.variable} font-sans overflow-x-hidden`}>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
           <I18nProvider>
-            <AuthProvider>{children}</AuthProvider>
+            <ErrorBoundary>
+              <AuthProvider>{children}</AuthProvider>
+            </ErrorBoundary>
           </I18nProvider>
           <Toaster />
         </ThemeProvider>

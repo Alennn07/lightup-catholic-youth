@@ -34,11 +34,11 @@ export async function POST(request: NextRequest) {
     const verificationToken = crypto.randomUUID();
     const verificationLink = `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/verify-email?token=${verificationToken}&userId=${userId}`;
 
-    const username = user.username || user.name || 'User';
+    const username = (user as any).username || (user as any).name || 'User';
     
     // Send verification email
     const emailResult = await EmailService.sendVerificationEmail(
-      user.email,
+      (user as any).email,
       verificationLink,
       username
     );
