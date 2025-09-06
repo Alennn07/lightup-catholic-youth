@@ -59,7 +59,7 @@ export async function PUT(
       .update({
         title,
         content,
-        type: type || 'announcement'
+        post_type: type || 'announcement'
       })
       .eq('id', postId)
       .eq('group_id', groupId)

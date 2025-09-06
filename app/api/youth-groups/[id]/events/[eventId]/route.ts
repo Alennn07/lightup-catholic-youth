@@ -53,14 +53,16 @@ export async function PUT(
       return NextResponse.json({ error: 'Title, description, and event date are required' }, { status: 400 })
     }
 
+    // Combine date and time into event_date (same as create event logic)
+    const eventDateTime = event_time ? `${event_date}T${event_time}` : event_date
+
     // Update event
     const { data: event, error: updateError } = await supabase
       .from('group_events')
       .update({
         title,
         description,
-        event_date,
-        event_time,
+        event_date: eventDateTime,
         location
       })
       .eq('id', eventId)

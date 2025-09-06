@@ -885,11 +885,22 @@ export default function EnhancedYouthGroups() {
   // Handle edit event
   const handleEditEvent = (event: any) => {
     setEditingEvent(event)
+    
+    // Parse event_date to separate date and time
+    let eventDate = event.event_date || ''
+    let eventTime = ''
+    
+    if (eventDate && eventDate.includes('T')) {
+      const [date, time] = eventDate.split('T')
+      eventDate = date
+      eventTime = time.substring(0, 5) // Get HH:MM format
+    }
+    
     setEventForm({
       title: event.title || '',
       description: event.description || '',
-      event_date: event.event_date || '',
-      event_time: event.event_time || '',
+      event_date: eventDate,
+      event_time: eventTime,
       location: event.location || ''
     })
     setShowEditEvent(true)
@@ -901,7 +912,7 @@ export default function EnhancedYouthGroups() {
     setPostForm({
       title: post.title || '',
       content: post.content || '',
-      type: post.type || 'announcement'
+      type: post.post_type || post.type || 'announcement'
     })
     setShowEditPost(true)
   }
@@ -1875,7 +1886,7 @@ export default function EnhancedYouthGroups() {
                                   <div className="flex items-center space-x-2 mb-2">
                                     <h4 className="font-semibold text-gray-900">{post.title}</h4>
                                     <Badge variant="outline" className="text-xs">
-                                      {post.type}
+                                      {post.post_type || post.type}
                                     </Badge>
                                   </div>
                                   <p className="text-sm text-gray-600 mb-2">{post.content}</p>
