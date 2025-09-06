@@ -295,9 +295,8 @@ export default function HomePage() {
                   </Button>
                   <Link href="/youth-groups">
                     <Button 
-                      variant="outline" 
                       size="lg"
-                      className="border-2 border-white/30 text-white hover:bg-white/10 backdrop-blur-sm px-6 sm:px-8 md:px-10 py-4 sm:py-5 text-lg sm:text-xl font-semibold rounded-2xl group w-full sm:w-auto"
+                      className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-6 sm:px-8 md:px-10 py-4 sm:py-5 text-lg sm:text-xl font-bold rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 group w-full sm:w-auto"
                     >
                       <Users className="mr-3 w-6 h-6 group-hover:scale-110 transition-transform" />
                       Join Groups
