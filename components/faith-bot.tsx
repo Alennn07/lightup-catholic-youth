@@ -10,6 +10,9 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { MessageCircle, Send, Bot, User, BookOpen, Heart } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { useTranslation } from "@/lib/i18n"
+import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
+import rehypeHighlight from "rehype-highlight"
 
 interface Message {
   id: string
@@ -138,26 +141,26 @@ export function FaithBot() {
     <div className="bg-gradient-to-br from-amber-50 via-white to-rose-50 min-h-screen">
       <div className="max-w-4xl mx-auto px-3 sm:px-4 py-4 md:py-8">
         {/* Header */}
-        <div className="text-center mb-8 sm:mb-12">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-amber-400 to-rose-500 rounded-full mb-4 shadow-lg">
-            <MessageCircle className="h-8 w-8 text-white" />
+        <div className="text-center mb-6 sm:mb-8 md:mb-12">
+          <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-amber-400 to-rose-500 rounded-full mb-3 sm:mb-4 shadow-lg">
+            <MessageCircle className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
           </div>
-                     <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">{t("faithbot.title")}</h1>
-           <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto px-2">
-             {t("faithbot.subtitle")}
-           </p>
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-3 sm:mb-4">{t("faithbot.title")}</h1>
+          <p className="text-sm sm:text-base md:text-lg text-gray-600 max-w-2xl mx-auto px-2">
+            {t("faithbot.subtitle")}
+          </p>
         </div>
 
         {/* Quick Questions */}
-        <div className="mb-8">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">{t("faithbot.quickQuestions")}</h3>
+        <div className="mb-6 sm:mb-8">
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">{t("faithbot.quickQuestions")}</h3>
           <div className="flex flex-wrap gap-2">
             {quickQuestions.map((question, index) => (
               <Button
                 key={index}
                 variant="outline"
                 size="sm"
-                className="bg-white border-gray-200 text-gray-700 hover:bg-gray-50"
+                className="bg-white border-gray-200 text-gray-700 hover:bg-gray-50 text-xs sm:text-sm"
                 onClick={() => handleQuickQuestion(question)}
               >
                 {question}
@@ -167,8 +170,8 @@ export function FaithBot() {
         </div>
 
         {/* Quick Mode Buttons */}
-        <div className="mb-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">{t("faithbot.quickModes")}</h3>
+        <div className="mb-4 sm:mb-6">
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">{t("faithbot.quickModes")}</h3>
           <div className="flex flex-wrap gap-2">
             <Button
               variant="outline"
@@ -315,7 +318,62 @@ export function FaithBot() {
                         : "bg-gray-100 text-gray-900"
                     }`}
                   >
-                    <p className="text-sm">{message.content}</p>
+                    <div className="text-sm prose prose-sm max-w-none">
+                      <ReactMarkdown
+                        remarkPlugins={[remarkGfm]}
+                        rehypePlugins={[rehypeHighlight]}
+                        components={{
+                          // Custom styling for better appearance
+                          ul: ({ children, ...props }) => (
+                            <ul className="list-disc list-inside space-y-1 my-2" {...props}>
+                              {children}
+                            </ul>
+                          ),
+                          ol: ({ children, ...props }) => (
+                            <ol className="list-decimal list-inside space-y-1 my-2" {...props}>
+                              {children}
+                            </ol>
+                          ),
+                          li: ({ children, ...props }) => (
+                            <li className="text-sm" {...props}>
+                              {children}
+                            </li>
+                          ),
+                          p: ({ children, ...props }) => (
+                            <p className="mb-2 last:mb-0" {...props}>
+                              {children}
+                            </p>
+                          ),
+                          strong: ({ children, ...props }) => (
+                            <strong className="font-semibold text-gray-900" {...props}>
+                              {children}
+                            </strong>
+                          ),
+                          em: ({ children, ...props }) => (
+                            <em className="italic" {...props}>
+                              {children}
+                            </em>
+                          ),
+                          h1: ({ children, ...props }) => (
+                            <h1 className="text-lg font-bold mb-2 text-gray-900" {...props}>
+                              {children}
+                            </h1>
+                          ),
+                          h2: ({ children, ...props }) => (
+                            <h2 className="text-base font-semibold mb-2 text-gray-900" {...props}>
+                              {children}
+                            </h2>
+                          ),
+                          h3: ({ children, ...props }) => (
+                            <h3 className="text-sm font-semibold mb-1 text-gray-900" {...props}>
+                              {children}
+                            </h3>
+                          ),
+                        }}
+                      >
+                        {message.content}
+                      </ReactMarkdown>
+                    </div>
                     <p className="text-xs opacity-70 mt-1">
                       {typeof window !== 'undefined' ? new Date(message.timestamp).toLocaleTimeString() : message.timestamp}
                     </p>

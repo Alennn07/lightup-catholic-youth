@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Import highlight.js styles for code syntax highlighting */
+@import 'highlight.js/styles/github.css';
+
 @layer base {
   :root {
     /* Notion-inspired neutral palette */

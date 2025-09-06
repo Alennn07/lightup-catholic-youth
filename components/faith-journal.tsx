@@ -293,34 +293,34 @@ export function FaithJournal() {
 
   return (
     <div className="bg-gradient-to-br from-amber-50/50 via-background to-rose-50/50 min-h-screen">
-      <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="max-w-6xl mx-auto px-3 sm:px-4 py-6 sm:py-8">
         {/* Header */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-amber-400 to-rose-500 rounded-full mb-4 shadow-lg">
-            <BookOpen className="h-8 w-8 text-white" />
+        <div className="text-center mb-8 sm:mb-12">
+          <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-amber-400 to-rose-500 rounded-full mb-3 sm:mb-4 shadow-lg">
+            <BookOpen className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
           </div>
-          <h1 className="text-4xl font-bold text-foreground mb-2">Faith Journal</h1>
-          <p className="text-lg text-muted-foreground">Reflect on your faith journey</p>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-2">Faith Journal</h1>
+          <p className="text-base sm:text-lg text-muted-foreground px-2">Reflect on your faith journey</p>
         </div>
 
         {/* New Entry Button */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-6 sm:mb-8">
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
               <Button
                 onClick={resetForm}
                 size="lg"
-                className="bg-gradient-to-r from-amber-500 to-rose-500 hover:from-amber-600 hover:to-rose-600 text-white font-semibold px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                className="bg-gradient-to-r from-amber-500 to-rose-500 hover:from-amber-600 hover:to-rose-600 text-white font-semibold px-6 sm:px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 w-full sm:w-auto"
               >
-                <Plus className="h-5 w-5 mr-2" />
+                <Plus className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                 New Journal Entry
               </Button>
             </DialogTrigger>
-            <DialogContent className="bg-card border-border text-foreground max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogContent className="bg-card border-border text-foreground max-w-2xl max-h-[90vh] overflow-y-auto mx-4 sm:mx-0">
               <DialogHeader>
-                <DialogTitle className="text-foreground">{editingEntry ? "Edit Journal Entry" : "New Journal Entry"}</DialogTitle>
+                <DialogTitle className="text-foreground text-lg sm:text-xl">{editingEntry ? "Edit Journal Entry" : "New Journal Entry"}</DialogTitle>
               </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4 pb-4">
+              <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4 pb-4">
                 <Input
                   placeholder="Entry title..."
                   value={formData.title}
@@ -329,7 +329,7 @@ export function FaithJournal() {
                   required
                 />
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <Select value={formData.mood} onValueChange={(value) => handleFormChange({ mood: value })}>
                     <SelectTrigger className="bg-muted border-border text-foreground focus:bg-background focus:border-amber-400 focus:ring-amber-400">
                       <SelectValue placeholder="How are you feeling?" />

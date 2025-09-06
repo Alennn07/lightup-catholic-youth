@@ -229,32 +229,32 @@ export function PrayerWall() {
 
   return (
     <div className="bg-gradient-to-br from-amber-50 via-white to-rose-50 min-h-screen">
-      <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="max-w-6xl mx-auto px-3 sm:px-4 py-6 sm:py-8">
         {/* Header */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-amber-400 to-rose-500 rounded-full mb-4 shadow-lg">
-            <Heart className="h-8 w-8 text-white" />
+        <div className="text-center mb-8 sm:mb-12">
+          <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-amber-400 to-rose-500 rounded-full mb-3 sm:mb-4 shadow-lg">
+            <Heart className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
           </div>
-          <h1 className="text-4xl font-bold text-gray-800 mb-2">Prayer Wall</h1>
-          <p className="text-lg text-gray-600">Share your prayer requests and pray for others</p>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-2">Prayer Wall</h1>
+          <p className="text-base sm:text-lg text-gray-600 px-2">Share your prayer requests and pray for others</p>
         </div>
 
         {/* Add Request Button */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-6 sm:mb-8">
           <Button
             onClick={() => setShowForm(!showForm)}
             size="lg"
-            className="bg-gradient-to-r from-amber-500 to-rose-500 hover:from-amber-600 hover:to-rose-600 text-white font-semibold px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+            className="bg-gradient-to-r from-amber-500 to-rose-500 hover:from-amber-600 hover:to-rose-600 text-white font-semibold px-6 sm:px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 w-full sm:w-auto"
           >
-            <Plus className="h-5 w-5 mr-2" />
+            <Plus className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
             Add Prayer Request
           </Button>
         </div>
         {/* Prayer Request Form */}
         {showForm && (
-          <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 mb-8">
-            <h3 className="text-xl font-semibold text-gray-800 mb-4">Share Your Prayer Request</h3>
-            <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 sm:p-6 mb-6 sm:mb-8">
+            <h3 className="text-lg sm:text-xl font-semibold text-gray-800 mb-3 sm:mb-4">Share Your Prayer Request</h3>
+            <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
               <div className="flex items-center space-x-3">
                 <Checkbox
                   id="anonymous"
@@ -356,42 +356,42 @@ export function PrayerWall() {
         )}
 
         {/* Prayer Requests List */}
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {requests.length === 0 ? (
-            <div className="text-center py-16 bg-white rounded-2xl shadow-lg border border-gray-100">
-              <Heart className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-              <p className="text-gray-600 text-lg mb-2">No prayer requests yet</p>
-              <p className="text-gray-500">Be the first to share a request</p>
+            <div className="text-center py-12 sm:py-16 bg-white rounded-2xl shadow-lg border border-gray-100">
+              <Heart className="h-12 w-12 sm:h-16 sm:w-16 text-gray-300 mx-auto mb-4" />
+              <p className="text-gray-600 text-base sm:text-lg mb-2">No prayer requests yet</p>
+              <p className="text-gray-500 text-sm sm:text-base">Be the first to share a request</p>
             </div>
           ) : (
             requests.map((request) => (
               <div
                 key={request.id}
-                className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+                className="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 sm:p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
               >
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-4">
-                    <Avatar className="h-12 w-12">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3 sm:mb-4 gap-3">
+                  <div className="flex items-center gap-3 sm:gap-4">
+                    <Avatar className="h-10 w-10 sm:h-12 sm:w-12">
                       <AvatarFallback className="bg-gradient-to-br from-amber-400 to-rose-500 text-white text-sm font-semibold">
                         {request.is_anonymous ? "?" : (request.user?.name || request.name).charAt(0).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <p className="text-lg font-semibold text-gray-800">
+                      <p className="text-base sm:text-lg font-semibold text-gray-800">
                         {request.is_anonymous ? "Anonymous" : request.user?.name || request.name}
                       </p>
-                      <div className="flex items-center gap-2 text-sm text-gray-500">
-                        <Clock className="h-4 w-4 text-amber-500" />
+                      <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-500">
+                        <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-amber-500" />
                         {formatDistanceToNow(new Date(request.created_at), { addSuffix: true })}
                       </div>
                     </div>
                   </div>
-                  <Badge className="bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100 px-3 py-1">
+                  <Badge className="bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100 px-2 sm:px-3 py-1 text-xs sm:text-sm self-start sm:self-auto">
                     {request.category}
                   </Badge>
                 </div>
 
-                <p className="text-gray-700 text-base leading-relaxed mb-4">{request.request}</p>
+                <p className="text-gray-700 text-sm sm:text-base leading-relaxed mb-3 sm:mb-4">{request.request}</p>
 
                 {/* Display uploaded image if exists */}
                 {request.image_url && (

@@ -553,7 +553,7 @@ export default function DashboardPage() {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
         <Navigation />
         
-        <div className="container mx-auto px-3 sm:px-4 pt-16 sm:pt-20 md:pt-24 pb-4 sm:pb-6 md:pb-8">
+        <div className="container mx-auto px-3 sm:px-4 pt-16 sm:pt-20 md:pt-24 pb-4 sm:pb-6 md:pb-8 max-w-7xl">
           {/* Back Button */}
           <div className="mb-6">
             <SmartBackButton 
@@ -605,45 +605,45 @@ export default function DashboardPage() {
           </div>
 
           {/* Stats Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-8 md:mb-12">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-8 md:mb-12">
           <Card className="bg-white shadow-lg border border-gray-100">
-            <CardContent className="p-4 sm:p-6 text-center">
-              <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center mx-auto mb-4">
-                <Activity className="h-6 w-6 text-white" />
+            <CardContent className="p-3 sm:p-4 md:p-6 text-center">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                <Activity className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
               </div>
-              <div className="text-2xl font-bold text-gray-800 mb-2">{userStats.daysActive}</div>
-              <div className="text-gray-600 font-medium">Days Active</div>
+              <div className="text-xl sm:text-2xl font-bold text-gray-800 mb-1 sm:mb-2">{userStats.daysActive}</div>
+              <div className="text-gray-600 font-medium text-sm sm:text-base">Days Active</div>
             </CardContent>
           </Card>
 
           <Card className="bg-white shadow-lg border border-gray-100">
-            <CardContent className="p-4 sm:p-6 text-center">
-              <div className="w-12 h-12 bg-gradient-to-r from-pink-500 to-rose-500 rounded-xl flex items-center justify-center mx-auto mb-4">
-                <Heart className="h-6 w-6 text-white" />
+            <CardContent className="p-3 sm:p-4 md:p-6 text-center">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-pink-500 to-rose-500 rounded-xl flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                <Heart className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
               </div>
-              <div className="text-2xl font-bold text-gray-800 mb-2">{userStats.prayersShared}</div>
-              <div className="text-gray-600 font-medium">Prayers Shared</div>
+              <div className="text-xl sm:text-2xl font-bold text-gray-800 mb-1 sm:mb-2">{userStats.prayersShared}</div>
+              <div className="text-gray-600 font-medium text-sm sm:text-base">Prayers Shared</div>
             </CardContent>
           </Card>
 
           <Card className="bg-white shadow-lg border border-gray-100">
-            <CardContent className="p-4 sm:p-6 text-center">
-              <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl flex items-center justify-center mx-auto mb-4">
-                <BookOpen className="h-6 w-6 text-white" />
+            <CardContent className="p-3 sm:p-4 md:p-6 text-center">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                <BookOpen className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
               </div>
-              <div className="text-2xl font-bold text-gray-800 mb-1">{bibleCompletedThisWeek}/5</div>
-              <div className="text-gray-600 font-medium">Verses this week</div>
+              <div className="text-xl sm:text-2xl font-bold text-gray-800 mb-1">{bibleCompletedThisWeek}/5</div>
+              <div className="text-gray-600 font-medium text-sm sm:text-base">Verses this week</div>
               <div className="text-xs text-green-600 mt-1">{bibleCompletedToday ? 'Completed today ✅' : 'Not yet today'}</div>
             </CardContent>
           </Card>
 
           <Card className="bg-white shadow-lg border border-gray-100">
-            <CardContent className="p-4 sm:p-6 text-center">
-              <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center mx-auto mb-4">
-                <PenTool className="h-6 w-6 text-white" />
+            <CardContent className="p-3 sm:p-4 md:p-6 text-center">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                <PenTool className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
               </div>
-              <div className="text-2xl font-bold text-gray-800 mb-2">{userStats.journalEntries}</div>
-              <div className="text-gray-600 font-medium">Journal Entries</div>
+              <div className="text-xl sm:text-2xl font-bold text-gray-800 mb-1 sm:mb-2">{userStats.journalEntries}</div>
+              <div className="text-gray-600 font-medium text-sm sm:text-base">Journal Entries</div>
             </CardContent>
           </Card>
         </div>
@@ -977,42 +977,42 @@ export default function DashboardPage() {
             <Card className="bg-white shadow-lg border border-gray-100">
               <CardContent className="p-6">
                 <h3 className="text-xl font-bold text-gray-800 font-outfit mb-4">Quick Actions</h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
                   <Button 
                     variant="outline" 
-                    className="h-20 flex flex-col items-center justify-center space-y-2 border-2 hover:border-blue-300 hover:bg-blue-50"
+                    className="h-16 sm:h-20 flex flex-col items-center justify-center space-y-1 sm:space-y-2 border-2 hover:border-blue-300 hover:bg-blue-50"
                     disabled={isPending}
                     onClick={() => router.push('/prayer-wall')}
                   >
-                    {isPending ? <Loader2 className="h-6 w-6 animate-spin text-red-500" /> : <Heart className="h-6 w-6 text-red-500" />}
-                    <span className="text-sm font-medium">Prayer Wall</span>
+                    {isPending ? <Loader2 className="h-5 w-5 sm:h-6 sm:w-6 animate-spin text-red-500" /> : <Heart className="h-5 w-5 sm:h-6 sm:w-6 text-red-500" />}
+                    <span className="text-xs sm:text-sm font-medium">Prayer Wall</span>
                   </Button>
                   <Button 
                     variant="outline" 
-                    className="h-20 flex flex-col items-center justify-center space-y-2 border-2 hover:border-green-300 hover:bg-green-50"
+                    className="h-16 sm:h-20 flex flex-col items-center justify-center space-y-1 sm:space-y-2 border-2 hover:border-green-300 hover:bg-green-50"
                     disabled={isPending}
                     onClick={() => router.push('/youth-groups')}
                   >
-                    {isPending ? <Loader2 className="h-6 w-6 animate-spin text-green-500" /> : <Users className="h-6 w-6 text-green-500" />}
-                    <span className="text-sm font-medium">Youth Groups</span>
+                    {isPending ? <Loader2 className="h-5 w-5 sm:h-6 sm:w-6 animate-spin text-green-500" /> : <Users className="h-5 w-5 sm:h-6 sm:w-6 text-green-500" />}
+                    <span className="text-xs sm:text-sm font-medium">Youth Groups</span>
                   </Button>
                   <Button 
                     variant="outline" 
-                    className="h-20 flex flex-col items-center justify-center space-y-2 border-2 hover:border-purple-300 hover:bg-purple-50"
+                    className="h-16 sm:h-20 flex flex-col items-center justify-center space-y-1 sm:space-y-2 border-2 hover:border-purple-300 hover:bg-purple-50"
                     disabled={isPending}
                     onClick={() => router.push('/faithbot')}
                   >
-                    {isPending ? <Loader2 className="h-6 w-6 animate-spin text-purple-500" /> : <MessageCircle className="h-6 w-6 text-purple-500" />}
-                    <span className="text-sm font-medium">FaithBot AI</span>
+                    {isPending ? <Loader2 className="h-5 w-5 sm:h-6 sm:w-6 animate-spin text-purple-500" /> : <MessageCircle className="h-5 w-5 sm:h-6 sm:w-6 text-purple-500" />}
+                    <span className="text-xs sm:text-sm font-medium">FaithBot AI</span>
                   </Button>
                   <Button 
                     variant="outline" 
-                    className="h-20 flex flex-col items-center justify-center space-y-2 border-2 hover:border-orange-300 hover:bg-orange-50"
+                    className="h-16 sm:h-20 flex flex-col items-center justify-center space-y-1 sm:space-y-2 border-2 hover:border-orange-300 hover:bg-orange-50"
                     disabled={isPending}
                     onClick={() => router.push('/faith-journal')}
                   >
-                    {isPending ? <Loader2 className="h-6 w-6 animate-spin text-orange-500" /> : <PenTool className="h-6 w-6 text-orange-500" />}
-                    <span className="text-sm font-medium">Faith Journal</span>
+                    {isPending ? <Loader2 className="h-5 w-5 sm:h-6 sm:w-6 animate-spin text-orange-500" /> : <PenTool className="h-5 w-5 sm:h-6 sm:w-6 text-orange-500" />}
+                    <span className="text-xs sm:text-sm font-medium">Faith Journal</span>
                   </Button>
                 </div>
               </CardContent>

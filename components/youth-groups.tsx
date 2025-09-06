@@ -70,6 +70,8 @@ export default function YouthGroups() {
   const [showEditPostForm, setShowEditPostForm] = useState(false)
   const [editingEvent, setEditingEvent] = useState<any>(null)
   const [editingPost, setEditingPost] = useState<any>(null)
+  const [showJoinGroupModal, setShowJoinGroupModal] = useState(false)
+  const [pendingGroupToView, setPendingGroupToView] = useState<YouthGroup | null>(null)
   const [newMemberEmail, setNewMemberEmail] = useState('')
   const [eventFormData, setEventFormData] = useState({
     title: '',
@@ -123,6 +125,16 @@ export default function YouthGroups() {
       setIsInitialized(false)
     }
   }, [user, isInitialized])
+
+  // Debug modal states
+  useEffect(() => {
+    console.log('🔍 Modal states changed:', {
+      showGroupDetails,
+      showJoinGroupModal,
+      selectedGroup: selectedGroup?.name,
+      pendingGroupToView: pendingGroupToView?.name
+    })
+  }, [showGroupDetails, showJoinGroupModal, selectedGroup, pendingGroupToView])
 
   // 🚀 OPTIMIZED: Smart fetch with caching
   const fetchGroups = async (forceRefresh = false) => {
@@ -354,11 +366,77 @@ export default function YouthGroups() {
 
       const data = await response.json()
       setSelectedGroup(data.group)
-      setShowGroupDetails(true)
+      
+      // Check if user is a member of the group
+      if (!data.group.is_member && !data.group.is_owner) {
+        // User is not a member, show join modal first (don't show group details yet)
+        console.log('🔍 User is not a member - showing join modal only')
+        setPendingGroupToView(data.group)
+        setShowJoinGroupModal(true)
+        // Make sure group details modal is closed
+        setShowGroupDetails(false)
+      } else {
+        // User is a member, show group details directly
+        console.log('🔍 User is a member - showing group details directly')
+        setShowGroupDetails(true)
+        // Make sure join modal is closed
+        setShowJoinGroupModal(false)
+        setPendingGroupToView(null)
+      }
     } catch (error) {
       logIfEnabled(`Error fetching group details: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error')
       toast({ title: "Error", description: "Failed to load group details.", variant: "destructive" })
     }
+  }
+
+  const handleJoinGroupFromModal = async () => {
+    if (!pendingGroupToView) return
+    
+    try {
+      const token = await getAccessToken()
+      if (!token) {
+        toast({ title: "Authentication Error", description: "Please sign in to join group.", variant: "destructive" })
+        return
+      }
+
+      const response = await fetch(`/api/youth-groups/${pendingGroupToView.id}/join-request`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to join group')
+      }
+
+      const data = await response.json()
+      toast({ title: "Success", description: data.message || "Join request sent successfully!" })
+      
+      // Close join modal and show group details
+      console.log('🔍 Join successful - closing join modal and showing group details')
+      setShowJoinGroupModal(false)
+      setShowGroupDetails(true)
+      setPendingGroupToView(null)
+      
+      // Refresh the group data to update membership status
+      if (selectedGroup) {
+        fetchGroupDetails(selectedGroup.id)
+      }
+    } catch (error: any) {
+      logIfEnabled(`Error joining group: ${error.message}`, 'error')
+      toast({ title: "Error", description: error.message || "Failed to join group.", variant: "destructive" })
+    }
+  }
+
+  const handleCloseJoinModal = () => {
+    console.log('🔍 Closing join modal and showing group details')
+    setShowJoinGroupModal(false)
+    setPendingGroupToView(null)
+    // Show group details modal after closing join modal
+    setShowGroupDetails(true)
   }
 
   const handleKickMember = async (memberId: string) => {
@@ -1259,7 +1337,7 @@ export default function YouthGroups() {
       )}
 
       {/* Group Details Modal */}
-      {selectedGroup && (
+      {selectedGroup && showGroupDetails && !showJoinGroupModal && (
         <Dialog open={showGroupDetails} onOpenChange={setShowGroupDetails}>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
@@ -1931,6 +2009,84 @@ export default function YouthGroups() {
             </div>
         </DialogContent>
       </Dialog>
+      )}
+
+      {/* Join Group Modal */}
+      {showJoinGroupModal && pendingGroupToView && (
+        <Dialog open={showJoinGroupModal} onOpenChange={(open) => {
+          if (!open) {
+            // When closing, show group details instead of just closing
+            handleCloseJoinModal()
+          }
+        }}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <div className="flex items-center justify-between">
+                <DialogTitle className="flex items-center gap-2">
+                  <Users className="h-5 w-5 text-primary" />
+                  Join Group
+                </DialogTitle>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleCloseJoinModal}
+                  className="h-6 w-6 p-0"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+              <DialogDescription>
+                You need to join this group to view its details and participate in activities.
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="space-y-4">
+              <div className="p-4 bg-muted/50 rounded-lg">
+                <h4 className="font-semibold text-lg">{pendingGroupToView.name}</h4>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {pendingGroupToView.description}
+                </p>
+                <div className="flex items-center gap-4 mt-3 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-1">
+                    <Users className="h-4 w-4" />
+                    <span>{pendingGroupToView.member_count || 0} members</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <MapPin className="h-4 w-4" />
+                    <span>{pendingGroupToView.city || 'Location not specified'}</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <p className="text-sm text-muted-foreground">
+                  By joining this group, you'll be able to:
+                </p>
+                <ul className="text-sm space-y-1 ml-4">
+                  <li>• View group events and activities</li>
+                  <li>• Participate in discussions and posts</li>
+                  <li>• Connect with other members</li>
+                  <li>• Stay updated with group announcements</li>
+                </ul>
+              </div>
+            </div>
+            
+            <div className="flex justify-end gap-2">
+              <Button 
+                variant="outline" 
+                onClick={handleCloseJoinModal}
+              >
+                View Group Info
+              </Button>
+              <Button 
+                onClick={handleJoinGroupFromModal}
+                className="bg-primary hover:bg-primary/90"
+              >
+                Join Group
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       )}
     </div>
   )

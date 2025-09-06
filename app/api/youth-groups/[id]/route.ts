@@ -4,6 +4,102 @@ import { logIfEnabled } from '@/lib/performance-monitor'
 
 export const dynamic = 'force-dynamic'
 
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const { id: groupId } = params
+    const authHeader = request.headers.get('authorization')
+    const token = authHeader?.replace('Bearer ', '')
+    
+    if (!token) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      { 
+        auth: { autoRefreshToken: false, persistSession: false },
+        db: { schema: 'public' }
+      }
+    )
+
+    // Verify user authentication
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
+    }
+
+    // Get group details
+    const { data: group, error: groupError } = await supabase
+      .from('youth_groups')
+      .select(`
+        id,
+        name,
+        description,
+        mission_statement,
+        parish,
+        diocese,
+        city,
+        state,
+        country,
+        meeting_location,
+        meeting_time,
+        meeting_frequency,
+        age_range,
+        max_members,
+        is_public,
+        is_active,
+        owner_id,
+        created_at,
+        updated_at
+      `)
+      .eq('id', groupId)
+      .single()
+
+    if (groupError || !group) {
+      return NextResponse.json({ error: 'Group not found' }, { status: 404 })
+    }
+
+    // Check if user is a member of the group
+    const { data: membership, error: membershipError } = await supabase
+      .from('group_members')
+      .select('role, status')
+      .eq('group_id', groupId)
+      .eq('user_id', user.id)
+      .single()
+
+    // Check if user is group owner
+    const isOwner = group.owner_id === user.id
+    const isMember = membership && membership.status === 'active'
+
+    // Add membership info to group object
+    const groupWithMembership = {
+      ...group,
+      is_member: isMember,
+      is_owner: isOwner,
+      user_role: membership?.role || null,
+      user_status: membership?.status || null
+    }
+
+    logIfEnabled(`✅ Group details fetched for ${groupId}: ${group.name}`)
+    
+    return NextResponse.json({
+      success: true,
+      group: groupWithMembership
+    })
+
+  } catch (error: any) {
+    logIfEnabled(`❌ Error in get group API: ${error.message}`, 'error')
+    return NextResponse.json({ 
+      error: 'Internal server error',
+      details: error.message 
+    }, { status: 500 })
+  }
+}
+
 export async function PUT(
   request: NextRequest,
   { params }: { params: { id: string } }

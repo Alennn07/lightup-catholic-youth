@@ -114,7 +114,7 @@ export default function RootLayout({
         <meta name="msapplication-TileColor" content="#3b82f6" />
         <meta name="msapplication-config" content="/browserconfig.xml" />
       </head>
-      <body className={`${poppins.variable} ${outfit.variable} ${nunitoSans.variable} ${playfair.variable} ${inter.variable} font-sans`}>
+      <body className={`${poppins.variable} ${outfit.variable} ${nunitoSans.variable} ${playfair.variable} ${inter.variable} font-sans overflow-x-hidden`}>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
           <I18nProvider>
             <AuthProvider>{children}</AuthProvider>

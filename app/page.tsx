@@ -228,7 +228,7 @@ export default function HomePage() {
           ))}
         </div>
 
-        <div className="relative container mx-auto px-4">
+        <div className="relative container mx-auto px-3 sm:px-4">
           <div className="max-w-5xl mx-auto text-center text-white">
             {/* Liturgical Season Badge */}
             <div className="inline-flex items-center px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-sm font-semibold mb-6">
@@ -250,7 +250,7 @@ export default function HomePage() {
             {/* Main Headline - Dynamic based on user state */}
             {user ? (
               <>
-                <h2 className="text-6xl md:text-7xl font-bold mb-8 leading-tight font-display">
+                <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-6 sm:mb-8 leading-tight font-display px-2">
                   Welcome back,<br />
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-orange-300">
                     {user.name || user.email?.split('@')[0] || 'Friend'}!
@@ -258,14 +258,14 @@ export default function HomePage() {
                 </h2>
                 
                 {/* Subheadline for logged in users */}
-                <p className="text-xl text-blue-100 mb-12 max-w-3xl mx-auto font-body">
+                <p className="text-lg sm:text-xl text-blue-100 mb-8 sm:mb-12 max-w-3xl mx-auto font-body px-2">
                   Continue your spiritual journey with LightUp. 
                   Explore features, connect with your community, and grow in faith.
                 </p>
               </>
             ) : (
               <>
-                <h2 className="text-6xl md:text-7xl font-bold mb-8 leading-tight font-display">
+                <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-6 sm:mb-8 leading-tight font-display px-2">
                   Grow in Faith.<br />
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-orange-300">
                     Connect with Purpose.
@@ -273,7 +273,7 @@ export default function HomePage() {
                 </h2>
                 
                 {/* Subheadline for not logged in users */}
-                <p className="text-xl text-blue-100 mb-12 max-w-3xl mx-auto font-body">
+                <p className="text-lg sm:text-xl text-blue-100 mb-8 sm:mb-12 max-w-3xl mx-auto font-body px-2">
                   Your digital companion for prayer, community, and spiritual growth. 
                   Built for today's Catholic youth.
                 </p>
@@ -281,13 +281,13 @@ export default function HomePage() {
             )}
             
             {/* Dynamic CTA Buttons based on user state */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center mb-6 sm:mb-8 px-4">
               {user ? (
                 // User is logged in
                 <>
                   <Button 
                     size="lg" 
-                    className="bg-white text-blue-700 hover:bg-blue-50 px-12 py-5 text-xl font-bold rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 group"
+                    className="bg-white text-blue-700 hover:bg-blue-50 px-6 sm:px-8 md:px-12 py-4 sm:py-5 text-lg sm:text-xl font-bold rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 group w-full sm:w-auto"
                     onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
                   >
                     <Sparkles className="mr-3 w-6 h-6 group-hover:scale-110 transition-transform" />
@@ -297,7 +297,7 @@ export default function HomePage() {
                     <Button 
                       variant="outline" 
                       size="lg"
-                      className="border-2 border-white/30 text-white hover:bg-white/10 backdrop-blur-sm px-10 py-5 text-xl font-semibold rounded-2xl group"
+                      className="border-2 border-white/30 text-white hover:bg-white/10 backdrop-blur-sm px-6 sm:px-8 md:px-10 py-4 sm:py-5 text-lg sm:text-xl font-semibold rounded-2xl group w-full sm:w-auto"
                     >
                       <Users className="mr-3 w-6 h-6 group-hover:scale-110 transition-transform" />
                       Join Groups
@@ -310,7 +310,7 @@ export default function HomePage() {
                   <Link href="/auth/sign-up">
                     <Button 
                       size="lg" 
-                      className="bg-white text-blue-700 hover:bg-blue-50 px-12 py-5 text-xl font-bold rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 group"
+                      className="bg-white text-blue-700 hover:bg-blue-50 px-6 sm:px-8 md:px-12 py-4 sm:py-5 text-lg sm:text-xl font-bold rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 group w-full sm:w-auto"
                     >
                       <UserPlus className="mr-3 w-6 h-6 group-hover:scale-110 transition-transform" />
                       Get Started Free
@@ -320,7 +320,7 @@ export default function HomePage() {
                     <Button 
                       variant="outline" 
                       size="lg"
-                      className="border-2 border-white/30 text-white hover:bg-white/10 backdrop-blur-sm px-10 py-5 text-xl font-semibold rounded-2xl group"
+                      className="border-2 border-white/30 text-white hover:bg-white/10 backdrop-blur-sm px-6 sm:px-8 md:px-10 py-4 sm:py-5 text-lg sm:text-xl font-semibold rounded-2xl group w-full sm:w-auto"
                     >
                       <LogIn className="mr-3 w-6 h-6 group-hover:scale-110 transition-transform" />
                       Sign In
@@ -334,47 +334,47 @@ export default function HomePage() {
       </section>
 
       {/* Features Section - 7 Features */}
-      <section id="features" className="py-20 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-semibold mb-6">
+      <section id="features" className="py-12 sm:py-16 md:py-20 bg-white">
+        <div className="container mx-auto px-3 sm:px-4">
+          <div className="text-center mb-12 sm:mb-16">
+            <div className="inline-flex items-center px-3 sm:px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-semibold mb-4 sm:mb-6">
               <Sparkles className="w-4 h-4 mr-2" />
               Seven Powerful Features
             </div>
-            <h3 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 font-heading">
+            <h3 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-4 sm:mb-6 font-heading px-2">
               Everything You Need to Grow
             </h3>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto font-body">
+            <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto font-body px-2">
               Designed specifically for Catholic youth, these features will transform your spiritual journey
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 max-w-7xl mx-auto">
             {features.map((feature) => {
               const IconComponent = feature.icon
               return (
                 <Link key={feature.id} href={feature.href} onClick={() => console.log(`🔍 Clicking on feature: ${feature.name} -> ${feature.href}`)}>
-                  <Card className="group h-full bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 hover:scale-105 border-0 overflow-hidden">
-                    <CardContent className="p-6">
+                  <Card className="group h-full bg-white rounded-2xl sm:rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 hover:scale-105 border-0 overflow-hidden">
+                    <CardContent className="p-4 sm:p-6">
                       {/* Icon with Animation */}
-                      <div className={`w-14 h-14 mb-4 rounded-2xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-lg`}>
-                        <IconComponent className="w-7 h-7 text-white" />
+                      <div className={`w-12 h-12 sm:w-14 sm:h-14 mb-3 sm:mb-4 rounded-xl sm:rounded-2xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-lg`}>
+                        <IconComponent className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
                       </div>
                       
                       {/* Content */}
-                      <div className="mb-4">
-                        <h4 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors font-heading">
+                      <div className="mb-3 sm:mb-4">
+                        <h4 className="text-base sm:text-lg font-bold text-gray-900 mb-1 sm:mb-2 group-hover:text-blue-600 transition-colors font-heading">
                           {feature.name}
                         </h4>
-                        <p className="text-gray-600 text-sm leading-relaxed font-body">
+                        <p className="text-gray-600 text-xs sm:text-sm leading-relaxed font-body">
                           {feature.description}
                         </p>
                       </div>
                       
                       {/* Emoji & Arrow */}
                       <div className="flex items-center justify-between">
-                        <span className="text-2xl group-hover:scale-110 transition-transform duration-300">{feature.emoji}</span>
-                        <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-blue-600 group-hover:translate-x-2 transition-all duration-300" />
+                        <span className="text-xl sm:text-2xl group-hover:scale-110 transition-transform duration-300">{feature.emoji}</span>
+                        <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400 group-hover:text-blue-600 group-hover:translate-x-2 transition-all duration-300" />
                       </div>
                     </CardContent>
                   </Card>
