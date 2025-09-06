@@ -262,8 +262,15 @@ export default function AboutPage() {
             
             {/* Premium Timeline - Mobile Optimized */}
             <div className="relative">
-              {/* Premium Timeline Line - Hidden on mobile */}
+              {/* Premium Timeline Line - Desktop */}
               <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2 w-2 h-full bg-gradient-to-b from-purple-500 via-pink-500 to-green-500 rounded-full shadow-lg"></div>
+              
+              {/* Mobile Timeline Lines - Vertical connecting lines */}
+              <div className="md:hidden absolute left-8 top-0 w-1 h-full">
+                <div className="w-full h-20 bg-gradient-to-b from-purple-500 to-pink-500 rounded-full"></div>
+                <div className="w-full h-20 bg-gradient-to-b from-pink-500 to-orange-500 rounded-full mt-8"></div>
+                <div className="w-full h-20 bg-gradient-to-b from-orange-500 to-green-500 rounded-full mt-8"></div>
+              </div>
               
               {/* Timeline Items - Mobile First */}
               <div className="space-y-8 md:space-y-20">
@@ -276,7 +283,7 @@ export default function AboutPage() {
                   className="flex flex-col md:flex-row md:items-center"
                 >
                   <div className="w-full md:w-1/2 md:pr-12 text-center md:text-right">
-                    <Card className="bg-white/20 backdrop-blur-lg border border-white/30 shadow-2xl hover:shadow-3xl transition-all duration-500 group">
+                    <Card className="bg-white/20 backdrop-blur-lg border border-white/30 shadow-2xl hover:shadow-3xl transition-all duration-500 group ml-12 md:ml-0">
                       <CardContent className="p-6 md:p-8">
                         <div className="flex flex-col sm:flex-row items-center gap-4 mb-4">
                           <div className="w-16 h-16 sm:w-12 sm:h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
@@ -292,7 +299,7 @@ export default function AboutPage() {
                   </div>
                   <motion.div 
                     whileHover={{ scale: 1.2 }}
-                    className="w-16 h-16 sm:w-12 sm:h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center relative z-10 shadow-2xl mx-auto my-4 md:my-0"
+                    className="w-16 h-16 sm:w-12 sm:h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center relative z-10 shadow-2xl mx-auto my-4 md:my-0 absolute left-0 top-0 md:relative md:left-auto md:top-auto"
                   >
                     <Heart className="w-8 h-8 sm:w-6 sm:h-6 text-white" />
                   </motion.div>
@@ -310,12 +317,12 @@ export default function AboutPage() {
                   <div className="w-full md:w-1/2 md:pr-12"></div>
                   <motion.div 
                     whileHover={{ scale: 1.2 }}
-                    className="w-16 h-16 sm:w-12 sm:h-12 bg-gradient-to-r from-pink-500 to-orange-500 rounded-full flex items-center justify-center relative z-10 shadow-2xl mx-auto my-4 md:my-0"
+                    className="w-16 h-16 sm:w-12 sm:h-12 bg-gradient-to-r from-pink-500 to-orange-500 rounded-full flex items-center justify-center relative z-10 shadow-2xl mx-auto my-4 md:my-0 absolute left-0 top-0 md:relative md:left-auto md:top-auto"
                   >
                     <Star className="w-8 h-8 sm:w-6 sm:h-6 text-white" />
                   </motion.div>
                   <div className="w-full md:w-1/2 md:pl-12 text-center md:text-left">
-                    <Card className="bg-white/20 backdrop-blur-lg border border-white/30 shadow-2xl hover:shadow-3xl transition-all duration-500 group">
+                    <Card className="bg-white/20 backdrop-blur-lg border border-white/30 shadow-2xl hover:shadow-3xl transition-all duration-500 group ml-12 md:ml-0">
                       <CardContent className="p-6 md:p-8">
                         <div className="flex flex-col sm:flex-row items-center gap-4 mb-4">
                           <div className="w-16 h-16 sm:w-12 sm:h-12 bg-gradient-to-r from-pink-500 to-orange-500 rounded-full flex items-center justify-center">
@@ -340,7 +347,7 @@ export default function AboutPage() {
                   className="flex flex-col md:flex-row md:items-center"
                 >
                   <div className="w-full md:w-1/2 md:pr-12 text-center md:text-right">
-                    <Card className="bg-white/20 backdrop-blur-lg border border-white/30 shadow-2xl hover:shadow-3xl transition-all duration-500 group">
+                    <Card className="bg-white/20 backdrop-blur-lg border border-white/30 shadow-2xl hover:shadow-3xl transition-all duration-500 group ml-12 md:ml-0">
                       <CardContent className="p-6 md:p-8">
                         <div className="flex flex-col sm:flex-row items-center gap-4 mb-4">
                           <div className="w-16 h-16 sm:w-12 sm:h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center">
@@ -356,7 +363,7 @@ export default function AboutPage() {
                   </div>
                   <motion.div 
                     whileHover={{ scale: 1.2 }}
-                    className="w-16 h-16 sm:w-12 sm:h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center relative z-10 shadow-2xl mx-auto my-4 md:my-0"
+                    className="w-16 h-16 sm:w-12 sm:h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center relative z-10 shadow-2xl mx-auto my-4 md:my-0 absolute left-0 top-0 md:relative md:left-auto md:top-auto"
                   >
                     <Users className="w-8 h-8 sm:w-6 sm:h-6 text-white" />
                   </motion.div>
