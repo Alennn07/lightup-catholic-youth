@@ -178,20 +178,15 @@ export default function EnhancedYouthGroups() {
     }
   }
 
-  // Fetch data when group details modal opens
+  // Fetch related data when group details modal opens (only for members)
   useEffect(() => {
-    if (showGroupDetails && selectedGroup) {
-      console.log('🔄 Modal opened, fetching all group data...')
-      // Fetch detailed group info first
-      fetchGroupDetails(selectedGroup.id)
-      // Only fetch related data if user is a member
-      if (selectedGroup.is_member) {
-        fetchGroupMembers()
-        fetchGroupEvents()
-        fetchGroupPosts()
-      }
+    if (showGroupDetails && selectedGroup && selectedGroup.is_member) {
+      console.log('🔄 Fetching related data for member...')
+      fetchGroupMembers()
+      fetchGroupEvents()
+      fetchGroupPosts()
     }
-  }, [showGroupDetails, selectedGroup])
+  }, [showGroupDetails, selectedGroup?.is_member])
 
   // Initialize edit form when group is selected
   useEffect(() => {
@@ -934,11 +929,13 @@ export default function EnhancedYouthGroups() {
           <Card 
             key={group.id} 
             className="hover:shadow-lg hover:scale-105 transition-all duration-200 cursor-pointer border-2 hover:border-blue-200"
-            onClick={() => {
+            onClick={async () => {
               console.log('🖱️ Group clicked:', group.id, group.name)
               console.log('🔍 Group data:', group)
               setSelectedGroup(group)
               setShowGroupDetails(true)
+              // Fetch detailed group info
+              await fetchGroupDetails(group.id)
             }}
           >
             <CardHeader className="pb-4">
