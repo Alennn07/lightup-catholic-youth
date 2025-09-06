@@ -8,18 +8,29 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Heart, Users, Code, Palette, Megaphone, BookOpen, Camera, Music, Globe } from 'lucide-react';
+import { Heart, Users, Code, Palette, Megaphone, BookOpen, Camera, Music, Globe, UserCheck, Calendar, UserPlus, Share2, Target, Laptop, Smartphone, Monitor, Image, Video, Edit3, Bug, TrendingUp, MessageSquare } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const volunteerRoles = [
-  { value: 'developer', label: 'Developer', icon: Code, description: 'Help build and maintain the platform' },
-  { value: 'designer', label: 'Designer', icon: Palette, description: 'Create beautiful UI/UX designs' },
-  { value: 'content-writer', label: 'Content Writer', icon: BookOpen, description: 'Write engaging content and articles' },
-  { value: 'marketing', label: 'Marketing', icon: Megaphone, description: 'Help spread the word about LightUp' },
-  { value: 'photographer', label: 'Photographer', icon: Camera, description: 'Capture moments and create visual content' },
-  { value: 'musician', label: 'Musician', icon: Music, description: 'Create worship music and audio content' },
-  { value: 'translator', label: 'Translator', icon: Globe, description: 'Help translate content to different languages' },
-  { value: 'other', label: 'Other', icon: Users, description: 'Have another skill to contribute?' }
+  // Community Roles
+  { value: 'prayer-moderator', label: 'Prayer Moderator', icon: UserCheck, description: 'Lead/guide prayer sessions', category: 'Community' },
+  { value: 'youth-group-coordinator', label: 'Youth Group Coordinator', icon: Users, description: 'Organize and manage group activities', category: 'Community' },
+  { value: 'event-volunteer', label: 'Event Volunteer', icon: Calendar, description: 'Help plan and run LightUp events', category: 'Community' },
+  { value: 'mentor-guide', label: 'Mentor / Guide', icon: UserPlus, description: 'Support and encourage younger members', category: 'Community' },
+  { value: 'content-sharer', label: 'Content Sharer', icon: Share2, description: 'Share verses, reflections, and uplifting messages', category: 'Community' },
+  { value: 'outreach-volunteer', label: 'Outreach Volunteer', icon: Target, description: 'Invite and connect new members to LightUp', category: 'Community' },
+  
+  // Skill-Based Roles
+  { value: 'frontend-developer', label: 'Frontend Developer', icon: Laptop, description: 'Work on UI/UX and fix responsive issues', category: 'Skill-Based' },
+  { value: 'backend-developer', label: 'Backend Developer', icon: Code, description: 'Build and improve APIs, Supabase, and integrations', category: 'Skill-Based' },
+  { value: 'mobile-developer', label: 'Mobile Developer', icon: Smartphone, description: 'Contribute to future LightUp mobile app', category: 'Skill-Based' },
+  { value: 'ui-ux-designer', label: 'UI/UX Designer', icon: Monitor, description: 'Design layouts and improve usability', category: 'Skill-Based' },
+  { value: 'graphic-designer', label: 'Graphic Designer', icon: Image, description: 'Create visuals, verse snaps, and posters', category: 'Skill-Based' },
+  { value: 'video-editor', label: 'Video Editor', icon: Video, description: 'Edit reels, short films, or promo content', category: 'Skill-Based' },
+  { value: 'content-writer-editor', label: 'Content Writer/Editor', icon: Edit3, description: 'Write devotionals, blogs, or app content', category: 'Skill-Based' },
+  { value: 'tester-qa-volunteer', label: 'Tester / QA Volunteer', icon: Bug, description: 'Test features and report bugs', category: 'Skill-Based' },
+  { value: 'marketing-social-media', label: 'Marketing & Social Media Volunteer', icon: TrendingUp, description: 'Grow LightUp\'s online reach', category: 'Skill-Based' },
+  { value: 'community-manager', label: 'Community Manager', icon: MessageSquare, description: 'Manage groups, discussions, and engagement', category: 'Skill-Based' }
 ];
 
 export default function VolunteerForm() {
@@ -163,14 +174,35 @@ export default function VolunteerForm() {
                     <SelectValue placeholder="Select your role" />
                   </SelectTrigger>
                   <SelectContent>
-                    {volunteerRoles.map((role) => (
-                      <SelectItem key={role.value} value={role.value}>
-                        <div className="flex items-center gap-2">
-                          <role.icon className="w-4 h-4" />
-                          <span>{role.label}</span>
-                        </div>
-                      </SelectItem>
-                    ))}
+                    {/* Community Roles Section */}
+                    <div className="px-2 py-1.5 text-sm font-semibold text-gray-900 bg-purple-50">
+                      Community Roles
+                    </div>
+                    {volunteerRoles
+                      .filter(role => role.category === 'Community')
+                      .map((role) => (
+                        <SelectItem key={role.value} value={role.value}>
+                          <div className="flex items-center gap-2">
+                            <role.icon className="w-4 h-4" />
+                            <span>{role.label}</span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    
+                    {/* Skill-Based Roles Section */}
+                    <div className="px-2 py-1.5 text-sm font-semibold text-gray-900 bg-blue-50 mt-2">
+                      Skill-Based Roles
+                    </div>
+                    {volunteerRoles
+                      .filter(role => role.category === 'Skill-Based')
+                      .map((role) => (
+                        <SelectItem key={role.value} value={role.value}>
+                          <div className="flex items-center gap-2">
+                            <role.icon className="w-4 h-4" />
+                            <span>{role.label}</span>
+                          </div>
+                        </SelectItem>
+                      ))}
                   </SelectContent>
                 </Select>
                 {selectedRole && (

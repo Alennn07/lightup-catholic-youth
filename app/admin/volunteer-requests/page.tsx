@@ -22,7 +22,20 @@ import {
   Eye,
   EyeOff,
   Download,
-  RefreshCw
+  RefreshCw,
+  UserCheck,
+  UserPlus,
+  Share2,
+  Target,
+  Laptop,
+  Smartphone,
+  Monitor,
+  Image,
+  Video,
+  Edit3,
+  Bug,
+  TrendingUp,
+  MessageSquare
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -41,14 +54,25 @@ interface VolunteerApplication {
 }
 
 const roleIcons: { [key: string]: any } = {
-  'developer': Code,
-  'designer': Palette,
-  'content-writer': BookOpen,
-  'marketing': Megaphone,
-  'photographer': Camera,
-  'musician': Music,
-  'translator': Globe,
-  'other': Users,
+  // Community Roles
+  'prayer-moderator': UserCheck,
+  'youth-group-coordinator': Users,
+  'event-volunteer': Calendar,
+  'mentor-guide': UserPlus,
+  'content-sharer': Share2,
+  'outreach-volunteer': Target,
+  
+  // Skill-Based Roles
+  'frontend-developer': Laptop,
+  'backend-developer': Code,
+  'mobile-developer': Smartphone,
+  'ui-ux-designer': Monitor,
+  'graphic-designer': Image,
+  'video-editor': Video,
+  'content-writer-editor': Edit3,
+  'tester-qa-volunteer': Bug,
+  'marketing-social-media': TrendingUp,
+  'community-manager': MessageSquare,
 };
 
 const statusColors: { [key: string]: string } = {
