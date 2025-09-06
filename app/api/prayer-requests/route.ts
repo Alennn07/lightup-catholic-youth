@@ -34,6 +34,20 @@ export async function GET(request: NextRequest) {
       }
     )
 
+    // Check if user is authenticated
+    const authHeader = request.headers.get('authorization')
+    let currentUserId = null
+    
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const token = authHeader.replace('Bearer ', '')
+      const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+      
+      if (!authError && user) {
+        currentUserId = user.id
+        console.log('👤 Authenticated user:', currentUserId)
+      }
+    }
+
     // Fetch prayer requests with user information
     const { data: requests, error } = await supabase
       .from("prayer_requests")
@@ -46,6 +60,26 @@ export async function GET(request: NextRequest) {
     if (error) {
       console.error("Error fetching prayer requests:", error)
       throw error
+    }
+
+    // If user is authenticated, check which prayers they've already prayed for
+    if (currentUserId && requests) {
+      const requestIds = requests.map(req => req.id)
+      
+      const { data: userPrayers, error: prayerError } = await supabase
+        .from("prayer_participants")
+        .select("prayer_request_id")
+        .eq("user_id", currentUserId)
+        .in("prayer_request_id", requestIds)
+
+      if (!prayerError && userPrayers) {
+        const prayedRequestIds = new Set(userPrayers.map(p => p.prayer_request_id))
+        
+        // Add has_user_prayed flag to each request
+        requests.forEach(request => {
+          request.has_user_prayed = prayedRequestIds.has(request.id)
+        })
+      }
     }
 
     console.log('✅ Prayer requests fetched successfully:', requests?.length || 0)

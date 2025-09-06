@@ -63,41 +63,60 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     const id = params.id
     console.log('📝 Updating prayer count for request ID:', id)
 
-    // First get the current prayer count
-    const { data: currentRequest, error: fetchError } = await supabase
+    // Check if user has already prayed for this request
+    const { data: existingPrayer, error: checkError } = await supabase
+      .from("prayer_participants")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("prayer_request_id", id)
+      .single()
+
+    if (checkError && checkError.code !== 'PGRST116') { // PGRST116 = no rows found
+      console.error("Error checking existing prayer:", checkError)
+      throw checkError
+    }
+
+    if (existingPrayer) {
+      console.log('❌ User has already prayed for this request')
+      return NextResponse.json({ 
+        error: "You have already prayed for this request",
+        alreadyPrayed: true 
+      }, { status: 400 })
+    }
+
+    // Add user to prayer participants
+    const { data: participation, error: insertError } = await supabase
+      .from("prayer_participants")
+      .insert({
+        user_id: user.id,
+        prayer_request_id: id
+      })
+      .select()
+      .single()
+
+    if (insertError) {
+      console.error("Error adding prayer participation:", insertError)
+      throw insertError
+    }
+
+    // Get updated prayer count (trigger should have updated it)
+    const { data: updatedRequest, error: fetchError } = await supabase
       .from("prayer_requests")
       .select("prayer_count")
       .eq("id", id)
       .single()
 
     if (fetchError) {
-      console.error("Error fetching current prayer count:", fetchError)
+      console.error("Error fetching updated prayer count:", fetchError)
       throw fetchError
     }
 
-    const newPrayerCount = (currentRequest.prayer_count || 0) + 1
-
-    // Update prayer count
-    const { data, error } = await supabase
-      .from("prayer_requests")
-      .update({
-        prayer_count: newPrayerCount,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", id)
-      .select("prayer_count")
-      .single()
-
-    if (error) {
-      console.error("Error updating prayer count:", error)
-      throw error
-    }
-
-    console.log('✅ Prayer count updated successfully:', data.prayer_count)
+    console.log('✅ Prayer participation added successfully, count:', updatedRequest.prayer_count)
 
     return NextResponse.json({
       success: true,
-      prayerCount: data.prayer_count,
+      prayerCount: updatedRequest.prayer_count,
+      alreadyPrayed: false
     })
   } catch (error: any) {
     console.error("Error updating prayer count:", error)

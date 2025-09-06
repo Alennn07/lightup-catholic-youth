@@ -29,6 +29,7 @@ interface PrayerRequest {
   prayer_count: number
   created_at: string
   image_url?: string | null
+  has_user_prayed?: boolean  // Track if current user has prayed
   user?: {
     name: string
     avatar_url?: string
@@ -56,7 +57,15 @@ export function PrayerWall() {
 
   const fetchRequests = async () => {
     try {
-      const response = await fetch("/api/prayer-requests")
+      // Get the current access token
+      const accessToken = await getAccessToken()
+      
+      const headers: HeadersInit = {}
+      if (accessToken) {
+        headers.Authorization = `Bearer ${accessToken}`
+      }
+
+      const response = await fetch("/api/prayer-requests", { headers })
       if (!response.ok) throw new Error("Failed to fetch requests")
       const data = await response.json()
       setRequests(data)
@@ -148,12 +157,22 @@ export function PrayerWall() {
         },
       })
 
+      const responseData = await response.json()
+
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || "Failed to update prayer count")
+        // Check if user has already prayed
+        if (responseData.alreadyPrayed) {
+          toast({
+            title: "Already prayed",
+            description: "You have already prayed for this request",
+            variant: "default",
+          })
+          return
+        }
+        throw new Error(responseData.error || "Failed to update prayer count")
       }
 
-      const { prayerCount } = await response.json()
+      const { prayerCount } = responseData
       logIfEnabled(`🔄 API Response - prayerCount: ${prayerCount}`)
       logIfEnabled(`🔄 Current requests state: ${JSON.stringify(requests.map(req => ({ id: req.id, prayer_count: req.prayer_count })))}`)
       logIfEnabled(`🔄 Updating request ID: ${requestId}`)
@@ -161,7 +180,7 @@ export function PrayerWall() {
       setRequests(requests.map((req) => {
         if (req.id === requestId) {
           logIfEnabled(`🔄 Updating request: ${req.id} from ${req.prayer_count} to ${prayerCount}`)
-          return { ...req, prayer_count: prayerCount }
+          return { ...req, prayer_count: prayerCount, has_user_prayed: true }
         }
         return req
       }))
@@ -423,10 +442,15 @@ export function PrayerWall() {
                     onClick={() => handlePray(request.id)}
                     size="lg"
                     variant="ghost"
-                    className="text-rose-500 hover:text-rose-600 hover:bg-rose-50 font-medium px-4 py-2 text-base"
+                    disabled={request.has_user_prayed}
+                    className={`font-medium px-4 py-2 text-base ${
+                      request.has_user_prayed 
+                        ? "text-gray-400 cursor-not-allowed" 
+                        : "text-rose-500 hover:text-rose-600 hover:bg-rose-50"
+                    }`}
                   >
-                    <Heart className="h-5 w-5 mr-2" />
-                    Pray
+                    <Heart className={`h-5 w-5 mr-2 ${request.has_user_prayed ? "fill-current" : ""}`} />
+                    {request.has_user_prayed ? "Prayed" : "Pray"}
                   </Button>
                 </div>
               </div>
