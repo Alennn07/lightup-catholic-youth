@@ -13,7 +13,8 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Search, Users, MapPin, Calendar, Plus, Settings, MessageSquare, Heart, X, Edit, Trash2, Globe, RefreshCw, UserPlus, Clock, CheckCircle, XCircle } from 'lucide-react'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { Search, Users, MapPin, Calendar, Plus, Settings, MessageSquare, Heart, X, Edit, Trash2, Globe, RefreshCw, UserPlus, Clock, CheckCircle, XCircle, UserCheck, UserX } from 'lucide-react'
 import { logIfEnabled } from "@/lib/performance-monitor"
 import { useTranslation } from "@/lib/i18n"
 import { RoleBasedWrapper, CanCreateGroups, GroupOwnerOnly, CanManageMembers } from '@/components/role-based-wrapper'
@@ -500,6 +501,98 @@ export default function EnhancedYouthGroups() {
       toast({
         title: "Error",
         description: "Failed to add member",
+        variant: "destructive"
+      })
+    }
+  }
+
+  // Handle changing member role
+  const handleChangeMemberRole = async (userId: string, newRole: string) => {
+    if (!selectedGroup) return
+
+    try {
+      const token = await getAccessToken()
+      if (!token) return
+
+      const response = await fetch(`/api/youth-groups/${selectedGroup.id}/members/${userId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          role: newRole
+        })
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        toast({
+          title: "Success",
+          description: `Member role changed to ${newRole}`
+        })
+        
+        // Refresh the member list
+        fetchGroupMembers()
+      } else {
+        const error = await response.json()
+        toast({
+          title: "Error",
+          description: error.error || "Failed to change member role",
+          variant: "destructive"
+        })
+      }
+    } catch (error) {
+      console.error('Error changing member role:', error)
+      toast({
+        title: "Error",
+        description: "Failed to change member role",
+        variant: "destructive"
+      })
+    }
+  }
+
+  // Handle removing member
+  const handleRemoveMember = async (userId: string, email: string) => {
+    if (!selectedGroup) return
+
+    if (!confirm(`Are you sure you want to remove ${email} from this group?`)) {
+      return
+    }
+
+    try {
+      const token = await getAccessToken()
+      if (!token) return
+
+      const response = await fetch(`/api/youth-groups/${selectedGroup.id}/members/${userId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        toast({
+          title: "Success",
+          description: `Member ${email} removed from group`
+        })
+        
+        // Refresh the member list
+        fetchGroupMembers()
+      } else {
+        const error = await response.json()
+        toast({
+          title: "Error",
+          description: error.error || "Failed to remove member",
+          variant: "destructive"
+        })
+      }
+    } catch (error) {
+      console.error('Error removing member:', error)
+      toast({
+        title: "Error",
+        description: "Failed to remove member",
         variant: "destructive"
       })
     }
@@ -1491,9 +1584,37 @@ export default function EnhancedYouthGroups() {
                                 </div>
                               </div>
                               {selectedGroup?.is_owner && member.role !== 'owner' && (
-                                <Button size="sm" variant="outline">
-                                  <Settings className="h-4 w-4" />
-                                </Button>
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button size="sm" variant="outline">
+                                      <Settings className="h-4 w-4" />
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end">
+                                    <DropdownMenuItem 
+                                      onClick={() => handleChangeMemberRole(member.user_id, 'admin')}
+                                      disabled={member.role === 'admin'}
+                                    >
+                                      <UserCheck className="h-4 w-4 mr-2" />
+                                      Make Admin
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem 
+                                      onClick={() => handleChangeMemberRole(member.user_id, 'member')}
+                                      disabled={member.role === 'member'}
+                                    >
+                                      <User className="h-4 w-4 mr-2" />
+                                      Make Member
+                                    </DropdownMenuItem>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem 
+                                      onClick={() => handleRemoveMember(member.user_id, member.email)}
+                                      className="text-red-600"
+                                    >
+                                      <UserX className="h-4 w-4 mr-2" />
+                                      Remove Member
+                                    </DropdownMenuItem>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
                               )}
                             </div>
                           ))}
