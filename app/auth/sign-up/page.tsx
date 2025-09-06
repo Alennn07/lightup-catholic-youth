@@ -155,6 +155,19 @@ export default function SignUpPage() {
           return
         }
         
+        // Handle USER_ALREADY_EXISTS (user already exists)
+        if (result.code === 'USER_ALREADY_EXISTS' || 
+            (result.code === 'AUTH_ERROR' && result.error?.includes('already been registered'))) {
+          toast({
+            title: "Account Already Exists",
+            description: "This email is already registered. Please sign in instead.",
+            variant: "destructive",
+          })
+          // Redirect to sign-in page
+          router.push("/auth/sign-in")
+          return
+        }
+        
         // Generic error - show the actual error message from API
         console.log('🔍 Debug: No specific error code found, showing generic error')
         toast({
