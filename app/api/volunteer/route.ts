@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase-server';
+import { supabaseAdmin } from '@/lib/supabase-admin';
 
 export async function POST(request: NextRequest) {
   try {
@@ -71,10 +72,8 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createClient();
-    
-    // Get all volunteer applications
-    const { data, error } = await supabase
+    // Use admin client to bypass RLS policies for admin access
+    const { data, error } = await supabaseAdmin
       .from('volunteer_applications')
       .select('*')
       .order('created_at', { ascending: false });
