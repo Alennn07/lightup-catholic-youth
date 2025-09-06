@@ -474,55 +474,55 @@ export function FaithJournal() {
                     key={entry.id}
                     className="bg-muted/50 rounded-xl p-6 border border-border hover:shadow-md transition-all duration-300"
                   >
-                    <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-start justify-between mb-5">
                       <div className="flex-1">
-                        <h3 className="font-bold text-foreground text-xl mb-2">{entry.title}</h3>
-                                                 <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                           <div className="flex items-center gap-2">
-                             <Calendar className="h-4 w-4 text-amber-500" />
-                             <span>Created: {format(new Date(entry.entry_date), "MMM dd, yyyy")}</span>
-                             {entry.updated_at !== entry.created_at && (
-                               <>
-                                 <span className="text-muted-foreground">•</span>
-                                 <span className="flex items-center gap-1 text-blue-600">
-                                   <Edit className="h-3 w-3" />
-                                   Updated: {getRelativeTime(entry.updated_at)}
-                                 </span>
-                               </>
-                             )}
-                           </div>
-                           <div className="flex items-center gap-2 text-amber-600">
-                             <span className="text-lg">{moodInfo.icon}</span>
-                             <span className="font-medium">{moodInfo.label}</span>
-                           </div>
-                         </div>
+                        <h3 className="font-bold text-foreground text-2xl sm:text-3xl mb-3">{entry.title}</h3>
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 text-base sm:text-lg text-muted-foreground">
+                          <div className="flex items-center gap-2">
+                            <Calendar className="h-5 w-5 text-amber-500" />
+                            <span>Created: {format(new Date(entry.entry_date), "MMM dd, yyyy")}</span>
+                            {entry.updated_at !== entry.created_at && (
+                              <>
+                                <span className="text-muted-foreground">•</span>
+                                <span className="flex items-center gap-1 text-blue-600">
+                                  <Edit className="h-4 w-4" />
+                                  Updated: {getRelativeTime(entry.updated_at)}
+                                </span>
+                              </>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2 text-amber-600">
+                            <span className="text-xl">{moodInfo.icon}</span>
+                            <span className="font-medium">{moodInfo.label}</span>
+                          </div>
+                        </div>
                       </div>
                       <div className="flex gap-2">
                         <Button
                           onClick={() => handleEdit(entry)}
-                          size="sm"
+                          size="lg"
                           variant="ghost"
-                          className="text-amber-600 hover:text-amber-700 hover:bg-amber-50 dark:hover:bg-amber-950"
+                          className="text-amber-600 hover:text-amber-700 hover:bg-amber-50 dark:hover:bg-amber-950 px-3 py-2"
                         >
-                          <Edit className="h-4 w-4" />
+                          <Edit className="h-5 w-5" />
                         </Button>
                         <Button
                           onClick={() => handleDelete(entry.id)}
-                          size="sm"
+                          size="lg"
                           variant="ghost"
-                          className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950"
+                          className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950 px-3 py-2"
                         >
-                          <Trash2 className="h-4 w-4" />
+                          <Trash2 className="h-5 w-5" />
                         </Button>
                       </div>
                     </div>
 
-                    <p className="text-foreground text-base leading-relaxed mb-4 line-clamp-3">{entry.content}</p>
+                    <p className="text-foreground text-lg sm:text-xl leading-relaxed mb-5 line-clamp-3">{entry.content}</p>
 
                     {entry.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-2">
+                      <div className="flex flex-wrap gap-3">
                         {entry.tags.map((tag, index) => (
-                          <Badge key={index} className="bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100 text-xs">
+                          <Badge key={index} className="bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100 text-sm px-3 py-1">
                             #{tag}
                           </Badge>
                         ))}

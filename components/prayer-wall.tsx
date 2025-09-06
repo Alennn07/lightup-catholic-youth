@@ -369,29 +369,29 @@ export function PrayerWall() {
                 key={request.id}
                 className="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 sm:p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
               >
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3 sm:mb-4 gap-3">
-                  <div className="flex items-center gap-3 sm:gap-4">
-                    <Avatar className="h-10 w-10 sm:h-12 sm:w-12">
-                      <AvatarFallback className="bg-gradient-to-br from-amber-400 to-rose-500 text-white text-sm font-semibold">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-5 gap-4">
+                  <div className="flex items-center gap-4 sm:gap-4">
+                    <Avatar className="h-12 w-12 sm:h-14 sm:w-14">
+                      <AvatarFallback className="bg-gradient-to-br from-amber-400 to-rose-500 text-white text-base sm:text-lg font-semibold">
                         {request.is_anonymous ? "?" : (request.user?.name || request.name).charAt(0).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <p className="text-base sm:text-lg font-semibold text-gray-800">
+                      <p className="text-lg sm:text-xl font-semibold text-gray-800">
                         {request.is_anonymous ? "Anonymous" : request.user?.name || request.name}
                       </p>
-                      <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-500">
-                        <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-amber-500" />
+                      <div className="flex items-center gap-2 text-sm sm:text-base text-gray-500">
+                        <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-amber-500" />
                         {formatDistanceToNow(new Date(request.created_at), { addSuffix: true })}
                       </div>
                     </div>
                   </div>
-                  <Badge className="bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100 px-2 sm:px-3 py-1 text-xs sm:text-sm self-start sm:self-auto">
+                  <Badge className="bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100 px-3 sm:px-4 py-2 text-sm sm:text-base self-start sm:self-auto">
                     {request.category}
                   </Badge>
                 </div>
 
-                <p className="text-gray-700 text-sm sm:text-base leading-relaxed mb-3 sm:mb-4">{request.request}</p>
+                <p className="text-gray-700 text-base sm:text-lg leading-relaxed mb-4 sm:mb-5">{request.request}</p>
 
                 {/* Display uploaded image if exists */}
                 {request.image_url && (
@@ -413,19 +413,19 @@ export function PrayerWall() {
                 )}
 
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <Users className="h-4 w-4 text-amber-500" />
+                  <div className="flex items-center gap-3 text-base sm:text-lg text-gray-600">
+                    <Users className="h-5 w-5 sm:h-6 sm:w-6 text-amber-500" />
                     <span className="font-medium">
                       {request.prayer_count} {request.prayer_count === 1 ? "person" : "people"} prayed
                     </span>
                   </div>
                   <Button
                     onClick={() => handlePray(request.id)}
-                    size="sm"
+                    size="lg"
                     variant="ghost"
-                    className="text-rose-500 hover:text-rose-600 hover:bg-rose-50 font-medium"
+                    className="text-rose-500 hover:text-rose-600 hover:bg-rose-50 font-medium px-4 py-2 text-base"
                   >
-                    <Heart className="h-4 w-4 mr-2" />
+                    <Heart className="h-5 w-5 mr-2" />
                     Pray
                   </Button>
                 </div>

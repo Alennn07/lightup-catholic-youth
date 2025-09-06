@@ -760,9 +760,10 @@ export default function EnhancedYouthGroups() {
               setShowMemberRequests(true)
             }}
             variant="outline"
-            size="sm"
+            size="lg"
+            className="text-base px-4 py-2"
           >
-            <Users className="h-4 w-4 mr-2" />
+            <Users className="h-5 w-5 mr-2" />
             Manage
           </Button>
           <NotificationBadge groupId={group.id} />
@@ -775,9 +776,10 @@ export default function EnhancedYouthGroups() {
         <Button
           onClick={() => handleLeaveGroup(group.id)}
           variant="destructive"
-          size="sm"
+          size="lg"
+          className="text-base px-4 py-2"
         >
-          <X className="h-4 w-4 mr-2" />
+          <X className="h-5 w-5 mr-2" />
           Leave
         </Button>
       )
@@ -785,8 +787,8 @@ export default function EnhancedYouthGroups() {
     
     if (group.is_pending) {
       return (
-        <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
-          <Clock className="h-3 w-3 mr-1" />
+        <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 text-base px-4 py-2">
+          <Clock className="h-4 w-4 mr-2" />
           Pending
         </Badge>
       )
@@ -796,10 +798,10 @@ export default function EnhancedYouthGroups() {
     return (
       <Button
         onClick={() => handleJoinGroup(group.id)}
-        size="sm"
-        className="bg-blue-600 hover:bg-blue-700"
+        size="lg"
+        className="bg-blue-600 hover:bg-blue-700 text-base px-4 py-2"
       >
-        <UserPlus className="h-4 w-4 mr-2" />
+        <UserPlus className="h-5 w-5 mr-2" />
         {group.requires_approval ? 'Request to Join' : 'Join Group'}
       </Button>
     )
@@ -810,10 +812,10 @@ export default function EnhancedYouthGroups() {
     return (
       <Button
         onClick={() => handleJoinGroup(group.id)}
-        size="sm"
-        className="bg-green-600 hover:bg-green-700"
+        size="lg"
+        className="bg-green-600 hover:bg-green-700 text-base px-4 py-2"
       >
-        <UserPlus className="h-4 w-4 mr-2" />
+        <UserPlus className="h-5 w-5 mr-2" />
         Join Group
       </Button>
     )
@@ -882,7 +884,7 @@ export default function EnhancedYouthGroups() {
       </div>
 
       {/* Groups Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {filteredGroups.map((group) => (
           <Card 
             key={group.id} 
@@ -892,26 +894,26 @@ export default function EnhancedYouthGroups() {
               setShowGroupDetails(true)
             }}
           >
-            <CardHeader className="pb-3">
+            <CardHeader className="pb-4">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <CardTitle className="text-lg font-semibold text-gray-900 mb-1">
+                  <CardTitle className="text-xl sm:text-2xl font-semibold text-gray-900 mb-2">
                     {group.name}
                   </CardTitle>
-                  <div className="flex items-center space-x-2 text-sm text-gray-500 mb-2">
-                    <MapPin className="h-4 w-4" />
+                  <div className="flex items-center space-x-2 text-base sm:text-lg text-gray-500 mb-3">
+                    <MapPin className="h-5 w-5" />
                     <span>{group.city}, {group.state}</span>
                   </div>
-                  <div className="flex items-center space-x-4 text-sm text-gray-500">
-                    <div className="flex items-center space-x-1">
-                      <Users className="h-4 w-4" />
+                  <div className="flex flex-wrap items-center gap-3 text-base sm:text-lg text-gray-500">
+                    <div className="flex items-center space-x-2">
+                      <Users className="h-5 w-5" />
                       <span>{group.member_count || 0}/{group.max_members}</span>
                     </div>
-                    <Badge variant={group.is_public ? "default" : "secondary"}>
+                    <Badge variant={group.is_public ? "default" : "secondary"} className="text-sm px-3 py-1">
                       {group.is_public ? "Public" : "Private"}
                     </Badge>
                     {group.requires_approval && (
-                      <Badge variant="outline" className="text-xs">
+                      <Badge variant="outline" className="text-sm px-3 py-1">
                         Approval Required
                       </Badge>
                     )}
@@ -921,18 +923,18 @@ export default function EnhancedYouthGroups() {
             </CardHeader>
             
             <CardContent className="pt-0">
-              <p className="text-gray-600 text-sm mb-4 line-clamp-3">
+              <p className="text-gray-600 text-base sm:text-lg mb-4 line-clamp-3">
                 {group.description}
               </p>
               
               {group.mission_statement && (
-                <p className="text-gray-500 text-xs mb-4 italic">
+                <p className="text-gray-500 text-sm sm:text-base mb-4 italic">
                   "{group.mission_statement}"
                 </p>
               )}
               
               <div className="flex items-center justify-between">
-                <div className="text-sm text-gray-500">
+                <div className="text-base sm:text-lg text-gray-500">
                   {group.age_range && (
                     <span>Ages {group.age_range}</span>
                   )}
@@ -1132,7 +1134,7 @@ export default function EnhancedYouthGroups() {
       </Dialog>
 
       {/* Group Details Modal */}
-      <Dialog open={showGroupDetails && selectedGroup} onOpenChange={setShowGroupDetails}>
+      <Dialog open={Boolean(showGroupDetails && selectedGroup)} onOpenChange={setShowGroupDetails}>
         <DialogContent className="max-w-6xl max-h-[95vh] overflow-hidden">
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold text-gray-900">
