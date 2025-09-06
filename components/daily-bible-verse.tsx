@@ -75,59 +75,83 @@ export function DailyBibleVerse() {
 
   // 🚀 OPTIMIZED: Concurrent data fetching with caching
   const fetchDailyVerse = useCallback(async () => {
-    if (!user) return
-    
-          // Check cache first
-      const cacheKey = `${user.id}-${clientDate}`
-      const cachedData = verseCache.get(cacheKey)
-      
-      if (cachedData && (Date.now() - (cachedData as any).timestamp) < CACHE_DURATION) {
-        logIfEnabled('🚀 Using cached data for better performance')
-        setVerseData(cachedData)
-        setIsLoading(false)
-        return
-      }
-    
     setIsLoading(true)
     const startTime = Date.now()
     
     try {
+      // Check if user is authenticated
       const { data: { session } } = await supabase.auth.getSession()
-      if (!session?.access_token) {
-        throw new Error('No access token')
+      
+      if (session?.access_token && user) {
+        // Check cache first for authenticated users
+        const cacheKey = `${user.id}-${clientDate}`
+        const cachedData = verseCache.get(cacheKey)
+        
+        if (cachedData && (Date.now() - (cachedData as any).timestamp) < CACHE_DURATION) {
+          logIfEnabled('🚀 Using cached data for better performance')
+          setVerseData(cachedData)
+          setIsLoading(false)
+          return
+        }
+
+        logIfEnabled(`📱 Client sending date: ${clientDate}`)
+        logIfEnabled(`📱 Client local time: ${new Date().toLocaleString()}`)
+        logIfEnabled(`📱 Client timezone: ${Intl.DateTimeFormat().resolvedOptions().timeZone}`)
+        
+        // 🚀 CONCURRENT API CALLS for better performance
+        const [verseResponse, userProfileResponse] = await Promise.all([
+          fetch(`/api/daily-bible-verse?date=${clientDate}`, {
+            headers: {
+              'Authorization': `Bearer ${session.access_token}`
+            }
+          }),
+          // Fetch user profile data concurrently if needed
+          fetch(`/api/users/profile?userId=${user.id}`, {
+            headers: {
+              'Authorization': `Bearer ${session.access_token}`
+            }
+          }).catch(() => null) // Don't fail if profile fetch fails
+        ])
+
+        if (!verseResponse.ok) throw new Error('Failed to fetch verse')
+        
+        const data = await verseResponse.json()
+        logIfEnabled(`✅ Fetched verse data: ${JSON.stringify(data).substring(0, 100)}...`)
+        
+        // Add timestamp for caching
+        const dataWithTimestamp = { ...data, timestamp: Date.now() }
+        
+        // Cache the data
+        verseCache.set(cacheKey, dataWithTimestamp)
+        
+        setVerseData(data)
+      } else {
+        // For non-authenticated users, show a static verse
+        const staticVerse = {
+          id: 'John 3:16',
+          text: 'For God so loved the world that he gave his one and only Son, that whoever believes in him shall not perish but have eternal life.',
+          reference: 'John 3:16',
+          theme: 'Love',
+          reflection: 'God\'s love is unconditional and eternal. He gave everything for us, showing the depth of His love.',
+          action: 'Take a moment to reflect on God\'s love for you today.'
+        }
+        
+        const staticData = {
+          verse: staticVerse,
+          user_progress: {
+            is_completed: false,
+            read_at: null,
+            is_favorited: false
+          },
+          stats: {
+            reading_streak: 0,
+            today_date: clientDate
+          }
+        }
+        
+        setVerseData(staticData)
+        logIfEnabled('📖 Showing static verse for non-authenticated user')
       }
-
-      logIfEnabled(`📱 Client sending date: ${clientDate}`)
-      logIfEnabled(`📱 Client local time: ${new Date().toLocaleString()}`)
-      logIfEnabled(`📱 Client timezone: ${Intl.DateTimeFormat().resolvedOptions().timeZone}`)
-      
-      // 🚀 CONCURRENT API CALLS for better performance
-      const [verseResponse, userProfileResponse] = await Promise.all([
-        fetch(`/api/daily-bible-verse?date=${clientDate}`, {
-          headers: {
-            'Authorization': `Bearer ${session.access_token}`
-          }
-        }),
-        // Fetch user profile data concurrently if needed
-        fetch(`/api/users/profile?userId=${user.id}`, {
-          headers: {
-            'Authorization': `Bearer ${session.access_token}`
-          }
-        }).catch(() => null) // Don't fail if profile fetch fails
-      ])
-
-      if (!verseResponse.ok) throw new Error('Failed to fetch verse')
-      
-      const data = await verseResponse.json()
-      logIfEnabled(`✅ Fetched verse data: ${JSON.stringify(data).substring(0, 100)}...`)
-      
-      // Add timestamp for caching
-      const dataWithTimestamp = { ...data, timestamp: Date.now() }
-      
-      // Cache the data
-      verseCache.set(cacheKey, dataWithTimestamp)
-      
-      setVerseData(data)
       
       const endTime = Date.now()
       const duration = endTime - startTime
@@ -136,10 +160,36 @@ export function DailyBibleVerse() {
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error'
       logIfEnabled(`Error fetching daily verse: ${errorMessage}`, 'error')
+      
+      // Show static verse as fallback
+      const fallbackVerse = {
+        id: 'Psalm 23:1',
+        text: 'The Lord is my shepherd; I shall not want.',
+        reference: 'Psalm 23:1',
+        theme: 'Comfort',
+        reflection: 'God is our shepherd, guiding and providing for us. We can trust in His care.',
+        action: 'Take comfort in knowing that God is watching over you.'
+      }
+      
+      const fallbackData = {
+        verse: fallbackVerse,
+        user_progress: {
+          is_completed: false,
+          read_at: null,
+          is_favorited: false
+        },
+        stats: {
+          reading_streak: 0,
+          today_date: clientDate
+        }
+      }
+      
+      setVerseData(fallbackData)
+      
       toast({
-        title: "Error",
-        description: "Failed to load today's verse. Please try again.",
-        variant: "destructive",
+        title: "Welcome!",
+        description: "Here's today's verse. Sign in to track your reading streak!",
+        variant: "default",
       })
     } finally {
       setIsLoading(false)
@@ -147,10 +197,8 @@ export function DailyBibleVerse() {
   }, [user, clientDate, toast])
 
   useEffect(() => {
-    if (user) {
-      fetchDailyVerse()
-    }
-  }, [user, fetchDailyVerse])
+    fetchDailyVerse()
+  }, [fetchDailyVerse])
 
   // 🚀 OPTIMIZED: Optimistic UI update for better perceived performance
   const handleMarkCompleted = useCallback(async () => {
@@ -351,23 +399,37 @@ export function DailyBibleVerse() {
 
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 md:gap-4 justify-center">
-            <Button
-              onClick={handleMarkCompleted}
-              disabled={isUpdating || verseData.user_progress.is_completed}
-              className={`flex items-center gap-2 h-10 sm:h-11 w-full sm:w-auto text-sm sm:text-base ${
-                verseData.user_progress.is_completed 
-                  ? 'bg-green-600 hover:bg-green-700' 
-                  : 'bg-purple-600 hover:bg-purple-700'
-              }`}
-            >
-              <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4" />
-              {verseData.user_progress.is_completed ? 'Completed Today!' : 'Mark as Completed'}
-            </Button>
+            {user ? (
+              <Button
+                onClick={handleMarkCompleted}
+                disabled={isUpdating || verseData.user_progress.is_completed}
+                className={`flex items-center gap-2 h-10 sm:h-11 w-full sm:w-auto text-sm sm:text-base ${
+                  verseData.user_progress.is_completed 
+                    ? 'bg-green-600 hover:bg-green-700' 
+                    : 'bg-purple-600 hover:bg-purple-700'
+                }`}
+              >
+                <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4" />
+                {verseData.user_progress.is_completed ? 'Completed Today!' : 'Mark as Completed'}
+              </Button>
+            ) : (
+              <Button
+                onClick={() => window.location.href = '/auth/sign-in'}
+                className="flex items-center gap-2 h-10 sm:h-11 w-full sm:w-auto text-sm sm:text-base bg-purple-600 hover:bg-purple-700"
+              >
+                <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4" />
+                Sign In to Track Progress
+              </Button>
+            )}
 
             <div className="flex gap-2 sm:gap-3 md:gap-4">
-              <Button variant="outline" className="flex items-center gap-2 h-10 sm:h-11 flex-1 sm:flex-none text-sm sm:text-base">
+              <Button 
+                variant="outline" 
+                className="flex items-center gap-2 h-10 sm:h-11 flex-1 sm:flex-none text-sm sm:text-base"
+                onClick={() => !user && (window.location.href = '/auth/sign-in')}
+              >
                 <Heart className="h-3 w-3 sm:h-4 sm:w-4" />
-                Favorite
+                {user ? 'Favorite' : 'Sign In to Favorite'}
               </Button>
 
               <Button 
