@@ -14,7 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { Search, Users, MapPin, Calendar, Plus, Settings, MessageSquare, Heart, X, Edit, Trash2, Globe, RefreshCw, UserPlus, Clock, CheckCircle, XCircle, UserCheck, UserX } from 'lucide-react'
+import { Search, Users, MapPin, Calendar, Plus, Settings, MessageSquare, Heart, X, Edit, Trash2, Globe, RefreshCw, UserPlus, Clock, CheckCircle, XCircle, UserCheck, UserX, User } from 'lucide-react'
 import { logIfEnabled } from "@/lib/performance-monitor"
 import { useTranslation } from "@/lib/i18n"
 import { RoleBasedWrapper, CanCreateGroups, GroupOwnerOnly, CanManageMembers } from '@/components/role-based-wrapper'
