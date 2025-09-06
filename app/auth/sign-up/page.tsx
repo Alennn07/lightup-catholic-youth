@@ -104,30 +104,69 @@ export default function SignUpPage() {
       }
 
       console.log('✅ Registration successful!')
-      toast({
-        title: "Welcome to LightUp! ✨",
-        description: "Your account has been created successfully.",
-        variant: "default",
-      })
-
-      // Now sign in the user automatically
-      try {
-        const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-          email: formData.email,
-          password: formData.password,
+      
+      // Check if auto-login is enabled
+      if (result.autoLogin && result.session) {
+        console.log('🔄 Auto-login enabled, setting session...')
+        
+        // Set the session directly using the returned session data
+        const { error: sessionError } = await supabase.auth.setSession({
+          access_token: result.session.access_token,
+          refresh_token: result.session.refresh_token
         })
         
-        if (signInError) {
-          console.error('❌ Auto sign-in failed:', signInError)
-          // Redirect to sign-in page if auto-login fails
+        if (sessionError) {
+          console.error('❌ Failed to set session:', sessionError)
+          toast({
+            title: "Account Created! 🎉",
+            description: "Please sign in to continue.",
+            variant: "default",
+          })
           router.push("/auth/sign-in")
         } else {
-          console.log('✅ Auto sign-in successful!')
+          console.log('✅ Auto-login successful!')
+          toast({
+            title: "Welcome to LightUp! ✨",
+            description: "Your account has been created and you're now logged in!",
+            variant: "default",
+          })
           router.push("/dashboard")
         }
-      } catch (signInException) {
-        console.error('❌ Exception during auto sign-in:', signInException)
-        router.push("/auth/sign-in")
+      } else {
+        // Fallback to manual sign-in
+        console.log('🔄 Auto-login not available, signing in manually...')
+        try {
+          const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+            email: formData.email,
+            password: formData.password,
+          })
+          
+          if (signInError) {
+            console.error('❌ Auto sign-in failed:', signInError)
+            toast({
+              title: "Account Created! 🎉",
+              description: "Please sign in to continue.",
+              variant: "default",
+            })
+            router.push("/auth/sign-in")
+          } else {
+            console.log('✅ Auto sign-in successful!')
+            toast({
+              title: "Welcome to LightUp! ✨",
+              description: "Your account has been created and you're now logged in!",
+              variant: "default",
+            })
+            router.push("/dashboard")
+          }
+        } catch (signInException) {
+          console.error('❌ Exception during auto sign-in:', signInException)
+          toast({
+            title: "Account Created! 🎉",
+            description: "Please sign in to continue.",
+            variant: "default",
+          })
+          router.push("/auth/sign-in")
+        }
       }
     } catch (error: any) {
       console.error('❌ Registration error in component:', error)

@@ -106,9 +106,22 @@ export async function POST(request: NextRequest) {
     // 3. Email verification DISABLED for launch - users can sign in immediately
     console.log('✅ Email verification disabled - user can sign in immediately');
 
+    // 4. AUTO-LOGIN: Create session for immediate login
+    const { data: sessionData, error: sessionError } = await supabase.auth.admin.generateLink({
+      type: 'magiclink',
+      email: email,
+      options: {
+        redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/dashboard`
+      }
+    });
+
+    if (sessionError) {
+      console.warn('⚠️ Could not generate auto-login link:', sessionError.message);
+    }
+
     return NextResponse.json({
       success: true,
-      message: 'Registration successful! You can now sign in to your account.',
+      message: 'Registration successful! You are now logged in.',
       user: {
         id: authData.user!.id,
         name,
@@ -117,7 +130,15 @@ export async function POST(request: NextRequest) {
         age: age,
         parish,
         diocese,
-      }
+      },
+      // Return session data for auto-login
+      session: {
+        access_token: authData.session?.access_token,
+        refresh_token: authData.session?.refresh_token,
+        expires_at: authData.session?.expires_at,
+        user: authData.user
+      },
+      autoLogin: true
     }, { status: 200 });
 
   } catch (error: any) {
