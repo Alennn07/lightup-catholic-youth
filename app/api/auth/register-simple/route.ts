@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
       const verificationToken = generateSecureToken();
       storeToken(verificationToken, authData.user!.id, 'email_verification', 24 * 60 * 60 * 1000); // 24 hours
       
-      const verificationLink = `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/verify-email?token=${verificationToken}`;
+      const verificationLink = `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/verify-email?token=${verificationToken}&userId=${authData.user!.id}`;
       
       const emailResult = await EmailService.sendVerificationEmail(
         email,
