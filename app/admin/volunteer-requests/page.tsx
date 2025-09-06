@@ -121,7 +121,7 @@ export default function VolunteerRequestsPage() {
       ...applications.map(app => [
         `"${app.name}"`,
         `"${app.email}"`,
-        `"${app.phone || 'N/A'}"`,
+        `"${app.phone ? `'${app.phone}'` : 'N/A'}"`, // Add single quote prefix to prevent Excel scientific notation
         `"${app.role}"`,
         `"${app.experience || 'N/A'}"`,
         `"${app.availability}"`,
@@ -176,7 +176,7 @@ export default function VolunteerRequestsPage() {
                 onClick={fetchApplications}
                 disabled={isLoading}
                 variant="outline"
-                className="bg-white/50 border-white/30 hover:bg-white/70"
+                className="bg-white border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 shadow-sm"
               >
                 <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
                 Refresh
