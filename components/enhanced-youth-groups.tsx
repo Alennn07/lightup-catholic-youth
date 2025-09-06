@@ -78,6 +78,7 @@ export default function EnhancedYouthGroups() {
   const [showEditGroup, setShowEditGroup] = useState(false)
   const [newMemberEmail, setNewMemberEmail] = useState('')
   const [joinRequestMessage, setJoinRequestMessage] = useState('')
+  const [showJoinRequestModal, setShowJoinRequestModal] = useState(false)
   const [groupMembers, setGroupMembers] = useState<any[]>([])
   const [groupEvents, setGroupEvents] = useState<any[]>([])
   const [groupPosts, setGroupPosts] = useState<any[]>([])
@@ -337,6 +338,8 @@ export default function EnhancedYouthGroups() {
       console.log('📝 Opening modal for join request (approval required)')
       setSelectedGroup(group)
       setShowGroupDetails(true)
+      // Also show the join request form
+      setShowJoinRequestModal(true)
       return
     }
 
@@ -382,6 +385,7 @@ export default function EnhancedYouthGroups() {
         )
         
         setShowGroupDetails(false)
+        setShowJoinRequestModal(false)
         setSelectedGroup(null)
         console.log('Refreshing groups list...')
         await fetchGroups()
@@ -1631,7 +1635,7 @@ export default function EnhancedYouthGroups() {
       </Dialog>
 
       {/* Join Request Modal - Only open when explicitly requested */}
-      <Dialog open={false} onOpenChange={() => {}}>
+      <Dialog open={showJoinRequestModal} onOpenChange={setShowJoinRequestModal}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Join {selectedGroup?.name}</DialogTitle>
