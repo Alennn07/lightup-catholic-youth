@@ -977,8 +977,11 @@ export default function EnhancedYouthGroups() {
             onClick={async () => {
               console.log('🖱️ Group clicked:', group.id, group.name)
               console.log('🔍 Group data:', group)
+              console.log('🔍 Is owner:', group.is_owner)
+              console.log('🔍 Is member:', group.is_member)
               setSelectedGroup(group)
               setShowGroupDetails(true)
+              console.log('✅ Modal should be opening now...')
               // Fetch detailed group info
               await fetchGroupDetails(group.id)
             }}
@@ -1223,7 +1226,12 @@ export default function EnhancedYouthGroups() {
       </Dialog>
 
       {/* Group Details Modal */}
-      <Dialog open={Boolean(showGroupDetails && selectedGroup)} onOpenChange={setShowGroupDetails}>
+      <Dialog open={Boolean(showGroupDetails && selectedGroup)} onOpenChange={(open) => {
+        console.log('🔍 Modal onOpenChange called:', open)
+        console.log('🔍 showGroupDetails:', showGroupDetails)
+        console.log('🔍 selectedGroup:', selectedGroup?.name)
+        setShowGroupDetails(open)
+      }}>
         <DialogContent className="max-w-6xl max-h-[95vh] overflow-hidden">
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold text-gray-900">
