@@ -63,17 +63,29 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     const id = params.id
     console.log('📝 Updating prayer count for request ID:', id)
 
-    // Check if user has already prayed for this request
-    const { data: existingPrayer, error: checkError } = await supabase
-      .from("prayer_participants")
-      .select("id")
-      .eq("user_id", user.id)
-      .eq("prayer_request_id", id)
-      .single()
+    // Try to check if user has already prayed for this request
+    let existingPrayer = null
+    try {
+      const { data, error: checkError } = await supabase
+        .from("prayer_participants")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("prayer_request_id", id)
+        .single()
 
-    if (checkError && checkError.code !== 'PGRST116') { // PGRST116 = no rows found
-      console.error("Error checking existing prayer:", checkError)
-      throw checkError
+      if (checkError && checkError.code !== 'PGRST116') { // PGRST116 = no rows found
+        console.error("Error checking existing prayer:", checkError)
+        // If table doesn't exist, continue with old method
+        if (checkError.code === '42P01') { // Table doesn't exist
+          console.log('⚠️ prayer_participants table does not exist, using fallback method')
+        } else {
+          throw checkError
+        }
+      } else {
+        existingPrayer = data
+      }
+    } catch (error) {
+      console.log('⚠️ Could not check existing prayers, using fallback method')
     }
 
     if (existingPrayer) {
@@ -84,38 +96,88 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       }, { status: 400 })
     }
 
-    // Add user to prayer participants
-    const { data: participation, error: insertError } = await supabase
-      .from("prayer_participants")
-      .insert({
-        user_id: user.id,
-        prayer_request_id: id
-      })
-      .select()
-      .single()
+    // Try to add user to prayer participants (new method)
+    try {
+      const { data: participation, error: insertError } = await supabase
+        .from("prayer_participants")
+        .insert({
+          user_id: user.id,
+          prayer_request_id: id
+        })
+        .select()
+        .single()
 
-    if (insertError) {
-      console.error("Error adding prayer participation:", insertError)
-      throw insertError
+      if (insertError) {
+        console.error("Error adding prayer participation:", insertError)
+        // If table doesn't exist, fall back to old method
+        if (insertError.code === '42P01') {
+          console.log('⚠️ prayer_participants table does not exist, using fallback method')
+        } else {
+          throw insertError
+        }
+      } else {
+        // New method worked, get updated count
+        const { data: updatedRequest, error: fetchError } = await supabase
+          .from("prayer_requests")
+          .select("prayer_count")
+          .eq("id", id)
+          .single()
+
+        if (fetchError) {
+          console.error("Error fetching updated prayer count:", fetchError)
+          throw fetchError
+        }
+
+        console.log('✅ Prayer participation added successfully, count:', updatedRequest.prayer_count)
+
+        return NextResponse.json({
+          success: true,
+          prayerCount: updatedRequest.prayer_count,
+          alreadyPrayed: false
+        })
+      }
+    } catch (error) {
+      console.log('⚠️ New method failed, using fallback method')
     }
 
-    // Get updated prayer count (trigger should have updated it)
-    const { data: updatedRequest, error: fetchError } = await supabase
+    // Fallback: Use old method (increment prayer count directly)
+    console.log('🔄 Using fallback method - incrementing prayer count directly')
+    
+    // First get the current prayer count
+    const { data: currentRequest, error: fetchError } = await supabase
       .from("prayer_requests")
       .select("prayer_count")
       .eq("id", id)
       .single()
 
     if (fetchError) {
-      console.error("Error fetching updated prayer count:", fetchError)
+      console.error("Error fetching current prayer count:", fetchError)
       throw fetchError
     }
 
-    console.log('✅ Prayer participation added successfully, count:', updatedRequest.prayer_count)
+    const newPrayerCount = (currentRequest.prayer_count || 0) + 1
+
+    // Update prayer count
+    const { data, error } = await supabase
+      .from("prayer_requests")
+      .update({
+        prayer_count: newPrayerCount,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", id)
+      .select("prayer_count")
+      .single()
+
+    if (error) {
+      console.error("Error updating prayer count:", error)
+      throw error
+    }
+
+    console.log('✅ Prayer count updated successfully (fallback method):', data.prayer_count)
 
     return NextResponse.json({
       success: true,
-      prayerCount: updatedRequest.prayer_count,
+      prayerCount: data.prayer_count,
       alreadyPrayed: false
     })
   } catch (error: any) {

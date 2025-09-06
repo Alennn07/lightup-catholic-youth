@@ -64,22 +64,40 @@ export async function GET(request: NextRequest) {
 
     // If user is authenticated, check which prayers they've already prayed for
     if (currentUserId && requests) {
-      const requestIds = requests.map(req => req.id)
-      
-      const { data: userPrayers, error: prayerError } = await supabase
-        .from("prayer_participants")
-        .select("prayer_request_id")
-        .eq("user_id", currentUserId)
-        .in("prayer_request_id", requestIds)
-
-      if (!prayerError && userPrayers) {
-        const prayedRequestIds = new Set(userPrayers.map(p => p.prayer_request_id))
+      try {
+        const requestIds = requests.map(req => req.id)
         
-        // Add has_user_prayed flag to each request
+        const { data: userPrayers, error: prayerError } = await supabase
+          .from("prayer_participants")
+          .select("prayer_request_id")
+          .eq("user_id", currentUserId)
+          .in("prayer_request_id", requestIds)
+
+        if (!prayerError && userPrayers) {
+          const prayedRequestIds = new Set(userPrayers.map(p => p.prayer_request_id))
+          
+          // Add has_user_prayed flag to each request
+          requests.forEach(request => {
+            request.has_user_prayed = prayedRequestIds.has(request.id)
+          })
+        } else if (prayerError && prayerError.code === '42P01') {
+          // Table doesn't exist, set all to false
+          console.log('⚠️ prayer_participants table does not exist, setting has_user_prayed to false')
+          requests.forEach(request => {
+            request.has_user_prayed = false
+          })
+        }
+      } catch (error) {
+        console.log('⚠️ Could not check prayer participations, setting has_user_prayed to false')
         requests.forEach(request => {
-          request.has_user_prayed = prayedRequestIds.has(request.id)
+          request.has_user_prayed = false
         })
       }
+    } else if (requests) {
+      // No user authenticated, set all to false
+      requests.forEach(request => {
+        request.has_user_prayed = false
+      })
     }
 
     console.log('✅ Prayer requests fetched successfully:', requests?.length || 0)
