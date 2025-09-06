@@ -102,9 +102,12 @@ export async function POST(request: NextRequest) {
         }, { status: 400 });
       }
       
-      // Generic error fallback
+      // Generic error fallback - show actual error message
       return NextResponse.json(
-        { error: createFriendlyError(authError) },
+        { 
+          error: authError.message || 'Registration failed. Please try again.',
+          code: 'AUTH_ERROR'
+        },
         { status: 400 }
       );
     }
@@ -248,7 +251,7 @@ export async function POST(request: NextRequest) {
     
     return NextResponse.json(
       { 
-        error: 'Registration failed. Please try again.',
+        error: error.message || 'Registration failed. Please try again.',
         code: 'UNKNOWN_ERROR'
       },
       { status: 500 }
