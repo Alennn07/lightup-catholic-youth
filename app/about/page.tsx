@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Heart, Users, Globe, Shield, Star, BookOpen, Sparkles, Quote } from "lucide-react"
 import { useTranslation } from "@/lib/i18n"
 import { motion } from "framer-motion"
+import VolunteerForm from "@/components/volunteer-form"
 
 // Values will be defined inside the component to use translations
 
@@ -447,7 +448,7 @@ export default function AboutPage() {
                   </div>
                 </motion.div>
 
-                {/* Volunteer Button - Centered */}
+                {/* Volunteer Form */}
                 <motion.div
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
@@ -455,24 +456,7 @@ export default function AboutPage() {
                   viewport={{ once: true }}
                   className="flex justify-center"
                 >
-                  <motion.div
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className="w-full max-w-md"
-                  >
-                    <Button 
-                      onClick={() => {
-                        const email = 'lightuphelps@gmail.com';
-                        const subject = 'Volunteer Interest';
-                        const body = 'Hi! I would like to volunteer with LightUp. Please let me know how I can help!';
-                        const mailtoLink = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-                        window.location.href = mailtoLink;
-                      }}
-                      className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold px-8 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
-                    >
-                      Volunteer
-                    </Button>
-                  </motion.div>
+                  <VolunteerForm />
                 </motion.div>
 
                 {/* Inspirational Quote */}
