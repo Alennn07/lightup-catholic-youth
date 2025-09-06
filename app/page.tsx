@@ -28,6 +28,7 @@ import {
   Home
 } from "lucide-react"
 import { useAuth } from "@/contexts/auth-context"
+import { LiturgicalSeasonBadge } from "@/components/liturgical-season-badge"
 
 export default function HomePage() {
   const { user } = useAuth()
@@ -231,10 +232,7 @@ export default function HomePage() {
         <div className="relative container mx-auto px-3 sm:px-4">
           <div className="max-w-5xl mx-auto text-center text-white">
             {/* Liturgical Season Badge */}
-            <div className="inline-flex items-center px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-sm font-semibold mb-6">
-              <Calendar className="w-4 h-4 mr-2" />
-              Advent 2025
-            </div>
+            <LiturgicalSeasonBadge />
 
             {/* Logo */}
             <div className="flex items-center justify-center mb-8">
