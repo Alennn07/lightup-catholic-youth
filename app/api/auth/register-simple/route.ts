@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
     const { data: authData, error: authError } = await supabase.auth.admin.createUser({
       email,
       password,
-      email_confirm: false, // Don't auto-confirm, send verification email instead
+      email_confirm: true, // AUTO-CONFIRM EMAIL - NO VERIFICATION NEEDED
       user_metadata: {
         name,
         username,
@@ -83,6 +83,8 @@ export async function POST(request: NextRequest) {
         age: age,
         parish,
         diocese,
+        email_verified: true, // AUTO-VERIFY EMAIL FOR LAUNCH
+        email_verified_at: new Date().toISOString(),
         created_at: new Date().toISOString()
       });
 
@@ -101,41 +103,12 @@ export async function POST(request: NextRequest) {
       console.log('✅ User profile created successfully');
     }
 
-    // 3. Generate verification token and send welcome email
-    try {
-      const verificationToken = generateSecureToken();
-      storeToken(verificationToken, authData.user!.id, 'email_verification', 24 * 60 * 60 * 1000); // 24 hours
-      
-      const verificationLink = `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/verify-email?token=${verificationToken}&userId=${authData.user!.id}`;
-      
-      const emailResult = await EmailService.sendVerificationEmail(
-        email,
-        verificationLink,
-        username
-      );
-      
-      if (emailResult.success) {
-        console.log('✅ Welcome email sent successfully');
-      } else {
-        console.error('❌ Email sending failed:', emailResult.error);
-        // Don't fail registration if email fails, but log it
-        await logSecurityEvent(authData.user!.id, 'email_send_failed', {
-          error: emailResult.error,
-          email
-        }, ip, userAgent);
-      }
-    } catch (emailError) {
-      console.error('❌ Failed to send welcome email:', emailError);
-      // Don't fail registration if email fails
-      await logSecurityEvent(authData.user!.id, 'email_send_exception', {
-        error: emailError instanceof Error ? emailError.message : 'Unknown error',
-        email
-      }, ip, userAgent);
-    }
+    // 3. Email verification DISABLED for launch - users can sign in immediately
+    console.log('✅ Email verification disabled - user can sign in immediately');
 
     return NextResponse.json({
       success: true,
-      message: 'Registration successful! Please check your email to verify your account.',
+      message: 'Registration successful! You can now sign in to your account.',
       user: {
         id: authData.user!.id,
         name,
