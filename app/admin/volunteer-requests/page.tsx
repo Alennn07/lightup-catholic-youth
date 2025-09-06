@@ -84,28 +84,8 @@ const statusColors: { [key: string]: string } = {
 
 export default function VolunteerRequestsPage() {
   const [applications, setApplications] = useState<VolunteerApplication[]>([]);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
   const { toast } = useToast();
-
-  const handlePasswordSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (password === 'lightup2024') {
-      setIsAuthenticated(true);
-      setError('');
-      fetchApplications();
-    } else {
-      setError('Incorrect password');
-      toast({
-        title: "Access Denied",
-        description: "Incorrect password. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
 
   const fetchApplications = async () => {
     setIsLoading(true);
@@ -128,6 +108,11 @@ export default function VolunteerRequestsPage() {
       setIsLoading(false);
     }
   };
+
+  // Fetch applications on component mount
+  useEffect(() => {
+    fetchApplications();
+  }, []);
 
   const exportToCSV = () => {
     const headers = ['Name', 'Email', 'Phone', 'Role', 'Experience', 'Availability', 'Skills', 'Motivation', 'Status', 'Applied Date'];
@@ -168,78 +153,9 @@ export default function VolunteerRequestsPage() {
     });
   };
 
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 flex items-center justify-center p-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="w-full max-w-md"
-        >
-          <Card className="bg-white/20 backdrop-blur-lg border border-white/30 shadow-2xl">
-            <CardHeader className="text-center">
-              <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
-                <Users className="w-8 h-8 text-white" />
-              </div>
-              <CardTitle className="text-2xl font-bold text-gray-900 font-outfit">
-                Admin Access
-              </CardTitle>
-              <p className="text-gray-700 font-nunito-sans">
-                Enter password to view volunteer applications
-              </p>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handlePasswordSubmit} className="space-y-4">
-                <div className="space-y-2">
-                  <label htmlFor="password" className="text-gray-700 font-medium">
-                    Password
-                  </label>
-                  <div className="relative">
-                    <Input
-                      id="password"
-                      type={showPassword ? 'text' : 'password'}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="bg-white/50 border-white/30 focus:border-purple-500 pr-10"
-                      placeholder="Enter admin password"
-                      required
-                    />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                      onClick={() => setShowPassword(!showPassword)}
-                    >
-                      {showPassword ? (
-                        <EyeOff className="h-4 w-4 text-gray-400" />
-                      ) : (
-                        <Eye className="h-4 w-4 text-gray-400" />
-                      )}
-                    </Button>
-                  </div>
-                  {error && (
-                    <p className="text-sm text-red-600">{error}</p>
-                  )}
-                </div>
-                <Button
-                  type="submit"
-                  className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold"
-                >
-                  Access Admin Panel
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
-        </motion.div>
-      </div>
-    );
-  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 p-4">
-      <div className="max-w-7xl mx-auto">
+    <div className="max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -371,6 +287,5 @@ export default function VolunteerRequestsPage() {
           </div>
         )}
       </div>
-    </div>
   );
 }
