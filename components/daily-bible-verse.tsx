@@ -54,49 +54,6 @@ export function DailyBibleVerse() {
   const [user, setUser] = useState<any>(null)
   const { toast } = useToast()
 
-  // 🚀 OPTIMIZED: Check authentication with caching
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession()
-        setUser(session?.user ?? null)
-        logIfEnabled(`Auth check: ${session?.user ? 'User logged in' : 'No user'}`)
-        
-        // If user is logged in, trigger a refetch of the verse data
-        if (session?.user) {
-          // Small delay to ensure user state is set before fetching
-          setTimeout(() => {
-            fetchDailyVerse()
-          }, 100)
-        } else {
-          // If no user, show static verse
-          fetchDailyVerse()
-        }
-        
-        setIsCheckingAuth(false)
-      } catch (error) {
-        logIfEnabled(`Auth check error: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error')
-      }
-    }
-
-    checkAuth()
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      logIfEnabled(`Auth state changed: ${event}, user: ${session?.user ? 'logged in' : 'logged out'}`)
-      setUser(session?.user ?? null)
-      
-      // If user just logged in, refetch the verse data
-      if (event === 'SIGNED_IN' && session?.user) {
-        setTimeout(() => {
-          fetchDailyVerse()
-        }, 100)
-      }
-    })
-
-    return () => subscription.unsubscribe()
-  }, [fetchDailyVerse])
-
   // 🚀 OPTIMIZED: Memoized client date to prevent recalculation
   const clientDate = useMemo(() => {
     const now = new Date()
@@ -232,7 +189,48 @@ export function DailyBibleVerse() {
     }
   }, [user, clientDate, toast])
 
-  // Initial fetch is now handled in the auth check useEffect
+  // 🚀 OPTIMIZED: Check authentication with caching
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        setUser(session?.user ?? null)
+        logIfEnabled(`Auth check: ${session?.user ? 'User logged in' : 'No user'}`)
+        
+        // If user is logged in, trigger a refetch of the verse data
+        if (session?.user) {
+          // Small delay to ensure user state is set before fetching
+          setTimeout(() => {
+            fetchDailyVerse()
+          }, 100)
+        } else {
+          // If no user, show static verse
+          fetchDailyVerse()
+        }
+        
+        setIsCheckingAuth(false)
+      } catch (error) {
+        logIfEnabled(`Auth check error: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error')
+      }
+    }
+
+    checkAuth()
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      logIfEnabled(`Auth state changed: ${event}, user: ${session?.user ? 'logged in' : 'logged out'}`)
+      setUser(session?.user ?? null)
+      
+      // If user just logged in, refetch the verse data
+      if (event === 'SIGNED_IN' && session?.user) {
+        setTimeout(() => {
+          fetchDailyVerse()
+        }, 100)
+      }
+    })
+
+    return () => subscription.unsubscribe()
+  }, [fetchDailyVerse])
 
   // 🚀 OPTIMIZED: Optimistic UI update for better perceived performance
   const handleMarkCompleted = useCallback(async () => {
