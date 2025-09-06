@@ -12,6 +12,7 @@ import { generateShareImage, downloadImage } from "@/lib/generate-share-image"
 import { SharePreviewModal } from "@/components/share-preview-modal"
 import { logIfEnabled, logPerformanceIfEnabled } from "@/lib/performance-monitor"
 import { useTranslation } from "@/lib/i18n"
+import { useAuth } from "@/contexts/auth-context"
 
 interface Verse {
   id: string
@@ -45,13 +46,12 @@ const CACHE_DURATION = 5 * 60 * 1000 // 5 minutes
 
 export function DailyBibleVerse() {
   const { t } = useTranslation()
+  const { user, isLoading: authLoading } = useAuth()
   const [verseData, setVerseData] = useState<DailyVerseData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true)
   const [isUpdating, setIsUpdating] = useState(false)
   const [isSharing, setIsSharing] = useState(false)
   const [showShareModal, setShowShareModal] = useState(false)
-  const [user, setUser] = useState<any>(null)
   const { toast } = useToast()
 
   // 🚀 OPTIMIZED: Memoized client date to prevent recalculation
@@ -193,65 +193,15 @@ export function DailyBibleVerse() {
     }
   }, [user, clientDate, toast])
 
-  // 🚀 OPTIMIZED: Check authentication with caching
+  // 🚀 OPTIMIZED: Fetch verse data when user state changes
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        // Try multiple ways to get the session
-        const { data: { session }, error } = await supabase.auth.getSession()
-        console.log('🔍 checkAuth - Session:', session ? 'exists' : 'null')
-        console.log('🔍 checkAuth - Error:', error)
-        console.log('🔍 checkAuth - User:', session?.user ? 'exists' : 'null')
-        console.log('🔍 checkAuth - Access token:', session?.access_token ? 'exists' : 'null')
-        
-        // Also check localStorage for session
-        const storedSession = localStorage.getItem('sb-' + process.env.NEXT_PUBLIC_SUPABASE_URL?.split('//')[1]?.split('.')[0] + '-auth-token')
-        console.log('🔍 checkAuth - Stored session:', storedSession ? 'exists' : 'null')
-        
-        // Try to get user directly
-        const { data: { user: currentUser } } = await supabase.auth.getUser()
-        console.log('🔍 checkAuth - Current user:', currentUser ? 'exists' : 'null')
-        
-        setUser(session?.user ?? currentUser ?? null)
-        logIfEnabled(`Auth check: ${session?.user ? 'User logged in' : 'No user'}`)
-        
-        // If user is logged in, trigger a refetch of the verse data
-        if (session?.user || currentUser) {
-          console.log('🔍 checkAuth - User logged in, fetching verse data')
-          // Small delay to ensure user state is set before fetching
-          setTimeout(() => {
-            fetchDailyVerse()
-          }, 100)
-        } else {
-          console.log('🔍 checkAuth - No user, showing static verse')
-          // If no user, show static verse
-          fetchDailyVerse()
-        }
-        
-        setIsCheckingAuth(false)
-      } catch (error) {
-        console.log('🔍 checkAuth - Error:', error)
-        logIfEnabled(`Auth check error: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error')
-      }
+    console.log('🔍 DailyBibleVerse - User from auth context:', user ? 'logged in' : 'not logged in')
+    console.log('🔍 DailyBibleVerse - Auth loading:', authLoading)
+    
+    if (!authLoading) {
+      fetchDailyVerse()
     }
-
-    checkAuth()
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      logIfEnabled(`Auth state changed: ${event}, user: ${session?.user ? 'logged in' : 'logged out'}`)
-      setUser(session?.user ?? null)
-      
-      // If user just logged in, refetch the verse data
-      if (event === 'SIGNED_IN' && session?.user) {
-        setTimeout(() => {
-          fetchDailyVerse()
-        }, 100)
-      }
-    })
-
-    return () => subscription.unsubscribe()
-  }, [fetchDailyVerse])
+  }, [user, authLoading, fetchDailyVerse])
 
   // 🚀 OPTIMIZED: Optimistic UI update for better perceived performance
   const handleMarkCompleted = useCallback(async () => {
@@ -398,13 +348,13 @@ export function DailyBibleVerse() {
   }, [verseData])
 
   // 🚀 OPTIMIZED: Memoized loading state
-  if (isLoading || isCheckingAuth) {
+  if (isLoading || authLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
           <p className="text-muted-foreground">
-            {isCheckingAuth ? 'Checking authentication...' : 'Loading today\'s verse...'}
+            {authLoading ? 'Checking authentication...' : 'Loading today\'s verse...'}
           </p>
         </div>
       </div>
