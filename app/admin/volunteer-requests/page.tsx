@@ -25,6 +25,7 @@ import {
   RefreshCw,
   UserCheck,
   UserPlus,
+  UserX,
   Share2,
   Target,
   Laptop,
@@ -153,6 +154,43 @@ export default function VolunteerRequestsPage() {
     });
   };
 
+  const updateApplicationStatus = async (applicationId: string, newStatus: string) => {
+    try {
+      const response = await fetch(`/api/volunteer/${applicationId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      if (response.ok) {
+        // Update the local state
+        setApplications(prev => 
+          prev.map(app => 
+            app.id === applicationId 
+              ? { ...app, status: newStatus }
+              : app
+          )
+        );
+        
+        toast({
+          title: "Status Updated",
+          description: `Application status changed to ${newStatus}`,
+        });
+      } else {
+        throw new Error('Failed to update status');
+      }
+    } catch (error) {
+      console.error('Error updating status:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update application status.",
+        variant: "destructive",
+      });
+    }
+  };
+
 
   return (
     <div className="max-w-7xl mx-auto">
@@ -278,6 +316,43 @@ export default function VolunteerRequestsPage() {
                         <p className="text-sm text-gray-700 leading-relaxed">
                           {application.motivation}
                         </p>
+                      </div>
+
+                      {/* Status Management Buttons */}
+                      <div className="border-t pt-4">
+                        <h4 className="font-semibold text-gray-900 mb-3">Update Status</h4>
+                        <div className="flex flex-wrap gap-2">
+                          <Button
+                            onClick={() => updateApplicationStatus(application.id, 'reviewed')}
+                            disabled={application.status === 'reviewed'}
+                            variant="outline"
+                            size="sm"
+                            className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 disabled:opacity-50"
+                          >
+                            <Eye className="w-4 h-4 mr-1" />
+                            Mark as Reviewed
+                          </Button>
+                          <Button
+                            onClick={() => updateApplicationStatus(application.id, 'accepted')}
+                            disabled={application.status === 'accepted'}
+                            variant="outline"
+                            size="sm"
+                            className="bg-green-50 border-green-200 text-green-700 hover:bg-green-100 disabled:opacity-50"
+                          >
+                            <UserCheck className="w-4 h-4 mr-1" />
+                            Accept
+                          </Button>
+                          <Button
+                            onClick={() => updateApplicationStatus(application.id, 'rejected')}
+                            disabled={application.status === 'rejected'}
+                            variant="outline"
+                            size="sm"
+                            className="bg-red-50 border-red-200 text-red-700 hover:bg-red-100 disabled:opacity-50"
+                          >
+                            <UserX className="w-4 h-4 mr-1" />
+                            Reject
+                          </Button>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
