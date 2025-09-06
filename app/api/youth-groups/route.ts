@@ -141,7 +141,7 @@ export async function POST(request: NextRequest) {
 
     // Add the creator as an owner member
     const { error: memberError } = await supabase
-      .from('youth_group_members')
+      .from('group_members')
       .insert([{
         group_id: group.id,
         user_id: user.id,

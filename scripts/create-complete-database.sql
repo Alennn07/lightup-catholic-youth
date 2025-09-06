@@ -136,7 +136,7 @@ CREATE TABLE IF NOT EXISTS youth_groups (
 );
 
 -- Youth group members table
-CREATE TABLE IF NOT EXISTS youth_group_members (
+CREATE TABLE IF NOT EXISTS group_members (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     group_id UUID REFERENCES youth_groups(id) ON DELETE CASCADE,
     user_id UUID REFERENCES users(id) ON DELETE CASCADE,

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { logIfEnabled } from '@/lib/performance-monitor'
+import { enrichEventsWithProfiles } from '@/lib/user-helpers'
 
 export const dynamic = 'force-dynamic'
 
@@ -34,7 +35,7 @@ export async function GET(
 
     // Check if user is group owner or member
     const { data: membership, error: membershipError } = await supabase
-      .from('youth_group_members')
+      .from('group_members')
       .select('role, status')
       .eq('group_id', groupId)
       .eq('user_id', user.id)
@@ -56,7 +57,8 @@ export async function GET(
         groupId,
         isOwner,
         isMember,
-        membershipError: membershipError?.message
+        membershipError: membershipError?.message,
+        groupError: groupError?.message
       })
       return NextResponse.json({ error: 'Access denied' }, { status: 403 })
     }
@@ -69,16 +71,11 @@ export async function GET(
         title,
         description,
         event_date,
-        event_time,
         location,
         max_attendees,
+        is_public,
         created_at,
-        created_by,
-        user:created_by (
-          id,
-          email,
-          user_metadata
-        )
+        created_by
       `)
       .eq('group_id', groupId)
       .order('event_date', { ascending: true })
@@ -88,11 +85,14 @@ export async function GET(
       return NextResponse.json({ error: 'Failed to fetch events' }, { status: 500 })
     }
 
-    logIfEnabled(`✅ Events fetched for group ${groupId}: ${events?.length || 0} events`)
+    // Enrich events with user profile information
+    const enrichedEvents = await enrichEventsWithProfiles(events || [])
+
+    logIfEnabled(`✅ Events fetched for group ${groupId}: ${enrichedEvents?.length || 0} events`)
     
     return NextResponse.json({
       success: true,
-      events: events || []
+      events: enrichedEvents
     })
 
   } catch (error: any) {
@@ -149,9 +149,12 @@ export async function POST(
 
     const { title, description, date, time, location, maxAttendees } = await request.json()
     
-    if (!title || !description || !date || !time) {
-      return NextResponse.json({ error: 'Title, description, date, and time are required' }, { status: 400 })
+    if (!title || !description || !date) {
+      return NextResponse.json({ error: 'Title, description, and date are required' }, { status: 400 })
     }
+
+    // Combine date and time into event_date
+    const eventDateTime = time ? `${date}T${time}` : date
 
     // Create event
     const { data: event, error: createError } = await supabase
@@ -160,10 +163,10 @@ export async function POST(
         group_id: groupId,
         title,
         description,
-        event_date: date,
-        event_time: time,
+        event_date: eventDateTime,
         location: location || null,
-        max_attendees: maxAttendees ? parseInt(maxAttendees) : null,
+        max_attendees: maxAttendees ? parseInt(maxAttendees) : 50,
+        is_public: false,
         created_by: user.id,
         created_at: new Date().toISOString()
       })

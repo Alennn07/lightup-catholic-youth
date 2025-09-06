@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { logIfEnabled } from '@/lib/performance-monitor'
+import { enrichPostsWithProfiles } from '@/lib/user-helpers'
 
 export const dynamic = 'force-dynamic'
 
@@ -34,7 +35,7 @@ export async function GET(
 
     // Check if user is group owner or member
     const { data: membership, error: membershipError } = await supabase
-      .from('youth_group_members')
+      .from('group_members')
       .select('role, status')
       .eq('group_id', groupId)
       .eq('user_id', user.id)
@@ -56,7 +57,8 @@ export async function GET(
         groupId,
         isOwner,
         isMember,
-        membershipError: membershipError?.message
+        membershipError: membershipError?.message,
+        groupError: groupError?.message
       })
       return NextResponse.json({ error: 'Access denied' }, { status: 403 })
     }
@@ -68,14 +70,10 @@ export async function GET(
         id,
         title,
         content,
-        type,
+        post_type,
+        is_public,
         created_at,
-        created_by,
-        user:created_by (
-          id,
-          email,
-          user_metadata
-        )
+        user_id
       `)
       .eq('group_id', groupId)
       .order('created_at', { ascending: false })
@@ -85,11 +83,14 @@ export async function GET(
       return NextResponse.json({ error: 'Failed to fetch posts' }, { status: 500 })
     }
 
-    logIfEnabled(`✅ Posts fetched for group ${groupId}: ${posts?.length || 0} posts`)
+    // Enrich posts with user profile information
+    const enrichedPosts = await enrichPostsWithProfiles(posts || [])
+
+    logIfEnabled(`✅ Posts fetched for group ${groupId}: ${enrichedPosts?.length || 0} posts`)
     
     return NextResponse.json({
       success: true,
-      posts: posts || []
+      posts: enrichedPosts
     })
 
   } catch (error: any) {
@@ -131,7 +132,7 @@ export async function POST(
 
     // Check if user is group owner or member
     const { data: membership, error: membershipError } = await supabase
-      .from('youth_group_members')
+      .from('group_members')
       .select('role, status')
       .eq('group_id', groupId)
       .eq('user_id', user.id)
@@ -153,12 +154,13 @@ export async function POST(
         groupId,
         isOwner,
         isMember,
-        membershipError: membershipError?.message
+        membershipError: membershipError?.message,
+        groupError: groupError?.message
       })
       return NextResponse.json({ error: 'Access denied' }, { status: 403 })
     }
 
-    const { title, content, type } = await request.json()
+    const { title, content, post_type } = await request.json()
     
     if (!title || !content) {
       return NextResponse.json({ error: 'Title and content are required' }, { status: 400 })
@@ -171,8 +173,9 @@ export async function POST(
         group_id: groupId,
         title,
         content,
-        type: type || 'announcement',
-        created_by: user.id,
+        post_type: post_type || 'general',
+        is_public: false,
+        user_id: user.id,
         created_at: new Date().toISOString()
       })
       .select()

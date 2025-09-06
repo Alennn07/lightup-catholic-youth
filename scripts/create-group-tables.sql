@@ -39,7 +39,7 @@ ALTER TABLE group_posts ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Group members can view events" ON group_events
   FOR SELECT USING (
     EXISTS (
-      SELECT 1 FROM youth_group_members 
+      SELECT 1 FROM group_members 
       WHERE group_id = group_events.group_id 
       AND user_id = auth.uid() 
       AND status = 'active'
@@ -77,7 +77,7 @@ CREATE POLICY "Group owners can delete events" ON group_events
 CREATE POLICY "Group members can view posts" ON group_posts
   FOR SELECT USING (
     EXISTS (
-      SELECT 1 FROM youth_group_members 
+      SELECT 1 FROM group_members 
       WHERE group_id = group_posts.group_id 
       AND user_id = auth.uid() 
       AND status = 'active'
@@ -87,7 +87,7 @@ CREATE POLICY "Group members can view posts" ON group_posts
 CREATE POLICY "Group members can create posts" ON group_posts
   FOR INSERT WITH CHECK (
     EXISTS (
-      SELECT 1 FROM youth_group_members 
+      SELECT 1 FROM group_members 
       WHERE group_id = group_posts.group_id 
       AND user_id = auth.uid() 
       AND status = 'active'

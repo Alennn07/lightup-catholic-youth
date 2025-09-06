@@ -63,7 +63,7 @@ export async function POST(
 
     // Check if user is already a member
     const { data: existingMembership } = await supabase
-      .from('youth_group_members')
+      .from('group_members')
       .select('id, status')
       .eq('group_id', groupId)
       .eq('user_id', user.id)
@@ -95,7 +95,7 @@ export async function POST(
 
     // Check if group has space
     const { count: memberCount } = await supabase
-      .from('youth_group_members')
+      .from('group_members')
       .select('*', { count: 'exact', head: true })
       .eq('group_id', groupId)
       .eq('status', 'active')
@@ -107,7 +107,7 @@ export async function POST(
     // If group doesn't require approval, add user directly
     if (!group.requires_approval) {
       const { data: newMember, error: joinError } = await supabase
-        .from('youth_group_members')
+        .from('group_members')
         .insert({
           group_id: groupId,
           user_id: user.id,

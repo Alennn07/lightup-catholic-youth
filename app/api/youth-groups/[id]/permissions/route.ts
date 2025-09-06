@@ -45,7 +45,7 @@ export async function GET(
 
     // Get user's membership status
     const { data: membership, error: membershipError } = await supabase
-      .from('youth_group_members')
+      .from('group_members')
       .select('role, status, can_manage_members, can_create_events, can_create_posts')
       .eq('group_id', groupId)
       .eq('user_id', user.id)

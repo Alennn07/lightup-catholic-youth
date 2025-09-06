@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { logIfEnabled } from '@/lib/performance-monitor'
+import { enrichMembersWithProfiles } from '@/lib/user-helpers'
 
 export const dynamic = 'force-dynamic'
 
@@ -34,7 +35,7 @@ export async function GET(
 
     // Check if user is group owner or member
     const { data: membership, error: membershipError } = await supabase
-      .from('youth_group_members')
+      .from('group_members')
       .select('role, status')
       .eq('group_id', groupId)
       .eq('user_id', user.id)
@@ -56,25 +57,21 @@ export async function GET(
         groupId,
         isOwner,
         isMember,
-        membershipError: membershipError?.message
+        membershipError: membershipError?.message,
+        groupError: groupError?.message
       })
       return NextResponse.json({ error: 'Access denied' }, { status: 403 })
     }
 
     // Get all group members
     const { data: members, error: membersError } = await supabase
-      .from('youth_group_members')
+      .from('group_members')
       .select(`
         id,
         user_id,
         role,
         status,
-        joined_at,
-        user:user_id (
-          id,
-          email,
-          user_metadata
-        )
+        joined_at
       `)
       .eq('group_id', groupId)
       .eq('status', 'active')
@@ -85,11 +82,14 @@ export async function GET(
       return NextResponse.json({ error: 'Failed to fetch members' }, { status: 500 })
     }
 
-    logIfEnabled(`✅ Members fetched for group ${groupId}: ${members?.length || 0} members`)
+    // Enrich members with user profile information
+    const enrichedMembers = await enrichMembersWithProfiles(members || [])
+
+    logIfEnabled(`✅ Members fetched for group ${groupId}: ${enrichedMembers?.length || 0} members`)
     
     return NextResponse.json({
       success: true,
-      members: members || []
+      members: enrichedMembers
     })
 
   } catch (error: any) {
@@ -150,9 +150,9 @@ export async function POST(
       return NextResponse.json({ error: 'Email is required' }, { status: 400 })
     }
 
-    // Find user by email
+    // Find user by email using the users table
     const { data: targetUser, error: userError } = await supabase
-      .from('auth.users')
+      .from('users')
       .select('id')
       .eq('email', email)
       .single()
@@ -163,7 +163,7 @@ export async function POST(
 
     // Add member to group
     const { data: member, error: addError } = await supabase
-      .from('youth_group_members')
+      .from('group_members')
       .insert({
         group_id: groupId,
         user_id: targetUser.id,
