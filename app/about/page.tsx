@@ -267,24 +267,24 @@ export default function AboutPage() {
               
               {/* Desktop Timeline Icons - Positioned on the continuous line */}
               <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2 w-2 h-full z-10">
-                {/* Icon 1 - The Spark */}
+                {/* Icon 1 - The Spark - Aligned with first card */}
                 <motion.div 
                   whileHover={{ scale: 1.2 }}
-                  className="absolute top-1/4 transform -translate-y-1/2 w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-2xl -ml-5 cursor-pointer"
+                  className="absolute top-[20%] transform -translate-y-1/2 w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-2xl -ml-5 cursor-pointer"
                 >
                   <Heart className="w-6 h-6 text-white" />
                 </motion.div>
-                {/* Icon 2 - The Vision */}
+                {/* Icon 2 - The Vision - Aligned with second card */}
                 <motion.div 
                   whileHover={{ scale: 1.2 }}
-                  className="absolute top-1/2 transform -translate-y-1/2 w-12 h-12 bg-gradient-to-r from-pink-500 to-orange-500 rounded-full flex items-center justify-center shadow-2xl -ml-5 cursor-pointer"
+                  className="absolute top-[50%] transform -translate-y-1/2 w-12 h-12 bg-gradient-to-r from-pink-500 to-orange-500 rounded-full flex items-center justify-center shadow-2xl -ml-5 cursor-pointer"
                 >
                   <Star className="w-6 h-6 text-white" />
                 </motion.div>
-                {/* Icon 3 - The Reality */}
+                {/* Icon 3 - The Reality - Aligned with third card */}
                 <motion.div 
                   whileHover={{ scale: 1.2 }}
-                  className="absolute top-3/4 transform -translate-y-1/2 w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center shadow-2xl -ml-5 cursor-pointer"
+                  className="absolute top-[80%] transform -translate-y-1/2 w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center shadow-2xl -ml-5 cursor-pointer"
                 >
                   <Users className="w-6 h-6 text-white" />
                 </motion.div>
