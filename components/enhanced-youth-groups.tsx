@@ -511,10 +511,16 @@ export default function EnhancedYouthGroups() {
     if (!selectedGroup) return
 
     try {
+      const member = groupMembers.find(m => m.user_id === userId)
+      if (!member) {
+        console.error('Member not found in groupMembers')
+        return
+      }
+
       const token = await getAccessToken()
       if (!token) return
 
-      const response = await fetch(`/api/youth-groups/${selectedGroup.id}/members/${userId}`, {
+      const response = await fetch(`/api/youth-groups/${selectedGroup.id}/members/${member.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -562,11 +568,12 @@ export default function EnhancedYouthGroups() {
 
     try {
       console.log('🗑️ Removing member:', { userId, email, groupId: selectedGroup.id })
-      console.log('🔍 Full member data:', groupMembers.find(m => m.user_id === userId))
+      const member = groupMembers.find(m => m.user_id === userId)
+      console.log('🔍 Full member data:', member)
       const token = await getAccessToken()
       if (!token) return
 
-      const response = await fetch(`/api/youth-groups/${selectedGroup.id}/members/${userId}`, {
+      const response = await fetch(`/api/youth-groups/${selectedGroup.id}/members/${member?.id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
