@@ -69,6 +69,10 @@ export function DailyBibleVerse() {
       // Check if user is authenticated
       const { data: { session } } = await supabase.auth.getSession()
       
+      console.log('🔍 fetchDailyVerse - Session:', session ? 'exists' : 'null')
+      console.log('🔍 fetchDailyVerse - Access token:', session?.access_token ? 'exists' : 'null')
+      console.log('🔍 fetchDailyVerse - User state:', user ? 'exists' : 'null')
+      
       if (session?.access_token) {
         // Check cache first for authenticated users
         const userId = session.user?.id || 'anonymous'
@@ -194,22 +198,29 @@ export function DailyBibleVerse() {
     const checkAuth = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession()
+        console.log('🔍 checkAuth - Session:', session ? 'exists' : 'null')
+        console.log('🔍 checkAuth - User:', session?.user ? 'exists' : 'null')
+        console.log('🔍 checkAuth - Access token:', session?.access_token ? 'exists' : 'null')
+        
         setUser(session?.user ?? null)
         logIfEnabled(`Auth check: ${session?.user ? 'User logged in' : 'No user'}`)
         
         // If user is logged in, trigger a refetch of the verse data
         if (session?.user) {
+          console.log('🔍 checkAuth - User logged in, fetching verse data')
           // Small delay to ensure user state is set before fetching
           setTimeout(() => {
             fetchDailyVerse()
           }, 100)
         } else {
+          console.log('🔍 checkAuth - No user, showing static verse')
           // If no user, show static verse
           fetchDailyVerse()
         }
         
         setIsCheckingAuth(false)
       } catch (error) {
+        console.log('🔍 checkAuth - Error:', error)
         logIfEnabled(`Auth check error: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error')
       }
     }
