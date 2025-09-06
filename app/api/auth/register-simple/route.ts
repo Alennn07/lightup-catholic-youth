@@ -21,11 +21,15 @@ export async function POST(request: NextRequest) {
   const userAgent = request.headers.get('user-agent') || 'unknown';
   
   try {
+    console.log('🔍 Debug: Starting registration process')
     const body = await request.json();
+    console.log('🔍 Debug: Request body received:', { ...body, password: '[HIDDEN]' })
     
     // Validate request body with Zod
+    console.log('🔍 Debug: Validating with Zod schema')
     const validatedData = RegisterSchema.parse(body);
     const { name, username, email, password, age, parish, diocese } = validatedData;
+    console.log('🔍 Debug: Zod validation passed')
 
     // Rate limiting (after we have the email)
     const rateLimit = await checkRateLimit(email, 'REGISTRATION', ip);
@@ -42,6 +46,7 @@ export async function POST(request: NextRequest) {
     console.log('🚀 Simple registration started for:', email);
 
     // 1. Create auth user
+    console.log('🔍 Debug: Creating auth user with Supabase')
     const { data: authData, error: authError } = await supabase.auth.admin.createUser({
       email,
       password,
