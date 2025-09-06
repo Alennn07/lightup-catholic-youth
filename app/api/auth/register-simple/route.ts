@@ -17,6 +17,7 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey, {
 });
 
 export async function POST(request: NextRequest) {
+  console.log('🚀 API ROUTE HIT: /api/auth/register-simple')
   const ip = getClientIP(request);
   const userAgent = request.headers.get('user-agent') || 'unknown';
   
@@ -181,6 +182,11 @@ export async function POST(request: NextRequest) {
 
   } catch (error: any) {
     console.error('❌ Simple registration API error:', error);
+    console.error('🔍 Debug: Error type:', typeof error);
+    console.error('🔍 Debug: Error message:', error?.message);
+    console.error('🔍 Debug: Error code:', error?.code);
+    console.error('🔍 Debug: Error name:', error?.name);
+    console.error('🔍 Debug: Full error object:', JSON.stringify(error, null, 2));
     
     // Log security event
     await logSecurityEvent(null, 'registration_error', {
