@@ -111,8 +111,11 @@ export default function SignUpPage() {
       
       const result = await response.json()
       console.log('🔍 Debug: API response:', result)
+      console.log('🔍 Debug: Response status:', response.status)
+      console.log('🔍 Debug: Response ok:', response.ok)
       
       if (!response.ok) {
+        console.log('🔍 Debug: Handling error response with code:', result.code)
         // Handle specific error codes
         if (result.code === 'USER_ALREADY_EXISTS') {
           toast({
@@ -152,8 +155,14 @@ export default function SignUpPage() {
           return
         }
         
-        // Generic error
-        throw new Error(result.error || 'Registration failed')
+        // Generic error - show the actual error message from API
+        console.log('🔍 Debug: No specific error code found, showing generic error')
+        toast({
+          title: "Registration Failed",
+          description: result.error || 'Something went wrong. Please try again.',
+          variant: "destructive",
+        })
+        return
       }
 
       console.log('✅ Registration successful!')

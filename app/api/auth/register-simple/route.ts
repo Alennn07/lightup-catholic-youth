@@ -151,28 +151,40 @@ export async function POST(request: NextRequest) {
     }, ip, userAgent);
     
     // Handle specific Supabase auth errors
-    if (error.message?.includes('User already registered')) {
+    console.log('🔍 Debug: Error message:', error.message)
+    console.log('🔍 Debug: Error code:', error.code)
+    
+    if (error.message?.includes('User already registered') || 
+        error.message?.includes('already registered') ||
+        error.message?.includes('already exists') ||
+        error.code === 'user_already_exists') {
       return NextResponse.json({ 
         error: 'This email is already registered. Please sign in instead.',
         code: 'USER_ALREADY_EXISTS'
       }, { status: 409 });
     }
     
-    if (error.message?.includes('Invalid email')) {
+    if (error.message?.includes('Invalid email') || 
+        error.message?.includes('invalid email') ||
+        error.code === 'invalid_email') {
       return NextResponse.json({ 
         error: 'Please enter a valid email address.',
         code: 'INVALID_EMAIL'
       }, { status: 400 });
     }
     
-    if (error.message?.includes('Password should be at least')) {
+    if (error.message?.includes('Password should be at least') ||
+        error.message?.includes('password') ||
+        error.code === 'weak_password') {
       return NextResponse.json({ 
         error: 'Password must be at least 6 characters long.',
         code: 'WEAK_PASSWORD'
       }, { status: 400 });
     }
     
-    if (error.message?.includes('Username already taken')) {
+    if (error.message?.includes('Username already taken') ||
+        error.message?.includes('username') ||
+        error.code === 'username_taken') {
       return NextResponse.json({ 
         error: 'This username is already taken. Please choose a different one.',
         code: 'USERNAME_TAKEN'
