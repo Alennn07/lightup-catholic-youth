@@ -64,6 +64,39 @@ export async function POST(request: NextRequest) {
         error: authError.message
       }, ip, userAgent);
       
+      // Handle specific Supabase auth errors
+      console.log('🔍 Debug: Auth error message:', authError.message)
+      console.log('🔍 Debug: Auth error code:', authError.code)
+      
+      if (authError.message?.includes('User already registered') || 
+          authError.message?.includes('already registered') ||
+          authError.message?.includes('already exists') ||
+          authError.code === 'user_already_exists') {
+        return NextResponse.json({ 
+          error: 'This email is already registered. Please sign in instead.',
+          code: 'USER_ALREADY_EXISTS'
+        }, { status: 409 });
+      }
+      
+      if (authError.message?.includes('Invalid email') || 
+          authError.message?.includes('invalid email') ||
+          authError.code === 'invalid_email') {
+        return NextResponse.json({ 
+          error: 'Please enter a valid email address.',
+          code: 'INVALID_EMAIL'
+        }, { status: 400 });
+      }
+      
+      if (authError.message?.includes('Password should be at least') ||
+          authError.message?.includes('password') ||
+          authError.code === 'weak_password') {
+        return NextResponse.json({ 
+          error: 'Password must be at least 6 characters long.',
+          code: 'WEAK_PASSWORD'
+        }, { status: 400 });
+      }
+      
+      // Generic error fallback
       return NextResponse.json(
         { error: createFriendlyError(authError) },
         { status: 400 }
