@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { logIfEnabled, logPerformanceIfEnabled } from '@/lib/performance-monitor'
+import { getUserTimezone, isTodayInTimezone } from '@/lib/streak-calculator'
 
 export const dynamic = 'force-dynamic'
 
@@ -41,9 +42,10 @@ export async function POST(request: NextRequest) {
   const startTime = Date.now()
   
   try {
-    const { action, date, is_favorited } = await request.json()
+    const { action, date, is_favorited, timezone } = await request.json()
+    const userTimezone = timezone || getUserTimezone()
     
-    logIfEnabled(`🔍 Progress API - Action: ${action}, Date: ${date}`)
+    logIfEnabled(`🔍 Progress API - Action: ${action}, Date: ${date}, Timezone: ${userTimezone}`)
     
     // Get authorization header
     const authHeader = request.headers.get('authorization')
@@ -69,9 +71,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
     }
     
-    // Use provided date or default to today
-    const targetDate = date || new Date().toISOString().split('T')[0]
-    logIfEnabled(`📅 Target date: ${targetDate}, User: ${user.id}`)
+    // Use provided date or default to today in user's timezone
+    const targetDate = date || new Date().toLocaleString("en-US", { timeZone: userTimezone }).split(',')[0]
+    logIfEnabled(`📅 Target date: ${targetDate}, User: ${user.id}, Timezone: ${userTimezone}`)
     
     if (action === 'mark_completed') {
       logIfEnabled(`✅ Marking verse as completed for date: ${targetDate}`)

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { logIfEnabled, logPerformanceIfEnabled } from '@/lib/performance-monitor'
+import { calculateStreak, getUserTimezone, getStreakDateRange, isTodayInTimezone } from '@/lib/streak-calculator'
 
 export const dynamic = 'force-dynamic'
 
@@ -33,12 +34,15 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
     }
     
-    // Get today's date from client query param
+    // Get today's date from client query param and user timezone
     const { searchParams } = new URL(request.url)
     const clientDate = searchParams.get('date')
-    const today = clientDate || new Date().toISOString().split('T')[0]
+    const userTimezone = searchParams.get('timezone') || getUserTimezone()
     
-    logIfEnabled(`📅 Using date: ${today}, User: ${user.id}`)
+    // Use client date if provided, otherwise get today in user's timezone
+    const today = clientDate || new Date().toLocaleString("en-US", { timeZone: userTimezone }).split(',')[0]
+    
+    logIfEnabled(`📅 Using date: ${today}, User: ${user.id}, Timezone: ${userTimezone}`)
     
     // Static verses array (moved outside for better performance)
     const verses = [
@@ -88,24 +92,27 @@ export async function GET(request: NextRequest) {
     const dayOfMonth = new Date(today).getDate()
     const selectedVerse = verses[dayOfMonth % verses.length]
     
+    // Get date range for streak calculation (last 30 days in user's timezone)
+    const { startDate, endDate } = getStreakDateRange(userTimezone)
+    
     // 🚀 ULTRA-OPTIMIZED DATABASE QUERIES for maximum performance
     const [todayProgress, recentProgress] = await Promise.all([
       // Check today's completion
       supabase
         .from('user_progress')
-        .select('is_completed, completed_at')
+        .select('is_completed, completed_at, is_favorited')
         .eq('user_id', user.id)
         .eq('verse_date', today)
         .eq('is_completed', true)
         .single(),
       
-      // Get recent progress for streak calculation (last 7 days only for speed)
+      // Get recent progress for streak calculation (last 30 days for accuracy)
       supabase
         .from('user_progress')
-        .select('verse_date')
+        .select('verse_date, completed_at')
         .eq('user_id', user.id)
-        .gte('verse_date', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
-        .lte('verse_date', today)
+        .gte('verse_date', startDate)
+        .lte('verse_date', endDate)
         .eq('is_completed', true)
         .order('verse_date', { ascending: false })
     ])
@@ -113,39 +120,30 @@ export async function GET(request: NextRequest) {
     // Process today's progress
     let isCompleted = false
     let readAt = null
+    let isFavorited = false
     
     if (todayProgress.data) {
       isCompleted = true
       readAt = todayProgress.data.completed_at
+      isFavorited = todayProgress.data.is_favorited || false
       logIfEnabled('✅ User completed today\'s verse')
     }
     
-    // 🚀 ULTRA-FAST STREAK CALCULATION (optimized algorithm)
+    // 🚀 TIMEZONE-AWARE STREAK CALCULATION
     let streak = 0
+    let lastCompletedDate = null
     
     if (recentProgress.data && recentProgress.data.length > 0) {
-      // Use Set for O(1) lookup instead of O(n) array search
-      const completedDatesSet = new Set(recentProgress.data.map(p => p.verse_date))
+      // Extract completed dates
+      const completedDates = recentProgress.data.map(p => p.verse_date)
       
-      // Calculate streak using optimized algorithm
-      let currentStreak = 0
-      const todayDate = new Date(today)
+      // Calculate streak using timezone-aware logic
+      const streakData = calculateStreak(user.id, userTimezone, completedDates)
+      streak = streakData.streak
+      lastCompletedDate = streakData.lastCompletedDate
       
-      // Check last 7 days only (most common case for streaks)
-      for (let i = 0; i < 7; i++) {
-        const checkDate = new Date(todayDate)
-        checkDate.setDate(checkDate.getDate() - i)
-        const checkDateStr = checkDate.toISOString().split('T')[0]
-        
-        if (completedDatesSet.has(checkDateStr)) {
-          currentStreak++
-        } else {
-          break
-        }
-      }
-      
-      streak = currentStreak
-      logIfEnabled(`📊 Calculated streak: ${streak} consecutive days`)
+      logIfEnabled(`📊 Calculated streak: ${streak} consecutive days (timezone: ${userTimezone})`)
+      logIfEnabled(`📅 Last completed: ${lastCompletedDate}`)
     }
     
     const endTime = Date.now()
@@ -159,11 +157,12 @@ export async function GET(request: NextRequest) {
       user_progress: {
         is_completed: isCompleted,
         read_at: readAt,
-        is_favorited: false
+        is_favorited: isFavorited
       },
       stats: {
         reading_streak: streak,
-        today_date: today
+        today_date: today,
+        last_completed_date: lastCompletedDate
       }
     })
     

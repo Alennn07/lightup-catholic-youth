@@ -88,9 +88,12 @@ export function DailyBibleVerse() {
         // Get access token from auth context
         const accessToken = await getAccessToken()
         
+        // Get user's timezone
+        const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+        
         // 🚀 CONCURRENT API CALLS for better performance
         const [verseResponse, userProfileResponse] = await Promise.all([
-          fetch(`/api/daily-bible-verse?date=${clientDate}`, {
+          fetch(`/api/daily-bible-verse?date=${clientDate}&timezone=${encodeURIComponent(userTimezone)}`, {
             headers: accessToken ? {
               'Authorization': `Bearer ${accessToken}`
             } : {}
@@ -230,7 +233,8 @@ export function DailyBibleVerse() {
         },
         body: JSON.stringify({
           action: 'mark_completed',
-          date: clientDate
+          date: clientDate,
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
         })
       })
 
@@ -303,7 +307,8 @@ export function DailyBibleVerse() {
         body: JSON.stringify({
           action: 'toggle_favorite',
           date: clientDate,
-          is_favorited: newFavoriteStatus
+          is_favorited: newFavoriteStatus,
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
         })
       })
 
