@@ -379,7 +379,7 @@ export default function EnhancedYouthGroups() {
         setGroups(prevGroups => 
           prevGroups.map(group => 
             group.id === groupId 
-              ? { ...group, is_pending: true }
+              ? { ...group, is_pending: true, is_member: false }
               : group
           )
         )
@@ -831,6 +831,12 @@ export default function EnhancedYouthGroups() {
   })
 
   const getGroupActionButton = (group: YouthGroup) => {
+    console.log('🔍 Button logic for group:', group.name, {
+      is_owner: group.is_owner,
+      is_member: group.is_member,
+      is_pending: group.is_pending
+    })
+    
     if (group.is_owner) {
       return (
         <div className="flex space-x-2">
