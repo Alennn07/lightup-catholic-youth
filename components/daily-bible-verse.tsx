@@ -197,16 +197,26 @@ export function DailyBibleVerse() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession()
+        // Try multiple ways to get the session
+        const { data: { session }, error } = await supabase.auth.getSession()
         console.log('🔍 checkAuth - Session:', session ? 'exists' : 'null')
+        console.log('🔍 checkAuth - Error:', error)
         console.log('🔍 checkAuth - User:', session?.user ? 'exists' : 'null')
         console.log('🔍 checkAuth - Access token:', session?.access_token ? 'exists' : 'null')
         
-        setUser(session?.user ?? null)
+        // Also check localStorage for session
+        const storedSession = localStorage.getItem('sb-' + process.env.NEXT_PUBLIC_SUPABASE_URL?.split('//')[1]?.split('.')[0] + '-auth-token')
+        console.log('🔍 checkAuth - Stored session:', storedSession ? 'exists' : 'null')
+        
+        // Try to get user directly
+        const { data: { user: currentUser } } = await supabase.auth.getUser()
+        console.log('🔍 checkAuth - Current user:', currentUser ? 'exists' : 'null')
+        
+        setUser(session?.user ?? currentUser ?? null)
         logIfEnabled(`Auth check: ${session?.user ? 'User logged in' : 'No user'}`)
         
         // If user is logged in, trigger a refetch of the verse data
-        if (session?.user) {
+        if (session?.user || currentUser) {
           console.log('🔍 checkAuth - User logged in, fetching verse data')
           // Small delay to ensure user state is set before fetching
           setTimeout(() => {
