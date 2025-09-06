@@ -82,72 +82,72 @@ export default function AboutPage() {
               <span className="text-gray-800 font-semibold text-lg font-nunito-sans">Empowering Catholic Youth</span>
             </motion.div>
 
-            {/* Premium Typography with Animation */}
+            {/* Premium Typography with Animation - Mobile Optimized */}
             <motion.div 
               initial={{ opacity: 0, y: 50 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 0.6 }}
               className="mb-12"
             >
-              <h1 className="text-6xl md:text-8xl font-bold text-gray-900 mb-6 font-outfit tracking-tight">
+              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-8xl font-bold text-gray-900 mb-6 font-outfit tracking-tight px-2">
                 Building Faith
               </h1>
               <motion.div 
                 initial={{ scaleX: 0 }}
                 animate={{ scaleX: 1 }}
                 transition={{ duration: 1.2, delay: 0.8 }}
-                className="flex items-center justify-center gap-6 mb-6"
+                className="flex items-center justify-center gap-4 sm:gap-6 mb-6 px-4"
               >
-                <div className="w-24 h-1 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"></div>
+                <div className="w-16 sm:w-24 h-1 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"></div>
                 <motion.div
                   animate={{ rotate: 360 }}
                   transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
                 >
-                  <Heart className="w-10 h-10 text-pink-500" />
+                  <Heart className="w-8 h-8 sm:w-10 sm:h-10 text-pink-500" />
                 </motion.div>
-                <div className="w-24 h-1 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full"></div>
+                <div className="w-16 sm:w-24 h-1 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full"></div>
               </motion.div>
-              <h2 className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 bg-clip-text text-transparent font-outfit tracking-tight">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 bg-clip-text text-transparent font-outfit tracking-tight px-2">
                 One Connection at a Time
               </h2>
             </motion.div>
 
-            {/* Premium Mission Statement */}
+            {/* Premium Mission Statement - Mobile Optimized */}
             <motion.div 
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 1 }}
-              className="max-w-4xl mx-auto mb-16"
+              className="max-w-4xl mx-auto mb-16 px-4"
             >
-              <p className="text-2xl text-gray-700 leading-relaxed font-nunito-sans font-light">
+              <p className="text-lg sm:text-xl md:text-2xl text-gray-700 leading-relaxed font-nunito-sans font-light">
                 We're not just another app - we're a movement. A place where young Catholics can find their tribe, 
                 grow in their faith, and make a real difference in the world.
               </p>
             </motion.div>
 
-            {/* Premium Feature Showcase - Glass Morphism */}
+            {/* Premium Feature Showcase - Glass Morphism - Mobile Optimized */}
             <motion.div 
               initial={{ opacity: 0, y: 50 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 1.2 }}
-              className="relative max-w-6xl mx-auto"
+              className="relative max-w-6xl mx-auto px-4"
             >
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
                 <motion.div
                   whileHover={{ y: -10, scale: 1.02 }}
                   transition={{ duration: 0.3 }}
                 >
                   <Card className="bg-white/20 backdrop-blur-lg border border-white/30 shadow-2xl hover:shadow-3xl transition-all duration-500 group">
-                    <CardContent className="p-8 text-center">
+                    <CardContent className="p-6 sm:p-8 text-center">
                       <motion.div 
                         whileHover={{ rotate: 360 }}
                         transition={{ duration: 0.6 }}
-                        className="w-20 h-20 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg"
+                        className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-lg"
                       >
-                        <Heart className="w-10 h-10 text-white" />
+                        <Heart className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
                       </motion.div>
-                      <h3 className="text-2xl font-bold text-gray-900 mb-4 font-outfit">Prayer & Reflection</h3>
-                      <p className="text-gray-700 font-nunito-sans text-lg">Daily moments with God</p>
+                      <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3 sm:mb-4 font-outfit">Prayer & Reflection</h3>
+                      <p className="text-gray-700 font-nunito-sans text-base sm:text-lg">Daily moments with God</p>
                     </CardContent>
                   </Card>
                 </motion.div>
@@ -157,16 +157,16 @@ export default function AboutPage() {
                   transition={{ duration: 0.3, delay: 0.1 }}
                 >
                   <Card className="bg-white/20 backdrop-blur-lg border border-white/30 shadow-2xl hover:shadow-3xl transition-all duration-500 group">
-                    <CardContent className="p-8 text-center">
+                    <CardContent className="p-6 sm:p-8 text-center">
                       <motion.div 
                         whileHover={{ rotate: 360 }}
                         transition={{ duration: 0.6 }}
-                        className="w-20 h-20 bg-gradient-to-r from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg"
+                        className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-r from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-lg"
                       >
-                        <Users className="w-10 h-10 text-white" />
+                        <Users className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
                       </motion.div>
-                      <h3 className="text-2xl font-bold text-gray-900 mb-4 font-outfit">Community</h3>
-                      <p className="text-gray-700 font-nunito-sans text-lg">Connect with like-minded peers</p>
+                      <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3 sm:mb-4 font-outfit">Community</h3>
+                      <p className="text-gray-700 font-nunito-sans text-base sm:text-lg">Connect with like-minded peers</p>
                     </CardContent>
                   </Card>
                 </motion.div>
@@ -174,18 +174,19 @@ export default function AboutPage() {
                 <motion.div
                   whileHover={{ y: -10, scale: 1.02 }}
                   transition={{ duration: 0.3, delay: 0.2 }}
+                  className="sm:col-span-2 md:col-span-1"
                 >
                   <Card className="bg-white/20 backdrop-blur-lg border border-white/30 shadow-2xl hover:shadow-3xl transition-all duration-500 group">
-                    <CardContent className="p-8 text-center">
+                    <CardContent className="p-6 sm:p-8 text-center">
                       <motion.div 
                         whileHover={{ rotate: 360 }}
                         transition={{ duration: 0.6 }}
-                        className="w-20 h-20 bg-gradient-to-r from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg"
+                        className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-r from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-lg"
                       >
-                        <BookOpen className="w-10 h-10 text-white" />
+                        <BookOpen className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
                       </motion.div>
-                      <h3 className="text-2xl font-bold text-gray-900 mb-4 font-outfit">Growth</h3>
-                      <p className="text-gray-700 font-nunito-sans text-lg">Learn and deepen your faith</p>
+                      <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3 sm:mb-4 font-outfit">Growth</h3>
+                      <p className="text-gray-700 font-nunito-sans text-base sm:text-lg">Learn and deepen your faith</p>
                     </CardContent>
                   </Card>
                 </motion.div>
@@ -259,31 +260,31 @@ export default function AboutPage() {
               <p className="text-xl text-gray-700 font-nunito-sans font-light">From idea to impact</p>
             </motion.div>
             
-            {/* Premium Timeline */}
+            {/* Premium Timeline - Mobile Optimized */}
             <div className="relative">
-              {/* Premium Timeline Line */}
-              <div className="absolute left-1/2 transform -translate-x-1/2 w-2 h-full bg-gradient-to-b from-purple-500 via-pink-500 to-green-500 rounded-full shadow-lg"></div>
+              {/* Premium Timeline Line - Hidden on mobile */}
+              <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2 w-2 h-full bg-gradient-to-b from-purple-500 via-pink-500 to-green-500 rounded-full shadow-lg"></div>
               
-              {/* Timeline Items */}
-              <div className="space-y-20">
+              {/* Timeline Items - Mobile First */}
+              <div className="space-y-8 md:space-y-20">
                 {/* Item 1 */}
                 <motion.div 
-                  initial={{ opacity: 0, x: -50 }}
-                  whileInView={{ opacity: 1, x: 0 }}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.8, delay: 0.2 }}
                   viewport={{ once: true }}
-                  className="flex items-center"
+                  className="flex flex-col md:flex-row md:items-center"
                 >
-                  <div className="w-1/2 pr-12 text-right">
+                  <div className="w-full md:w-1/2 md:pr-12 text-center md:text-right">
                     <Card className="bg-white/20 backdrop-blur-lg border border-white/30 shadow-2xl hover:shadow-3xl transition-all duration-500 group">
-                      <CardContent className="p-8">
-                        <div className="flex items-center gap-4 mb-4">
-                          <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
-                            <Heart className="w-6 h-6 text-white" />
+                      <CardContent className="p-6 md:p-8">
+                        <div className="flex flex-col sm:flex-row items-center gap-4 mb-4">
+                          <div className="w-16 h-16 sm:w-12 sm:h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+                            <Heart className="w-8 h-8 sm:w-6 sm:h-6 text-white" />
                           </div>
-                          <h3 className="text-2xl font-bold text-gray-900 font-outfit">The Spark</h3>
+                          <h3 className="text-3xl sm:text-2xl font-bold text-gray-900 font-outfit">The Spark</h3>
                         </div>
-                        <p className="text-gray-700 font-nunito-sans text-lg leading-relaxed">
+                        <p className="text-gray-700 font-nunito-sans text-xl sm:text-lg leading-relaxed">
                           A group of young Catholics noticed their peers struggling to stay connected to their faith in our digital world.
                         </p>
                       </CardContent>
@@ -291,38 +292,38 @@ export default function AboutPage() {
                   </div>
                   <motion.div 
                     whileHover={{ scale: 1.2 }}
-                    className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center relative z-10 shadow-2xl"
+                    className="w-16 h-16 sm:w-12 sm:h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center relative z-10 shadow-2xl mx-auto my-4 md:my-0"
                   >
-                    <Heart className="w-6 h-6 text-white" />
+                    <Heart className="w-8 h-8 sm:w-6 sm:h-6 text-white" />
                   </motion.div>
-                  <div className="w-1/2 pl-12"></div>
+                  <div className="w-full md:w-1/2 md:pl-12"></div>
                 </motion.div>
 
                 {/* Item 2 */}
                 <motion.div 
-                  initial={{ opacity: 0, x: 50 }}
-                  whileInView={{ opacity: 1, x: 0 }}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.8, delay: 0.4 }}
                   viewport={{ once: true }}
-                  className="flex items-center"
+                  className="flex flex-col md:flex-row md:items-center"
                 >
-                  <div className="w-1/2 pr-12"></div>
+                  <div className="w-full md:w-1/2 md:pr-12"></div>
                   <motion.div 
                     whileHover={{ scale: 1.2 }}
-                    className="w-12 h-12 bg-gradient-to-r from-pink-500 to-orange-500 rounded-full flex items-center justify-center relative z-10 shadow-2xl"
+                    className="w-16 h-16 sm:w-12 sm:h-12 bg-gradient-to-r from-pink-500 to-orange-500 rounded-full flex items-center justify-center relative z-10 shadow-2xl mx-auto my-4 md:my-0"
                   >
-                    <Star className="w-6 h-6 text-white" />
+                    <Star className="w-8 h-8 sm:w-6 sm:h-6 text-white" />
                   </motion.div>
-                  <div className="w-1/2 pl-12">
+                  <div className="w-full md:w-1/2 md:pl-12 text-center md:text-left">
                     <Card className="bg-white/20 backdrop-blur-lg border border-white/30 shadow-2xl hover:shadow-3xl transition-all duration-500 group">
-                      <CardContent className="p-8">
-                        <div className="flex items-center gap-4 mb-4">
-                          <div className="w-12 h-12 bg-gradient-to-r from-pink-500 to-orange-500 rounded-full flex items-center justify-center">
-                            <Star className="w-6 h-6 text-white" />
+                      <CardContent className="p-6 md:p-8">
+                        <div className="flex flex-col sm:flex-row items-center gap-4 mb-4">
+                          <div className="w-16 h-16 sm:w-12 sm:h-12 bg-gradient-to-r from-pink-500 to-orange-500 rounded-full flex items-center justify-center">
+                            <Star className="w-8 h-8 sm:w-6 sm:h-6 text-white" />
                           </div>
-                          <h3 className="text-2xl font-bold text-gray-900 font-outfit">The Vision</h3>
+                          <h3 className="text-3xl sm:text-2xl font-bold text-gray-900 font-outfit">The Vision</h3>
                         </div>
-                        <p className="text-gray-700 font-nunito-sans text-lg leading-relaxed">
+                        <p className="text-gray-700 font-nunito-sans text-xl sm:text-lg leading-relaxed">
                           We dreamed of creating a space where faith meets technology, where young Catholics could grow together.
                         </p>
                       </CardContent>
@@ -332,22 +333,22 @@ export default function AboutPage() {
 
                 {/* Item 3 */}
                 <motion.div 
-                  initial={{ opacity: 0, x: -50 }}
-                  whileInView={{ opacity: 1, x: 0 }}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.8, delay: 0.6 }}
                   viewport={{ once: true }}
-                  className="flex items-center"
+                  className="flex flex-col md:flex-row md:items-center"
                 >
-                  <div className="w-1/2 pr-12 text-right">
+                  <div className="w-full md:w-1/2 md:pr-12 text-center md:text-right">
                     <Card className="bg-white/20 backdrop-blur-lg border border-white/30 shadow-2xl hover:shadow-3xl transition-all duration-500 group">
-                      <CardContent className="p-8">
-                        <div className="flex items-center gap-4 mb-4">
-                          <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center">
-                            <Users className="w-6 h-6 text-white" />
+                      <CardContent className="p-6 md:p-8">
+                        <div className="flex flex-col sm:flex-row items-center gap-4 mb-4">
+                          <div className="w-16 h-16 sm:w-12 sm:h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center">
+                            <Users className="w-8 h-8 sm:w-6 sm:h-6 text-white" />
                           </div>
-                          <h3 className="text-2xl font-bold text-gray-900 font-outfit">The Reality</h3>
+                          <h3 className="text-3xl sm:text-2xl font-bold text-gray-900 font-outfit">The Reality</h3>
                         </div>
-                        <p className="text-gray-700 font-nunito-sans text-lg leading-relaxed">
+                        <p className="text-gray-700 font-nunito-sans text-xl sm:text-lg leading-relaxed">
                           Today, thousands of young Catholics worldwide are growing in faith and building meaningful connections through LightUp.
                         </p>
                       </CardContent>
@@ -355,11 +356,11 @@ export default function AboutPage() {
                   </div>
                   <motion.div 
                     whileHover={{ scale: 1.2 }}
-                    className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center relative z-10 shadow-2xl"
+                    className="w-16 h-16 sm:w-12 sm:h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center relative z-10 shadow-2xl mx-auto my-4 md:my-0"
                   >
-                    <Users className="w-6 h-6 text-white" />
+                    <Users className="w-8 h-8 sm:w-6 sm:h-6 text-white" />
                   </motion.div>
-                  <div className="w-1/2 pl-12"></div>
+                  <div className="w-full md:w-1/2 md:pl-12"></div>
                 </motion.div>
               </div>
             </div>
