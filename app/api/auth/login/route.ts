@@ -71,6 +71,41 @@ export async function POST(request: NextRequest) {
     if (authError) {
       console.error('❌ Login failed:', authError);
       
+      // Handle email verification error by auto-confirming
+      if (authError.message?.includes('Email not confirmed') || 
+          authError.message?.includes('email not verified') ||
+          authError.message?.includes('Email not verified')) {
+        console.log('🔧 Auto-confirming email for unverified user:', email);
+        
+        try {
+          // Find and confirm the user's email
+          const { data: users } = await supabase.auth.admin.listUsers();
+          const user = users.users.find(u => u.email === email);
+          
+          if (user) {
+            await supabase.auth.admin.updateUserById(user.id, {
+              email_confirm: true
+            });
+            
+            // Retry login after confirming email
+            const { data: retryData, error: retryError } = await supabase.auth.signInWithPassword({
+              email,
+              password
+            });
+            
+            if (!retryError) {
+              console.log('✅ Email confirmed and login successful');
+              return NextResponse.json({
+                user: retryData.user,
+                session: retryData.session
+              });
+            }
+          }
+        } catch (confirmError) {
+          console.error('❌ Failed to auto-confirm email:', confirmError);
+        }
+      }
+      
       // Log failed login attempt
       await logSecurityEvent(null, 'login_failed', {
         email,

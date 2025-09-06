@@ -258,8 +258,43 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       logIfEnabled(`📡 Supabase auth response: ${JSON.stringify({ hasUser: !!data.user, error: error?.message })}`)
       
       if (error) {
-        // Handle wrong password (email notification removed for now)
-        throw error
+        // Handle specific error cases
+        if (error.message?.includes('Email not confirmed') || 
+            error.message?.includes('email not verified') ||
+            error.message?.includes('Email not verified')) {
+          // Auto-confirm email for unverified users
+          console.log('🔧 Auto-confirming email for unverified user:', email)
+          try {
+            const confirmResponse = await fetch('/api/auth/confirm-email', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email })
+            })
+            
+            if (confirmResponse.ok) {
+              // Retry login after confirming email
+              const { data: retryData, error: retryError } = await supabase.auth.signInWithPassword({
+                email,
+                password,
+              })
+              
+              if (retryError) {
+                throw retryError
+              }
+              
+              // Use retry data instead of original data
+              data.user = retryData.user
+              data.session = retryData.session
+            } else {
+              throw error
+            }
+          } catch (confirmError) {
+            console.error('❌ Failed to auto-confirm email:', confirmError)
+            throw error
+          }
+        } else {
+          throw error
+        }
       }
       
       // If login successful, set user immediately without profile fetch
