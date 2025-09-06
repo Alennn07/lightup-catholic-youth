@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
   const startTime = Date.now()
   
   try {
-    const { action, date } = await request.json()
+    const { action, date, is_favorited } = await request.json()
     
     logIfEnabled(`🔍 Progress API - Action: ${action}, Date: ${date}`)
     
@@ -103,6 +103,40 @@ export async function POST(request: NextRequest) {
         success: true, 
         message: 'Verse marked as completed',
         date: targetDate
+      })
+    }
+    
+    if (action === 'toggle_favorite') {
+      logIfEnabled(`❤️ Toggling favorite status for date: ${targetDate}, is_favorited: ${is_favorited}`)
+      
+      // 🚀 OPTIMIZED: Single upsert operation for favorite status
+      const { error: upsertError } = await supabase
+        .from('user_progress')
+        .upsert({
+          user_id: user.id,
+          verse_date: targetDate,
+          is_favorited: is_favorited,
+          favorited_at: is_favorited ? new Date().toISOString() : null
+        }, {
+          onConflict: 'user_id,verse_date' // Use composite key for conflict resolution
+        })
+      
+      if (upsertError) {
+        logIfEnabled(`❌ Error upserting favorite status: ${upsertError.message}`, 'error')
+        throw upsertError
+      }
+      
+      logIfEnabled('✅ Favorite status updated successfully')
+      
+      const endTime = Date.now()
+      const totalDuration = endTime - startTime
+      logPerformanceIfEnabled('Progress API - Toggle Favorite', totalDuration)
+      
+      return NextResponse.json({ 
+        success: true, 
+        message: is_favorited ? 'Verse added to favorites' : 'Verse removed from favorites',
+        date: targetDate,
+        is_favorited
       })
     }
     

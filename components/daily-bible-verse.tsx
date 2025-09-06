@@ -46,7 +46,7 @@ const CACHE_DURATION = 5 * 60 * 1000 // 5 minutes
 
 export function DailyBibleVerse() {
   const { t } = useTranslation()
-  const { user, isLoading: authLoading } = useAuth()
+  const { user, isLoading: authLoading, getAccessToken } = useAuth()
   const [verseData, setVerseData] = useState<DailyVerseData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isUpdating, setIsUpdating] = useState(false)
@@ -66,16 +66,11 @@ export function DailyBibleVerse() {
     const startTime = Date.now()
     
     try {
-      // Check if user is authenticated
-      const { data: { session } } = await supabase.auth.getSession()
+      console.log('🔍 fetchDailyVerse - User from auth context:', user ? 'logged in' : 'not logged in')
       
-      console.log('🔍 fetchDailyVerse - Session:', session ? 'exists' : 'null')
-      console.log('🔍 fetchDailyVerse - Access token:', session?.access_token ? 'exists' : 'null')
-      console.log('🔍 fetchDailyVerse - User state:', user ? 'exists' : 'null')
-      
-      if (session?.access_token) {
+      if (user) {
         // Check cache first for authenticated users
-        const userId = session.user?.id || 'anonymous'
+        const userId = user.id || 'anonymous'
         const cacheKey = `${userId}-${clientDate}`
         const cachedData = verseCache.get(cacheKey)
         
@@ -90,18 +85,21 @@ export function DailyBibleVerse() {
         logIfEnabled(`📱 Client local time: ${new Date().toLocaleString()}`)
         logIfEnabled(`📱 Client timezone: ${Intl.DateTimeFormat().resolvedOptions().timeZone}`)
         
+        // Get access token from auth context
+        const accessToken = await getAccessToken()
+        
         // 🚀 CONCURRENT API CALLS for better performance
         const [verseResponse, userProfileResponse] = await Promise.all([
           fetch(`/api/daily-bible-verse?date=${clientDate}`, {
-            headers: {
-              'Authorization': `Bearer ${session.access_token}`
-            }
+            headers: accessToken ? {
+              'Authorization': `Bearer ${accessToken}`
+            } : {}
           }),
           // Fetch user profile data concurrently if needed
           fetch(`/api/users/profile?userId=${userId}`, {
-            headers: {
-              'Authorization': `Bearer ${session.access_token}`
-            }
+            headers: accessToken ? {
+              'Authorization': `Bearer ${accessToken}`
+            } : {}
           }).catch(() => null) // Don't fail if profile fetch fails
         ])
 
@@ -117,11 +115,6 @@ export function DailyBibleVerse() {
         verseCache.set(cacheKey, dataWithTimestamp)
         
         setVerseData(data)
-        
-        // Update user state if not already set
-        if (!user && session.user) {
-          setUser(session.user)
-        }
       } else {
         // For non-authenticated users, show a static verse
         const staticVerse = {
@@ -224,8 +217,8 @@ export function DailyBibleVerse() {
     setIsUpdating(true)
     
     try {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session?.access_token) {
+      const accessToken = await getAccessToken()
+      if (!accessToken) {
         throw new Error('No access token')
       }
       
@@ -233,7 +226,7 @@ export function DailyBibleVerse() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`
+          'Authorization': `Bearer ${accessToken}`
         },
         body: JSON.stringify({
           action: 'mark_completed',
@@ -247,7 +240,7 @@ export function DailyBibleVerse() {
       logIfEnabled(`✅ Marked as completed: ${JSON.stringify(result).substring(0, 100)}...`)
       
       // Update cache with new data
-      const userId = session.user?.id || 'anonymous'
+      const userId = user?.id || 'anonymous'
       const cacheKey = `${userId}-${clientDate}`
       const updatedData = { ...optimisticData, timestamp: Date.now() }
       verseCache.set(cacheKey, updatedData)
@@ -283,8 +276,8 @@ export function DailyBibleVerse() {
     }
     
     try {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session?.access_token) {
+      const accessToken = await getAccessToken()
+      if (!accessToken) {
         throw new Error('No access token')
       }
       
@@ -300,8 +293,31 @@ export function DailyBibleVerse() {
         }
       } : null)
       
-      // TODO: Add API call to save favorite status
-      // For now, just show a toast
+      // Save favorite status to database
+      const response = await fetch('/api/daily-bible-verse/progress', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`
+        },
+        body: JSON.stringify({
+          action: 'toggle_favorite',
+          date: clientDate,
+          is_favorited: newFavoriteStatus
+        })
+      })
+
+      if (!response.ok) throw new Error('Failed to update favorite status')
+      
+      const result = await response.json()
+      logIfEnabled(`✅ Favorite status updated: ${JSON.stringify(result).substring(0, 100)}...`)
+      
+      // Update cache with new data
+      const userId = user?.id || 'anonymous'
+      const cacheKey = `${userId}-${clientDate}`
+      const updatedData = { ...verseData, user_progress: { ...verseData.user_progress, is_favorited: newFavoriteStatus }, timestamp: Date.now() }
+      verseCache.set(cacheKey, updatedData)
+      
       toast({
         title: newFavoriteStatus ? "Added to Favorites!" : "Removed from Favorites!",
         description: newFavoriteStatus 
