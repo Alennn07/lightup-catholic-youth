@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import React, { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -32,6 +32,19 @@ export default function SignUpPage() {
   
   const router = useRouter()
   const { toast } = useToast()
+  const { user } = useAuth()
+
+  // Redirect if user is already logged in
+  React.useEffect(() => {
+    if (user) {
+      toast({
+        title: "Already Logged In",
+        description: "You are already logged in. Redirecting to dashboard...",
+        variant: "default",
+      })
+      router.push("/dashboard")
+    }
+  }, [user, router, toast])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -100,6 +113,46 @@ export default function SignUpPage() {
       console.log('🔍 Debug: API response:', result)
       
       if (!response.ok) {
+        // Handle specific error codes
+        if (result.code === 'USER_ALREADY_EXISTS') {
+          toast({
+            title: "Account Already Exists",
+            description: result.error,
+            variant: "destructive",
+          })
+          // Redirect to sign-in page
+          router.push("/auth/sign-in")
+          return
+        }
+        
+        if (result.code === 'USERNAME_TAKEN') {
+          toast({
+            title: "Username Taken",
+            description: result.error,
+            variant: "destructive",
+          })
+          return
+        }
+        
+        if (result.code === 'WEAK_PASSWORD') {
+          toast({
+            title: "Weak Password",
+            description: result.error,
+            variant: "destructive",
+          })
+          return
+        }
+        
+        if (result.code === 'INVALID_EMAIL') {
+          toast({
+            title: "Invalid Email",
+            description: result.error,
+            variant: "destructive",
+          })
+          return
+        }
+        
+        // Generic error
         throw new Error(result.error || 'Registration failed')
       }
 

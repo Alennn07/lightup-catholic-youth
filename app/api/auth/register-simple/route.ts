@@ -150,18 +150,51 @@ export async function POST(request: NextRequest) {
       stack: error.stack
     }, ip, userAgent);
     
+    // Handle specific Supabase auth errors
+    if (error.message?.includes('User already registered')) {
+      return NextResponse.json({ 
+        error: 'This email is already registered. Please sign in instead.',
+        code: 'USER_ALREADY_EXISTS'
+      }, { status: 409 });
+    }
+    
+    if (error.message?.includes('Invalid email')) {
+      return NextResponse.json({ 
+        error: 'Please enter a valid email address.',
+        code: 'INVALID_EMAIL'
+      }, { status: 400 });
+    }
+    
+    if (error.message?.includes('Password should be at least')) {
+      return NextResponse.json({ 
+        error: 'Password must be at least 6 characters long.',
+        code: 'WEAK_PASSWORD'
+      }, { status: 400 });
+    }
+    
+    if (error.message?.includes('Username already taken')) {
+      return NextResponse.json({ 
+        error: 'This username is already taken. Please choose a different one.',
+        code: 'USERNAME_TAKEN'
+      }, { status: 409 });
+    }
+    
     if (error.name === 'ZodError') {
       return NextResponse.json({ 
         error: 'Please check your input and try again.',
         details: error.errors.map((err: any) => ({
           field: err.path.join('.'),
           message: err.message
-        }))
+        })),
+        code: 'VALIDATION_ERROR'
       }, { status: 400 });
     }
     
     return NextResponse.json(
-      { error: createFriendlyError(error) },
+      { 
+        error: 'Registration failed. Please try again.',
+        code: 'UNKNOWN_ERROR'
+      },
       { status: 500 }
     );
   }
