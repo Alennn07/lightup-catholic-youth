@@ -36,61 +36,93 @@ export async function generateShareImage(data: ShareImageData): Promise<Blob> {
       }
     }
 
-    // 🎨 ULTRA-PREMIUM GRADIENT BACKGROUND - Multiple complex layers
+    // 🎨 GEN-Z AESTHETIC BACKGROUND - ZERO EMPTY SPACE
     const mainGradient = ctx.createLinearGradient(0, 0, 0, canvas.height)
-    mainGradient.addColorStop(0, '#0a0a0a') // Deepest black
-    mainGradient.addColorStop(0.2, '#1a0b2e') // Deep purple-black
-    mainGradient.addColorStop(0.4, '#16213e') // Navy blue
-    mainGradient.addColorStop(0.6, '#0f3460') // Rich blue
-    mainGradient.addColorStop(0.8, '#533483') // Royal purple
-    mainGradient.addColorStop(1, '#0a0a0a') // Back to deepest black
+    mainGradient.addColorStop(0, '#1a0033') // Deep purple-black
+    mainGradient.addColorStop(0.15, '#2d1b69') // Rich purple
+    mainGradient.addColorStop(0.35, '#4a148c') // Deep violet
+    mainGradient.addColorStop(0.55, '#6a1b9a') // Vibrant purple
+    mainGradient.addColorStop(0.75, '#8e24aa') // Light purple
+    mainGradient.addColorStop(0.9, '#ab47bc') // Pink-purple
+    mainGradient.addColorStop(1, '#ce93d8') // Light pink
     
     ctx.fillStyle = mainGradient
     ctx.fillRect(0, 0, canvas.width, canvas.height)
 
-    // 🌌 ADD COSMIC BACKGROUND PATTERNS
-    // Create a radial gradient for cosmic effect
-    const cosmicGradient = ctx.createRadialGradient(canvas.width/2, canvas.height/2, 0, canvas.width/2, canvas.height/2, canvas.width)
-    cosmicGradient.addColorStop(0, 'rgba(255, 255, 255, 0.1)')
-    cosmicGradient.addColorStop(0.5, 'rgba(138, 43, 226, 0.05)')
-    cosmicGradient.addColorStop(1, 'rgba(0, 0, 0, 0.8)')
-    
-    ctx.fillStyle = cosmicGradient
+    // 🌈 MULTIPLE RADIAL GRADIENTS FOR DEPTH AND FULLNESS
+    const radialGradient1 = ctx.createRadialGradient(
+      canvas.width * 0.3, canvas.height * 0.2, 0,
+      canvas.width * 0.3, canvas.height * 0.2, canvas.width * 0.8
+    )
+    radialGradient1.addColorStop(0, 'rgba(255, 255, 255, 0.15)')
+    radialGradient1.addColorStop(0.5, 'rgba(138, 43, 226, 0.1)')
+    radialGradient1.addColorStop(1, 'rgba(0, 0, 0, 0.2)')
+
+    ctx.fillStyle = radialGradient1
     ctx.fillRect(0, 0, canvas.width, canvas.height)
 
-    // ✨ ULTRA-PREMIUM COSMIC PATTERNS
-    // Create constellation-like patterns
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.08)'
-    for (let i = 0; i < canvas.width; i += 40) {
-      for (let j = 0; j < canvas.height; j += 40) {
-        if (Math.random() > 0.7) {
+    const radialGradient2 = ctx.createRadialGradient(
+      canvas.width * 0.7, canvas.height * 0.8, 0,
+      canvas.width * 0.7, canvas.height * 0.8, canvas.width * 0.6
+    )
+    radialGradient2.addColorStop(0, 'rgba(255, 255, 255, 0.08)')
+    radialGradient2.addColorStop(0.5, 'rgba(206, 147, 216, 0.12)')
+    radialGradient2.addColorStop(1, 'rgba(0, 0, 0, 0.15)')
+
+    ctx.fillStyle = radialGradient2
+    ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+    const radialGradient3 = ctx.createRadialGradient(
+      canvas.width * 0.5, canvas.height * 0.5, 0,
+      canvas.width * 0.5, canvas.height * 0.5, canvas.width * 0.4
+    )
+    radialGradient3.addColorStop(0, 'rgba(255, 255, 255, 0.05)')
+    radialGradient3.addColorStop(0.5, 'rgba(171, 71, 188, 0.08)')
+    radialGradient3.addColorStop(1, 'rgba(0, 0, 0, 0.1)')
+
+    ctx.fillStyle = radialGradient3
+    ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+    // ✨ GEN-Z AESTHETIC PATTERNS - FILL EVERY SPACE
+    // Create subtle dot matrix pattern
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.03)'
+    for (let i = 0; i < canvas.width; i += 15) {
+      for (let j = 0; j < canvas.height; j += 15) {
+        if (Math.random() > 0.6) {
           ctx.beginPath()
-          ctx.arc(i, j, Math.random() * 2 + 0.5, 0, Math.PI * 2)
+          ctx.arc(i, j, Math.random() * 1 + 0.5, 0, Math.PI * 2)
           ctx.fill()
         }
       }
     }
 
-    // 🌟 ADVANCED FLOATING LIGHT PARTICLES - Multiple layers
-    // Large glowing particles
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.2)'
-    for (let i = 0; i < 15; i++) {
+    // 🌟 FLOATING GLOW ORBS - Multiple sizes and colors
+    for (let i = 0; i < 25; i++) {
       const x = Math.random() * canvas.width
       const y = Math.random() * canvas.height
-      const size = Math.random() * 4 + 2
-      const gradient = ctx.createRadialGradient(x, y, 0, x, y, size * 3)
-      gradient.addColorStop(0, 'rgba(255, 255, 255, 0.3)')
-      gradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.1)')
-      gradient.addColorStop(1, 'rgba(255, 255, 255, 0)')
+      const size = Math.random() * 8 + 4
+      const colors = [
+        'rgba(255, 255, 255, 0.1)',
+        'rgba(206, 147, 216, 0.08)',
+        'rgba(171, 71, 188, 0.06)',
+        'rgba(142, 36, 170, 0.05)'
+      ]
+      const color = colors[Math.floor(Math.random() * colors.length)]
+      
+      const gradient = ctx.createRadialGradient(x, y, 0, x, y, size * 2)
+      gradient.addColorStop(0, color)
+      gradient.addColorStop(0.5, color.replace(/[\d.]+\)$/, '0.03)'))
+      gradient.addColorStop(1, color.replace(/[\d.]+\)$/, '0)'))
+      
       ctx.fillStyle = gradient
       ctx.beginPath()
-      ctx.arc(x, y, size * 3, 0, Math.PI * 2)
+      ctx.arc(x, y, size * 2, 0, Math.PI * 2)
       ctx.fill()
     }
 
-    // Small twinkling stars
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.6)'
-    for (let i = 0; i < 50; i++) {
+    // 💫 SMALL TWINKLING STARS - Dense coverage
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.4)'
+    for (let i = 0; i < 80; i++) {
       const x = Math.random() * canvas.width
       const y = Math.random() * canvas.height
       const size = Math.random() * 1.5 + 0.5
@@ -99,20 +131,85 @@ export async function generateShareImage(data: ShareImageData): Promise<Blob> {
       ctx.fill()
     }
 
-    // 🌈 ADD AURORA-LIKE EFFECTS
-    ctx.strokeStyle = 'rgba(138, 43, 226, 0.3)'
-    ctx.lineWidth = 2
-    for (let i = 0; i < 8; i++) {
+    // 🌈 ABSTRACT GEOMETRIC SHAPES - Fill empty spaces
+    for (let i = 0; i < 30; i++) {
+      const x = Math.random() * canvas.width
+      const y = Math.random() * canvas.height
+      const size = Math.random() * 20 + 10
+      const rotation = Math.random() * Math.PI * 2
+      
+      ctx.save()
+      ctx.translate(x, y)
+      ctx.rotate(rotation)
+      
+      const shapeGradient = ctx.createLinearGradient(-size, -size, size, size)
+      shapeGradient.addColorStop(0, 'rgba(255, 255, 255, 0.02)')
+      shapeGradient.addColorStop(0.5, 'rgba(206, 147, 216, 0.03)')
+      shapeGradient.addColorStop(1, 'rgba(255, 255, 255, 0.01)')
+      
+      ctx.fillStyle = shapeGradient
       ctx.beginPath()
+      ctx.moveTo(-size/2, -size/2)
+      ctx.lineTo(size/2, -size/2)
+      ctx.lineTo(size/2, size/2)
+      ctx.lineTo(-size/2, size/2)
+      ctx.closePath()
+      ctx.fill()
+      ctx.restore()
+    }
+
+    // 🌈 AURORA-LIKE FLOWING LINES - Fill vertical spaces
+    for (let i = 0; i < 12; i++) {
       const startX = Math.random() * canvas.width
-      const startY = Math.random() * canvas.height * 0.3
+      const startY = Math.random() * canvas.height
+      const colors = [
+        'rgba(138, 43, 226, 0.15)',
+        'rgba(206, 147, 216, 0.12)',
+        'rgba(171, 71, 188, 0.1)',
+        'rgba(255, 255, 255, 0.08)'
+      ]
+      const color = colors[Math.floor(Math.random() * colors.length)]
+      
+      ctx.strokeStyle = color
+      ctx.lineWidth = Math.random() * 2 + 1
+      ctx.shadowColor = color
+      ctx.shadowBlur = 5
+      ctx.beginPath()
       ctx.moveTo(startX, startY)
-      for (let j = 0; j < 20; j++) {
-        const x = startX + (Math.random() - 0.5) * 100
-        const y = startY + j * 20 + (Math.random() - 0.5) * 30
+      
+      for (let j = 0; j < 25; j++) {
+        const x = startX + (Math.random() - 0.5) * 200
+        const y = startY + j * 15 + (Math.random() - 0.5) * 20
         ctx.lineTo(x, y)
       }
       ctx.stroke()
+      ctx.shadowBlur = 0
+    }
+
+    // 🌀 SPIRAL PATTERNS - Fill corners and edges
+    for (let i = 0; i < 8; i++) {
+      const centerX = Math.random() * canvas.width
+      const centerY = Math.random() * canvas.height
+      const maxRadius = Math.random() * 60 + 30
+      
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.06)'
+      ctx.lineWidth = 1
+      ctx.shadowColor = 'rgba(255, 255, 255, 0.03)'
+      ctx.shadowBlur = 3
+      ctx.beginPath()
+      
+      for (let angle = 0; angle < Math.PI * 3; angle += 0.1) {
+        const radius = (angle / (Math.PI * 3)) * maxRadius
+        const x = centerX + Math.cos(angle) * radius
+        const y = centerY + Math.sin(angle) * radius
+        if (angle === 0) {
+          ctx.moveTo(x, y)
+        } else {
+          ctx.lineTo(x, y)
+        }
+      }
+      ctx.stroke()
+      ctx.shadowBlur = 0
     }
 
     // 🎭 PREMIUM DECORATIVE ELEMENTS
@@ -215,44 +312,50 @@ export async function generateShareImage(data: ShareImageData): Promise<Blob> {
     ctx.fillText(data.theme, canvas.width / 2, badgeY + 38)
     ctx.shadowBlur = 0
 
-    // 📖 ULTRA-PREMIUM BIBLE VERSE SECTION WITH CREATIVE LAYOUT
-    const verseY = 320
-    const maxWidth = canvas.width * 0.9
+    // 📖 GEN-Z AESTHETIC BIBLE VERSE SECTION - CENTERED & ELEGANT
+    const verseY = 400
+    const maxWidth = canvas.width * 0.85
     
-    // Add decorative frame around verse
-    const framePadding = 40
-    const frameX = (canvas.width - maxWidth - framePadding * 2) / 2
-    const frameY = verseY - 60
-    const frameWidth = maxWidth + framePadding * 2
-    const frameHeight = 400
+    // Add subtle background blur effect behind verse
+    const blurGradient = ctx.createRadialGradient(
+      canvas.width / 2, verseY, 0,
+      canvas.width / 2, verseY, canvas.width * 0.6
+    )
+    blurGradient.addColorStop(0, 'rgba(255, 255, 255, 0.08)')
+    blurGradient.addColorStop(0.5, 'rgba(206, 147, 216, 0.05)')
+    blurGradient.addColorStop(1, 'rgba(0, 0, 0, 0.1)')
     
-    // Frame background with gradient
-    const frameGradient = ctx.createLinearGradient(frameX, frameY, frameX, frameY + frameHeight)
-    frameGradient.addColorStop(0, 'rgba(255, 255, 255, 0.05)')
-    frameGradient.addColorStop(0.5, 'rgba(138, 43, 226, 0.1)')
-    frameGradient.addColorStop(1, 'rgba(255, 255, 255, 0.05)')
-    
-    ctx.fillStyle = frameGradient
-    ctx.roundRect(frameX, frameY, frameWidth, frameHeight, 20)
+    ctx.fillStyle = blurGradient
+    ctx.roundRect(
+      canvas.width * 0.1, verseY - 100,
+      canvas.width * 0.8, 400,
+      30
+    )
     ctx.fill()
     
-    // Frame border with glow
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)'
-    ctx.lineWidth = 2
-    ctx.shadowColor = 'rgba(255, 255, 255, 0.3)'
-    ctx.shadowBlur = 15
-    ctx.roundRect(frameX, frameY, frameWidth, frameHeight, 20)
+    // Add subtle border glow
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)'
+    ctx.lineWidth = 1
+    ctx.shadowColor = 'rgba(255, 255, 255, 0.2)'
+    ctx.shadowBlur = 10
+    ctx.roundRect(
+      canvas.width * 0.1, verseY - 100,
+      canvas.width * 0.8, 400,
+      30
+    )
     ctx.stroke()
     ctx.shadowBlur = 0
     
-    // Verse text with ultra-premium typography and glow
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.98)'
-    ctx.font = 'bold 58px "Georgia", "Times New Roman", serif'
+    // Verse text with Gen-Z aesthetic typography
+    ctx.fillStyle = 'rgba(255, 255, 255, 1)'
+    ctx.font = 'bold 64px "Georgia", "Times New Roman", serif'
     ctx.textAlign = 'center'
-    ctx.shadowColor = 'rgba(255, 255, 255, 0.3)'
-    ctx.shadowBlur = 10
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.8)'
+    ctx.shadowBlur = 15
+    ctx.shadowOffsetX = 3
+    ctx.shadowOffsetY = 3
     
-    // Word wrap for verse with better spacing
+    // Word wrap for verse with elegant spacing
     const words = data.verse.split(' ')
     let line = ''
     let y = verseY
@@ -264,7 +367,7 @@ export async function generateShareImage(data: ShareImageData): Promise<Blob> {
       if (metrics.width > maxWidth && i > 0) {
         ctx.fillText(line.trim(), canvas.width / 2, y)
         line = words[i] + ' '
-        y += 85
+        y += 75
       } else {
         line = testLine
       }
@@ -272,83 +375,82 @@ export async function generateShareImage(data: ShareImageData): Promise<Blob> {
     ctx.fillText(line.trim(), canvas.width / 2, y)
     ctx.shadowBlur = 0
 
-    // Elegant reference with ultra-premium styling
-    const refY = y + 120
+    // Gen-Z aesthetic reference styling
+    const refY = y + 100
     const refText = `— ${data.reference}`
     
-    // Decorative elements around reference
+    // Subtle decorative line above reference
     const lineWidth = ctx.measureText(refText).width
     const lineX = (canvas.width - lineWidth) / 2
     
-    // Multiple decorative lines
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)'
-    ctx.lineWidth = 3
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)'
+    ctx.lineWidth = 2
     ctx.beginPath()
-    ctx.moveTo(lineX - 40, refY - 30)
-    ctx.lineTo(lineX + lineWidth + 40, refY - 30)
+    ctx.moveTo(lineX - 30, refY - 20)
+    ctx.lineTo(lineX + lineWidth + 30, refY - 20)
     ctx.stroke()
     
-    ctx.strokeStyle = 'rgba(138, 43, 226, 0.4)'
-    ctx.lineWidth = 1
-    ctx.beginPath()
-    ctx.moveTo(lineX - 30, refY - 25)
-    ctx.lineTo(lineX + lineWidth + 30, refY - 25)
-    ctx.stroke()
-    
-    // Reference text with glow
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.95)'
-    ctx.font = 'bold 42px "Georgia", "Times New Roman", serif'
-    ctx.shadowColor = 'rgba(255, 255, 255, 0.4)'
-    ctx.shadowBlur = 8
+    // Reference text with Gen-Z styling
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)'
+    ctx.font = 'italic 36px "Georgia", "Times New Roman", serif'
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.6)'
+    ctx.shadowBlur = 10
+    ctx.shadowOffsetX = 2
+    ctx.shadowOffsetY = 2
     ctx.fillText(refText, canvas.width / 2, refY)
     ctx.shadowBlur = 0
 
     // 💭 ULTRA-PREMIUM REFLECTION SECTION WITH CREATIVE LAYOUT
     const reflectionY = refY + 180
     
-    // Create reflection card with premium styling
-    const reflectionCardWidth = canvas.width * 0.9
-    const reflectionCardHeight = 280
+    // Create translucent reflection card
+    const reflectionCardWidth = canvas.width * 0.85
+    const reflectionCardHeight = 300
     const reflectionCardX = (canvas.width - reflectionCardWidth) / 2
-    const reflectionCardY = reflectionY - 20
+    const reflectionCardY = reflectionY
     
-    // Reflection card background with complex gradient
+    // Reflection card background with Gen-Z aesthetic
     const reflectionGradient = ctx.createLinearGradient(reflectionCardX, reflectionCardY, reflectionCardX, reflectionCardY + reflectionCardHeight)
-    reflectionGradient.addColorStop(0, 'rgba(255, 255, 255, 0.08)')
-    reflectionGradient.addColorStop(0.3, 'rgba(138, 43, 226, 0.15)')
-    reflectionGradient.addColorStop(0.7, 'rgba(255, 255, 255, 0.08)')
-    reflectionGradient.addColorStop(1, 'rgba(138, 43, 226, 0.1)')
+    reflectionGradient.addColorStop(0, 'rgba(255, 255, 255, 0.12)')
+    reflectionGradient.addColorStop(0.3, 'rgba(206, 147, 216, 0.08)')
+    reflectionGradient.addColorStop(0.7, 'rgba(255, 255, 255, 0.06)')
+    reflectionGradient.addColorStop(1, 'rgba(171, 71, 188, 0.05)')
     
     ctx.fillStyle = reflectionGradient
-    ctx.roundRect(reflectionCardX, reflectionCardY, reflectionCardWidth, reflectionCardHeight, 25)
+    ctx.roundRect(reflectionCardX, reflectionCardY, reflectionCardWidth, reflectionCardHeight, 20)
     ctx.fill()
     
-    // Reflection card border with glow
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)'
-    ctx.lineWidth = 2
-    ctx.shadowColor = 'rgba(255, 255, 255, 0.2)'
-    ctx.shadowBlur = 20
-    ctx.roundRect(reflectionCardX, reflectionCardY, reflectionCardWidth, reflectionCardHeight, 25)
+    // Reflection card border with subtle glow
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)'
+    ctx.lineWidth = 1
+    ctx.shadowColor = 'rgba(255, 255, 255, 0.1)'
+    ctx.shadowBlur = 8
+    ctx.roundRect(reflectionCardX, reflectionCardY, reflectionCardWidth, reflectionCardHeight, 20)
     ctx.stroke()
     ctx.shadowBlur = 0
     
-    // Reflection header with ultra-premium styling
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.98)'
-    ctx.font = 'bold 36px "Segoe UI", Arial, sans-serif'
-    ctx.shadowColor = 'rgba(255, 255, 255, 0.4)'
+    // Reflection header with Gen-Z styling
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.95)'
+    ctx.font = 'bold 28px "Segoe UI", Arial, sans-serif'
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.6)'
     ctx.shadowBlur = 8
+    ctx.shadowOffsetX = 2
+    ctx.shadowOffsetY = 2
     ctx.fillText('💭 Reflection', canvas.width / 2, reflectionY + 40)
     ctx.shadowBlur = 0
     
-    // Reflection text with premium styling
+    // Reflection text with Gen-Z styling
     ctx.fillStyle = 'rgba(255, 255, 255, 0.9)'
-    ctx.font = '32px "Segoe UI", Arial, sans-serif'
-    ctx.lineHeight = 1.6
+    ctx.font = '26px "Segoe UI", Arial, sans-serif'
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.5)'
+    ctx.shadowBlur = 6
+    ctx.shadowOffsetX = 1
+    ctx.shadowOffsetY = 1
     
     // Word wrap for reflection
     const reflectionWords = data.reflection.split(' ')
     let reflectionLine = ''
-    let reflectionYPos = reflectionY + 90
+    let reflectionYPos = reflectionY + 80
     
     for (let i = 0; i < reflectionWords.length; i++) {
       const testLine = reflectionLine + reflectionWords[i] + ' '
@@ -357,23 +459,30 @@ export async function generateShareImage(data: ShareImageData): Promise<Blob> {
       if (metrics.width > maxWidth && i > 0) {
         ctx.fillText(reflectionLine.trim(), canvas.width / 2, reflectionYPos)
         reflectionLine = reflectionWords[i] + ' '
-        reflectionYPos += 65
+        reflectionYPos += 50
       } else {
         reflectionLine = testLine
       }
     }
     ctx.fillText(reflectionLine.trim(), canvas.width / 2, reflectionYPos)
+    ctx.shadowBlur = 0
 
-    // 🎨 ULTRA-PREMIUM CREATIVE ELEMENTS TO FILL SPACE
+    // 🎨 ELEGANT BACKGROUND ELEMENTS - READABLE & BEAUTIFUL
     
-    // Add floating geometric shapes
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.1)'
-    for (let i = 0; i < 12; i++) {
+    // Add subtle floating geometric shapes (reduced opacity for readability)
+    for (let i = 0; i < 8; i++) {
       const x = Math.random() * canvas.width
       const y = Math.random() * canvas.height
-      const size = Math.random() * 20 + 10
+      const size = Math.random() * 30 + 15
       const rotation = Math.random() * Math.PI * 2
       
+      // Create subtle gradient for each shape
+      const shapeGradient = ctx.createRadialGradient(x, y, 0, x, y, size)
+      shapeGradient.addColorStop(0, 'rgba(255, 255, 255, 0.05)')
+      shapeGradient.addColorStop(0.5, 'rgba(138, 43, 226, 0.03)')
+      shapeGradient.addColorStop(1, 'rgba(255, 255, 255, 0.01)')
+      
+      ctx.fillStyle = shapeGradient
       ctx.save()
       ctx.translate(x, y)
       ctx.rotate(rotation)
@@ -387,59 +496,159 @@ export async function generateShareImage(data: ShareImageData): Promise<Blob> {
       ctx.restore()
     }
     
-    // Add flowing energy lines
-    ctx.strokeStyle = 'rgba(138, 43, 226, 0.4)'
-    ctx.lineWidth = 2
+    // Add subtle floating circles (reduced opacity)
     for (let i = 0; i < 6; i++) {
+      const x = Math.random() * canvas.width
+      const y = Math.random() * canvas.height
+      const size = Math.random() * 40 + 20
+      
+      const circleGradient = ctx.createRadialGradient(x, y, 0, x, y, size)
+      circleGradient.addColorStop(0, 'rgba(255, 255, 255, 0.08)')
+      circleGradient.addColorStop(0.3, 'rgba(138, 43, 226, 0.05)')
+      circleGradient.addColorStop(0.7, 'rgba(255, 255, 255, 0.03)')
+      circleGradient.addColorStop(1, 'rgba(255, 255, 255, 0.01)')
+      
+      ctx.fillStyle = circleGradient
       ctx.beginPath()
+      ctx.arc(x, y, size, 0, Math.PI * 2)
+      ctx.fill()
+    }
+    
+    // Add subtle floating triangles (reduced opacity)
+    for (let i = 0; i < 5; i++) {
+      const x = Math.random() * canvas.width
+      const y = Math.random() * canvas.height
+      const size = Math.random() * 35 + 20
+      const rotation = Math.random() * Math.PI * 2
+      
+      const triangleGradient = ctx.createLinearGradient(x - size, y - size, x + size, y + size)
+      triangleGradient.addColorStop(0, 'rgba(255, 255, 255, 0.06)')
+      triangleGradient.addColorStop(0.5, 'rgba(138, 43, 226, 0.04)')
+      triangleGradient.addColorStop(1, 'rgba(255, 255, 255, 0.02)')
+      
+      ctx.fillStyle = triangleGradient
+      ctx.save()
+      ctx.translate(x, y)
+      ctx.rotate(rotation)
+      ctx.beginPath()
+      ctx.moveTo(0, -size)
+      ctx.lineTo(-size * 0.866, size * 0.5)
+      ctx.lineTo(size * 0.866, size * 0.5)
+      ctx.closePath()
+      ctx.fill()
+      ctx.restore()
+    }
+    
+    // Add subtle flowing energy lines (reduced for readability)
+    for (let i = 0; i < 4; i++) {
       const startX = Math.random() * canvas.width
-      const startY = Math.random() * canvas.height * 0.3 + canvas.height * 0.7
+      const startY = Math.random() * canvas.height
+      
+      // Create subtle gradient for each line
+      const lineGradient = ctx.createLinearGradient(startX, startY, startX + 200, startY + 200)
+      lineGradient.addColorStop(0, 'rgba(138, 43, 226, 0.15)')
+      lineGradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.1)')
+      lineGradient.addColorStop(1, 'rgba(138, 43, 226, 0.08)')
+      
+      ctx.strokeStyle = lineGradient
+      ctx.lineWidth = 1
+      ctx.shadowColor = 'rgba(138, 43, 226, 0.1)'
+      ctx.shadowBlur = 3
+      ctx.beginPath()
       ctx.moveTo(startX, startY)
       
-      for (let j = 0; j < 15; j++) {
-        const x = startX + (Math.random() - 0.5) * 200
+      for (let j = 0; j < 10; j++) {
+        const x = startX + (Math.random() - 0.5) * 150
         const y = startY + j * 15 + (Math.random() - 0.5) * 20
         ctx.lineTo(x, y)
       }
       ctx.stroke()
+      ctx.shadowBlur = 0
     }
     
-    // Add inspirational quote section
-    const quoteY = reflectionY + 350
-    const inspirationalQuotes = [
-      "Faith moves mountains",
-      "With God, all things are possible",
-      "Trust in the Lord with all your heart",
-      "Be still and know that I am God"
-    ]
+    // Add subtle spiral patterns (reduced for readability)
+    for (let i = 0; i < 3; i++) {
+      const centerX = Math.random() * canvas.width
+      const centerY = Math.random() * canvas.height
+      const maxRadius = Math.random() * 60 + 30
+      
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)'
+      ctx.lineWidth = 1
+      ctx.shadowColor = 'rgba(255, 255, 255, 0.05)'
+      ctx.shadowBlur = 3
+      ctx.beginPath()
+      
+      for (let angle = 0; angle < Math.PI * 2; angle += 0.1) {
+        const radius = (angle / (Math.PI * 2)) * maxRadius
+        const x = centerX + Math.cos(angle) * radius
+        const y = centerY + Math.sin(angle) * radius
+        if (angle === 0) {
+          ctx.moveTo(x, y)
+        } else {
+          ctx.lineTo(x, y)
+        }
+      }
+      ctx.stroke()
+      ctx.shadowBlur = 0
+    }
     
-    const randomQuote = inspirationalQuotes[Math.floor(Math.random() * inspirationalQuotes.length)]
+    // Add subtle hexagonal patterns (reduced for readability)
+    for (let i = 0; i < 4; i++) {
+      const centerX = Math.random() * canvas.width
+      const centerY = Math.random() * canvas.height
+      const size = Math.random() * 50 + 25
+      
+      const hexGradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, size)
+      hexGradient.addColorStop(0, 'rgba(255, 255, 255, 0.03)')
+      hexGradient.addColorStop(0.5, 'rgba(138, 43, 226, 0.02)')
+      hexGradient.addColorStop(1, 'rgba(255, 255, 255, 0.01)')
+      
+      ctx.fillStyle = hexGradient
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)'
+      ctx.lineWidth = 1
+      ctx.beginPath()
+      
+      for (let j = 0; j < 6; j++) {
+        const angle = (j * Math.PI) / 3
+        const x = centerX + Math.cos(angle) * size
+        const y = centerY + Math.sin(angle) * size
+        if (j === 0) {
+          ctx.moveTo(x, y)
+        } else {
+          ctx.lineTo(x, y)
+        }
+      }
+      ctx.closePath()
+      ctx.fill()
+      ctx.stroke()
+    }
     
-    // Quote background
-    const quoteWidth = canvas.width * 0.8
-    const quoteHeight = 80
-    const quoteX = (canvas.width - quoteWidth) / 2
+    // Add subtle floating text elements (reduced for readability)
+    const floatingTexts = ["FAITH", "HOPE", "LOVE"]
+    for (let i = 0; i < 3; i++) {
+      const text = floatingTexts[i]
+      const x = Math.random() * canvas.width
+      const y = Math.random() * canvas.height
+      const size = Math.random() * 20 + 15
+      const rotation = Math.random() * Math.PI * 2
+      
+      ctx.save()
+      ctx.translate(x, y)
+      ctx.rotate(rotation)
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.03)'
+      ctx.font = `bold ${size}px "Segoe UI", Arial, sans-serif`
+      ctx.shadowColor = 'rgba(255, 255, 255, 0.05)'
+      ctx.shadowBlur = 3
+      ctx.fillText(text, 0, 0)
+      ctx.restore()
+    }
     
-    const quoteGradient = ctx.createLinearGradient(quoteX, quoteY, quoteX, quoteY + quoteHeight)
-    quoteGradient.addColorStop(0, 'rgba(255, 255, 255, 0.1)')
-    quoteGradient.addColorStop(1, 'rgba(138, 43, 226, 0.1)')
-    
-    ctx.fillStyle = quoteGradient
-    ctx.roundRect(quoteX, quoteY, quoteWidth, quoteHeight, 15)
-    ctx.fill()
-    
-    // Quote text
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)'
-    ctx.font = 'italic 28px "Georgia", "Times New Roman", serif'
-    ctx.shadowColor = 'rgba(255, 255, 255, 0.3)'
-    ctx.shadowBlur = 5
-    ctx.fillText(`"${randomQuote}"`, canvas.width / 2, quoteY + 50)
-    ctx.shadowBlur = 0
-    
-    // Add decorative corner elements
-    const cornerSize = 60
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)'
-    ctx.lineWidth = 3
+    // Add subtle decorative corner elements (reduced for readability)
+    const cornerSize = 40
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)'
+    ctx.lineWidth = 2
+    ctx.shadowColor = 'rgba(255, 255, 255, 0.05)'
+    ctx.shadowBlur = 3
     
     // Top-left corner
     ctx.beginPath()
@@ -468,6 +677,87 @@ export async function generateShareImage(data: ShareImageData): Promise<Blob> {
     ctx.lineTo(canvas.width - 30 - cornerSize, canvas.height - 30)
     ctx.lineTo(canvas.width - 30, canvas.height - 30 - cornerSize)
     ctx.stroke()
+    ctx.shadowBlur = 0
+    
+    // Add subtle floating cross patterns (reduced for readability)
+    for (let i = 0; i < 3; i++) {
+      const x = Math.random() * canvas.width
+      const y = Math.random() * canvas.height
+      const size = Math.random() * 30 + 20
+      
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)'
+      ctx.lineWidth = 1
+      ctx.shadowColor = 'rgba(255, 255, 255, 0.03)'
+      ctx.shadowBlur = 2
+      
+      // Horizontal line
+      ctx.beginPath()
+      ctx.moveTo(x - size, y)
+      ctx.lineTo(x + size, y)
+      ctx.stroke()
+      
+      // Vertical line
+      ctx.beginPath()
+      ctx.moveTo(x, y - size)
+      ctx.lineTo(x, y + size)
+      ctx.stroke()
+      ctx.shadowBlur = 0
+    }
+    
+    // Add subtle floating diamond patterns (reduced for readability)
+    for (let i = 0; i < 4; i++) {
+      const x = Math.random() * canvas.width
+      const y = Math.random() * canvas.height
+      const size = Math.random() * 25 + 15
+      
+      const diamondGradient = ctx.createLinearGradient(x - size, y - size, x + size, y + size)
+      diamondGradient.addColorStop(0, 'rgba(255, 255, 255, 0.03)')
+      diamondGradient.addColorStop(0.5, 'rgba(138, 43, 226, 0.02)')
+      diamondGradient.addColorStop(1, 'rgba(255, 255, 255, 0.01)')
+      
+      ctx.fillStyle = diamondGradient
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)'
+      ctx.lineWidth = 1
+      ctx.beginPath()
+      ctx.moveTo(x, y - size)
+      ctx.lineTo(x + size, y)
+      ctx.lineTo(x, y + size)
+      ctx.lineTo(x - size, y)
+      ctx.closePath()
+      ctx.fill()
+      ctx.stroke()
+    }
+    
+    // Add subtle floating star patterns (reduced for readability)
+    for (let i = 0; i < 5; i++) {
+      const x = Math.random() * canvas.width
+      const y = Math.random() * canvas.height
+      const size = Math.random() * 20 + 10
+      const points = 5
+      
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.03)'
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)'
+      ctx.lineWidth = 1
+      ctx.shadowColor = 'rgba(255, 255, 255, 0.02)'
+      ctx.shadowBlur = 2
+      ctx.beginPath()
+      
+      for (let j = 0; j < points * 2; j++) {
+        const angle = (j * Math.PI) / points
+        const radius = j % 2 === 0 ? size : size * 0.5
+        const starX = x + Math.cos(angle) * radius
+        const starY = y + Math.sin(angle) * radius
+        if (j === 0) {
+          ctx.moveTo(starX, starY)
+        } else {
+          ctx.lineTo(starX, starY)
+        }
+      }
+      ctx.closePath()
+      ctx.fill()
+      ctx.stroke()
+      ctx.shadowBlur = 0
+    }
     
     // 🎨 ULTRA-PREMIUM FOOTER SECTION
     const footerY = canvas.height - 100
@@ -491,21 +781,77 @@ export async function generateShareImage(data: ShareImageData): Promise<Blob> {
     ctx.stroke()
     ctx.shadowBlur = 0
     
-    // Footer text with ultra-premium styling
-    const footerTextGradient = ctx.createLinearGradient(0, footerY, 0, footerY + 40)
-    footerTextGradient.addColorStop(0, 'rgba(255, 255, 255, 0.9)')
-    footerTextGradient.addColorStop(1, 'rgba(255, 255, 255, 0.6)')
-    
-    ctx.fillStyle = footerTextGradient
-    ctx.font = 'bold 28px "Segoe UI", Arial, sans-serif'
-    ctx.shadowColor = 'rgba(255, 255, 255, 0.3)'
+    // Gen-Z stylish footer
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)'
+    ctx.font = 'bold 24px "Segoe UI", Arial, sans-serif'
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.6)'
     ctx.shadowBlur = 8
     ctx.fillText('✨ Generated with LightUp', canvas.width / 2, footerY + 25)
     ctx.shadowBlur = 0
     
     ctx.fillStyle = 'rgba(255, 255, 255, 0.7)'
-    ctx.font = '24px "Segoe UI", Arial, sans-serif'
-    ctx.fillText('Share your faith journey', canvas.width / 2, footerY + 55)
+    ctx.font = '20px "Segoe UI", Arial, sans-serif'
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.5)'
+    ctx.shadowBlur = 6
+    ctx.shadowOffsetX = 1
+    ctx.shadowOffsetY = 1
+    ctx.fillText('Share your faith journey', canvas.width / 2, footerY + 50)
+    ctx.shadowBlur = 0
+
+    // 🌟 ADDITIONAL GEN-Z AESTHETIC ELEMENTS - FILL REMAINING SPACES
+    
+    // Add floating hearts and spiritual symbols
+    const symbols = ['💜', '✨', '🌟', '💫', '🕊️', '🙏']
+    for (let i = 0; i < 15; i++) {
+      const symbol = symbols[Math.floor(Math.random() * symbols.length)]
+      const x = Math.random() * canvas.width
+      const y = Math.random() * canvas.height
+      const size = Math.random() * 20 + 15
+      
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.1)'
+      ctx.font = `${size}px Arial`
+      ctx.shadowColor = 'rgba(255, 255, 255, 0.2)'
+      ctx.shadowBlur = 5
+      ctx.fillText(symbol, x, y)
+      ctx.shadowBlur = 0
+    }
+    
+    // Add subtle wave patterns
+    for (let i = 0; i < 6; i++) {
+      const startY = Math.random() * canvas.height
+      const amplitude = Math.random() * 20 + 10
+      const frequency = Math.random() * 0.02 + 0.01
+      
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)'
+      ctx.lineWidth = 1
+      ctx.shadowColor = 'rgba(255, 255, 255, 0.1)'
+      ctx.shadowBlur = 3
+      ctx.beginPath()
+      
+      for (let x = 0; x < canvas.width; x += 2) {
+        const y = startY + Math.sin(x * frequency) * amplitude
+        if (x === 0) {
+          ctx.moveTo(x, y)
+        } else {
+          ctx.lineTo(x, y)
+        }
+      }
+      ctx.stroke()
+      ctx.shadowBlur = 0
+    }
+    
+    // Add floating particles with different sizes
+    for (let i = 0; i < 40; i++) {
+      const x = Math.random() * canvas.width
+      const y = Math.random() * canvas.height
+      const size = Math.random() * 3 + 1
+      const opacity = Math.random() * 0.3 + 0.1
+      
+      ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`
+      ctx.beginPath()
+      ctx.arc(x, y, size, 0, Math.PI * 2)
+      ctx.fill()
+    }
 
     // Convert to blob with high quality
     canvas.toBlob((blob) => {

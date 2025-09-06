@@ -1275,9 +1275,9 @@ export default function EnhancedYouthGroups() {
                       </div>
                     )}
 
-                    {/* Edit Group Button */}
-                    {selectedGroup.is_owner && (
-                      <div className="flex justify-end pt-4 border-t">
+                    {/* Action Buttons */}
+                    <div className="flex justify-end pt-4 border-t">
+                      {selectedGroup.is_owner ? (
                         <Button 
                           onClick={() => setShowEditGroup(true)}
                           className="bg-blue-600 hover:bg-blue-700"
@@ -1285,8 +1285,24 @@ export default function EnhancedYouthGroups() {
                           <Edit className="h-4 w-4 mr-2" />
                           Edit Group Details
                         </Button>
-                      </div>
-                    )}
+                      ) : selectedGroup.is_member ? (
+                        <Button 
+                          onClick={() => handleLeaveGroup(selectedGroup.id)}
+                          variant="destructive"
+                        >
+                          <X className="h-4 w-4 mr-2" />
+                          Leave Group
+                        </Button>
+                      ) : (
+                        <Button 
+                          onClick={() => handleJoinGroup(selectedGroup.id)}
+                          className="bg-green-600 hover:bg-green-700"
+                        >
+                          <UserPlus className="h-4 w-4 mr-2" />
+                          Join Group
+                        </Button>
+                      )}
+                    </div>
                   </TabsContent>
 
                   {/* Members Tab */}
@@ -1491,18 +1507,8 @@ export default function EnhancedYouthGroups() {
         </DialogContent>
       </Dialog>
 
-      {/* Join Request Modal */}
-      <Dialog open={(() => {
-        const shouldOpen = Boolean(showGroupDetails && selectedGroup && !selectedGroup.is_owner && !selectedGroup.is_member)
-        console.log('Modal condition:', {
-          showGroupDetails,
-          selectedGroup: selectedGroup?.name,
-          is_owner: selectedGroup?.is_owner,
-          is_member: selectedGroup?.is_member,
-          shouldOpen
-        })
-        return shouldOpen
-      })()} onOpenChange={setShowGroupDetails}>
+      {/* Join Request Modal - Only open when explicitly requested */}
+      <Dialog open={false} onOpenChange={() => {}}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Join {selectedGroup?.name}</DialogTitle>

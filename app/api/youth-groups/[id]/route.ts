@@ -13,10 +13,7 @@ export async function GET(
     const authHeader = request.headers.get('authorization')
     const token = authHeader?.replace('Bearer ', '')
     
-    if (!token) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
+    // Create supabase client (no auth required for public group viewing)
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!,
@@ -26,10 +23,13 @@ export async function GET(
       }
     )
 
-    // Verify user authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
+    // Try to get user if token exists, but don't require it
+    let user = null
+    if (token) {
+      const { data: { user: authUser }, error: authError } = await supabase.auth.getUser(token)
+      if (!authError && authUser) {
+        user = authUser
+      }
     }
 
     // Get group details
@@ -63,17 +63,23 @@ export async function GET(
       return NextResponse.json({ error: 'Group not found' }, { status: 404 })
     }
 
-    // Check if user is a member of the group
-    const { data: membership, error: membershipError } = await supabase
-      .from('group_members')
-      .select('role, status')
-      .eq('group_id', groupId)
-      .eq('user_id', user.id)
-      .single()
+    // Check if user is a member of the group (only if user is authenticated)
+    let membership = null
+    let isOwner = false
+    let isMember = false
+    
+    if (user) {
+      const { data: membershipData, error: membershipError } = await supabase
+        .from('group_members')
+        .select('role, status')
+        .eq('group_id', groupId)
+        .eq('user_id', user.id)
+        .single()
 
-    // Check if user is group owner
-    const isOwner = group.owner_id === user.id
-    const isMember = membership && membership.status === 'active'
+      membership = membershipData
+      isOwner = group.owner_id === user.id
+      isMember = membership && membership.status === 'active'
+    }
 
     // Add membership info to group object
     const groupWithMembership = {
