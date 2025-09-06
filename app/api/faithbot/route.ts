@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { checkRateLimit, getRateLimitHeaders } from '@/lib/rate-limiter';
 
 // FaithBot AI Personality Configuration
 const FAITHBOT_PERSONALITY = `
@@ -268,6 +269,21 @@ export async function POST(request: Request) {
   
   try {
     console.log("FaithBot: POST request received - AI VERSION - TESTING CACHE CLEAR");
+    
+    // Rate limiting
+    const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown'
+    const rateLimit = await checkRateLimit(ip, 'FAITHBOT', ip)
+    
+    if (!rateLimit.allowed) {
+      console.log('❌ Rate limit exceeded for FaithBot')
+      return NextResponse.json(
+        { error: 'Too many requests. Please wait before asking another question.' },
+        { 
+          status: 429,
+          headers: getRateLimitHeaders(rateLimit.remaining, rateLimit.resetTime)
+        }
+      )
+    }
     
     // Parse request with enhanced features
     const { 

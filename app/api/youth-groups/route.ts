@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { checkRateLimit, getRateLimitHeaders } from '@/lib/rate-limiter'
 
 export const dynamic = 'force-dynamic'
 
@@ -135,6 +136,21 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     console.log('🚀 POST /api/youth-groups - Starting request')
+    
+    // Rate limiting
+    const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown'
+    const rateLimit = await checkRateLimit(ip, 'GENERAL_API', ip)
+    
+    if (!rateLimit.allowed) {
+      console.log('❌ Rate limit exceeded for youth group creation')
+      return NextResponse.json(
+        { error: 'Too many requests. Please wait before creating another group.' },
+        { 
+          status: 429,
+          headers: getRateLimitHeaders(rateLimit.remaining, rateLimit.resetTime)
+        }
+      )
+    }
     
     const body = await request.json()
     const { name, description, parish, city, state, country, meeting_time, age_range, max_members, is_public, requires_approval } = body

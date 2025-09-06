@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 import { PrayerRequestSchema } from '@/lib/validations'
+import { checkRateLimit, getRateLimitHeaders } from '@/lib/rate-limiter'
 
 export const dynamic = 'force-dynamic'
 
@@ -58,6 +59,21 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     console.log('🚀 Prayer Requests POST API called')
+    
+    // Rate limiting
+    const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown'
+    const rateLimit = await checkRateLimit(ip, 'PRAYER_POST', ip)
+    
+    if (!rateLimit.allowed) {
+      console.log('❌ Rate limit exceeded for prayer post')
+      return NextResponse.json(
+        { error: 'Too many prayer requests. Please wait before posting again.' },
+        { 
+          status: 429,
+          headers: getRateLimitHeaders(rateLimit.remaining, rateLimit.resetTime)
+        }
+      )
+    }
     
     // Check environment variables first
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
