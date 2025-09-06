@@ -262,8 +262,33 @@ export default function AboutPage() {
             
             {/* Premium Timeline - Mobile Optimized */}
             <div className="relative">
-              {/* Premium Timeline Line - Desktop Only */}
-              <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2 w-2 h-full bg-gradient-to-b from-purple-500 via-pink-500 to-green-500 rounded-full shadow-lg"></div>
+              {/* Premium Timeline Line - Desktop Only - Continuous */}
+              <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2 w-2 h-full bg-gradient-to-b from-purple-500 via-pink-500 to-green-500 rounded-full shadow-lg z-0"></div>
+              
+              {/* Desktop Timeline Icons - Positioned on the continuous line */}
+              <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2 w-2 h-full z-10">
+                {/* Icon 1 - The Spark */}
+                <motion.div 
+                  whileHover={{ scale: 1.2 }}
+                  className="absolute top-1/4 transform -translate-y-1/2 w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-2xl -ml-5 cursor-pointer"
+                >
+                  <Heart className="w-6 h-6 text-white" />
+                </motion.div>
+                {/* Icon 2 - The Vision */}
+                <motion.div 
+                  whileHover={{ scale: 1.2 }}
+                  className="absolute top-1/2 transform -translate-y-1/2 w-12 h-12 bg-gradient-to-r from-pink-500 to-orange-500 rounded-full flex items-center justify-center shadow-2xl -ml-5 cursor-pointer"
+                >
+                  <Star className="w-6 h-6 text-white" />
+                </motion.div>
+                {/* Icon 3 - The Reality */}
+                <motion.div 
+                  whileHover={{ scale: 1.2 }}
+                  className="absolute top-3/4 transform -translate-y-1/2 w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center shadow-2xl -ml-5 cursor-pointer"
+                >
+                  <Users className="w-6 h-6 text-white" />
+                </motion.div>
+              </div>
               
               {/* Timeline Items - Mobile First */}
               <div className="space-y-16 md:space-y-20">
@@ -273,7 +298,7 @@ export default function AboutPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.8, delay: 0.2 }}
                   viewport={{ once: true }}
-                  className="flex flex-col md:flex-row md:items-center"
+                  className="flex flex-col md:flex-row md:items-center relative"
                 >
                   <div className="w-full md:w-1/2 md:pr-12 text-center md:text-right">
                     <Card className="bg-white/20 backdrop-blur-lg border border-white/30 shadow-2xl hover:shadow-3xl transition-all duration-500 group">
@@ -291,13 +316,6 @@ export default function AboutPage() {
                     </Card>
                   </div>
                   
-                  {/* Desktop Icon */}
-                  <motion.div 
-                    whileHover={{ scale: 1.2 }}
-                    className="hidden md:block w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center relative z-10 shadow-2xl mx-auto my-4"
-                  >
-                    <Heart className="w-6 h-6 text-white" />
-                  </motion.div>
                   <div className="w-full md:w-1/2 md:pl-12"></div>
                 </motion.div>
 
@@ -307,17 +325,10 @@ export default function AboutPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.8, delay: 0.4 }}
                   viewport={{ once: true }}
-                  className="flex flex-col md:flex-row md:items-center"
+                  className="flex flex-col md:flex-row md:items-center relative"
                 >
                   <div className="w-full md:w-1/2 md:pr-12"></div>
                   
-                  {/* Desktop Icon */}
-                  <motion.div 
-                    whileHover={{ scale: 1.2 }}
-                    className="hidden md:block w-12 h-12 bg-gradient-to-r from-pink-500 to-orange-500 rounded-full flex items-center justify-center relative z-10 shadow-2xl mx-auto my-4"
-                  >
-                    <Star className="w-6 h-6 text-white" />
-                  </motion.div>
                   
                   <div className="w-full md:w-1/2 md:pl-12 text-center md:text-left">
                     <Card className="bg-white/20 backdrop-blur-lg border border-white/30 shadow-2xl hover:shadow-3xl transition-all duration-500 group">
@@ -342,7 +353,7 @@ export default function AboutPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.8, delay: 0.6 }}
                   viewport={{ once: true }}
-                  className="flex flex-col md:flex-row md:items-center"
+                  className="flex flex-col md:flex-row md:items-center relative"
                 >
                   <div className="w-full md:w-1/2 md:pr-12 text-center md:text-right">
                     <Card className="bg-white/20 backdrop-blur-lg border border-white/30 shadow-2xl hover:shadow-3xl transition-all duration-500 group">
@@ -360,13 +371,6 @@ export default function AboutPage() {
                     </Card>
                   </div>
                   
-                  {/* Desktop Icon */}
-                  <motion.div 
-                    whileHover={{ scale: 1.2 }}
-                    className="hidden md:block w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center relative z-10 shadow-2xl mx-auto my-4"
-                  >
-                    <Users className="w-6 h-6 text-white" />
-                  </motion.div>
                   <div className="w-full md:w-1/2 md:pl-12"></div>
                 </motion.div>
               </div>
