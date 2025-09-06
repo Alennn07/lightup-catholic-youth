@@ -91,9 +91,10 @@ export function DailyBibleVerse() {
       // Check if user is authenticated
       const { data: { session } } = await supabase.auth.getSession()
       
-      if (session?.access_token && user) {
+      if (session?.access_token) {
         // Check cache first for authenticated users
-        const cacheKey = `${user.id}-${clientDate}`
+        const userId = session.user?.id || 'anonymous'
+        const cacheKey = `${userId}-${clientDate}`
         const cachedData = verseCache.get(cacheKey)
         
         if (cachedData && (Date.now() - (cachedData as any).timestamp) < CACHE_DURATION) {
@@ -115,7 +116,7 @@ export function DailyBibleVerse() {
             }
           }),
           // Fetch user profile data concurrently if needed
-          fetch(`/api/users/profile?userId=${user.id}`, {
+          fetch(`/api/users/profile?userId=${userId}`, {
             headers: {
               'Authorization': `Bearer ${session.access_token}`
             }
@@ -134,6 +135,11 @@ export function DailyBibleVerse() {
         verseCache.set(cacheKey, dataWithTimestamp)
         
         setVerseData(data)
+        
+        // Update user state if not already set
+        if (!user && session.user) {
+          setUser(session.user)
+        }
       } else {
         // For non-authenticated users, show a static verse
         const staticVerse = {
