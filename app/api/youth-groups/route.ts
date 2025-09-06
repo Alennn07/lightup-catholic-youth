@@ -63,8 +63,8 @@ export async function GET(request: NextRequest) {
     }
 
     // Get user's membership and pending status for all groups
-    let userMemberships = []
-    let userPendingRequests = []
+    let userMemberships: any[] = []
+    let userPendingRequests: any[] = []
     
     if (currentUserId) {
       console.log('🔍 Checking membership status for user:', currentUserId)

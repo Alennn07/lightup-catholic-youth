@@ -79,8 +79,8 @@ export default function EnhancedYouthGroups() {
   const [showEditGroup, setShowEditGroup] = useState(false)
   const [showEditEvent, setShowEditEvent] = useState(false)
   const [showEditPost, setShowEditPost] = useState(false)
-  const [editingEvent, setEditingEvent] = useState(null)
-  const [editingPost, setEditingPost] = useState(null)
+  const [editingEvent, setEditingEvent] = useState<any>(null)
+  const [editingPost, setEditingPost] = useState<any>(null)
   const [newMemberEmail, setNewMemberEmail] = useState('')
   const [joinRequestMessage, setJoinRequestMessage] = useState('')
   const [showJoinRequestModal, setShowJoinRequestModal] = useState(false)
@@ -899,9 +899,10 @@ export default function EnhancedYouthGroups() {
     setEventForm({
       title: event.title || '',
       description: event.description || '',
-      event_date: eventDate,
-      event_time: eventTime,
-      location: event.location || ''
+      date: eventDate,
+      time: eventTime,
+      location: event.location || '',
+      maxAttendees: event.max_attendees?.toString() || ''
     })
     setShowEditEvent(true)
   }
@@ -1029,7 +1030,11 @@ export default function EnhancedYouthGroups() {
         setShowEditGroup(false)
         
         // Update the selectedGroup with the new data
-        setSelectedGroup(prev => prev ? { ...prev, ...editGroupForm } : null)
+        setSelectedGroup(prev => prev ? { 
+      ...prev, 
+      ...editGroupForm,
+      max_members: parseInt(editGroupForm.max_members) || prev.max_members
+    } : null)
         
         // Refresh the groups list
         fetchGroups()
@@ -2331,13 +2336,24 @@ export default function EnhancedYouthGroups() {
               const token = await getAccessToken()
               if (!token) return
 
-              const response = await fetch(`/api/youth-groups/${selectedGroup.id}/events/${editingEvent.id}`, {
+              if (!selectedGroup?.id || !editingEvent?.id) return
+              
+              const groupId = selectedGroup.id as string
+              const eventId = editingEvent.id as string
+              
+              const response = await fetch(`/api/youth-groups/${groupId}/events/${eventId}`, {
                 method: 'PUT',
                 headers: {
                   'Content-Type': 'application/json',
                   'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify(eventForm)
+                body: JSON.stringify({
+                  title: eventForm.title,
+                  description: eventForm.description,
+                  event_date: eventForm.date,
+                  event_time: eventForm.time,
+                  location: eventForm.location
+                })
               })
 
               if (response.ok) {
@@ -2394,8 +2410,8 @@ export default function EnhancedYouthGroups() {
                 <Input
                   id="edit_event_date"
                   type="date"
-                  value={eventForm.event_date}
-                  onChange={(e) => setEventForm(prev => ({ ...prev, event_date: e.target.value }))}
+                  value={eventForm.date}
+                  onChange={(e) => setEventForm(prev => ({ ...prev, date: e.target.value }))}
                   required
                 />
               </div>
@@ -2405,8 +2421,8 @@ export default function EnhancedYouthGroups() {
                 <Input
                   id="edit_event_time"
                   type="time"
-                  value={eventForm.event_time}
-                  onChange={(e) => setEventForm(prev => ({ ...prev, event_time: e.target.value }))}
+                  value={eventForm.time}
+                  onChange={(e) => setEventForm(prev => ({ ...prev, time: e.target.value }))}
                 />
               </div>
               
@@ -2451,7 +2467,12 @@ export default function EnhancedYouthGroups() {
               const token = await getAccessToken()
               if (!token) return
 
-              const response = await fetch(`/api/youth-groups/${selectedGroup.id}/posts/${editingPost.id}`, {
+              if (!selectedGroup?.id || !editingPost?.id) return
+              
+              const groupId = selectedGroup.id as string
+              const postId = editingPost.id as string
+              
+              const response = await fetch(`/api/youth-groups/${groupId}/posts/${postId}`, {
                 method: 'PUT',
                 headers: {
                   'Content-Type': 'application/json',
