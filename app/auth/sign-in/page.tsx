@@ -17,6 +17,7 @@ import { useAuth } from "@/contexts/auth-context"
 import { logIfEnabled } from "@/lib/performance-monitor"
 import { useTranslation } from "@/lib/i18n"
 import { ErrorBoundary } from "@/components/error-boundary"
+import { CustomLogo } from "@/components/custom-logo"
 
 export default function SignInPage() {
   const { t } = useTranslation()
@@ -129,14 +130,11 @@ export default function SignInPage() {
 
       <div className="relative z-10 w-full max-w-md mx-2 sm:mx-3 md:mx-4">
         <div className="text-center mb-4 sm:mb-6 md:mb-10">
-          <div className="flex items-center justify-center space-x-2 sm:space-x-3 mb-4 sm:mb-6">
-            <div className="relative">
-              <Heart className="h-12 w-12 text-blue-600 fill-blue-600" />
-              <div className="absolute -top-1 -right-1 w-4 h-4 bg-yellow-400 rounded-full animate-pulse shadow-sm"></div>
+          <div className="flex flex-col items-center justify-center mb-4 sm:mb-6">
+            <div className="scale-75 sm:scale-90 md:scale-100">
+              <CustomLogo textColor="text-gray-800" taglineColor="text-gray-700" />
             </div>
-            <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent font-outfit">
-              LightUp
-            </h1>
+            <p className="text-gray-700 text-sm font-medium mt-2">Catholic Youth Community</p>
           </div>
           <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-blue-100 to-purple-100 border border-blue-200 rounded-full px-5 py-3 shadow-sm">
             <Sparkles className="h-4 w-4 text-blue-600" />
