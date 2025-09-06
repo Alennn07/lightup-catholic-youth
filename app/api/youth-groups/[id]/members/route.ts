@@ -162,14 +162,17 @@ export async function POST(
       return NextResponse.json({ error: 'Email is required' }, { status: 400 })
     }
 
-    // Find user by email using the users table
-    const { data: targetUser, error: userError } = await supabase
-      .from('users')
-      .select('id')
-      .eq('email', email)
-      .single()
+    // Find user by email using the auth system
+    const { data: { users }, error: userError } = await supabase.auth.admin.listUsers()
+    
+    if (userError) {
+      console.error('Error fetching users:', userError)
+      return NextResponse.json({ error: 'Failed to lookup user' }, { status: 500 })
+    }
 
-    if (userError || !targetUser) {
+    const targetUser = users.find(u => u.email === email)
+    
+    if (!targetUser) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
