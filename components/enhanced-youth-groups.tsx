@@ -483,7 +483,10 @@ export default function EnhancedYouthGroups() {
         })
         setNewMemberEmail('')
         setShowAddMemberForm(false)
+        
+        // Refresh both the main groups list and the current group's members
         fetchGroups()
+        fetchGroupMembers()
       } else {
         const error = await response.json()
         toast({
