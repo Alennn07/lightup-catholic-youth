@@ -1147,26 +1147,30 @@ export default function EnhancedYouthGroups() {
           
           {selectedGroup && (
             <div className="flex flex-col h-full">
-              {/* Tabs */}
-              <Tabs defaultValue="details" className="flex-1 flex flex-col">
-                <TabsList className="grid w-full grid-cols-4">
-                  <TabsTrigger value="details" className="flex items-center space-x-2">
-                    <Settings className="h-4 w-4" />
-                    <span>Details</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="members" className="flex items-center space-x-2">
-                    <Users className="h-4 w-4" />
-                    <span>Members</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="events" className="flex items-center space-x-2">
-                    <Calendar className="h-4 w-4" />
-                    <span>Events</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="posts" className="flex items-center space-x-2">
-                    <MessageSquare className="h-4 w-4" />
-                    <span>Posts</span>
-                  </TabsTrigger>
-                </TabsList>
+                {/* Tabs - Conditional visibility based on membership */}
+                <Tabs defaultValue="details" className="flex-1 flex flex-col">
+                  <TabsList className={`grid w-full ${selectedGroup.is_member ? 'grid-cols-4' : 'grid-cols-1'}`}>
+                    <TabsTrigger value="details" className="flex items-center space-x-2">
+                      <Settings className="h-4 w-4" />
+                      <span>Details</span>
+                    </TabsTrigger>
+                    {selectedGroup.is_member && (
+                      <>
+                        <TabsTrigger value="members" className="flex items-center space-x-2">
+                          <Users className="h-4 w-4" />
+                          <span>Members</span>
+                        </TabsTrigger>
+                        <TabsTrigger value="events" className="flex items-center space-x-2">
+                          <Calendar className="h-4 w-4" />
+                          <span>Events</span>
+                        </TabsTrigger>
+                        <TabsTrigger value="posts" className="flex items-center space-x-2">
+                          <MessageSquare className="h-4 w-4" />
+                          <span>Posts</span>
+                        </TabsTrigger>
+                      </>
+                    )}
+                  </TabsList>
 
                 {/* Tab Content */}
                 <div className="flex-1 overflow-y-auto mt-4">
@@ -1305,8 +1309,26 @@ export default function EnhancedYouthGroups() {
                     </div>
                   </TabsContent>
 
-                  {/* Members Tab */}
-                  <TabsContent value="members" className="space-y-4">
+                  {/* Non-member message */}
+                  {!selectedGroup.is_member && (
+                    <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                          <Users className="h-4 w-4 text-blue-600" />
+                        </div>
+                        <div>
+                          <h4 className="font-semibold text-blue-900">Join to see more!</h4>
+                          <p className="text-sm text-blue-700">
+                            Become a member to access Members, Events, and Posts sections.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Members Tab - Only visible to members */}
+                  {selectedGroup.is_member && (
+                    <TabsContent value="members" className="space-y-4">
                     <div className="flex justify-between items-center">
                       <h3 className="text-lg font-semibold text-gray-900">Group Members</h3>
                       {selectedGroup.is_owner && (
@@ -1369,10 +1391,12 @@ export default function EnhancedYouthGroups() {
                         </div>
                       )}
                     </div>
-                  </TabsContent>
+                    </TabsContent>
+                  )}
 
-                  {/* Events Tab */}
-                  <TabsContent value="events" className="space-y-4">
+                  {/* Events Tab - Only visible to members */}
+                  {selectedGroup.is_member && (
+                    <TabsContent value="events" className="space-y-4">
                     <div className="flex justify-between items-center">
                       <h3 className="text-lg font-semibold text-gray-900">Group Events</h3>
                       {selectedGroup.is_owner && (
@@ -1432,10 +1456,12 @@ export default function EnhancedYouthGroups() {
                         </div>
                       )}
                     </div>
-                  </TabsContent>
+                    </TabsContent>
+                  )}
 
-                  {/* Posts Tab */}
-                  <TabsContent value="posts" className="space-y-4">
+                  {/* Posts Tab - Only visible to members */}
+                  {selectedGroup.is_member && (
+                    <TabsContent value="posts" className="space-y-4">
                     <div className="flex justify-between items-center">
                       <h3 className="text-lg font-semibold text-gray-900">Group Posts</h3>
                       {selectedGroup.is_owner && (
@@ -1492,7 +1518,8 @@ export default function EnhancedYouthGroups() {
                         </div>
                       )}
                     </div>
-                  </TabsContent>
+                    </TabsContent>
+                  )}
                 </div>
               </Tabs>
 
