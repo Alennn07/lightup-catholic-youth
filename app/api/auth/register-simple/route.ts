@@ -174,14 +174,9 @@ export async function POST(request: NextRequest) {
         parish,
         diocese,
       },
-      // Return session data for auto-login
-      session: authData.session ? {
-        access_token: authData.session.access_token,
-        refresh_token: authData.session.refresh_token,
-        expires_at: authData.session.expires_at,
-        user: authData.user
-      } : null,
-      autoLogin: true
+      // Note: Session data not available from createUser
+      // User will need to sign in manually
+      autoLogin: false
     }, { status: 200 });
 
   } catch (error: any) {
