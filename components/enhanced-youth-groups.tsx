@@ -562,6 +562,7 @@ export default function EnhancedYouthGroups() {
 
     try {
       console.log('🗑️ Removing member:', { userId, email, groupId: selectedGroup.id })
+      console.log('🔍 Full member data:', groupMembers.find(m => m.user_id === userId))
       const token = await getAccessToken()
       if (!token) return
 

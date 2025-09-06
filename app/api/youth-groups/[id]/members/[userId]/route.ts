@@ -126,6 +126,22 @@ export async function DELETE(
       return NextResponse.json({ error: 'Only group owners can remove members' }, { status: 403 })
     }
 
+    // Debug: Check if member exists first
+    console.log('🔍 Checking if member exists:', { groupId, userId })
+    const { data: existingMember, error: checkError } = await supabase
+      .from('group_members')
+      .select('*')
+      .eq('group_id', groupId)
+      .eq('user_id', userId)
+      .single()
+
+    if (checkError || !existingMember) {
+      console.error('❌ Member not found in group_members table:', { groupId, userId, checkError })
+      return NextResponse.json({ error: 'Member not found' }, { status: 404 })
+    }
+
+    console.log('✅ Member found, proceeding with removal:', existingMember)
+
     // Remove member from group
     const { error: deleteError } = await supabase
       .from('group_members')
