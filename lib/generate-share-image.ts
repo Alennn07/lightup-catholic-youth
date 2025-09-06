@@ -257,7 +257,7 @@ export async function generateShareImage(data: ShareImageData): Promise<Blob> {
       ctx.save()
       ctx.translate(leaf.x, leaf.y)
       ctx.rotate(leaf.angle)
-      ctx.beginPath()
+    ctx.beginPath()
       ctx.ellipse(0, 0, leaf.size, leaf.size * 1.5, 0, 0, Math.PI * 2)
       ctx.fill()
       ctx.restore()
@@ -332,7 +332,7 @@ export async function generateShareImage(data: ShareImageData): Promise<Blob> {
       30
     )
     ctx.fill()
-    
+
     // Add subtle border glow
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)'
     ctx.lineWidth = 1

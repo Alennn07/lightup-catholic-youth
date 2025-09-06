@@ -29,6 +29,7 @@ import {
 } from "lucide-react"
 import { useAuth } from "@/contexts/auth-context"
 import { LiturgicalSeasonBadge } from "@/components/liturgical-season-badge"
+import { CustomLogo } from "@/components/custom-logo"
 
 export default function HomePage() {
   const { user } = useAuth()
@@ -234,15 +235,10 @@ export default function HomePage() {
             {/* Liturgical Season Badge */}
             <LiturgicalSeasonBadge />
 
-            {/* Logo */}
-            <div className="flex items-center justify-center mb-8">
-              <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-3xl flex items-center justify-center mr-4 shadow-2xl">
-                <Lightbulb className="w-10 h-10 text-white" />
-              </div>
-              <div className="text-left">
-                <h1 className="text-5xl font-bold">LightUp</h1>
-                <p className="text-blue-200 text-lg font-medium">Catholic Youth Community</p>
-              </div>
+            {/* Custom Logo */}
+            <div className="flex flex-col items-center justify-center mb-8">
+              <CustomLogo />
+              <p className="text-blue-200 text-lg font-medium mt-4">Catholic Youth Community</p>
             </div>
             
             {/* Main Headline - Dynamic based on user state */}

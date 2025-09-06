@@ -5,6 +5,9 @@
 /* Import highlight.js styles for code syntax highlighting */
 @import 'highlight.js/styles/github.css';
 
+/* Import TAN Nightingale font */
+@import url('https://fonts.googleapis.com/css2?family=TAN+Nightingale:wght@400&display=swap');
+
 @layer base {
   :root {
     /* Notion-inspired neutral palette */

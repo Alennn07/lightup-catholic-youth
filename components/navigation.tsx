@@ -9,6 +9,7 @@ import { useAuth } from "@/contexts/auth-context"
 import { logIfEnabled } from "@/lib/performance-monitor"
 import { LanguageSwitcher } from "@/components/language-switcher"
 import { GlobalSearch } from "@/components/global-search"
+import { NavbarLogo } from "@/components/navbar-logo"
 
 export function Navigation() {
   const [isOpen, setIsOpen] = useState(false)
@@ -49,11 +50,8 @@ export function Navigation() {
       <div className="container mx-auto px-3 sm:px-4">
         <div className="flex items-center justify-between h-16 md:h-18">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-3 flex-shrink-0">
-            <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-purple-500 to-blue-600 rounded-lg flex items-center justify-center">
-              <Heart className="w-5 h-5 md:w-6 md:h-6 text-white" />
-            </div>
-            <span className="text-xl md:text-2xl font-bold text-gray-900">LightUp</span>
+          <Link href="/" className="flex items-center flex-shrink-0">
+            <NavbarLogo textColor="text-gray-800" />
           </Link>
 
           {/* Medium Screen Navigation (shows only key items) */}
