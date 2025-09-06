@@ -1614,7 +1614,7 @@ export default function EnhancedYouthGroups() {
                                     </DropdownMenuItem>
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem 
-                                      onClick={() => handleRemoveMember(member.user_id, member.email)}
+                                      onClick={() => handleRemoveMember(member.user_id, member.email || member.user?.email || 'Unknown User')}
                                       className="text-red-600"
                                     >
                                       <UserX className="h-4 w-4 mr-2" />
