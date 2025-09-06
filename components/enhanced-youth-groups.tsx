@@ -791,6 +791,11 @@ export default function EnhancedYouthGroups() {
           description: "Group updated successfully"
         })
         setShowEditGroup(false)
+        
+        // Update the selectedGroup with the new data
+        setSelectedGroup(prev => prev ? { ...prev, ...editGroupForm } : null)
+        
+        // Refresh the groups list
         fetchGroups()
       } else {
         const error = await response.json()
