@@ -108,16 +108,29 @@ export async function POST(request: NextRequest) {
       
       const verificationLink = `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/verify-email?token=${verificationToken}`;
       
-      await EmailService.sendVerificationEmail(
+      const emailResult = await EmailService.sendVerificationEmail(
         email,
         verificationLink,
         username
       );
       
-      console.log('✅ Welcome email sent successfully');
+      if (emailResult.success) {
+        console.log('✅ Welcome email sent successfully');
+      } else {
+        console.error('❌ Email sending failed:', emailResult.error);
+        // Don't fail registration if email fails, but log it
+        await logSecurityEvent(authData.user!.id, 'email_send_failed', {
+          error: emailResult.error,
+          email
+        }, ip, userAgent);
+      }
     } catch (emailError) {
       console.error('❌ Failed to send welcome email:', emailError);
       // Don't fail registration if email fails
+      await logSecurityEvent(authData.user!.id, 'email_send_exception', {
+        error: emailError instanceof Error ? emailError.message : 'Unknown error',
+        email
+      }, ip, userAgent);
     }
 
     return NextResponse.json({
