@@ -175,12 +175,12 @@ export async function POST(request: NextRequest) {
         diocese,
       },
       // Return session data for auto-login
-      session: {
-        access_token: authData.session?.access_token,
-        refresh_token: authData.session?.refresh_token,
-        expires_at: authData.session?.expires_at,
+      session: authData.session ? {
+        access_token: authData.session.access_token,
+        refresh_token: authData.session.refresh_token,
+        expires_at: authData.session.expires_at,
         user: authData.user
-      },
+      } : null,
       autoLogin: true
     }, { status: 200 });
 
