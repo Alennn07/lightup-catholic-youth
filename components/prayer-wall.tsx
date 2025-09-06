@@ -177,13 +177,19 @@ export function PrayerWall() {
       logIfEnabled(`🔄 Current requests state: ${JSON.stringify(requests.map(req => ({ id: req.id, prayer_count: req.prayer_count })))}`)
       logIfEnabled(`🔄 Updating request ID: ${requestId}`)
 
-      setRequests(requests.map((req) => {
-        if (req.id === requestId) {
-          logIfEnabled(`🔄 Updating request: ${req.id} from ${req.prayer_count} to ${prayerCount}`)
-          return { ...req, prayer_count: prayerCount, has_user_prayed: true }
-        }
-        return req
-      }))
+      setRequests(prevRequests => {
+        const updatedRequests = prevRequests.map((req) => {
+          if (req.id === requestId) {
+            logIfEnabled(`🔄 Updating request: ${req.id} from ${req.prayer_count} to ${prayerCount}`)
+            const updated = { ...req, prayer_count: prayerCount, has_user_prayed: true }
+            console.log('🔄 Updated request:', updated)
+            return updated
+          }
+          return req
+        })
+        console.log('🔄 All updated requests:', updatedRequests)
+        return updatedRequests
+      })
 
       logIfEnabled(`🔄 State updated, new requests: ${JSON.stringify(requests.map(req => ({ id: req.id, prayer_count: req.prayer_count })))}`)
 
@@ -439,17 +445,20 @@ export function PrayerWall() {
                     </span>
                   </div>
                   <Button
-                    onClick={() => handlePray(request.id)}
+                    onClick={() => {
+                      console.log('🖱️ Pray button clicked for request:', request.id, 'has_user_prayed:', request.has_user_prayed)
+                      handlePray(request.id)
+                    }}
                     size="lg"
                     variant="ghost"
                     disabled={request.has_user_prayed}
-                    className={`font-medium px-4 py-2 text-base ${
+                    className={`font-medium px-4 py-2 text-base transition-all duration-200 ${
                       request.has_user_prayed 
-                        ? "text-gray-400 cursor-not-allowed" 
+                        ? "text-gray-400 cursor-not-allowed bg-gray-50" 
                         : "text-rose-500 hover:text-rose-600 hover:bg-rose-50"
                     }`}
                   >
-                    <Heart className={`h-5 w-5 mr-2 ${request.has_user_prayed ? "fill-current" : ""}`} />
+                    <Heart className={`h-5 w-5 mr-2 transition-all duration-200 ${request.has_user_prayed ? "fill-current text-gray-400" : "text-rose-500"}`} />
                     {request.has_user_prayed ? "Prayed" : "Pray"}
                   </Button>
                 </div>
