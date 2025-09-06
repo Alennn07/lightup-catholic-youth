@@ -319,25 +319,29 @@ export default function EnhancedYouthGroups() {
   }
 
   const handleJoinGroup = async (groupId: string) => {
-    console.log('handleJoinGroup called for group:', groupId)
+    console.log('🚀 handleJoinGroup called for group:', groupId)
+    console.log('📊 Current groups state:', groups.length, 'groups')
+    
     // Find the group to check if it requires approval
     const group = groups.find(g => g.id === groupId)
     if (!group) {
-      console.log('Group not found')
+      console.log('❌ Group not found in groups array')
+      console.log('🔍 Available group IDs:', groups.map(g => g.id))
       return
     }
 
-    console.log('Group found:', group.name, 'requires_approval:', group.requires_approval)
+    console.log('✅ Group found:', group.name, 'requires_approval:', group.requires_approval)
 
     // If group requires approval, show modal for join request
     if (group.requires_approval) {
-      console.log('Opening modal for join request')
+      console.log('📝 Opening modal for join request (approval required)')
       setSelectedGroup(group)
       setShowGroupDetails(true)
       return
     }
 
     // If no approval required, join directly
+    console.log('⚡ Joining group directly (no approval required)')
     await submitJoinRequest(groupId, '')
   }
 
@@ -869,7 +873,10 @@ export default function EnhancedYouthGroups() {
     // For any group that's not owned by user and user is not a member
     return (
       <Button
-        onClick={() => handleJoinGroup(group.id)}
+        onClick={() => {
+          console.log('🖱️ Home page Join button clicked for:', group.id)
+          handleJoinGroup(group.id)
+        }}
         size="lg"
         className="bg-blue-600 hover:bg-blue-700 text-base px-4 py-2"
       >
@@ -883,7 +890,10 @@ export default function EnhancedYouthGroups() {
   const getFallbackButton = (group: YouthGroup) => {
     return (
       <Button
-        onClick={() => handleJoinGroup(group.id)}
+        onClick={() => {
+          console.log('🖱️ Fallback Join button clicked for:', group.id)
+          handleJoinGroup(group.id)
+        }}
         size="lg"
         className="bg-green-600 hover:bg-green-700 text-base px-4 py-2"
       >
@@ -1382,7 +1392,10 @@ export default function EnhancedYouthGroups() {
                         </Button>
                       ) : (
                         <Button 
-                          onClick={() => handleJoinGroup(selectedGroup.id)}
+                          onClick={() => {
+                            console.log('🖱️ Join Group button clicked for:', selectedGroup.id)
+                            handleJoinGroup(selectedGroup.id)
+                          }}
                           className="bg-green-600 hover:bg-green-700"
                         >
                           <UserPlus className="h-4 w-4 mr-2" />
