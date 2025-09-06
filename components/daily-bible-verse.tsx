@@ -47,6 +47,7 @@ export function DailyBibleVerse() {
   const { t } = useTranslation()
   const [verseData, setVerseData] = useState<DailyVerseData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true)
   const [isUpdating, setIsUpdating] = useState(false)
   const [isSharing, setIsSharing] = useState(false)
   const [showShareModal, setShowShareModal] = useState(false)
@@ -60,6 +61,19 @@ export function DailyBibleVerse() {
         const { data: { session } } = await supabase.auth.getSession()
         setUser(session?.user ?? null)
         logIfEnabled(`Auth check: ${session?.user ? 'User logged in' : 'No user'}`)
+        
+        // If user is logged in, trigger a refetch of the verse data
+        if (session?.user) {
+          // Small delay to ensure user state is set before fetching
+          setTimeout(() => {
+            fetchDailyVerse()
+          }, 100)
+        } else {
+          // If no user, show static verse
+          fetchDailyVerse()
+        }
+        
+        setIsCheckingAuth(false)
       } catch (error) {
         logIfEnabled(`Auth check error: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error')
       }
@@ -71,10 +85,17 @@ export function DailyBibleVerse() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       logIfEnabled(`Auth state changed: ${event}, user: ${session?.user ? 'logged in' : 'logged out'}`)
       setUser(session?.user ?? null)
+      
+      // If user just logged in, refetch the verse data
+      if (event === 'SIGNED_IN' && session?.user) {
+        setTimeout(() => {
+          fetchDailyVerse()
+        }, 100)
+      }
     })
 
     return () => subscription.unsubscribe()
-  }, [])
+  }, [fetchDailyVerse])
 
   // 🚀 OPTIMIZED: Memoized client date to prevent recalculation
   const clientDate = useMemo(() => {
@@ -211,9 +232,7 @@ export function DailyBibleVerse() {
     }
   }, [user, clientDate, toast])
 
-  useEffect(() => {
-    fetchDailyVerse()
-  }, [fetchDailyVerse])
+  // Initial fetch is now handled in the auth check useEffect
 
   // 🚀 OPTIMIZED: Optimistic UI update for better perceived performance
   const handleMarkCompleted = useCallback(async () => {
@@ -360,12 +379,14 @@ export function DailyBibleVerse() {
   }, [verseData])
 
   // 🚀 OPTIMIZED: Memoized loading state
-  if (isLoading) {
+  if (isLoading || isCheckingAuth) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading today's verse...</p>
+          <p className="text-muted-foreground">
+            {isCheckingAuth ? 'Checking authentication...' : 'Loading today\'s verse...'}
+          </p>
         </div>
       </div>
     )
