@@ -62,14 +62,42 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    // Get user's membership and pending status for all groups
+    let userMemberships = []
+    let userPendingRequests = []
+    
+    if (currentUserId) {
+      // Get user's memberships
+      const { data: memberships } = await supabase
+        .from('group_members')
+        .select('group_id, role, status')
+        .eq('user_id', currentUserId)
+        .eq('status', 'active')
+      
+      // Get user's pending join requests
+      const { data: pendingRequests } = await supabase
+        .from('group_join_requests')
+        .select('group_id, status')
+        .eq('user_id', currentUserId)
+        .eq('status', 'pending')
+      
+      userMemberships = memberships || []
+      userPendingRequests = pendingRequests || []
+    }
+
     // Add user info based on current user
-    const groupsWithUserInfo = (groups || []).map(group => ({
-      ...group,
-      is_owner: currentUserId ? group.owner_id === currentUserId : false,
-      is_member: false, // Will be set by frontend if needed
-      is_pending: false, // Will be set by frontend if needed
-      user_role: currentUserId && group.owner_id === currentUserId ? 'owner' : 'none'
-    }))
+    const groupsWithUserInfo = (groups || []).map(group => {
+      const membership = userMemberships.find(m => m.group_id === group.id)
+      const pendingRequest = userPendingRequests.find(p => p.group_id === group.id)
+      
+      return {
+        ...group,
+        is_owner: currentUserId ? group.owner_id === currentUserId : false,
+        is_member: Boolean(membership),
+        is_pending: Boolean(pendingRequest),
+        user_role: membership?.role || (currentUserId && group.owner_id === currentUserId ? 'owner' : 'none')
+      }
+    })
 
     return NextResponse.json({ 
       groups: groupsWithUserInfo,
