@@ -561,6 +561,7 @@ export default function EnhancedYouthGroups() {
     }
 
     try {
+      console.log('🗑️ Removing member:', { userId, email, groupId: selectedGroup.id })
       const token = await getAccessToken()
       if (!token) return
 
@@ -571,17 +572,23 @@ export default function EnhancedYouthGroups() {
         }
       })
 
+      console.log('📡 Remove member response status:', response.status)
+
       if (response.ok) {
         const data = await response.json()
+        console.log('✅ Member removed successfully:', data)
         toast({
           title: "Success",
           description: `Member ${email} removed from group`
         })
         
         // Refresh the member list
-        fetchGroupMembers()
+        console.log('🔄 Refreshing member list...')
+        await fetchGroupMembers()
+        console.log('✅ Member list refreshed')
       } else {
         const error = await response.json()
+        console.error('❌ Failed to remove member:', error)
         toast({
           title: "Error",
           description: error.error || "Failed to remove member",
@@ -589,7 +596,7 @@ export default function EnhancedYouthGroups() {
         })
       }
     } catch (error) {
-      console.error('Error removing member:', error)
+      console.error('❌ Error removing member:', error)
       toast({
         title: "Error",
         description: "Failed to remove member",
