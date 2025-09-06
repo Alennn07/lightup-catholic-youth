@@ -3,254 +3,157 @@ import { createClient } from '@supabase/supabase-js'
 
 export const dynamic = 'force-dynamic'
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string; eventId: string } }
-) {
-  try {
-    console.log('🚀 GET /api/youth-groups/[id]/events/[eventId] - Starting request for event:', params.eventId)
-    
-    const authHeader = request.headers.get('authorization')
-    const token = authHeader?.replace('Bearer ', '')
-    
-    if (!token) {
-      console.log('❌ No authorization token provided')
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!,
-      { auth: { autoRefreshToken: false, persistSession: false } }
-    )
-
-    let user: any
-    try {
-      const { data: { user: authUser }, error: authError } = await supabase.auth.getUser(token)
-      if (authError || !authUser) {
-        console.log('❌ Auth error:', authError)
-        return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
-      }
-      user = authUser
-      console.log('✅ User authenticated:', user.id)
-    } catch (authError: any) {
-      console.error('❌ Error verifying user:', authError)
-      return NextResponse.json({ error: 'Authentication failed' }, { status: 401 })
-    }
-
-    // Check if user is a member of this group
-    const { data: membership } = await supabase
-      .from('group_members')
-      .select('role, status')
-      .eq('group_id', params.id)
-      .eq('user_id', user.id)
-      .eq('status', 'active')
-      .single()
-
-    if (!membership) {
-      console.log('❌ User is not a member of this group')
-      return NextResponse.json({ error: 'Access denied' }, { status: 403 })
-    }
-
-    // Get the specific event
-    const { data: event, error: eventError } = await supabase
-      .from('group_events')
-      .select('*')
-      .eq('id', params.eventId)
-      .eq('group_id', params.id)
-      .single()
-
-    if (eventError || !event) {
-      console.error('❌ Event not found:', eventError)
-      return NextResponse.json({ error: 'Event not found' }, { status: 404 })
-    }
-
-    console.log('✅ Event fetched successfully')
-    return NextResponse.json({ event })
-
-  } catch (error: any) {
-    console.error('❌ Unexpected error in GET /api/youth-groups/[id]/events/[eventId]:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
-  }
-}
-
+// Update event
 export async function PUT(
   request: NextRequest,
   { params }: { params: { id: string; eventId: string } }
 ) {
   try {
-    console.log('🚀 PUT /api/youth-groups/[id]/events/[eventId] - Starting request for event:', params.eventId)
-    
+    const { id: groupId, eventId } = params
     const authHeader = request.headers.get('authorization')
     const token = authHeader?.replace('Bearer ', '')
     
     if (!token) {
-      console.log('❌ No authorization token provided')
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!,
-      { auth: { autoRefreshToken: false, persistSession: false } }
+      { 
+        auth: { autoRefreshToken: false, persistSession: false },
+        db: { schema: 'public' }
+      }
     )
 
-    let user: any
-    try {
-      const { data: { user: authUser }, error: authError } = await supabase.auth.getUser(token)
-      if (authError || !authUser) {
-        console.log('❌ Auth error:', authError)
-        return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
-      }
-      user = authUser
-      console.log('✅ User authenticated:', user.id)
-    } catch (authError: any) {
-      console.error('❌ Error verifying user:', authError)
-      return NextResponse.json({ error: 'Authentication failed' }, { status: 401 })
+    // Verify user authentication
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
     }
 
-    const body = await request.json()
-    console.log('📝 Request body:', body)
-
-    // Check if user can edit this event
-    const { data: event, error: eventError } = await supabase
-      .from('group_events')
-      .select('created_by, group_id')
-      .eq('id', params.eventId)
+    // Check if user is group owner
+    const { data: group, error: groupError } = await supabase
+      .from('youth_groups')
+      .select('owner_id')
+      .eq('id', groupId)
       .single()
 
-    if (eventError || !event) {
-      console.error('❌ Event not found:', eventError)
-      return NextResponse.json({ error: 'Event not found' }, { status: 404 })
+    if (groupError || !group) {
+      return NextResponse.json({ error: 'Group not found' }, { status: 404 })
     }
 
-    // Check if user is the creator or group owner
-    const { data: membership } = await supabase
-      .from('group_members')
-      .select('role')
-      .eq('group_id', event.group_id)
-      .eq('user_id', user.id)
-      .single()
-
-    if (event.created_by !== user.id && membership?.role !== 'owner') {
-      console.log('❌ User cannot edit this event')
-      return NextResponse.json({ error: 'Access denied' }, { status: 403 })
+    if (group.owner_id !== user.id) {
+      return NextResponse.json({ error: 'Only group owners can edit events' }, { status: 403 })
     }
 
-    // Update the event
-    const { data: updatedEvent, error: updateError } = await supabase
+    const { title, description, event_date, event_time, location } = await request.json()
+    
+    if (!title || !description || !event_date) {
+      return NextResponse.json({ error: 'Title, description, and event date are required' }, { status: 400 })
+    }
+
+    // Update event
+    const { data: event, error: updateError } = await supabase
       .from('group_events')
       .update({
-        title: body.title,
-        description: body.description,
-        event_date: body.event_date,
-        location: body.location || null,
-        max_attendees: body.max_attendees || 50,
-        is_public: body.is_public || false
+        title,
+        description,
+        event_date,
+        event_time,
+        location
       })
-      .eq('id', params.eventId)
+      .eq('id', eventId)
+      .eq('group_id', groupId)
       .select()
       .single()
 
     if (updateError) {
-      console.error('❌ Error updating event:', updateError)
-      return NextResponse.json({ 
-        error: 'Failed to update event',
-        details: updateError.message 
-      }, { status: 500 })
+      console.error('Error updating event:', updateError)
+      return NextResponse.json({ error: 'Failed to update event' }, { status: 500 })
     }
 
-    console.log('✅ Event updated successfully')
-    return NextResponse.json({ 
-      event: updatedEvent,
-      message: 'Event updated successfully' 
+    return NextResponse.json({
+      success: true,
+      message: 'Event updated successfully',
+      event
     })
 
   } catch (error: any) {
-    console.error('❌ Unexpected error in PUT /api/youth-groups/[id]/events/[eventId]:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    console.error('Error in update event API:', error)
+    return NextResponse.json({ 
+      error: 'Internal server error',
+      details: error.message 
+    }, { status: 500 })
   }
 }
 
+// Delete event
 export async function DELETE(
   request: NextRequest,
   { params }: { params: { id: string; eventId: string } }
 ) {
   try {
-    console.log('🚀 DELETE /api/youth-groups/[id]/events/[eventId] - Starting request for event:', params.eventId)
-    
+    const { id: groupId, eventId } = params
     const authHeader = request.headers.get('authorization')
     const token = authHeader?.replace('Bearer ', '')
     
     if (!token) {
-      console.log('❌ No authorization token provided')
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!,
-      { auth: { autoRefreshToken: false, persistSession: false } }
+      { 
+        auth: { autoRefreshToken: false, persistSession: false },
+        db: { schema: 'public' }
+      }
     )
 
-    let user: any
-    try {
-      const { data: { user: authUser }, error: authError } = await supabase.auth.getUser(token)
-      if (authError || !authUser) {
-        console.log('❌ Auth error:', authError)
-        return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
-      }
-      user = authUser
-      console.log('✅ User authenticated:', user.id)
-    } catch (authError: any) {
-      console.error('❌ Error verifying user:', authError)
-      return NextResponse.json({ error: 'Authentication failed' }, { status: 401 })
+    // Verify user authentication
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
     }
 
-    // Check if user can delete this event
-    const { data: event, error: eventError } = await supabase
-      .from('group_events')
-      .select('created_by, group_id')
-      .eq('id', params.eventId)
+    // Check if user is group owner
+    const { data: group, error: groupError } = await supabase
+      .from('youth_groups')
+      .select('owner_id')
+      .eq('id', groupId)
       .single()
 
-    if (eventError || !event) {
-      console.error('❌ Event not found:', eventError)
-      return NextResponse.json({ error: 'Event not found' }, { status: 404 })
+    if (groupError || !group) {
+      return NextResponse.json({ error: 'Group not found' }, { status: 404 })
     }
 
-    // Check if user is the creator or group owner
-    const { data: membership } = await supabase
-      .from('group_members')
-      .select('role')
-      .eq('group_id', event.group_id)
-      .eq('user_id', user.id)
-      .single()
-
-    if (event.created_by !== user.id && membership?.role !== 'owner') {
-      console.log('❌ User cannot delete this event')
-      return NextResponse.json({ error: 'Access denied' }, { status: 403 })
+    if (group.owner_id !== user.id) {
+      return NextResponse.json({ error: 'Only group owners can delete events' }, { status: 403 })
     }
 
-    // Delete the event
+    // Delete event
     const { error: deleteError } = await supabase
       .from('group_events')
       .delete()
-      .eq('id', params.eventId)
+      .eq('id', eventId)
+      .eq('group_id', groupId)
 
     if (deleteError) {
-      console.error('❌ Error deleting event:', deleteError)
-      return NextResponse.json({ 
-        error: 'Failed to delete event',
-        details: deleteError.message 
-      }, { status: 500 })
+      console.error('Error deleting event:', deleteError)
+      return NextResponse.json({ error: 'Failed to delete event' }, { status: 500 })
     }
 
-    console.log('✅ Event deleted successfully')
-    return NextResponse.json({ message: 'Event deleted successfully' })
+    return NextResponse.json({
+      success: true,
+      message: 'Event deleted successfully'
+    })
 
   } catch (error: any) {
-    console.error('❌ Unexpected error in DELETE /api/youth-groups/[id]/events/[eventId]:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    console.error('Error in delete event API:', error)
+    return NextResponse.json({ 
+      error: 'Internal server error',
+      details: error.message 
+    }, { status: 500 })
   }
 }

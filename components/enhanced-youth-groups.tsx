@@ -77,6 +77,10 @@ export default function EnhancedYouthGroups() {
   const [showCreateEvent, setShowCreateEvent] = useState(false)
   const [showCreatePost, setShowCreatePost] = useState(false)
   const [showEditGroup, setShowEditGroup] = useState(false)
+  const [showEditEvent, setShowEditEvent] = useState(false)
+  const [showEditPost, setShowEditPost] = useState(false)
+  const [editingEvent, setEditingEvent] = useState(null)
+  const [editingPost, setEditingPost] = useState(null)
   const [newMemberEmail, setNewMemberEmail] = useState('')
   const [joinRequestMessage, setJoinRequestMessage] = useState('')
   const [showJoinRequestModal, setShowJoinRequestModal] = useState(false)
@@ -873,6 +877,116 @@ export default function EnhancedYouthGroups() {
       toast({
         title: "Error",
         description: "Failed to create post",
+        variant: "destructive"
+      })
+    }
+  }
+
+  // Handle edit event
+  const handleEditEvent = (event: any) => {
+    setEditingEvent(event)
+    setEventForm({
+      title: event.title || '',
+      description: event.description || '',
+      event_date: event.event_date || '',
+      event_time: event.event_time || '',
+      location: event.location || ''
+    })
+    setShowEditEvent(true)
+  }
+
+  // Handle edit post
+  const handleEditPost = (post: any) => {
+    setEditingPost(post)
+    setPostForm({
+      title: post.title || '',
+      content: post.content || '',
+      type: post.type || 'announcement'
+    })
+    setShowEditPost(true)
+  }
+
+  // Handle delete event
+  const handleDeleteEvent = async (eventId: string) => {
+    if (!selectedGroup) return
+
+    if (!confirm('Are you sure you want to delete this event?')) {
+      return
+    }
+
+    try {
+      const token = await getAccessToken()
+      if (!token) return
+
+      const response = await fetch(`/api/youth-groups/${selectedGroup.id}/events/${eventId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+
+      if (response.ok) {
+        toast({
+          title: "Success",
+          description: "Event deleted successfully"
+        })
+        fetchGroupEvents()
+      } else {
+        const error = await response.json()
+        toast({
+          title: "Error",
+          description: error.error || "Failed to delete event",
+          variant: "destructive"
+        })
+      }
+    } catch (error) {
+      console.error('Error deleting event:', error)
+      toast({
+        title: "Error",
+        description: "Failed to delete event",
+        variant: "destructive"
+      })
+    }
+  }
+
+  // Handle delete post
+  const handleDeletePost = async (postId: string) => {
+    if (!selectedGroup) return
+
+    if (!confirm('Are you sure you want to delete this post?')) {
+      return
+    }
+
+    try {
+      const token = await getAccessToken()
+      if (!token) return
+
+      const response = await fetch(`/api/youth-groups/${selectedGroup.id}/posts/${postId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+
+      if (response.ok) {
+        toast({
+          title: "Success",
+          description: "Post deleted successfully"
+        })
+        fetchGroupPosts()
+      } else {
+        const error = await response.json()
+        toast({
+          title: "Error",
+          description: error.error || "Failed to delete post",
+          variant: "destructive"
+        })
+      }
+    } catch (error) {
+      console.error('Error deleting post:', error)
+      toast({
+        title: "Error",
+        description: "Failed to delete post",
         variant: "destructive"
       })
     }
@@ -1695,6 +1809,25 @@ export default function EnhancedYouthGroups() {
                                     )}
                                   </div>
                                 </div>
+                                {selectedGroup.is_owner && (
+                                  <div className="flex space-x-2 ml-4">
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() => handleEditEvent(event)}
+                                    >
+                                      <Edit className="h-4 w-4" />
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() => handleDeleteEvent(event.id)}
+                                      className="text-red-600 hover:text-red-700"
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                  </div>
+                                )}
                               </div>
                             </div>
                           ))}
@@ -1757,6 +1890,25 @@ export default function EnhancedYouthGroups() {
                                     </div>
                                   </div>
                                 </div>
+                                {selectedGroup.is_owner && (
+                                  <div className="flex space-x-2 ml-4">
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() => handleEditPost(post)}
+                                    >
+                                      <Edit className="h-4 w-4" />
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() => handleDeletePost(post.id)}
+                                      className="text-red-600 hover:text-red-700"
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                  </div>
+                                )}
                               </div>
                             </div>
                           ))}
@@ -2144,6 +2296,233 @@ export default function EnhancedYouthGroups() {
               </Button>
               <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
                 Create Post
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Event Modal */}
+      <Dialog open={showEditEvent} onOpenChange={setShowEditEvent}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Event</DialogTitle>
+            <DialogDescription>
+              Update event details for {selectedGroup?.name}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <form onSubmit={async (e) => {
+            e.preventDefault()
+            if (!editingEvent) return
+
+            try {
+              const token = await getAccessToken()
+              if (!token) return
+
+              const response = await fetch(`/api/youth-groups/${selectedGroup.id}/events/${editingEvent.id}`, {
+                method: 'PUT',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(eventForm)
+              })
+
+              if (response.ok) {
+                toast({
+                  title: "Success",
+                  description: "Event updated successfully"
+                })
+                setShowEditEvent(false)
+                setEditingEvent(null)
+                fetchGroupEvents()
+              } else {
+                const error = await response.json()
+                toast({
+                  title: "Error",
+                  description: error.error || "Failed to update event",
+                  variant: "destructive"
+                })
+              }
+            } catch (error) {
+              console.error('Error updating event:', error)
+              toast({
+                title: "Error",
+                description: "Failed to update event",
+                variant: "destructive"
+              })
+            }
+          }} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="md:col-span-2">
+                <Label htmlFor="edit_event_title">Event Title *</Label>
+                <Input
+                  id="edit_event_title"
+                  value={eventForm.title}
+                  onChange={(e) => setEventForm(prev => ({ ...prev, title: e.target.value }))}
+                  placeholder="e.g., Youth Group Meeting"
+                  required
+                />
+              </div>
+              
+              <div className="md:col-span-2">
+                <Label htmlFor="edit_event_description">Description *</Label>
+                <Textarea
+                  id="edit_event_description"
+                  value={eventForm.description}
+                  onChange={(e) => setEventForm(prev => ({ ...prev, description: e.target.value }))}
+                  rows={3}
+                  placeholder="Describe the event..."
+                  required
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="edit_event_date">Event Date *</Label>
+                <Input
+                  id="edit_event_date"
+                  type="date"
+                  value={eventForm.event_date}
+                  onChange={(e) => setEventForm(prev => ({ ...prev, event_date: e.target.value }))}
+                  required
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="edit_event_time">Event Time</Label>
+                <Input
+                  id="edit_event_time"
+                  type="time"
+                  value={eventForm.event_time}
+                  onChange={(e) => setEventForm(prev => ({ ...prev, event_time: e.target.value }))}
+                />
+              </div>
+              
+              <div className="md:col-span-2">
+                <Label htmlFor="edit_event_location">Location</Label>
+                <Input
+                  id="edit_event_location"
+                  value={eventForm.location}
+                  onChange={(e) => setEventForm(prev => ({ ...prev, location: e.target.value }))}
+                  placeholder="e.g., Church Hall, Room 101"
+                />
+              </div>
+            </div>
+            
+            <div className="flex justify-end space-x-3">
+              <Button type="button" variant="outline" onClick={() => setShowEditEvent(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
+                Update Event
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Post Modal */}
+      <Dialog open={showEditPost} onOpenChange={setShowEditPost}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Post</DialogTitle>
+            <DialogDescription>
+              Update post details for {selectedGroup?.name}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <form onSubmit={async (e) => {
+            e.preventDefault()
+            if (!editingPost) return
+
+            try {
+              const token = await getAccessToken()
+              if (!token) return
+
+              const response = await fetch(`/api/youth-groups/${selectedGroup.id}/posts/${editingPost.id}`, {
+                method: 'PUT',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(postForm)
+              })
+
+              if (response.ok) {
+                toast({
+                  title: "Success",
+                  description: "Post updated successfully"
+                })
+                setShowEditPost(false)
+                setEditingPost(null)
+                fetchGroupPosts()
+              } else {
+                const error = await response.json()
+                toast({
+                  title: "Error",
+                  description: error.error || "Failed to update post",
+                  variant: "destructive"
+                })
+              }
+            } catch (error) {
+              console.error('Error updating post:', error)
+              toast({
+                title: "Error",
+                description: "Failed to update post",
+                variant: "destructive"
+              })
+            }
+          }} className="space-y-4">
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="edit_post_title">Post Title *</Label>
+                <Input
+                  id="edit_post_title"
+                  value={postForm.title}
+                  onChange={(e) => setPostForm(prev => ({ ...prev, title: e.target.value }))}
+                  placeholder="e.g., Weekly Announcements"
+                  required
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="edit_post_type">Post Type</Label>
+                <Select
+                  value={postForm.type}
+                  onValueChange={(value) => setPostForm(prev => ({ ...prev, type: value }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="announcement">Announcement</SelectItem>
+                    <SelectItem value="discussion">Discussion</SelectItem>
+                    <SelectItem value="prayer_request">Prayer Request</SelectItem>
+                    <SelectItem value="event_reminder">Event Reminder</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div>
+                <Label htmlFor="edit_post_content">Content *</Label>
+                <Textarea
+                  id="edit_post_content"
+                  value={postForm.content}
+                  onChange={(e) => setPostForm(prev => ({ ...prev, content: e.target.value }))}
+                  rows={6}
+                  placeholder="Share your message with the group..."
+                  required
+                />
+              </div>
+            </div>
+            
+            <div className="flex justify-end space-x-3">
+              <Button type="button" variant="outline" onClick={() => setShowEditPost(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
+                Update Post
               </Button>
             </div>
           </form>
