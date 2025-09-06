@@ -217,7 +217,7 @@ export function DailyBibleVerse() {
 
   // 🚀 OPTIMIZED: Optimistic UI update for better perceived performance
   const handleMarkCompleted = useCallback(async () => {
-    if (!user || !verseData) return
+    if (!verseData) return
     
     // Optimistic update - update UI immediately
     const optimisticData = {
@@ -259,7 +259,8 @@ export function DailyBibleVerse() {
       logIfEnabled(`✅ Marked as completed: ${JSON.stringify(result).substring(0, 100)}...`)
       
       // Update cache with new data
-      const cacheKey = `${user.id}-${clientDate}`
+      const userId = session.user?.id || 'anonymous'
+      const cacheKey = `${userId}-${clientDate}`
       const updatedData = { ...optimisticData, timestamp: Date.now() }
       verseCache.set(cacheKey, updatedData)
       
@@ -284,7 +285,63 @@ export function DailyBibleVerse() {
     } finally {
       setIsUpdating(false)
     }
-  }, [user, verseData, clientDate, toast])
+  }, [verseData, clientDate, toast])
+
+  const handleFavorite = useCallback(async () => {
+    if (!user || !verseData) {
+      // Redirect to sign in if not authenticated
+      window.location.href = '/auth/sign-in'
+      return
+    }
+    
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.access_token) {
+        throw new Error('No access token')
+      }
+      
+      // Toggle favorite status
+      const newFavoriteStatus = !verseData.user_progress.is_favorited
+      
+      // Optimistic update
+      setVerseData(prev => prev ? {
+        ...prev,
+        user_progress: {
+          ...prev.user_progress,
+          is_favorited: newFavoriteStatus
+        }
+      } : null)
+      
+      // TODO: Add API call to save favorite status
+      // For now, just show a toast
+      toast({
+        title: newFavoriteStatus ? "Added to Favorites!" : "Removed from Favorites!",
+        description: newFavoriteStatus 
+          ? "This verse has been added to your favorites." 
+          : "This verse has been removed from your favorites.",
+        variant: "default",
+      })
+      
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+      logIfEnabled(`Error toggling favorite: ${errorMessage}`, 'error')
+      
+      // Revert optimistic update on error
+      setVerseData(prev => prev ? {
+        ...prev,
+        user_progress: {
+          ...prev.user_progress,
+          is_favorited: !prev.user_progress.is_favorited
+        }
+      } : null)
+      
+      toast({
+        title: "Error",
+        description: "Failed to update favorite status. Please try again.",
+        variant: "destructive",
+      })
+    }
+  }, [user, verseData, toast])
 
   const handleShare = useCallback(() => {
     if (!verseData) return
@@ -443,11 +500,17 @@ export function DailyBibleVerse() {
             <div className="flex gap-2 sm:gap-3 md:gap-4">
               <Button 
                 variant="outline" 
-                className="flex items-center gap-2 h-10 sm:h-11 flex-1 sm:flex-none text-sm sm:text-base"
-                onClick={() => !user && (window.location.href = '/auth/sign-in')}
+                className={`flex items-center gap-2 h-10 sm:h-11 flex-1 sm:flex-none text-sm sm:text-base ${
+                  verseData.user_progress.is_favorited 
+                    ? 'bg-red-50 border-red-200 text-red-700 hover:bg-red-100' 
+                    : ''
+                }`}
+                onClick={handleFavorite}
               >
-                <Heart className="h-3 w-3 sm:h-4 sm:w-4" />
-                {user ? 'Favorite' : 'Sign In to Favorite'}
+                <Heart className={`h-3 w-3 sm:h-4 sm:w-4 ${
+                  verseData.user_progress.is_favorited ? 'fill-current' : ''
+                }`} />
+                {verseData.user_progress.is_favorited ? 'Favorited' : 'Favorite'}
               </Button>
 
               <Button 
