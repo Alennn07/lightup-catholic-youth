@@ -146,8 +146,16 @@ export function PrayerWall() {
     try {
       // Get the current access token
       const accessToken = await getAccessToken()
+      console.log('🔑 Access token:', accessToken ? 'Present' : 'Missing')
+      console.log('👤 User:', user ? 'Logged in' : 'Not logged in')
+      
       if (!accessToken) {
-        throw new Error('No access token available')
+        toast({
+          title: "Authentication required",
+          description: "Please sign in to pray for this request",
+          variant: "destructive",
+        })
+        return
       }
 
       const response = await fetch(`/api/prayer-requests/${requestId}/pray`, {
@@ -444,23 +452,41 @@ export function PrayerWall() {
                       {request.prayer_count} {request.prayer_count === 1 ? "person" : "people"} prayed
                     </span>
                   </div>
-                  <Button
-                    onClick={() => {
-                      console.log('🖱️ Pray button clicked for request:', request.id, 'has_user_prayed:', request.has_user_prayed)
-                      handlePray(request.id)
-                    }}
-                    size="lg"
-                    variant="ghost"
-                    disabled={request.has_user_prayed}
-                    className={`font-medium px-4 py-2 text-base transition-all duration-200 ${
-                      request.has_user_prayed 
-                        ? "text-gray-400 cursor-not-allowed bg-gray-50" 
-                        : "text-rose-500 hover:text-rose-600 hover:bg-rose-50"
-                    }`}
-                  >
-                    <Heart className={`h-5 w-5 mr-2 transition-all duration-200 ${request.has_user_prayed ? "fill-current text-gray-400" : "text-rose-500"}`} />
-                    {request.has_user_prayed ? "Prayed" : "Pray"}
-                  </Button>
+                  {user ? (
+                    <Button
+                      onClick={() => {
+                        console.log('🖱️ Pray button clicked for request:', request.id, 'has_user_prayed:', request.has_user_prayed)
+                        handlePray(request.id)
+                      }}
+                      size="lg"
+                      variant="ghost"
+                      disabled={request.has_user_prayed}
+                      className={`font-medium px-4 py-2 text-base transition-all duration-200 ${
+                        request.has_user_prayed 
+                          ? "text-gray-400 cursor-not-allowed bg-gray-50" 
+                          : "text-rose-500 hover:text-rose-600 hover:bg-rose-50"
+                      }`}
+                    >
+                      <Heart className={`h-5 w-5 mr-2 transition-all duration-200 ${request.has_user_prayed ? "fill-current text-gray-400" : "text-rose-500"}`} />
+                      {request.has_user_prayed ? "Prayed" : "Pray"}
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={() => {
+                        toast({
+                          title: "Sign in required",
+                          description: "Please sign in to pray for this request",
+                          variant: "destructive",
+                        })
+                      }}
+                      size="lg"
+                      variant="ghost"
+                      className="font-medium px-4 py-2 text-base text-gray-400 cursor-not-allowed bg-gray-50"
+                    >
+                      <Heart className="h-5 w-5 mr-2 text-gray-400" />
+                      Sign in to Pray
+                    </Button>
+                  )}
                 </div>
               </div>
             ))

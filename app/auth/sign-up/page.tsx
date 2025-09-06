@@ -14,6 +14,7 @@ import { supabase } from "@/lib/supabase"
 import { useTranslation } from "@/lib/i18n"
 import { ErrorBoundary } from "@/components/error-boundary"
 import { CustomLogo } from "@/components/custom-logo"
+import { validateEmailDomain } from "@/lib/email-validation"
 
 export default function SignUpPage() {
   const { t } = useTranslation()
@@ -64,6 +65,17 @@ export default function SignUpPage() {
       toast({
         title: "Password too short",
         description: "Password must be at least 6 characters long.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    // Validate email domain
+    const emailValidation = validateEmailDomain(formData.email)
+    if (!emailValidation.isValid) {
+      toast({
+        title: "Email not allowed",
+        description: emailValidation.error || "Invalid email domain",
         variant: "destructive",
       })
       return
@@ -381,6 +393,9 @@ export default function SignUpPage() {
                   required
                   className="h-12 bg-white border-2 border-gray-200 text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200"
                 />
+                <p className="text-xs text-gray-500 mt-1">
+                  Only Gmail, Yahoo, Outlook, Hotmail, or iCloud accounts are allowed
+                </p>
               </div>
 
               <div className="space-y-3">

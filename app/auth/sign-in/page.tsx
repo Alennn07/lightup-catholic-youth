@@ -18,6 +18,7 @@ import { logIfEnabled } from "@/lib/performance-monitor"
 import { useTranslation } from "@/lib/i18n"
 import { ErrorBoundary } from "@/components/error-boundary"
 import { CustomLogo } from "@/components/custom-logo"
+import { validateEmailDomain } from "@/lib/email-validation"
 
 export default function SignInPage() {
   const { t } = useTranslation()
@@ -41,6 +42,17 @@ export default function SignInPage() {
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault()
     logIfEnabled('Starting sign-in process...')
+
+    // Validate email domain
+    const emailValidation = validateEmailDomain(email)
+    if (!emailValidation.isValid) {
+      toast({
+        title: "Email not allowed",
+        description: emailValidation.error || "Invalid email domain",
+        variant: "destructive",
+      })
+      return
+    }
 
     try {
       setIsSigningIn(true) // Set local loading state

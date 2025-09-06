@@ -4,6 +4,7 @@ import { EmailService } from '../../_email/email-service';
 import { RegisterSchema } from '@/lib/validations';
 import { checkRateLimit, getRateLimitHeaders } from '@/lib/rate-limiter';
 import { getClientIP, createFriendlyError, logSecurityEvent, generateSecureToken, storeToken } from '@/lib/auth-helpers';
+import { validateEmailDomain } from '@/lib/email-validation';
 
 // Initialize Supabase client
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -31,6 +32,19 @@ export async function POST(request: NextRequest) {
     const validatedData = RegisterSchema.parse(body);
     const { name, username, email, password, age, parish, diocese } = validatedData;
     console.log('🔍 Debug: Zod validation passed')
+
+    // Validate email domain
+    const emailValidation = validateEmailDomain(email);
+    if (!emailValidation.isValid) {
+      console.log('❌ Email domain validation failed:', emailValidation.error);
+      return NextResponse.json(
+        { 
+          error: emailValidation.error || 'Invalid email domain',
+          code: 'INVALID_EMAIL_DOMAIN'
+        },
+        { status: 400 }
+      );
+    }
 
     // Rate limiting (after we have the email)
     const rateLimit = await checkRateLimit(email, 'REGISTRATION', ip);

@@ -3,6 +3,7 @@ import { supabaseAdmin } from '@/lib/supabase-admin';
 import { EmailService } from '@/app/api/_email/email-service';
 import { checkRateLimit, getRateLimitHeaders } from '@/lib/rate-limiter';
 import { getClientIP, logSecurityEvent, generateSecureToken, storeToken } from '@/lib/auth-helpers';
+import { validateEmailDomain } from '@/lib/email-validation';
 
 export async function POST(request: NextRequest) {
   const ip = getClientIP(request);
@@ -14,6 +15,19 @@ export async function POST(request: NextRequest) {
     if (!email) {
       return NextResponse.json(
         { error: 'Email address is required' },
+        { status: 400 }
+      );
+    }
+
+    // Validate email domain
+    const emailValidation = validateEmailDomain(email);
+    if (!emailValidation.isValid) {
+      console.log('❌ Email domain validation failed:', emailValidation.error);
+      return NextResponse.json(
+        { 
+          error: emailValidation.error || 'Invalid email domain',
+          code: 'INVALID_EMAIL_DOMAIN'
+        },
         { status: 400 }
       );
     }
