@@ -13,6 +13,8 @@ export async function GET(
     const authHeader = request.headers.get('authorization')
     const token = authHeader?.replace('Bearer ', '')
     
+    logIfEnabled(`🔍 GET /api/youth-groups/${groupId} - Token: ${token ? 'Present' : 'None'}`)
+    
     // Create supabase client (no auth required for public group viewing)
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -59,7 +61,10 @@ export async function GET(
       .eq('id', groupId)
       .single()
 
+    logIfEnabled(`🔍 Group query result - Error: ${groupError?.message || 'None'}, Group: ${group ? 'Found' : 'Not found'}`)
+
     if (groupError || !group) {
+      logIfEnabled(`❌ Group not found: ${groupError?.message}`)
       return NextResponse.json({ error: 'Group not found' }, { status: 404 })
     }
 
@@ -78,7 +83,7 @@ export async function GET(
 
       membership = membershipData
       isOwner = group.owner_id === user.id
-      isMember = membership && membership.status === 'active'
+      isMember = Boolean(membership && membership.status === 'active')
     }
 
     // Add membership info to group object

@@ -138,13 +138,58 @@ export default function EnhancedYouthGroups() {
     fetchGroups()
   }, [])
 
+  // Fetch individual group details when modal opens
+  const fetchGroupDetails = async (groupId: string) => {
+    try {
+      setLoadingGroupDetails(true)
+      const token = await getAccessToken()
+      
+      const headers: any = {}
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`
+      }
+
+      const response = await fetch(`/api/youth-groups/${groupId}`, {
+        headers
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setSelectedGroup(data.group)
+        console.log('✅ Group details fetched:', data.group)
+      } else {
+        const error = await response.json()
+        console.error('❌ Error fetching group details:', error)
+        toast({
+          title: "Error",
+          description: error.error || "Failed to load group details",
+          variant: "destructive"
+        })
+      }
+    } catch (error) {
+      console.error('❌ Error fetching group details:', error)
+      toast({
+        title: "Error",
+        description: "Failed to load group details",
+        variant: "destructive"
+      })
+    } finally {
+      setLoadingGroupDetails(false)
+    }
+  }
+
   // Fetch data when group details modal opens
   useEffect(() => {
     if (showGroupDetails && selectedGroup) {
       console.log('🔄 Modal opened, fetching all group data...')
-      fetchGroupMembers()
-      fetchGroupEvents()
-      fetchGroupPosts()
+      // Fetch detailed group info first
+      fetchGroupDetails(selectedGroup.id)
+      // Only fetch related data if user is a member
+      if (selectedGroup.is_member) {
+        fetchGroupMembers()
+        fetchGroupEvents()
+        fetchGroupPosts()
+      }
     }
   }, [showGroupDetails, selectedGroup])
 
@@ -890,6 +935,8 @@ export default function EnhancedYouthGroups() {
             key={group.id} 
             className="hover:shadow-lg hover:scale-105 transition-all duration-200 cursor-pointer border-2 hover:border-blue-200"
             onClick={() => {
+              console.log('🖱️ Group clicked:', group.id, group.name)
+              console.log('🔍 Group data:', group)
               setSelectedGroup(group)
               setShowGroupDetails(true)
             }}
@@ -1145,7 +1192,14 @@ export default function EnhancedYouthGroups() {
             </DialogDescription>
           </DialogHeader>
           
-          {selectedGroup && (
+          {loadingGroupDetails ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-center">
+                <RefreshCw className="h-8 w-8 mx-auto mb-4 text-blue-600 animate-spin" />
+                <p className="text-gray-600">Loading group details...</p>
+              </div>
+            </div>
+          ) : selectedGroup && (
             <div className="flex flex-col h-full">
                 {/* Tabs - Conditional visibility based on membership */}
                 <Tabs defaultValue="details" className="flex-1 flex flex-col">

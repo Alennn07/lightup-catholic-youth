@@ -14,9 +14,7 @@ export async function GET(
     const authHeader = request.headers.get('authorization')
     const token = authHeader?.replace('Bearer ', '')
     
-    if (!token) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+    logIfEnabled(`🔍 GET /api/youth-groups/${groupId}/events - Token: ${token ? 'Present' : 'None'}`)
 
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
