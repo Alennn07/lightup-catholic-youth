@@ -67,6 +67,8 @@ export async function GET(request: NextRequest) {
     let userPendingRequests = []
     
     if (currentUserId) {
+      console.log('🔍 Checking membership status for user:', currentUserId)
+      
       // Get user's memberships
       const { data: memberships } = await supabase
         .from('group_members')
@@ -83,6 +85,10 @@ export async function GET(request: NextRequest) {
       
       userMemberships = memberships || []
       userPendingRequests = pendingRequests || []
+      
+      console.log('📊 User memberships:', userMemberships.length)
+      console.log('⏳ User pending requests:', userPendingRequests.length)
+      console.log('📋 Pending group IDs:', userPendingRequests.map(p => p.group_id))
     }
 
     // Add user info based on current user
@@ -90,13 +96,26 @@ export async function GET(request: NextRequest) {
       const membership = userMemberships.find(m => m.group_id === group.id)
       const pendingRequest = userPendingRequests.find(p => p.group_id === group.id)
       
-      return {
+      const groupInfo = {
         ...group,
         is_owner: currentUserId ? group.owner_id === currentUserId : false,
         is_member: Boolean(membership),
         is_pending: Boolean(pendingRequest),
         user_role: membership?.role || (currentUserId && group.owner_id === currentUserId ? 'owner' : 'none')
       }
+      
+      // Debug logging for each group
+      if (currentUserId) {
+        console.log(`🔍 Group: ${group.name}`, {
+          is_owner: groupInfo.is_owner,
+          is_member: groupInfo.is_member,
+          is_pending: groupInfo.is_pending,
+          hasMembership: !!membership,
+          hasPendingRequest: !!pendingRequest
+        })
+      }
+      
+      return groupInfo
     })
 
     return NextResponse.json({ 

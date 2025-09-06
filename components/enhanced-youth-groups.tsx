@@ -375,18 +375,11 @@ export default function EnhancedYouthGroups() {
         })
         setJoinRequestMessage('')
         
-        // Update the specific group in the list immediately
-        setGroups(prevGroups => 
-          prevGroups.map(group => 
-            group.id === groupId 
-              ? { ...group, is_pending: true, is_member: false }
-              : group
-          )
-        )
-        
         setShowGroupDetails(false)
         setShowJoinRequestModal(false)
         setSelectedGroup(null)
+        
+        // Refresh groups to get updated status from API
         console.log('Refreshing groups list...')
         await fetchGroups()
         console.log('Groups refreshed')
