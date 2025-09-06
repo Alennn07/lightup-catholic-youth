@@ -59,12 +59,21 @@ export function DailyBibleVerse() {
       try {
         const { data: { session } } = await supabase.auth.getSession()
         setUser(session?.user ?? null)
+        logIfEnabled(`Auth check: ${session?.user ? 'User logged in' : 'No user'}`)
       } catch (error) {
         logIfEnabled(`Auth check error: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error')
       }
     }
 
     checkAuth()
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      logIfEnabled(`Auth state changed: ${event}, user: ${session?.user ? 'logged in' : 'logged out'}`)
+      setUser(session?.user ?? null)
+    })
+
+    return () => subscription.unsubscribe()
   }, [])
 
   // 🚀 OPTIMIZED: Memoized client date to prevent recalculation
@@ -306,6 +315,9 @@ export function DailyBibleVerse() {
       </div>
     )
   }
+
+  // Debug log for user state
+  console.log('DailyBibleVerse render - user:', user ? 'logged in' : 'not logged in')
 
   return (
     <div className="max-w-4xl mx-auto p-3 sm:p-4 md:p-6">
