@@ -157,6 +157,15 @@ export default function EnhancedYouthGroups() {
         const data = await response.json()
         setSelectedGroup(data.group)
         console.log('✅ Group details fetched:', data.group)
+        
+        // Update the group in the main list with correct membership info
+        setGroups(prevGroups => 
+          prevGroups.map(group => 
+            group.id === groupId 
+              ? { ...group, is_member: data.group.is_member, is_owner: data.group.is_owner }
+              : group
+          )
+        )
       } else {
         const error = await response.json()
         console.error('❌ Error fetching group details:', error)
@@ -358,6 +367,16 @@ export default function EnhancedYouthGroups() {
           description: data.message || "Join request submitted successfully"
         })
         setJoinRequestMessage('')
+        
+        // Update the specific group in the list immediately
+        setGroups(prevGroups => 
+          prevGroups.map(group => 
+            group.id === groupId 
+              ? { ...group, is_pending: true }
+              : group
+          )
+        )
+        
         setShowGroupDetails(false)
         setSelectedGroup(null)
         console.log('Refreshing groups list...')
@@ -404,7 +423,20 @@ export default function EnhancedYouthGroups() {
           title: "Success",
           description: data.message || "Left group successfully"
         })
-        fetchGroups()
+        
+        // Update the specific group in the list immediately
+        setGroups(prevGroups => 
+          prevGroups.map(group => 
+            group.id === groupId 
+              ? { ...group, is_member: false, is_owner: false }
+              : group
+          )
+        )
+        
+        // Close modal and refresh
+        setShowGroupDetails(false)
+        setSelectedGroup(null)
+        await fetchGroups()
       } else {
         const error = await response.json()
         toast({
