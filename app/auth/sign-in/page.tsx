@@ -64,8 +64,8 @@ export default function SignInPage() {
       let errorDescription = "Please check your credentials and try again."
       
       if (error.message?.includes("Invalid login credentials")) {
-        errorTitle = "Account not found"
-        errorDescription = "No account exists with this email. Please check your email or create a new account."
+        errorTitle = "Wrong password"
+        errorDescription = "The password you entered is incorrect. Please try again or reset your password."
       } else if (error.message?.includes("Email not confirmed")) {
         errorTitle = "Email not verified"
         errorDescription = "Please check your email and click the verification link before signing in."
