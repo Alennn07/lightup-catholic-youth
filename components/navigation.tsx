@@ -46,8 +46,8 @@ export function Navigation() {
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200">
-      <div className="container mx-auto px-3 sm:px-4">
-        <div className="flex items-center justify-between h-16 md:h-18">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-14 sm:h-16 md:h-18">
           {/* Logo */}
           <Link href="/" className="flex items-center flex-shrink-0">
             <NavbarLogo textColor="text-gray-800" />
@@ -227,9 +227,9 @@ export function Navigation() {
           {/* Mobile Menu Button */}
           <button
             onClick={toggleMenu}
-            className="md:hidden p-3 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors touch-manipulation flex-shrink-0"
+            className="md:hidden p-2 sm:p-3 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors touch-manipulation flex-shrink-0"
           >
-            {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {isOpen ? <X className="w-5 h-5 sm:w-6 sm:h-6" /> : <Menu className="w-5 h-5 sm:w-6 sm:h-6" />}
           </button>
         </div>
 
@@ -255,7 +255,7 @@ export function Navigation() {
                   <Link
                     key={item.href}
                     href={item.href}
-                    className="block px-4 py-4 text-lg text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors"
+                    className="block px-4 py-3 sm:py-4 text-base sm:text-lg text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors"
                     onClick={() => setIsOpen(false)}
                   >
                     {item.label}
@@ -264,12 +264,12 @@ export function Navigation() {
 
                 {/* Mobile Support Section */}
                 <div className="px-4 py-3">
-                  <div className="text-base font-medium text-gray-500 mb-3">Support</div>
+                  <div className="text-sm sm:text-base font-medium text-gray-500 mb-3">Support</div>
                   {supportItems.map((item) => (
                     <Link
                       key={item.href}
                       href={item.href}
-                      className="block px-4 py-3 text-lg text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors ml-4"
+                      className="block px-4 py-2 sm:py-3 text-sm sm:text-base text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors ml-2 sm:ml-4"
                       onClick={() => setIsOpen(false)}
                     >
                       {item.label}

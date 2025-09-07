@@ -698,43 +698,43 @@ export function FaithQuiz() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50/50 via-background to-purple-50/50 py-16">
-      <div className="container mx-auto px-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50/50 via-background to-purple-50/50 py-8 sm:py-12 lg:py-16">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto">
           {/* Quiz Header */}
-          <div className="text-center mb-8">
-            <div className="flex items-center justify-center mb-4">
+          <div className="text-center mb-6 sm:mb-8">
+            <div className="flex flex-col sm:flex-row items-center justify-center mb-4 gap-4">
               <Button 
                 variant="ghost" 
                 onClick={resetQuiz}
-                className="mr-4 text-muted-foreground hover:text-foreground"
+                className="text-muted-foreground hover:text-foreground order-2 sm:order-1"
               >
-                <Home className="h-5 w-5 mr-2" />
-                Back to Categories
+                <Home className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+                <span className="text-sm sm:text-base">Back to Categories</span>
               </Button>
-              <div className="text-center">
-                <h1 className="text-3xl font-bold text-foreground mb-2">
+              <div className="text-center order-1 sm:order-2">
+                <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
                   {quizCategories.find(c => c.id === selectedCategory)?.name}
                 </h1>
-                <p className="text-muted-foreground">
+                <p className="text-sm sm:text-base text-muted-foreground">
                   Question {currentQuestionIndex + 1} of {currentQuestions.length}
                 </p>
               </div>
             </div>
             
             {/* Progress Bar */}
-            <div className="w-full bg-muted rounded-full h-3 mb-6">
+            <div className="w-full bg-muted rounded-full h-2 sm:h-3 mb-4 sm:mb-6">
               <div 
-                className="bg-gradient-to-r from-blue-500 to-purple-600 h-3 rounded-full transition-all duration-300"
+                className="bg-gradient-to-r from-blue-500 to-purple-600 h-2 sm:h-3 rounded-full transition-all duration-300"
                 style={{ width: `${((currentQuestionIndex + 1) / currentQuestions.length) * 100}%` }}
               ></div>
             </div>
 
             {/* Timer */}
-            <div className="mb-6">
-              <div className="inline-flex items-center space-x-2 bg-card px-4 py-2 rounded-full shadow-md">
-                <div className={`w-3 h-3 rounded-full ${timeLeft > 10 ? 'bg-green-500' : timeLeft > 5 ? 'bg-yellow-500' : 'bg-red-500'} animate-pulse`}></div>
-                <span className="font-mono text-lg font-bold text-foreground">
+            <div className="mb-4 sm:mb-6">
+              <div className="inline-flex items-center space-x-2 bg-card px-3 sm:px-4 py-2 rounded-full shadow-md">
+                <div className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full ${timeLeft > 10 ? 'bg-green-500' : timeLeft > 5 ? 'bg-yellow-500' : 'bg-red-500'} animate-pulse`}></div>
+                <span className="font-mono text-base sm:text-lg font-bold text-foreground">
                   {timeLeft}s
                 </span>
               </div>
@@ -742,23 +742,23 @@ export function FaithQuiz() {
           </div>
 
           {/* Question Card */}
-          <Card className="mb-8">
-            <CardContent className="p-8">
-              <div className="text-center mb-8">
-                <h2 className="text-2xl font-semibold text-foreground leading-relaxed mb-6">
+          <Card className="mb-6 sm:mb-8">
+            <CardContent className="p-4 sm:p-6 lg:p-8">
+              <div className="text-center mb-6 sm:mb-8">
+                <h2 className="text-lg sm:text-xl lg:text-2xl font-semibold text-foreground leading-relaxed mb-4 sm:mb-6">
                   {currentQuestion.question}
                 </h2>
               </div>
 
               {/* Answer Options */}
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 {currentQuestion.options.map((option, index) => (
                   <Button
                     key={index}
                     onClick={() => handleAnswer(index)}
                     disabled={selectedAnswer !== null}
                     variant="outline"
-                    className={`w-full justify-start text-left p-4 h-auto text-lg border-2 transition-all duration-200 ${
+                    className={`w-full justify-start text-left p-3 sm:p-4 h-auto text-sm sm:text-base lg:text-lg border-2 transition-all duration-200 ${
                       selectedAnswer === index
                         ? index === currentQuestion.correctAnswer
                           ? 'border-green-500 bg-green-50 text-green-700'
@@ -769,7 +769,7 @@ export function FaithQuiz() {
                     }`}
                   >
                     <div className="flex items-center w-full">
-                      <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center mr-4 ${
+                      <div className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full border-2 flex items-center justify-center mr-3 sm:mr-4 flex-shrink-0 ${
                         selectedAnswer === index
                           ? index === currentQuestion.correctAnswer
                             ? 'border-green-500 bg-green-500 text-white'
@@ -778,14 +778,14 @@ export function FaithQuiz() {
                       }`}>
                         {selectedAnswer === index ? (
                           index === currentQuestion.correctAnswer ? (
-                            <CheckCircle className="h-5 w-5" />
+                            <CheckCircle className="h-3 w-3 sm:h-5 sm:w-5" />
                           ) : (
-                            <XCircle className="h-5 w-5" />
+                            <XCircle className="h-3 w-3 sm:h-5 sm:w-5" />
                           )
                         ) : (
-                                                  <span className="text-sm font-bold text-foreground">
-                          {String.fromCharCode(65 + index)}
-                        </span>
+                          <span className="text-xs sm:text-sm font-bold text-foreground">
+                            {String.fromCharCode(65 + index)}
+                          </span>
                         )}
                       </div>
                       <span className="flex-1">{option}</span>

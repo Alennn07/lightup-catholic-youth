@@ -205,7 +205,7 @@ export default function HomePage() {
       <Navigation />
       
       {/* Hero Section */}
-      <section className="relative py-20 bg-gradient-to-br from-blue-600 via-indigo-700 to-purple-800 overflow-hidden">
+      <section className="relative py-12 sm:py-16 md:py-20 bg-gradient-to-br from-blue-600 via-indigo-700 to-purple-800 overflow-hidden">
         {/* Subtle Cross Pattern Background */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute inset-0" style={{
@@ -230,7 +230,7 @@ export default function HomePage() {
           ))}
         </div>
 
-        <div className="relative container mx-auto px-3 sm:px-4">
+        <div className="relative container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-5xl mx-auto text-center text-white">
             {/* Liturgical Season Badge */}
             <LiturgicalSeasonBadge />
@@ -244,7 +244,7 @@ export default function HomePage() {
             {/* Main Headline - Dynamic based on user state */}
             {user ? (
               <>
-                <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-6 sm:mb-8 leading-tight font-display px-2">
+                <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-4 sm:mb-6 md:mb-8 leading-tight font-display px-2">
                   Welcome back,<br />
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-orange-300">
                     {user.name || user.email?.split('@')[0] || 'Friend'}!
@@ -252,14 +252,14 @@ export default function HomePage() {
                 </h2>
                 
                 {/* Subheadline for logged in users */}
-                <p className="text-lg sm:text-xl text-blue-100 mb-8 sm:mb-12 max-w-3xl mx-auto font-body px-2">
+                <p className="text-base sm:text-lg md:text-xl text-blue-100 mb-6 sm:mb-8 md:mb-12 max-w-3xl mx-auto font-body px-2">
                   Continue your spiritual journey with LightUp. 
                   Explore features, connect with your community, and grow in faith.
                 </p>
               </>
             ) : (
               <>
-                <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-6 sm:mb-8 leading-tight font-display px-2">
+                <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-4 sm:mb-6 md:mb-8 leading-tight font-display px-2">
                   Grow in Faith.<br />
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-orange-300">
                     Connect with Purpose.
@@ -267,7 +267,7 @@ export default function HomePage() {
                 </h2>
                 
                 {/* Subheadline for not logged in users */}
-                <p className="text-lg sm:text-xl text-blue-100 mb-8 sm:mb-12 max-w-3xl mx-auto font-body px-2">
+                <p className="text-base sm:text-lg md:text-xl text-blue-100 mb-6 sm:mb-8 md:mb-12 max-w-3xl mx-auto font-body px-2">
                   Your digital companion for prayer, community, and spiritual growth. 
                   Built for today's Catholic youth.
                 </p>
@@ -275,24 +275,24 @@ export default function HomePage() {
             )}
             
             {/* Dynamic CTA Buttons based on user state */}
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center mb-6 sm:mb-8 px-4">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center mb-6 sm:mb-8 px-4 w-full max-w-md sm:max-w-none mx-auto">
               {user ? (
                 // User is logged in
                 <>
                   <Button 
                     size="lg" 
-                    className="bg-white text-blue-700 hover:bg-blue-50 px-6 sm:px-8 md:px-12 py-4 sm:py-5 text-lg sm:text-xl font-bold rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 group w-full sm:w-auto"
+                    className="bg-white text-blue-700 hover:bg-blue-50 px-4 sm:px-6 md:px-8 py-3 sm:py-4 text-base sm:text-lg font-bold rounded-xl sm:rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 group w-full sm:w-auto"
                     onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
                   >
-                    <Sparkles className="mr-3 w-6 h-6 group-hover:scale-110 transition-transform" />
+                    <Sparkles className="mr-2 sm:mr-3 w-5 h-5 sm:w-6 sm:h-6 group-hover:scale-110 transition-transform" />
                     Explore Features
                   </Button>
                   <Link href="/youth-groups">
                     <Button 
                       size="lg"
-                      className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-6 sm:px-8 md:px-10 py-4 sm:py-5 text-lg sm:text-xl font-bold rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 group w-full sm:w-auto"
+                      className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-4 sm:px-6 md:px-8 py-3 sm:py-4 text-base sm:text-lg font-bold rounded-xl sm:rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 group w-full sm:w-auto"
                     >
-                      <Users className="mr-3 w-6 h-6 group-hover:scale-110 transition-transform" />
+                      <Users className="mr-2 sm:mr-3 w-5 h-5 sm:w-6 sm:h-6 group-hover:scale-110 transition-transform" />
                       Join Groups
                     </Button>
                   </Link>
@@ -303,9 +303,9 @@ export default function HomePage() {
                   <Link href="/auth/sign-up">
                     <Button 
                       size="lg" 
-                      className="bg-white text-blue-700 hover:bg-blue-50 px-6 sm:px-8 md:px-12 py-4 sm:py-5 text-lg sm:text-xl font-bold rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 group w-full sm:w-auto"
+                      className="bg-white text-blue-700 hover:bg-blue-50 px-4 sm:px-6 md:px-8 py-3 sm:py-4 text-base sm:text-lg font-bold rounded-xl sm:rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 group w-full sm:w-auto"
                     >
-                      <UserPlus className="mr-3 w-6 h-6 group-hover:scale-110 transition-transform" />
+                      <UserPlus className="mr-2 sm:mr-3 w-5 h-5 sm:w-6 sm:h-6 group-hover:scale-110 transition-transform" />
                       Get Started Free
                     </Button>
                   </Link>
@@ -313,9 +313,9 @@ export default function HomePage() {
                     <Button 
                       variant="outline" 
                       size="lg"
-                      className="border-2 border-white/30 text-white hover:bg-white/10 backdrop-blur-sm px-6 sm:px-8 md:px-10 py-4 sm:py-5 text-lg sm:text-xl font-semibold rounded-2xl group w-full sm:w-auto"
+                      className="border-2 border-white/30 text-white hover:bg-white/10 backdrop-blur-sm px-4 sm:px-6 md:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-xl sm:rounded-2xl group w-full sm:w-auto"
                     >
-                      <LogIn className="mr-3 w-6 h-6 group-hover:scale-110 transition-transform" />
+                      <LogIn className="mr-2 sm:mr-3 w-5 h-5 sm:w-6 sm:h-6 group-hover:scale-110 transition-transform" />
                       Sign In
                     </Button>
                   </Link>
@@ -328,35 +328,35 @@ export default function HomePage() {
 
       {/* Features Section - 7 Features */}
       <section id="features" className="py-12 sm:py-16 md:py-20 bg-white">
-        <div className="container mx-auto px-3 sm:px-4">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12 sm:mb-16">
             <div className="inline-flex items-center px-3 sm:px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-semibold mb-4 sm:mb-6">
               <Sparkles className="w-4 h-4 mr-2" />
               Seven Powerful Features
             </div>
-            <h3 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-4 sm:mb-6 font-heading px-2">
+            <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 sm:mb-6 font-heading px-2">
               Everything You Need to Grow
             </h3>
-            <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto font-body px-2">
+            <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-3xl mx-auto font-body px-2">
               Designed specifically for Catholic youth, these features will transform your spiritual journey
             </p>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 max-w-7xl mx-auto">
             {features.map((feature) => {
               const IconComponent = feature.icon
               return (
                 <Link key={feature.id} href={feature.href} onClick={() => console.log(`🔍 Clicking on feature: ${feature.name} -> ${feature.href}`)}>
-                  <Card className="group h-full bg-white rounded-2xl sm:rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 hover:scale-105 border-0 overflow-hidden">
-                    <CardContent className="p-4 sm:p-6">
+                  <Card className="group h-full bg-white rounded-xl sm:rounded-2xl lg:rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 hover:scale-105 border-0 overflow-hidden">
+                    <CardContent className="p-4 sm:p-5 lg:p-6">
                       {/* Icon with Animation */}
-                      <div className={`w-12 h-12 sm:w-14 sm:h-14 mb-3 sm:mb-4 rounded-xl sm:rounded-2xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-lg`}>
-                        <IconComponent className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
+                      <div className={`w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 mb-3 sm:mb-4 rounded-lg sm:rounded-xl lg:rounded-2xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-lg`}>
+                        <IconComponent className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 text-white" />
                       </div>
                       
                       {/* Content */}
                       <div className="mb-3 sm:mb-4">
-                        <h4 className="text-base sm:text-lg font-bold text-gray-900 mb-1 sm:mb-2 group-hover:text-blue-600 transition-colors font-heading">
+                        <h4 className="text-sm sm:text-base lg:text-lg font-bold text-gray-900 mb-1 sm:mb-2 group-hover:text-blue-600 transition-colors font-heading">
                           {feature.name}
                         </h4>
                         <p className="text-gray-600 text-xs sm:text-sm leading-relaxed font-body">
@@ -366,7 +366,7 @@ export default function HomePage() {
                       
                       {/* Emoji & Arrow */}
                       <div className="flex items-center justify-between">
-                        <span className="text-xl sm:text-2xl group-hover:scale-110 transition-transform duration-300">{feature.emoji}</span>
+                        <span className="text-lg sm:text-xl lg:text-2xl group-hover:scale-110 transition-transform duration-300">{feature.emoji}</span>
                         <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400 group-hover:text-blue-600 group-hover:translate-x-2 transition-all duration-300" />
                       </div>
                     </CardContent>

@@ -124,20 +124,20 @@ export default function SignInPage() {
 
   return (
     <ErrorBoundary>
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-6 relative overflow-hidden">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4 sm:p-6 relative overflow-hidden">
       {/* Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-1/4 left-1/4 w-80 h-80 bg-blue-200/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-200/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-pink-200/15 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/4 left-1/4 w-60 sm:w-80 h-60 sm:h-80 bg-blue-200/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-72 sm:w-96 h-72 sm:h-96 bg-purple-200/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-48 sm:w-64 h-48 sm:h-64 bg-pink-200/15 rounded-full blur-3xl"></div>
       </div>
 
       <Link
         href="/"
-        className="absolute top-6 left-6 flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors backdrop-blur-sm bg-white/90 rounded-full px-4 py-2 border border-gray-200 shadow-sm hover:shadow-md"
+        className="absolute top-4 left-4 sm:top-6 sm:left-6 flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors backdrop-blur-sm bg-white/90 rounded-full px-3 py-2 sm:px-4 border border-gray-200 shadow-sm hover:shadow-md"
       >
-        <ArrowLeft className="h-4 w-4" />
-        <span>Back to Home</span>
+        <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4" />
+        <span className="text-sm sm:text-base">Back to Home</span>
       </Link>
 
       <div className="relative z-10 w-full max-w-md mx-2 sm:mx-3 md:mx-4">
@@ -146,25 +146,25 @@ export default function SignInPage() {
             <div className="scale-75 sm:scale-90 md:scale-100">
               <CustomLogo textColor="text-gray-800" taglineColor="text-gray-700" />
             </div>
-            <p className="text-gray-700 text-sm font-medium mt-2">Catholic Youth Community</p>
+            <p className="text-gray-700 text-xs sm:text-sm font-medium mt-2">Catholic Youth Community</p>
           </div>
-          <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-blue-100 to-purple-100 border border-blue-200 rounded-full px-5 py-3 shadow-sm">
-            <Sparkles className="h-4 w-4 text-blue-600" />
-            <span className="text-blue-700 text-sm font-medium">Welcome back</span>
+          <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-blue-100 to-purple-100 border border-blue-200 rounded-full px-4 py-2 sm:px-5 sm:py-3 shadow-sm">
+            <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600" />
+            <span className="text-blue-700 text-xs sm:text-sm font-medium">Welcome back</span>
           </div>
         </div>
 
         <Card className="shadow-2xl border border-gray-200 bg-white/95 backdrop-blur-sm">
-          <CardHeader className="text-center pb-4">
-            <CardTitle className="text-2xl font-bold text-gray-900 font-outfit">{t("auth.signIn")}</CardTitle>
-            <CardDescription className="text-gray-600 font-nunito-sans">{t("auth.signIn")} to your LightUp account</CardDescription>
+          <CardHeader className="text-center pb-3 sm:pb-4">
+            <CardTitle className="text-xl sm:text-2xl font-bold text-gray-900 font-outfit">{t("auth.signIn")}</CardTitle>
+            <CardDescription className="text-sm sm:text-base text-gray-600 font-nunito-sans">{t("auth.signIn")} to your LightUp account</CardDescription>
           </CardHeader>
           
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-4 sm:space-y-6">
             {/* Google Sign In Button */}
             <Button
               variant="outline"
-              className="w-full border-2 border-gray-200 hover:border-gray-300 bg-white text-gray-700 hover:bg-gray-50 h-12"
+              className="w-full border-2 border-gray-200 hover:border-gray-300 bg-white text-gray-700 hover:bg-gray-50 h-10 sm:h-12 text-sm sm:text-base"
               disabled={isLoading || isGoogleLoading}
               onClick={handleGoogleSignIn}
             >
