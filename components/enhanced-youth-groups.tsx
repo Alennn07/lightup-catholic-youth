@@ -230,7 +230,7 @@ export default function EnhancedYouthGroups() {
         headers['Authorization'] = `Bearer ${token}`
       }
 
-      const response = await fetch('/api/youth-groups', {
+      const response = await fetch(`/api/youth-groups?t=${Date.now()}`, {
         headers
       })
 
@@ -1069,12 +1069,8 @@ export default function EnhancedYouthGroups() {
     return matchesSearch
   })
 
+
   const getGroupActionButton = (group: YouthGroup) => {
-    console.log('🔍 Button logic for group:', group.name, {
-      is_owner: group.is_owner,
-      is_member: group.is_member,
-      is_pending: group.is_pending
-    })
     
     if (group.is_owner) {
       return (

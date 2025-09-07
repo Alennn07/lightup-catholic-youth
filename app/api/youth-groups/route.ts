@@ -5,40 +5,111 @@ import { checkRateLimit, getRateLimitHeaders } from '@/lib/rate-limiter'
 export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
-  // ULTRA FAST: Return static data for launch
-  const staticGroups = [
-    {
-      id: 'launch-1',
-      name: 'Catholic Youth Group',
-      description: 'Join our vibrant community of young Catholics',
-      parish: 'St. Mary\'s',
-      city: 'Your City',
-      state: 'Your State',
-      country: 'Your Country',
-      meeting_time: 'Sundays 6:00 PM',
-      age_range: '16-25',
-      max_members: 50,
-      is_public: true,
-      is_active: true,
-      owner_id: 'system',
-      requires_approval: false,
-      created_at: new Date().toISOString(),
-      is_owner: false,
-      is_member: false,
-      is_pending: false,
-      user_role: 'none'
-    }
-  ]
+  try {
+    console.log('🚀 GET /api/youth-groups - Starting request')
+    console.log('🔍 Request URL:', request.url)
+    console.log('🔍 Request headers:', Object.fromEntries(request.headers.entries()))
+    
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    )
 
-  return NextResponse.json({ 
-    groups: staticGroups,
-    total: staticGroups.length
-  }, {
-    headers: {
-      'Cache-Control': 'public, max-age=3600',
-      'CDN-Cache-Control': 'max-age=3600'
+    // Get user from token if available
+    let currentUserId = null
+    const authHeader = request.headers.get('authorization')
+    const token = authHeader?.replace('Bearer ', '')
+    
+    if (token) {
+      try {
+        const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+        if (!authError && user) {
+          currentUserId = user.id
+        }
+      } catch (error) {
+        console.log('Auth error:', error)
+      }
     }
-  })
+
+    // Run ALL queries concurrently for maximum speed
+    const [groupsResult, membershipsResult, pendingRequestsResult] = await Promise.all([
+      // Main groups query
+      supabase
+        .from('youth_groups')
+        .select(`
+          id, 
+          name, 
+          description, 
+          parish, 
+          city, 
+          state, 
+          country, 
+          meeting_time, 
+          age_range, 
+          max_members, 
+          is_public, 
+          is_active, 
+          owner_id, 
+          requires_approval,
+          created_at
+        `)
+        .eq('is_active', true)
+        .order('created_at', { ascending: false })
+        .limit(50),
+
+      // User memberships (only if user exists)
+      currentUserId ? supabase
+        .from('group_members')
+        .select('group_id, role, status')
+        .eq('user_id', currentUserId)
+        .eq('status', 'active') : Promise.resolve({ data: [] }),
+     
+      // User pending requests (only if user exists)
+      currentUserId ? supabase
+        .from('group_join_requests')
+        .select('group_id, status')
+        .eq('user_id', currentUserId)
+        .eq('status', 'pending') : Promise.resolve({ data: [] })
+    ])
+
+    if (groupsResult.error) {
+      console.error(`❌ Error fetching groups: ${groupsResult.error.message}`)
+      return NextResponse.json({ 
+        error: 'Failed to fetch groups',
+        details: groupsResult.error.message 
+      }, { status: 500 })
+    }
+
+    const groups = groupsResult.data || []
+    const userMemberships = membershipsResult.data || []
+    const userPendingRequests = pendingRequestsResult.data || []
+
+    console.log(`✅ Found ${groups.length} groups from database`)
+    console.log('🔍 Groups from DB:', groups.map(g => ({ id: g.id, name: g.name })))
+
+    // Add user info based on current user
+    const groupsWithUserInfo = groups.map(group => {
+      const membership = userMemberships.find(m => m.group_id === group.id)
+      const pendingRequest = userPendingRequests.find(p => p.group_id === group.id)
+     
+      return {
+        ...group,
+        is_owner: currentUserId ? group.owner_id === currentUserId : false,
+        is_member: !!membership,
+        is_pending: !!pendingRequest,
+        user_role: membership?.role || (currentUserId && group.owner_id === currentUserId ? 'owner' : 'none')
+      }
+    })
+
+    return NextResponse.json({ 
+      groups: groupsWithUserInfo,
+      total: groupsWithUserInfo.length
+    }, {
+      headers: {
+        'Cache-Control': 'public, max-age=300', // 5 minutes cache
+        'CDN-Cache-Control': 'max-age=300'
+      }
+    })
 
   } catch (error: any) {
     console.error(`❌ Error in Youth Groups API:`, error)

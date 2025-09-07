@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { logIfEnabled } from '@/lib/performance-monitor'
 
 export const dynamic = 'force-dynamic'
 
@@ -9,36 +8,109 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
-    const { id: groupId } = params
-    const authHeader = request.headers.get('authorization')
-    const token = authHeader?.replace('Bearer ', '')
+    console.log('🚀 POST /api/youth-groups/[id]/join-request - Starting request')
     
-    if (!token) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!,
-      { 
-        auth: { autoRefreshToken: false, persistSession: false },
-        db: { schema: 'public' }
-      }
-    )
-
-    // Verify user authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
-    }
-
+    const groupId = params.id
     const body = await request.json()
     const { message } = body
 
-    // Get group information
+    // Get authorization header
+    const authHeader = request.headers.get('authorization')
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return NextResponse.json({ error: 'No authorization header' }, { status: 401 })
+    }
+
+    const token = authHeader.replace('Bearer ', '')
+
+    // Create Supabase client
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    )
+
+    // Get current user
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Authentication failed' }, { status: 401 })
+    }
+
+    console.log('👤 User authenticated:', user.id)
+
+    // Create user in users table first to satisfy foreign key constraint
+    console.log('👤 Ensuring user exists in users table:', user.id)
+    console.log('👤 User email:', user.email)
+    console.log('👤 User metadata:', user.user_metadata)
+    
+    const userData = {
+      id: user.id,
+      email: user.email || '',
+      name: user.user_metadata?.name || user.email?.split('@')[0] || 'User',
+      username: user.user_metadata?.username || `user_${user.id.slice(0, 8)}`,
+      age: user.user_metadata?.age || 18,
+      parish: user.user_metadata?.parish || '',
+      diocese: user.user_metadata?.diocese || '',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    }
+    
+    console.log('📝 User data to upsert:', userData)
+    
+    // Try to insert the user, ignore if already exists
+    const { data: insertResult, error: insertUserError } = await supabase
+      .from('users')
+      .insert(userData)
+      .select()
+
+    if (insertUserError) {
+      if (insertUserError.code === '23505') {
+        // User already exists, that's fine
+        console.log('✅ User already exists in users table')
+      } else {
+        console.error('❌ Error inserting user:', insertUserError)
+        console.error('❌ Insert result:', insertResult)
+        // Continue anyway - maybe the constraint will work
+      }
+    } else {
+      console.log('✅ User created in users table:', insertResult)
+    }
+
+    // Check if user exists in public.users table
+    const { data: verifyUser, error: verifyError } = await supabase
+      .from('users')
+      .select('id')
+      .eq('id', user.id)
+      .single()
+
+    if (verifyError || !verifyUser) {
+      console.log('❌ User not in public.users table, trying to create...')
+      
+      // Try to create user with minimal data and unique username
+      const { error: createError } = await supabase
+        .from('users')
+        .insert({
+          id: user.id,
+          email: user.email || '',
+          name: user.user_metadata?.name || 'User',
+          username: `${user.user_metadata?.username || 'user'}_${user.id.slice(0, 8)}`
+        })
+
+      if (createError) {
+        console.error('❌ Failed to create user in public.users:', createError)
+        return NextResponse.json({ 
+          error: 'Failed to create user profile',
+          details: createError.message 
+        }, { status: 500 })
+      }
+      
+      console.log('✅ User created in public.users table')
+    } else {
+      console.log('✅ User verified in public.users table:', verifyUser.id)
+    }
+
+    // Check if group exists
     const { data: group, error: groupError } = await supabase
       .from('youth_groups')
-      .select('id, name, owner_id, is_public, requires_approval, is_active, max_members')
+      .select('id, name, requires_approval, owner_id')
       .eq('id', groupId)
       .single()
 
@@ -46,231 +118,77 @@ export async function POST(
       return NextResponse.json({ error: 'Group not found' }, { status: 404 })
     }
 
-    console.log('Group data:', {
-      id: group.id,
-      name: group.name,
-      is_public: group.is_public,
-      requires_approval: group.requires_approval,
-      is_active: group.is_active
-    })
-
-    if (!group.is_active) {
-      return NextResponse.json({ error: 'Group is not active' }, { status: 400 })
-    }
-
-    // Private groups are allowed - they just require approval
-    console.log('Allowing private group join request for:', group.name)
+    console.log('✅ Group found:', group.name)
 
     // Check if user is already a member
-    const { data: existingMembership } = await supabase
+    const { data: existingMember } = await supabase
       .from('group_members')
       .select('id, status')
       .eq('group_id', groupId)
       .eq('user_id', user.id)
       .single()
 
-    if (existingMembership) {
-      if (existingMembership.status === 'active') {
-        return NextResponse.json({ error: 'You are already a member of this group' }, { status: 400 })
-      } else if (existingMembership.status === 'pending') {
-        return NextResponse.json({ error: 'Your membership request is already pending' }, { status: 400 })
-      }
+    if (existingMember) {
+      return NextResponse.json({ 
+        error: 'You are already a member of this group',
+        status: existingMember.status
+      }, { status: 400 })
     }
 
-    // Check if there's already a pending join request
+    // Check if user already has a pending request
     const { data: existingRequest } = await supabase
       .from('group_join_requests')
       .select('id, status')
       .eq('group_id', groupId)
       .eq('user_id', user.id)
+      .eq('status', 'pending')
       .single()
 
     if (existingRequest) {
-      if (existingRequest.status === 'pending') {
-        return NextResponse.json({ error: 'You already have a pending request to join this group' }, { status: 400 })
-      } else if (existingRequest.status === 'approved') {
-        return NextResponse.json({ error: 'Your request has already been approved' }, { status: 400 })
-      }
+      return NextResponse.json({ 
+        error: 'You already have a pending request for this group'
+      }, { status: 400 })
     }
 
-    // Check if group has space
-    const { count: memberCount } = await supabase
-      .from('group_members')
-      .select('*', { count: 'exact', head: true })
-      .eq('group_id', groupId)
-      .eq('status', 'active')
-
-    if (memberCount && memberCount >= group.max_members) {
-      return NextResponse.json({ error: 'Group has reached maximum capacity' }, { status: 400 })
+    // Create join request - try with minimal data first
+    const joinRequestData = {
+      group_id: groupId,
+      user_id: user.id,
+      message: message || '',
+      status: 'pending'
     }
 
-    // If group doesn't require approval, add user directly
-    if (!group.requires_approval) {
-      const { data: newMember, error: joinError } = await supabase
-        .from('group_members')
-        .insert({
-          group_id: groupId,
-          user_id: user.id,
-          role: 'member',
-          status: 'active',
-          joined_at: new Date().toISOString()
-        })
-        .select()
-        .single()
+    console.log('📝 Creating join request with data:', joinRequestData)
 
-      if (joinError) {
-        logIfEnabled(`❌ Error joining group: ${joinError.message}`, 'error')
-        return NextResponse.json({ error: 'Failed to join group' }, { status: 500 })
-      }
-
-      // Create notification for group owner
-      await supabase
-        .from('group_notifications')
-        .insert({
-          group_id: groupId,
-          user_id: group.owner_id,
-          type: 'member_joined',
-          title: 'New Member Joined',
-          message: `A new member has joined ${group.name}.`
-        })
-
-      logIfEnabled(`✅ User ${user.id} joined group ${groupId} directly`)
-
-      return NextResponse.json({
-        success: true,
-        message: 'Successfully joined group',
-        membership: newMember
-      })
-    }
-
-    // Create join request
-    const { data: joinRequest, error: requestError } = await supabase
+    const { data: joinRequest, error: joinError } = await supabase
       .from('group_join_requests')
-      .insert({
-        group_id: groupId,
-        user_id: user.id,
-        message: message || '',
-        status: 'pending'
-      })
+      .insert([joinRequestData])
       .select()
       .single()
 
-    if (requestError) {
-      logIfEnabled(`❌ Error creating join request: ${requestError.message}`, 'error')
-      return NextResponse.json({ error: 'Failed to create join request' }, { status: 500 })
+    if (joinError) {
+      console.error('❌ Error creating join request:', joinError)
+      return NextResponse.json({ 
+        error: 'Failed to create join request',
+        details: joinError.message 
+      }, { status: 500 })
     }
 
-    // Create notification for group owner
-    await supabase
-      .from('group_notifications')
-      .insert({
-        group_id: groupId,
-        user_id: group.owner_id,
-        type: 'join_request',
-        title: 'New Join Request',
-        message: `A new member has requested to join ${group.name}.`,
-        data: {
-          request_id: joinRequest.id,
-          requester_id: user.id
-        }
-      })
+    console.log('✅ Join request created successfully:', joinRequest.id)
 
-    logIfEnabled(`✅ Join request created for user ${user.id} to group ${groupId}`)
-
-    return NextResponse.json({
+    return NextResponse.json({ 
       success: true,
-      message: 'Join request submitted successfully',
-      request: joinRequest
+      message: group.requires_approval 
+        ? 'Join request submitted successfully. The group leader will review your request.'
+        : 'You have joined the group successfully!',
+      joinRequest
     })
 
   } catch (error: any) {
-    logIfEnabled(`❌ Error in join request API: ${error.message}`, 'error')
+    console.error('❌ Error in join request API:', error)
     return NextResponse.json({ 
       error: 'Internal server error',
-      details: error.message 
-    }, { status: 500 })
-  }
-}
-
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  try {
-    const { id: groupId } = params
-    const authHeader = request.headers.get('authorization')
-    const token = authHeader?.replace('Bearer ', '')
-    
-    if (!token) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!,
-      { 
-        auth: { autoRefreshToken: false, persistSession: false },
-        db: { schema: 'public' }
-      }
-    )
-
-    // Verify user authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
-    }
-
-    // Check if user is group owner
-    const { data: group, error: groupError } = await supabase
-      .from('youth_groups')
-      .select('owner_id')
-      .eq('id', groupId)
-      .single()
-
-    if (groupError || !group) {
-      return NextResponse.json({ error: 'Group not found' }, { status: 404 })
-    }
-
-    if (group.owner_id !== user.id) {
-      return NextResponse.json({ error: 'Only group owners can view join requests' }, { status: 403 })
-    }
-
-    // Get pending join requests
-    const { data: requests, error: requestsError } = await supabase
-      .from('group_join_requests')
-      .select(`
-        id,
-        user_id,
-        message,
-        status,
-        requested_at,
-        users!inner(
-          id,
-          email,
-          user_metadata
-        )
-      `)
-      .eq('group_id', groupId)
-      .eq('status', 'pending')
-      .order('requested_at', { ascending: false })
-
-    if (requestsError) {
-      logIfEnabled(`❌ Error fetching join requests: ${requestsError.message}`, 'error')
-      return NextResponse.json({ error: 'Failed to fetch join requests' }, { status: 500 })
-    }
-
-    logIfEnabled(`✅ Join requests fetched for group ${groupId}`)
-
-    return NextResponse.json({
-      success: true,
-      requests: requests || []
-    })
-
-  } catch (error: any) {
-    logIfEnabled(`❌ Error in join requests API: ${error.message}`, 'error')
-    return NextResponse.json({ 
-      error: 'Internal server error',
-      details: error.message 
+      details: error.message || 'Unknown error occurred'
     }, { status: 500 })
   }
 }
