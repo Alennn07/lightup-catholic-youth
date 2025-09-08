@@ -5,10 +5,20 @@ import { checkRateLimit, getRateLimitHeaders } from '@/lib/rate-limiter';
 import { getClientIP, logSecurityEvent } from '@/lib/auth-helpers';
 import { validateEmailDomain } from '@/lib/email-validation';
 
-// Initialize Supabase client for user registration with auto-login
+// Initialize Supabase clients for user registration with auto-login
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
+// Admin client for user creation
+const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
+  auth: {
+    autoRefreshToken: false,
+    persistSession: false
+  }
+});
+
+// Regular client for session creation
 const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     autoRefreshToken: true,
@@ -63,19 +73,18 @@ export async function POST(request: NextRequest) {
 
     console.log('🚀 Auto-login registration started for:', email);
 
-    // Create user with signUp (returns session for auto-login)
-    console.log('🔍 Debug: Creating user with signUp for auto-login')
-    const { data: authData, error: authError } = await supabase.auth.signUp({
+    // Create user with admin client (no email confirmation needed)
+    console.log('🔍 Debug: Creating user with admin client')
+    const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
       email,
       password,
-      options: {
-        data: {
-          name,
-          username,
-          age: age,
-          parish,
-          diocese
-        }
+      email_confirm: true, // Auto-confirm email - no verification needed
+      user_metadata: {
+        name,
+        username,
+        age: age,
+        parish,
+        diocese
       }
     });
 
@@ -122,6 +131,21 @@ export async function POST(request: NextRequest) {
     }
 
     console.log('✅ Auth user created successfully:', authData.user?.id);
+
+    // Create a session for auto-login
+    console.log('🔍 Debug: Creating session for auto-login')
+    const { data: sessionData, error: sessionError } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    });
+
+    if (sessionError) {
+      console.error('❌ Session creation failed:', sessionError);
+      // Continue without auto-login
+      console.warn('⚠️ User created but session creation failed, continuing...');
+    } else {
+      console.log('✅ Session created for auto-login');
+    }
 
     // Create user profile in public.users table
     console.log('🔍 Debug: Creating user profile in public.users table')
@@ -170,7 +194,7 @@ export async function POST(request: NextRequest) {
       },
       // Enable auto-login with session data
       autoLogin: true,
-      session: authData.session
+      session: sessionData?.session
     }, { status: 200 });
 
   } catch (error: any) {
