@@ -34,7 +34,7 @@ export default function SignUpPage() {
   
   const router = useRouter()
   const { toast } = useToast()
-  const { user } = useAuth()
+  const { user, refreshUserData } = useAuth()
 
   // Redirect if user is already logged in
   React.useEffect(() => {
@@ -218,7 +218,12 @@ export default function SignUpPage() {
             description: "Your account has been created and you're now logged in!",
             variant: "default",
           })
-          router.push("/")
+          // Refresh user data to ensure auth context is updated
+          await refreshUserData()
+          // Small delay to ensure auth context updates
+          setTimeout(() => {
+            router.push("/")
+          }, 500)
         }
       } else {
         // Fallback to manual sign-in
@@ -244,7 +249,12 @@ export default function SignUpPage() {
               description: "Your account has been created and you're now logged in!",
               variant: "default",
             })
-            router.push("/")
+            // Refresh user data to ensure auth context is updated
+            await refreshUserData()
+            // Small delay to ensure auth context updates
+            setTimeout(() => {
+              router.push("/")
+            }, 500)
           }
         } catch (signInException) {
           console.error('❌ Exception during auto sign-in:', signInException)
