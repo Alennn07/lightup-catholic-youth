@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
         },
         { 
           status: 429,
-          headers: getRateLimitHeaders(rateLimit)
+          headers: getRateLimitHeaders(rateLimit.remaining, rateLimit.resetTime)
         }
       );
     }
