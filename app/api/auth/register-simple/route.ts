@@ -6,14 +6,14 @@ import { checkRateLimit, getRateLimitHeaders } from '@/lib/rate-limiter';
 import { getClientIP, createFriendlyError, logSecurityEvent, generateSecureToken, storeToken } from '@/lib/auth-helpers';
 import { validateEmailDomain } from '@/lib/email-validation';
 
-// Initialize Supabase client
+// Initialize Supabase client for user registration
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
-const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
-    autoRefreshToken: false,
-    persistSession: false
+    autoRefreshToken: true,
+    persistSession: true
   }
 });
 
@@ -188,9 +188,9 @@ export async function POST(request: NextRequest) {
         parish,
         diocese,
       },
-      // Note: Session data not available from createUser
-      // User will need to sign in manually
-      autoLogin: false
+      // Enable auto-login with session data
+      autoLogin: true,
+      session: authData.session
     }, { status: 200 });
 
   } catch (error: any) {

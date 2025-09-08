@@ -44,7 +44,7 @@ export default function SignUpPage() {
         description: "You are already logged in. Redirecting to dashboard...",
         variant: "default",
       })
-      router.push("/dashboard")
+      router.push("/")
     }
   }, [user, router, toast])
 
@@ -106,7 +106,7 @@ export default function SignUpPage() {
     try {
       console.log('🔍 Debug: Calling registration API...')
       
-      const response = await fetch('/api/auth/register-simple', {
+      const response = await fetch('/api/auth/register-auto', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -218,7 +218,7 @@ export default function SignUpPage() {
             description: "Your account has been created and you're now logged in!",
             variant: "default",
           })
-          router.push("/dashboard")
+          router.push("/")
         }
       } else {
         // Fallback to manual sign-in
@@ -244,7 +244,7 @@ export default function SignUpPage() {
               description: "Your account has been created and you're now logged in!",
               variant: "default",
             })
-            router.push("/dashboard")
+            router.push("/")
           }
         } catch (signInException) {
           console.error('❌ Exception during auto sign-in:', signInException)
