@@ -536,7 +536,6 @@ export default function SaintsPage() {
     { id: 4, name: "Fitness", description: "Take care of your body", completed: false },
     { id: 5, name: "Friendship", description: "Build meaningful relationships", completed: false }
   ])
-  const [dailyChallenges, setDailyChallenges] = useState<boolean[]>([false, false, false])
 
   // Load goals from localStorage on component mount
   useEffect(() => {
@@ -546,23 +545,10 @@ export default function SaintsPage() {
     }
   }, [])
 
-  // Load daily challenges from localStorage on component mount
-  useEffect(() => {
-    const savedChallenges = localStorage.getItem('saints-daily-challenges')
-    if (savedChallenges) {
-      setDailyChallenges(JSON.parse(savedChallenges))
-    }
-  }, [])
-
   // Save goals to localStorage whenever they change
   useEffect(() => {
     localStorage.setItem('saints-goals', JSON.stringify(goals))
   }, [goals])
-
-  // Save daily challenges to localStorage whenever they change
-  useEffect(() => {
-    localStorage.setItem('saints-daily-challenges', JSON.stringify(dailyChallenges))
-  }, [dailyChallenges])
 
   const eucharisticMiracles = [
     {
@@ -641,14 +627,6 @@ export default function SaintsPage() {
         ? { ...goal, completed: !goal.completed }
         : goal
     ))
-  }
-
-  const handleDailyChallengeToggle = (challengeIndex: number) => {
-    setDailyChallenges(prev => 
-      prev.map((completed, index) => 
-        index === challengeIndex ? !completed : completed
-      )
-    )
   }
 
   const handleExplore = (miracleId: number) => {
@@ -746,7 +724,8 @@ export default function SaintsPage() {
         )}
 
         <Tabs defaultValue="carlo" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 bg-white rounded-2xl shadow-lg p-2 mb-8">
+          {/* Male Saints Row */}
+          <TabsList className="grid w-full grid-cols-4 bg-white rounded-2xl shadow-lg p-2 mb-4">
             <TabsTrigger 
               value="carlo" 
               className="rounded-xl font-semibold data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white"
@@ -762,11 +741,50 @@ export default function SaintsPage() {
               Pier Giorgio
             </TabsTrigger>
             <TabsTrigger 
-              value="journey" 
-              className="rounded-xl font-semibold data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white"
+              value="oscar" 
+              className="rounded-xl font-semibold data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-600 data-[state=active]:to-orange-600 data-[state=active]:text-white"
             >
-              <Flame className="w-4 h-4 mr-2" />
-              7-Day Journey
+              <Heart className="w-4 h-4 mr-2" />
+              Oscar Romero
+            </TabsTrigger>
+            <TabsTrigger 
+              value="maximilian" 
+              className="rounded-xl font-semibold data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white"
+            >
+              <Heart className="w-4 h-4 mr-2" />
+              Maximilian
+            </TabsTrigger>
+          </TabsList>
+
+          {/* Female Saints Row */}
+          <TabsList className="grid w-full grid-cols-4 bg-white rounded-2xl shadow-lg p-2 mb-8">
+            <TabsTrigger 
+              value="teresa" 
+              className="rounded-xl font-semibold data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-600 data-[state=active]:to-orange-600 data-[state=active]:text-white"
+            >
+              <Heart className="w-4 h-4 mr-2" />
+              Mother Teresa
+            </TabsTrigger>
+            <TabsTrigger 
+              value="maria" 
+              className="rounded-xl font-semibold data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-600 data-[state=active]:to-rose-600 data-[state=active]:text-white"
+            >
+              <Heart className="w-4 h-4 mr-2" />
+              Maria Goretti
+            </TabsTrigger>
+            <TabsTrigger 
+              value="therese" 
+              className="rounded-xl font-semibold data-[state=active]:bg-gradient-to-r data-[state=active]:from-rose-600 data-[state=active]:to-pink-600 data-[state=active]:text-white"
+            >
+              <Heart className="w-4 h-4 mr-2" />
+              Thérèse
+            </TabsTrigger>
+            <TabsTrigger 
+              value="edith" 
+              className="rounded-xl font-semibold data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-600 data-[state=active]:to-purple-600 data-[state=active]:text-white"
+            >
+              <Heart className="w-4 h-4 mr-2" />
+              Edith Stein
             </TabsTrigger>
           </TabsList>
 
@@ -914,56 +932,17 @@ export default function SaintsPage() {
                   <h3 className="text-xl font-bold text-gray-900">Daily Challenges</h3>
                 </div>
                 <div className="space-y-3">
-                  <div 
-                    className="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm cursor-pointer hover:shadow-md transition-shadow"
-                    onClick={() => handleDailyChallengeToggle(0)}
-                  >
+                  <div className="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm">
                     <span className="text-sm font-medium text-gray-700">Morning Prayer</span>
-                    <div className={`w-6 h-6 border-2 rounded-full flex items-center justify-center transition-all duration-200 ${
-                      dailyChallenges[0] 
-                        ? 'bg-blue-500 border-blue-500' 
-                        : 'border-blue-300 hover:border-blue-400'
-                    }`}>
-                      {dailyChallenges[0] && (
-                        <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                        </svg>
-                      )}
-                    </div>
+                    <div className="w-6 h-6 border-2 border-blue-300 rounded-full"></div>
                   </div>
-                  <div 
-                    className="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm cursor-pointer hover:shadow-md transition-shadow"
-                    onClick={() => handleDailyChallengeToggle(1)}
-                  >
+                  <div className="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm">
                     <span className="text-sm font-medium text-gray-700">Help Someone Today</span>
-                    <div className={`w-6 h-6 border-2 rounded-full flex items-center justify-center transition-all duration-200 ${
-                      dailyChallenges[1] 
-                        ? 'bg-blue-500 border-blue-500' 
-                        : 'border-blue-300 hover:border-blue-400'
-                    }`}>
-                      {dailyChallenges[1] && (
-                        <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                        </svg>
-                      )}
-                    </div>
+                    <div className="w-6 h-6 border-2 border-blue-300 rounded-full"></div>
                   </div>
-                  <div 
-                    className="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm cursor-pointer hover:shadow-md transition-shadow"
-                    onClick={() => handleDailyChallengeToggle(2)}
-                  >
+                  <div className="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm">
                     <span className="text-sm font-medium text-gray-700">Spend Time in Nature</span>
-                    <div className={`w-6 h-6 border-2 rounded-full flex items-center justify-center transition-all duration-200 ${
-                      dailyChallenges[2] 
-                        ? 'bg-blue-500 border-blue-500' 
-                        : 'border-blue-300 hover:border-blue-400'
-                    }`}>
-                      {dailyChallenges[2] && (
-                        <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                        </svg>
-                      )}
-                    </div>
+                    <div className="w-6 h-6 border-2 border-blue-300 rounded-full"></div>
                   </div>
                 </div>
               </Card>
@@ -1049,6 +1028,168 @@ export default function SaintsPage() {
                       </div>
                     </motion.div>
                   ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Oscar Romero Tab */}
+          <TabsContent value="oscar" id="oscar" className="space-y-8">
+            <Card className="bg-gradient-to-r from-red-50 to-orange-50 border-0 rounded-2xl shadow-lg overflow-hidden">
+              <CardContent className="p-8 text-center">
+                <div className="w-20 h-20 bg-gradient-to-br from-red-600 to-orange-700 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Heart className="w-10 h-10 text-white" />
+                </div>
+                <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                  ⚖️ St. Oscar Romero
+                </h2>
+                <p className="text-lg text-gray-700 max-w-3xl mx-auto leading-relaxed">
+                  Archbishop martyr who stood up for the poor and oppressed. He gave his life for social justice 
+                  and defending human rights in El Salvador.
+                </p>
+                <div className="mt-6">
+                  <Button 
+                    onClick={() => window.open('/saints/oscar-romero', '_blank')}
+                    className="bg-gradient-to-r from-red-600 to-orange-700 hover:from-red-700 hover:to-orange-800 text-white font-semibold px-6 py-3 rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                  >
+                    <Heart className="w-4 h-4 mr-2" />
+                    Read More About Oscar
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Maximilian Kolbe Tab */}
+          <TabsContent value="maximilian" id="maximilian" className="space-y-8">
+            <Card className="bg-gradient-to-r from-purple-50 to-indigo-50 border-0 rounded-2xl shadow-lg overflow-hidden">
+              <CardContent className="p-8 text-center">
+                <div className="w-20 h-20 bg-gradient-to-br from-purple-600 to-indigo-700 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Heart className="w-10 h-10 text-white" />
+                </div>
+                <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                  🛡️ St. Maximilian Kolbe
+                </h2>
+                <p className="text-lg text-gray-700 max-w-3xl mx-auto leading-relaxed">
+                  Franciscan priest who offered his life for another prisoner in Auschwitz. A true hero of 
+                  self-sacrifice and protecting the innocent.
+                </p>
+                <div className="mt-6">
+                  <Button 
+                    onClick={() => window.open('/saints/maximilian-kolbe', '_blank')}
+                    className="bg-gradient-to-r from-purple-600 to-indigo-700 hover:from-purple-700 hover:to-indigo-800 text-white font-semibold px-6 py-3 rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                  >
+                    <Heart className="w-4 h-4 mr-2" />
+                    Read More About Maximilian
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Mother Teresa Tab */}
+          <TabsContent value="teresa" id="teresa" className="space-y-8">
+            <Card className="bg-gradient-to-r from-yellow-50 to-orange-50 border-0 rounded-2xl shadow-lg overflow-hidden">
+              <CardContent className="p-8 text-center">
+                <div className="w-20 h-20 bg-gradient-to-br from-yellow-600 to-orange-700 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Heart className="w-10 h-10 text-white" />
+                </div>
+                <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                  🤲 St. Teresa of Calcutta
+                </h2>
+                <p className="text-lg text-gray-700 max-w-3xl mx-auto leading-relaxed">
+                  Missionary of Charity who served the poorest of the poor. She showed us that small acts of 
+                  love can change the world.
+                </p>
+                <div className="mt-6">
+                  <Button 
+                    onClick={() => window.open('/saints/mother-teresa', '_blank')}
+                    className="bg-gradient-to-r from-yellow-600 to-orange-700 hover:from-yellow-700 hover:to-orange-800 text-white font-semibold px-6 py-3 rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                  >
+                    <Heart className="w-4 h-4 mr-2" />
+                    Read More About Mother Teresa
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Maria Goretti Tab */}
+          <TabsContent value="maria" id="maria" className="space-y-8">
+            <Card className="bg-gradient-to-r from-pink-50 to-rose-50 border-0 rounded-2xl shadow-lg overflow-hidden">
+              <CardContent className="p-8 text-center">
+                <div className="w-20 h-20 bg-gradient-to-br from-pink-600 to-rose-700 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Heart className="w-10 h-10 text-white" />
+                </div>
+                <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                  🌸 St. Maria Goretti
+                </h2>
+                <p className="text-lg text-gray-700 max-w-3xl mx-auto leading-relaxed">
+                  Young martyr who chose death over sin at age 11. She forgave her attacker and showed us 
+                  the power of purity and forgiveness.
+                </p>
+                <div className="mt-6">
+                  <Button 
+                    onClick={() => window.open('/saints/maria-goretti', '_blank')}
+                    className="bg-gradient-to-r from-pink-600 to-rose-700 hover:from-pink-700 hover:to-rose-800 text-white font-semibold px-6 py-3 rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                  >
+                    <Heart className="w-4 h-4 mr-2" />
+                    Read More About Maria
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Thérèse of Lisieux Tab */}
+          <TabsContent value="therese" id="therese" className="space-y-8">
+            <Card className="bg-gradient-to-r from-rose-50 to-pink-50 border-0 rounded-2xl shadow-lg overflow-hidden">
+              <CardContent className="p-8 text-center">
+                <div className="w-20 h-20 bg-gradient-to-br from-rose-600 to-pink-700 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Heart className="w-10 h-10 text-white" />
+                </div>
+                <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                  🌹 St. Thérèse of Lisieux
+                </h2>
+                <p className="text-lg text-gray-700 max-w-3xl mx-auto leading-relaxed">
+                  "Little Flower" who showed us the "Little Way" of doing small things with great love. 
+                  She died at 24 but became a Doctor of the Church.
+                </p>
+                <div className="mt-6">
+                  <Button 
+                    onClick={() => window.open('/saints/therese-lisieux', '_blank')}
+                    className="bg-gradient-to-r from-rose-600 to-pink-700 hover:from-rose-700 hover:to-pink-800 text-white font-semibold px-6 py-3 rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                  >
+                    <Heart className="w-4 h-4 mr-2" />
+                    Read More About Thérèse
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Edith Stein Tab */}
+          <TabsContent value="edith" id="edith" className="space-y-8">
+            <Card className="bg-gradient-to-r from-indigo-50 to-purple-50 border-0 rounded-2xl shadow-lg overflow-hidden">
+              <CardContent className="p-8 text-center">
+                <div className="w-20 h-20 bg-gradient-to-br from-indigo-600 to-purple-700 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Heart className="w-10 h-10 text-white" />
+                </div>
+                <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                  📚 St. Edith Stein
+                </h2>
+                <p className="text-lg text-gray-700 max-w-3xl mx-auto leading-relaxed">
+                  Jewish philosopher who converted to Catholicism and became a Carmelite nun. She was martyred 
+                  in Auschwitz for her faith.
+                </p>
+                <div className="mt-6">
+                  <Button 
+                    onClick={() => window.open('/saints/edith-stein', '_blank')}
+                    className="bg-gradient-to-r from-indigo-600 to-purple-700 hover:from-indigo-700 hover:to-purple-800 text-white font-semibold px-6 py-3 rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                  >
+                    <Heart className="w-4 h-4 mr-2" />
+                    Read More About Edith
+                  </Button>
                 </div>
               </CardContent>
             </Card>
