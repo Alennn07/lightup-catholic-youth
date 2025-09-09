@@ -248,7 +248,7 @@ export default function SaintsPage() {
       gradient: "from-purple-500 to-indigo-600",
       bgGradient: "from-purple-50 to-indigo-50",
       tags: ["Self-Sacrifice", "Protection", "Courage", "Love"],
-      photo: "/saints/Photos/maximilian-kolbe.jpg"
+      photo: "/saints/Photos/meximilian-kolbe.jpg"
     },
     {
       id: "teresa",
