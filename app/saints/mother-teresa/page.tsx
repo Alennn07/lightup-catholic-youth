@@ -218,6 +218,221 @@ export default function MotherTeresaPage() {
         </div>
       </div>
 
+      {/* The Big Secret Section */}
+      <div className="bg-gradient-to-r from-yellow-100 to-orange-100 py-16">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="text-center mb-12"
+          >
+            <Card className="bg-gradient-to-br from-blue-50 to-purple-50 border-0 rounded-2xl shadow-lg max-w-4xl mx-auto">
+              <CardContent className="p-8">
+                <div className="flex items-center justify-center mb-6">
+                  <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mr-4">
+                    <Globe className="w-8 h-8 text-white" />
+                  </div>
+                  <div className="text-4xl">💡</div>
+                </div>
+                <h2 className="text-3xl font-bold text-gray-900 mb-6">The Big Secret</h2>
+                <p className="text-xl text-gray-700 leading-relaxed">
+                  Mother Teresa wasn't special because she was famous or won awards - she was special because she saw Christ in everyone she served! She showed us that you can be small, humble, and ordinary AND be a saint! The key is putting God's love first in everything you do! 🚀
+                </p>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </div>
+      </div>
+
+      {/* Prayer Section */}
+      <div className="container mx-auto px-4 py-16">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          className="text-center mb-12"
+        >
+          <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-0 rounded-2xl shadow-lg max-w-4xl mx-auto">
+            <CardContent className="p-8">
+              <div className="flex items-center justify-center mb-6">
+                <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mr-4">
+                  <Globe className="w-8 h-8 text-white" />
+                </div>
+                <div className="text-4xl">🙏</div>
+              </div>
+              <h2 className="text-3xl font-bold text-gray-900 mb-6">Prayer to Mother Teresa</h2>
+              <p className="text-xl text-gray-700 italic leading-relaxed mb-6">
+                "Mother Teresa, you who served the poorest of the poor, help us to see Christ in everyone we meet. Intercede for us that we may serve others with great love and find holiness in small acts of kindness. Amen."
+              </p>
+              <p className="text-lg text-gray-600">
+                <span className="text-2xl">💡</span> Try praying to her for help with your service projects and faith journey!
+              </p>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
+
+      {/* Timeline Section */}
+      <div className="bg-gradient-to-br from-yellow-50 to-orange-50 py-16">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-4xl font-bold text-gray-900 mb-4 flex items-center justify-center">
+              <Calendar className="w-8 h-8 mr-3 text-purple-600" />
+              Mother Teresa's Service Timeline
+            </h2>
+            <p className="text-xl text-gray-600">
+              From Skopje to Calcutta - her incredible journey of love!
+            </p>
+          </motion.div>
+
+          <div className="max-w-4xl mx-auto">
+            <div className="relative">
+              {/* Timeline Line */}
+              <div className="absolute left-8 top-0 bottom-0 w-1 bg-gradient-to-b from-yellow-500 to-orange-500 rounded-full"></div>
+              
+              {/* Timeline Items */}
+              <div className="space-y-12">
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.6, delay: 0.5 }}
+                  className="relative flex items-center"
+                >
+                  <div className="w-16 h-16 bg-yellow-500 rounded-full flex items-center justify-center text-white font-bold text-lg z-10">
+                    1910
+                  </div>
+                  <Card className="ml-8 bg-white border-0 rounded-2xl shadow-lg flex-1">
+                    <CardContent className="p-6">
+                      <div className="flex items-center mb-3">
+                        <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center mr-3">
+                          <Heart className="w-4 h-4 text-yellow-600" />
+                        </div>
+                        <h3 className="text-xl font-bold text-gray-900">Born in Skopje</h3>
+                      </div>
+                      <p className="text-gray-600">Mother Teresa came into the world in Skopje, Macedonia, but her heart belonged to the whole world!</p>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.6, delay: 0.6 }}
+                  className="relative flex items-center"
+                >
+                  <div className="w-16 h-16 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold text-lg z-10">
+                    1928
+                  </div>
+                  <Card className="ml-8 bg-white border-0 rounded-2xl shadow-lg flex-1">
+                    <CardContent className="p-6">
+                      <div className="flex items-center mb-3">
+                        <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center mr-3">
+                          <Users className="w-4 h-4 text-orange-600" />
+                        </div>
+                        <h3 className="text-xl font-bold text-gray-900">Joined Sisters of Loreto</h3>
+                      </div>
+                      <p className="text-gray-600">At 18, she left home to become a nun and serve God in India!</p>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.6, delay: 0.7 }}
+                  className="relative flex items-center"
+                >
+                  <div className="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center text-white font-bold text-lg z-10">
+                    1946
+                  </div>
+                  <Card className="ml-8 bg-white border-0 rounded-2xl shadow-lg flex-1">
+                    <CardContent className="p-6">
+                      <div className="flex items-center mb-3">
+                        <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center mr-3">
+                          <Globe className="w-4 h-4 text-red-600" />
+                        </div>
+                        <h3 className="text-xl font-bold text-gray-900">Call to Serve the Poor</h3>
+                      </div>
+                      <p className="text-gray-600">She heard God's call to leave the convent and serve the poorest of the poor in Calcutta!</p>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.6, delay: 0.8 }}
+                  className="relative flex items-center"
+                >
+                  <div className="w-16 h-16 bg-purple-500 rounded-full flex items-center justify-center text-white font-bold text-lg z-10">
+                    1997
+                  </div>
+                  <Card className="ml-8 bg-white border-0 rounded-2xl shadow-lg flex-1">
+                    <CardContent className="p-6">
+                      <div className="flex items-center mb-3">
+                        <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center mr-3">
+                          <Trophy className="w-4 h-4 text-purple-600" />
+                        </div>
+                        <h3 className="text-xl font-bold text-gray-900">Went to Heaven</h3>
+                      </div>
+                      <p className="text-gray-600">At 87, she died in Calcutta, but her mission of love continues worldwide!</p>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Wisdom Section */}
+      <div className="container mx-auto px-4 py-16">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.9 }}
+          className="text-center mb-12"
+        >
+          <h2 className="text-4xl font-bold text-gray-900 mb-4 flex items-center justify-center">
+            <Quote className="w-8 h-8 mr-3 text-purple-600" />
+            Mother Teresa's Wisdom
+          </h2>
+          <p className="text-xl text-gray-600">
+            This saint of the gutters had some amazing insights!
+          </p>
+        </motion.div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-6xl mx-auto">
+          {quotes.map((quote, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 1 + index * 0.1 }}
+            >
+              <Card className="bg-white border-0 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 h-full">
+                <CardContent className="p-6">
+                  <div className="flex items-start space-x-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-full flex items-center justify-center flex-shrink-0">
+                      <Quote className="w-6 h-6 text-white" />
+                    </div>
+                    <p className="text-gray-700 italic text-lg leading-relaxed">
+                      "{quote}"
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+
       {/* Service Missions Section */}
       <div className="container mx-auto px-4 py-12">
         <motion.div
