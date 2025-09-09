@@ -816,9 +816,10 @@ export default function SaintsPage() {
                 <div className="relative h-64 lg:h-auto overflow-hidden">
                   {/* Background Photo - Carlo Acutis */}
                   <div 
-                    className="absolute inset-0 bg-contain bg-center bg-no-repeat bg-gray-100"
+                    className="absolute inset-0 bg-cover bg-center bg-no-repeat"
                     style={{
-                      backgroundImage: `url('/saints/Photos/carlo-acutis.jpg')`
+                      backgroundImage: `url('/saints/Photos/carlo-acutis.jpg')`,
+                      backgroundPosition: 'center top'
                     }}
                   ></div>
                   
@@ -868,9 +869,10 @@ export default function SaintsPage() {
                 <div className="relative h-64 lg:h-auto overflow-hidden">
                   {/* Background Photo - Pier Giorgio Frassati */}
                   <div 
-                    className="absolute inset-0 bg-contain bg-center bg-no-repeat bg-gray-100"
+                    className="absolute inset-0 bg-cover bg-center bg-no-repeat"
                     style={{
-                      backgroundImage: `url('/saints/Photos/pier-giorgio-frassati.jpg')`
+                      backgroundImage: `url('/saints/Photos/pier-giorgio-frassati.jpg')`,
+                      backgroundPosition: 'center top'
                     }}
                   ></div>
                   
