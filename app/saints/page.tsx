@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { motion } from "framer-motion"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -25,59 +26,212 @@ import {
 
 // CardGrid Component for Carlo Acutis Tab
 function CardGrid() {
+  const [selectedMiracle, setSelectedMiracle] = useState<number | null>(null)
+
   const eucharisticMiracles = [
     {
       id: 1,
       title: "Miracle of Lanciano",
       description: "The first and most scientifically studied Eucharistic miracle where bread and wine became actual flesh and blood.",
       icon: Heart,
-      gradient: "from-red-500 to-pink-600"
+      gradient: "from-red-500 to-pink-600",
+      details: {
+        year: "8th Century",
+        location: "Lanciano, Italy",
+        scientificTests: "Multiple DNA tests, blood type analysis, and histological studies",
+        significance: "First documented Eucharistic miracle with extensive scientific verification",
+        prayer: "Lord, help us to believe in Your real presence in the Eucharist, just as You revealed Yourself to the faithful in Lanciano.",
+        facts: [
+          "The host became human heart muscle tissue",
+          "The wine became human blood of type AB",
+          "The blood remained fresh for over 1200 years",
+          "Scientific tests were conducted in 1970-1971 and 1981"
+        ]
+      }
     },
     {
       id: 2,
       title: "Miracle of Buenos Aires",
       description: "A host that turned into human heart tissue, showing signs of severe trauma and inflammation.",
       icon: BookOpen,
-      gradient: "from-blue-500 to-indigo-600"
+      gradient: "from-blue-500 to-indigo-600",
+      details: {
+        year: "1996",
+        location: "Buenos Aires, Argentina",
+        scientificTests: "DNA analysis, histological examination, and medical imaging",
+        significance: "Modern miracle showing the suffering of Christ in the Eucharist",
+        prayer: "Jesus, help us to understand the depth of Your love and sacrifice through this miraculous sign.",
+        facts: [
+          "The host became human heart tissue with signs of severe trauma",
+          "Blood type was identified as AB (same as Lanciano)",
+          "Tissue showed signs of inflammation and suffering",
+          "Occurred during Mass in a parish church"
+        ]
+      }
     },
     {
       id: 3,
       title: "Miracle of Sokolka",
       description: "A host that transformed into human heart muscle tissue, scientifically verified by multiple experts.",
       icon: Users,
-      gradient: "from-green-500 to-emerald-600"
+      gradient: "from-green-500 to-emerald-600",
+      details: {
+        year: "2008",
+        location: "Sokolka, Poland",
+        scientificTests: "Multiple independent scientific examinations and DNA analysis",
+        significance: "Recent miracle confirming the ongoing reality of Eucharistic miracles",
+        prayer: "Holy Spirit, strengthen our faith in the real presence of Christ in the Eucharist.",
+        facts: [
+          "The host became human heart muscle tissue",
+          "Blood type was identified as AB (consistent with other miracles)",
+          "Multiple independent scientists confirmed the findings",
+          "The miracle occurred during a regular Mass"
+        ]
+      }
     }
   ]
 
+  const handleExplore = (miracleId: number) => {
+    setSelectedMiracle(selectedMiracle === miracleId ? null : miracleId)
+  }
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
-      {eucharisticMiracles.map((miracle) => {
-        const IconComponent = miracle.icon
-        return (
-          <Card key={miracle.id} className="group hover:shadow-xl transition-all duration-300 hover:scale-105 border-0 bg-white rounded-2xl shadow-lg">
-            <CardHeader className="pb-4">
-              <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${miracle.gradient} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
-                <IconComponent className="w-6 h-6 text-white" />
-              </div>
-              <CardTitle className="text-lg font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
-                {miracle.title}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <p className="text-gray-600 text-sm leading-relaxed mb-4">
-                {miracle.description}
-              </p>
-              <Button 
-                className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl font-semibold group-hover:scale-105 transition-all duration-300"
-                size="sm"
-              >
-                Explore
-                <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-              </Button>
-            </CardContent>
-          </Card>
-        )
-      })}
+    <div className="space-y-8 mt-8">
+      {/* Cards Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {eucharisticMiracles.map((miracle) => {
+          const IconComponent = miracle.icon
+          const isSelected = selectedMiracle === miracle.id
+          
+          return (
+            <Card key={miracle.id} className={`group hover:shadow-xl transition-all duration-300 hover:scale-105 border-0 bg-white rounded-2xl shadow-lg ${
+              isSelected ? 'ring-2 ring-blue-500 shadow-2xl' : ''
+            }`}>
+              <CardHeader className="pb-4">
+                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${miracle.gradient} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
+                  <IconComponent className="w-6 h-6 text-white" />
+                </div>
+                <CardTitle className="text-lg font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
+                  {miracle.title}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <p className="text-gray-600 text-sm leading-relaxed mb-4">
+                  {miracle.description}
+                </p>
+                <Button 
+                  onClick={() => handleExplore(miracle.id)}
+                  className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl font-semibold group-hover:scale-105 transition-all duration-300"
+                  size="sm"
+                >
+                  {isSelected ? 'Hide Details' : 'Explore'}
+                  <ArrowRight className={`w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform ${isSelected ? 'rotate-90' : ''}`} />
+                </Button>
+              </CardContent>
+            </Card>
+          )
+        })}
+      </div>
+
+      {/* Detailed Information for Selected Miracle */}
+      {selectedMiracle && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          className="mt-8"
+        >
+          {(() => {
+            const miracle = eucharisticMiracles.find(m => m.id === selectedMiracle)
+            if (!miracle) return null
+
+            return (
+              <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-0 rounded-2xl shadow-xl">
+                <CardContent className="p-8">
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-2xl font-bold text-gray-900">{miracle.title} - Detailed Information</h3>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setSelectedMiracle(null)}
+                      className="text-gray-500 hover:text-gray-700"
+                    >
+                      ✕
+                    </Button>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {/* Basic Information */}
+                    <div className="space-y-6">
+                      <div>
+                        <h4 className="font-semibold text-gray-900 mb-2">📅 Year</h4>
+                        <p className="text-gray-700">{miracle.details.year}</p>
+                      </div>
+                      
+                      <div>
+                        <h4 className="font-semibold text-gray-900 mb-2">📍 Location</h4>
+                        <p className="text-gray-700">{miracle.details.location}</p>
+                      </div>
+                      
+                      <div>
+                        <h4 className="font-semibold text-gray-900 mb-2">🔬 Scientific Tests</h4>
+                        <p className="text-gray-700">{miracle.details.scientificTests}</p>
+                      </div>
+                      
+                      <div>
+                        <h4 className="font-semibold text-gray-900 mb-2">✨ Significance</h4>
+                        <p className="text-gray-700">{miracle.details.significance}</p>
+                      </div>
+                    </div>
+
+                    {/* Prayer and Facts */}
+                    <div className="space-y-6">
+                      <div className="bg-white rounded-xl p-6 shadow-sm">
+                        <h4 className="font-semibold text-gray-900 mb-3 flex items-center">
+                          <Heart className="w-5 h-5 mr-2 text-red-500" />
+                          Prayer
+                        </h4>
+                        <p className="text-gray-700 italic leading-relaxed">"{miracle.details.prayer}"</p>
+                      </div>
+                      
+                      <div className="bg-white rounded-xl p-6 shadow-sm">
+                        <h4 className="font-semibold text-gray-900 mb-3 flex items-center">
+                          <BookOpen className="w-5 h-5 mr-2 text-blue-500" />
+                          Key Facts
+                        </h4>
+                        <ul className="space-y-2">
+                          {miracle.details.facts.map((fact, index) => (
+                            <li key={index} className="flex items-start">
+                              <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                              <span className="text-gray-700 text-sm">{fact}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex flex-wrap gap-3 mt-8 pt-6 border-t border-gray-200">
+                    <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl">
+                      <BookOpen className="w-4 h-4 mr-2" />
+                      Learn More
+                    </Button>
+                    <Button variant="outline" className="rounded-xl">
+                      <Heart className="w-4 h-4 mr-2" />
+                      Add to Favorites
+                    </Button>
+                    <Button variant="outline" className="rounded-xl">
+                      <Users className="w-4 h-4 mr-2" />
+                      Share with Friends
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )
+          })()}
+        </motion.div>
+      )}
     </div>
   )
 }
