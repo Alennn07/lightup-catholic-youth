@@ -22,7 +22,8 @@ import {
   Calendar,
   Quote,
   Lightbulb,
-  Target
+  Target,
+  Check
 } from "lucide-react"
 
 // CardGrid Component for Carlo Acutis Tab
@@ -385,94 +386,6 @@ function CardGrid({
   )
 }
 
-// ProgressTracker Component for Pier Giorgio Frassati Tab
-function ProgressTracker() {
-  const [goals, setGoals] = useState([
-    { id: 1, name: "Prayer", completed: false, progress: 0 },
-    { id: 2, name: "Study", completed: false, progress: 0 },
-    { id: 3, name: "Service", completed: false, progress: 0 },
-    { id: 4, name: "Fitness", completed: false, progress: 0 },
-    { id: 5, name: "Friendship", completed: false, progress: 0 }
-  ])
-
-  const handleGoalToggle = (goalId: number) => {
-    setGoals(prev => prev.map(goal => 
-      goal.id === goalId 
-        ? { ...goal, completed: !goal.completed, progress: !goal.completed ? 100 : 0 }
-        : goal
-    ))
-  }
-
-  const completedGoals = goals.filter(goal => goal.completed).length
-  const mountainHeight = (completedGoals / goals.length) * 100
-
-  return (
-    <div className="space-y-8 mt-8">
-      {/* Mountain Progress Visual */}
-      <div className="flex justify-center mb-8">
-        <div className="relative w-32 h-32">
-          <Mountain 
-            className={`w-full h-full text-gray-300 transition-all duration-500 ${
-              completedGoals > 0 ? 'text-blue-500' : ''
-            }`} 
-            style={{
-              filter: `drop-shadow(0 0 ${mountainHeight}px rgba(59, 130, 246, 0.5))`
-            }}
-          />
-          <div className="absolute top-2 right-2 bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded-full">
-            {completedGoals}/{goals.length}
-          </div>
-        </div>
-      </div>
-
-      {/* Goals List */}
-      <div className="space-y-4">
-        {goals.map((goal) => (
-          <Card key={goal.id} className="hover:shadow-lg transition-all duration-300 border-0 bg-white rounded-xl shadow-md">
-            <CardContent className="p-6">
-              <div className="flex items-center space-x-4">
-                <Checkbox
-                  checked={goal.completed}
-                  onCheckedChange={() => handleGoalToggle(goal.id)}
-                  className="w-5 h-5"
-                />
-                <div className="flex-1">
-                  <h3 className="font-semibold text-gray-900 mb-2">{goal.name}</h3>
-                  <Progress 
-                    value={goal.progress} 
-                    className="h-2 bg-gray-200"
-                  />
-                </div>
-                {goal.completed && (
-                  <CheckCircle className="w-6 h-6 text-green-500" />
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      {/* Progress Summary */}
-      <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-0 rounded-xl">
-        <CardContent className="p-6 text-center">
-          <h3 className="text-lg font-bold text-gray-900 mb-2">Verso l'alto Progress</h3>
-          <p className="text-gray-600 mb-4">
-            {completedGoals === goals.length 
-              ? "🎉 You've reached the summit! Keep climbing higher!" 
-              : `Keep climbing! ${goals.length - completedGoals} more goals to reach the top.`
-            }
-          </p>
-          <div className="w-full bg-gray-200 rounded-full h-3">
-            <div 
-              className="bg-gradient-to-r from-blue-500 to-indigo-600 h-3 rounded-full transition-all duration-500"
-              style={{ width: `${mountainHeight}%` }}
-            ></div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  )
-}
 
 // JourneyTabs Component for 7-Day Journey Tab
 function JourneyTabs() {
@@ -616,6 +529,13 @@ function JourneyTabs() {
 // Main Saints Page Component
 export default function SaintsPage() {
   const [favoriteMiracles, setFavoriteMiracles] = useState<number[]>([])
+  const [goals, setGoals] = useState([
+    { id: 1, name: "Prayer", description: "Daily conversation with God", completed: false },
+    { id: 2, name: "Study", description: "Learn about your faith", completed: false },
+    { id: 3, name: "Service", description: "Help those in need", completed: false },
+    { id: 4, name: "Fitness", description: "Take care of your body", completed: false },
+    { id: 5, name: "Friendship", description: "Build meaningful relationships", completed: false }
+  ])
 
   const eucharisticMiracles = [
     {
@@ -686,6 +606,14 @@ export default function SaintsPage() {
         ? prev.filter(id => id !== miracleId)
         : [...prev, miracleId]
     )
+  }
+
+  const handleGoalToggle = (goalId: number) => {
+    setGoals(prev => prev.map(goal => 
+      goal.id === goalId 
+        ? { ...goal, completed: !goal.completed }
+        : goal
+    ))
   }
 
   const handleExplore = (miracleId: number) => {
@@ -906,7 +834,136 @@ export default function SaintsPage() {
                 </div>
               </div>
             </Card>
-            <ProgressTracker />
+
+            {/* Pier Giorgio Frassati - Additional Content */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+              {/* His Story Card */}
+              <Card className="p-6 bg-gradient-to-br from-green-50 to-emerald-50 border-0 rounded-2xl shadow-lg">
+                <div className="flex items-center mb-4">
+                  <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                    <Mountain className="w-5 h-5 text-green-600" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900">His Story</h3>
+                </div>
+                <p className="text-gray-700 leading-relaxed mb-4">
+                  Born in Turin, Italy, Pier Giorgio was a passionate mountaineer who saw God's beauty in nature. 
+                  He dedicated his life to serving the poor while maintaining his love for adventure and friendship.
+                </p>
+                <div className="bg-green-100 rounded-lg p-3">
+                  <p className="text-green-800 text-sm font-medium italic">
+                    "The higher we go, the better we hear the voice of Christ."
+                  </p>
+                </div>
+              </Card>
+
+              {/* Daily Challenges Card */}
+              <Card className="p-6 bg-gradient-to-br from-blue-50 to-indigo-50 border-0 rounded-2xl shadow-lg">
+                <div className="flex items-center mb-4">
+                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                    <Mountain className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900">Daily Challenges</h3>
+                </div>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm">
+                    <span className="text-sm font-medium text-gray-700">Morning Prayer</span>
+                    <div className="w-6 h-6 border-2 border-blue-300 rounded-full"></div>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm">
+                    <span className="text-sm font-medium text-gray-700">Help Someone Today</span>
+                    <div className="w-6 h-6 border-2 border-blue-300 rounded-full"></div>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm">
+                    <span className="text-sm font-medium text-gray-700">Spend Time in Nature</span>
+                    <div className="w-6 h-6 border-2 border-blue-300 rounded-full"></div>
+                  </div>
+                </div>
+              </Card>
+            </div>
+
+            {/* Enhanced Progress Tracker */}
+            <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-0 rounded-2xl shadow-lg overflow-hidden">
+              <CardContent className="p-8">
+                <div className="text-center mb-8">
+                  <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Mountain className="w-8 h-8 text-white" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-2">Verso l'alto Progress</h3>
+                  <p className="text-gray-600">Climb the mountain of holiness, one step at a time</p>
+                </div>
+
+                {/* Mountain Progress Visualization */}
+                <div className="relative mb-8">
+                  <div className="flex justify-center">
+                    <div className="w-32 h-32 relative">
+                      {/* Mountain Background */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-gray-300 to-gray-100 rounded-t-full"></div>
+                      {/* Progress Fill */}
+                      <div 
+                        className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-green-500 to-emerald-400 rounded-t-full transition-all duration-1000"
+                        style={{ height: `${(goals.filter(g => g.completed).length / goals.length) * 100}%` }}
+                      ></div>
+                      {/* Peak */}
+                      <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-b-6 border-l-transparent border-r-transparent border-b-white"></div>
+                    </div>
+                  </div>
+                  <div className="text-center mt-4">
+                    <p className="text-lg font-semibold text-gray-700">
+                      {goals.filter(g => g.completed).length} of {goals.length} goals completed
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      {goals.filter(g => g.completed).length === goals.length 
+                        ? "🏔️ You've reached the summit! Verso l'alto!" 
+                        : `${goals.length - goals.filter(g => g.completed).length} more to reach the top!`
+                      }
+                    </p>
+                  </div>
+                </div>
+
+                {/* Goals List */}
+                <div className="space-y-4">
+                  {goals.map((goal, index) => (
+                    <motion.div
+                      key={goal.id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      className="flex items-center p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow"
+                    >
+                      <div className="flex items-center flex-1">
+                        <div className="w-8 h-8 bg-gradient-to-br from-green-100 to-emerald-100 rounded-full flex items-center justify-center mr-4">
+                          <span className="text-sm font-bold text-green-600">{index + 1}</span>
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-gray-900">{goal.name}</h4>
+                          <p className="text-sm text-gray-500">{goal.description}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-3">
+                        <div className="w-16 bg-gray-200 rounded-full h-2">
+                          <div 
+                            className={`h-2 rounded-full transition-all duration-500 ${
+                              goal.completed ? 'bg-gradient-to-r from-green-500 to-emerald-500' : 'bg-gray-300'
+                            }`}
+                            style={{ width: goal.completed ? '100%' : '0%' }}
+                          ></div>
+                        </div>
+                        <button
+                          onClick={() => handleGoalToggle(goal.id)}
+                          className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${
+                            goal.completed
+                              ? 'bg-green-500 border-green-500 text-white'
+                              : 'border-gray-300 hover:border-green-400'
+                          }`}
+                        >
+                          {goal.completed && <Check className="w-4 h-4" />}
+                        </button>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           {/* 7-Day Journey Tab */}
