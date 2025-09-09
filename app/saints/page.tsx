@@ -536,6 +536,7 @@ export default function SaintsPage() {
     { id: 4, name: "Fitness", description: "Take care of your body", completed: false },
     { id: 5, name: "Friendship", description: "Build meaningful relationships", completed: false }
   ])
+  const [dailyChallenges, setDailyChallenges] = useState<boolean[]>([false, false, false])
 
   // Load goals from localStorage on component mount
   useEffect(() => {
@@ -545,10 +546,23 @@ export default function SaintsPage() {
     }
   }, [])
 
+  // Load daily challenges from localStorage on component mount
+  useEffect(() => {
+    const savedChallenges = localStorage.getItem('saints-daily-challenges')
+    if (savedChallenges) {
+      setDailyChallenges(JSON.parse(savedChallenges))
+    }
+  }, [])
+
   // Save goals to localStorage whenever they change
   useEffect(() => {
     localStorage.setItem('saints-goals', JSON.stringify(goals))
   }, [goals])
+
+  // Save daily challenges to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('saints-daily-challenges', JSON.stringify(dailyChallenges))
+  }, [dailyChallenges])
 
   const eucharisticMiracles = [
     {
@@ -627,6 +641,14 @@ export default function SaintsPage() {
         ? { ...goal, completed: !goal.completed }
         : goal
     ))
+  }
+
+  const handleDailyChallengeToggle = (challengeIndex: number) => {
+    setDailyChallenges(prev => 
+      prev.map((completed, index) => 
+        index === challengeIndex ? !completed : completed
+      )
+    )
   }
 
   const handleExplore = (miracleId: number) => {
@@ -892,17 +914,56 @@ export default function SaintsPage() {
                   <h3 className="text-xl font-bold text-gray-900">Daily Challenges</h3>
                 </div>
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm">
+                  <div 
+                    className="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+                    onClick={() => handleDailyChallengeToggle(0)}
+                  >
                     <span className="text-sm font-medium text-gray-700">Morning Prayer</span>
-                    <div className="w-6 h-6 border-2 border-blue-300 rounded-full"></div>
+                    <div className={`w-6 h-6 border-2 rounded-full flex items-center justify-center transition-all duration-200 ${
+                      dailyChallenges[0] 
+                        ? 'bg-blue-500 border-blue-500' 
+                        : 'border-blue-300 hover:border-blue-400'
+                    }`}>
+                      {dailyChallenges[0] && (
+                        <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                      )}
+                    </div>
                   </div>
-                  <div className="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm">
+                  <div 
+                    className="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+                    onClick={() => handleDailyChallengeToggle(1)}
+                  >
                     <span className="text-sm font-medium text-gray-700">Help Someone Today</span>
-                    <div className="w-6 h-6 border-2 border-blue-300 rounded-full"></div>
+                    <div className={`w-6 h-6 border-2 rounded-full flex items-center justify-center transition-all duration-200 ${
+                      dailyChallenges[1] 
+                        ? 'bg-blue-500 border-blue-500' 
+                        : 'border-blue-300 hover:border-blue-400'
+                    }`}>
+                      {dailyChallenges[1] && (
+                        <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                      )}
+                    </div>
                   </div>
-                  <div className="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm">
+                  <div 
+                    className="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+                    onClick={() => handleDailyChallengeToggle(2)}
+                  >
                     <span className="text-sm font-medium text-gray-700">Spend Time in Nature</span>
-                    <div className="w-6 h-6 border-2 border-blue-300 rounded-full"></div>
+                    <div className={`w-6 h-6 border-2 rounded-full flex items-center justify-center transition-all duration-200 ${
+                      dailyChallenges[2] 
+                        ? 'bg-blue-500 border-blue-500' 
+                        : 'border-blue-300 hover:border-blue-400'
+                    }`}>
+                      {dailyChallenges[2] && (
+                        <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                      )}
+                    </div>
                   </div>
                 </div>
               </Card>
