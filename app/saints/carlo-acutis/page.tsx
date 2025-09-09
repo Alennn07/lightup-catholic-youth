@@ -18,7 +18,8 @@ import {
   Trophy,
   Sparkles,
   Laptop,
-  Smartphone
+  Smartphone,
+  Lightbulb
 } from "lucide-react"
 import Link from "next/link"
 
