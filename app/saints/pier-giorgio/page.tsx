@@ -200,7 +200,7 @@ export default function PierGiorgioPage() {
                     className="absolute inset-0 bg-cover bg-no-repeat"
                     style={{
                       backgroundImage: `url('/saints/pier-giorgio-frassati.jpg')`,
-                      backgroundPosition: 'center 19%'
+                      backgroundPosition: 'center 10%'
                     }}
                   ></div>
                   <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
