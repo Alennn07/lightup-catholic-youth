@@ -812,15 +812,26 @@ export default function SaintsPage() {
             <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-0 rounded-2xl shadow-lg overflow-hidden">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
                 {/* Photo Section */}
-                <div className="relative h-64 lg:h-auto bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center">
-                  <div className="absolute inset-0 bg-black/20"></div>
+                <div className="relative h-64 lg:h-auto bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center overflow-hidden">
+                  {/* Background Photo */}
+                  <div 
+                    className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+                    style={{
+                      backgroundImage: `url('https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80')`
+                    }}
+                  ></div>
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-600/80 to-indigo-700/80"></div>
+                  
+                  {/* Content Overlay */}
                   <div className="relative z-10 text-center text-white p-8">
-                    <div className="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4 backdrop-blur-sm">
+                    <div className="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4 backdrop-blur-sm border-2 border-white/30">
                       <Globe className="w-12 h-12 text-white" />
                     </div>
                     <h3 className="text-2xl font-bold mb-2">Carlo Acutis</h3>
                     <p className="text-blue-100 text-sm">1991 - 2006</p>
+                    <p className="text-blue-200 text-xs mt-2">Patron of the Internet</p>
                   </div>
+                  
                   {/* Decorative Elements */}
                   <div className="absolute top-4 right-4 w-8 h-8 bg-yellow-400 rounded-full opacity-60"></div>
                   <div className="absolute bottom-4 left-4 w-6 h-6 bg-pink-400 rounded-full opacity-60"></div>
@@ -861,15 +872,26 @@ export default function SaintsPage() {
             <Card className="bg-gradient-to-r from-green-50 to-emerald-50 border-0 rounded-2xl shadow-lg overflow-hidden">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
                 {/* Photo Section */}
-                <div className="relative h-64 lg:h-auto bg-gradient-to-br from-green-600 to-emerald-700 flex items-center justify-center">
-                  <div className="absolute inset-0 bg-black/20"></div>
+                <div className="relative h-64 lg:h-auto bg-gradient-to-br from-green-600 to-emerald-700 flex items-center justify-center overflow-hidden">
+                  {/* Background Photo */}
+                  <div 
+                    className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+                    style={{
+                      backgroundImage: `url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80')`
+                    }}
+                  ></div>
+                  <div className="absolute inset-0 bg-gradient-to-br from-green-600/80 to-emerald-700/80"></div>
+                  
+                  {/* Content Overlay */}
                   <div className="relative z-10 text-center text-white p-8">
-                    <div className="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4 backdrop-blur-sm">
+                    <div className="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4 backdrop-blur-sm border-2 border-white/30">
                       <Mountain className="w-12 h-12 text-white" />
                     </div>
                     <h3 className="text-2xl font-bold mb-2">Pier Giorgio Frassati</h3>
                     <p className="text-green-100 text-sm">1901 - 1925</p>
+                    <p className="text-green-200 text-xs mt-2">Verso l'alto</p>
                   </div>
+                  
                   {/* Decorative Elements */}
                   <div className="absolute top-4 right-4 w-8 h-8 bg-yellow-400 rounded-full opacity-60"></div>
                   <div className="absolute bottom-4 left-4 w-6 h-6 bg-blue-400 rounded-full opacity-60"></div>
