@@ -23,7 +23,9 @@ import {
   Quote,
   Lightbulb,
   Target,
-  Check
+  Check,
+  Home,
+  ArrowLeft
 } from "lucide-react"
 
 // CardGrid Component for Carlo Acutis Tab
@@ -536,6 +538,7 @@ export default function SaintsPage() {
     { id: 4, name: "Fitness", description: "Take care of your body", completed: false },
     { id: 5, name: "Friendship", description: "Build meaningful relationships", completed: false }
   ])
+  const [selectedSaint, setSelectedSaint] = useState<string | null>(null)
 
   // Load goals from localStorage on component mount
   useEffect(() => {
@@ -638,18 +641,130 @@ export default function SaintsPage() {
     }
   }
 
+  const saints = [
+    {
+      id: "carlo",
+      name: "Carlo Acutis",
+      title: "Digital Saint",
+      years: "1991 - 2006",
+      description: "A young Italian who used technology to spread the Gospel and documented Eucharistic miracles around the world.",
+      icon: Globe,
+      gradient: "from-blue-500 to-indigo-600",
+      bgGradient: "from-blue-50 to-indigo-50",
+      tags: ["Technology", "Youth", "Eucharist", "Digital Evangelization"],
+      photo: "/saints/Photos/carlo-acutis.jpg"
+    },
+    {
+      id: "pier",
+      name: "Pier Giorgio Frassati",
+      title: "Verso l'alto",
+      years: "1901 - 1925",
+      description: "A young man who combined deep faith with love for the outdoors, social justice, and friendship.",
+      icon: Mountain,
+      gradient: "from-green-500 to-emerald-600",
+      bgGradient: "from-green-50 to-emerald-50",
+      tags: ["Mountains", "Social Justice", "Friendship", "Adventure"],
+      photo: "/saints/Photos/pier-giorgio-frassati.jpg"
+    },
+    {
+      id: "oscar",
+      name: "Oscar Romero",
+      title: "Martyr for Justice",
+      years: "1917 - 1980",
+      description: "Archbishop martyr who stood up for the poor and oppressed. He gave his life for social justice.",
+      icon: Heart,
+      gradient: "from-red-500 to-orange-600",
+      bgGradient: "from-red-50 to-orange-50",
+      tags: ["Justice", "Social Justice", "Martyr", "Voice of the Poor"],
+      photo: "/saints/Photos/oscar-romero.jpg"
+    },
+    {
+      id: "maximilian",
+      name: "Maximilian Kolbe",
+      title: "Martyr of Auschwitz",
+      years: "1894 - 1941",
+      description: "Franciscan priest who offered his life for another prisoner in Auschwitz. A true hero of self-sacrifice.",
+      icon: Heart,
+      gradient: "from-purple-500 to-indigo-600",
+      bgGradient: "from-purple-50 to-indigo-50",
+      tags: ["Self-Sacrifice", "Protection", "Courage", "Love"],
+      photo: "/saints/Photos/maximilian-kolbe.jpg"
+    },
+    {
+      id: "teresa",
+      name: "Mother Teresa",
+      title: "Saint of the Gutters",
+      years: "1910 - 1997",
+      description: "Missionary of Charity who served the poorest of the poor. She showed us that small acts of love can change the world.",
+      icon: Heart,
+      gradient: "from-yellow-500 to-orange-600",
+      bgGradient: "from-yellow-50 to-orange-50",
+      tags: ["Service", "Compassion", "Love", "Missionary"],
+      photo: "/saints/Photos/mother-teresa.jpg"
+    },
+    {
+      id: "maria",
+      name: "Maria Goretti",
+      title: "Martyr of Purity",
+      years: "1890 - 1902",
+      description: "Young martyr who chose death over sin at age 11. She forgave her attacker and showed us the power of purity.",
+      icon: Heart,
+      gradient: "from-pink-500 to-rose-600",
+      bgGradient: "from-pink-50 to-rose-50",
+      tags: ["Purity", "Forgiveness", "Youth", "Martyr"],
+      photo: "/saints/Photos/maria-goretti.jpg"
+    },
+    {
+      id: "therese",
+      name: "Thérèse of Lisieux",
+      title: "Little Flower",
+      years: "1873 - 1897",
+      description: "Little Flower who showed us the Little Way of doing small things with great love. She became a Doctor of the Church.",
+      icon: Heart,
+      gradient: "from-rose-500 to-pink-600",
+      bgGradient: "from-rose-50 to-pink-50",
+      tags: ["Little Way", "Love", "Simplicity", "Doctor of Church"],
+      photo: "/saints/Photos/therese-lisieux.jpg"
+    },
+    {
+      id: "edith",
+      name: "Edith Stein",
+      title: "Philosopher & Martyr",
+      years: "1891 - 1942",
+      description: "Jewish philosopher who converted to Catholicism and became a Carmelite nun. She was martyred in Auschwitz.",
+      icon: Heart,
+      gradient: "from-indigo-500 to-purple-600",
+      bgGradient: "from-indigo-50 to-purple-50",
+      tags: ["Philosophy", "Conversion", "Martyr", "Intellectual"],
+      photo: "/saints/Photos/edith-stein.jpg"
+    }
+  ]
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
       {/* Header Section */}
       <div className="bg-gradient-to-r from-blue-600 via-indigo-700 to-purple-800 text-white py-16">
         <div className="container mx-auto px-4 text-center">
+          <div className="flex justify-between items-center mb-8">
+            <Button 
+              onClick={() => window.open('/', '_blank')}
+              className="bg-white/20 hover:bg-white/30 text-white border-0 rounded-full px-6 py-3 transition-all duration-300"
+            >
+              <Home className="w-4 h-4 mr-2" />
+              Go to Home
+            </Button>
+            <div className="text-right">
+              <h1 className="text-2xl font-bold">LightUp Catholic Youth</h1>
+              <p className="text-blue-100 text-sm">Walk with the Saints</p>
+            </div>
+          </div>
           <div className="inline-flex items-center px-4 py-2 bg-white/20 rounded-full text-sm font-semibold mb-6">
             <Flame className="w-4 h-4 mr-2" />
             New Saints for a New Generation
           </div>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
             Walk with the Saints
-          </h1>
+          </h2>
           <p className="text-xl text-blue-100 max-w-3xl mx-auto leading-relaxed">
             Discover the inspiring stories of modern saints who show us how to live our faith in today's world
           </p>
@@ -658,6 +773,82 @@ export default function SaintsPage() {
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-12">
+        {/* Saints Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+          {saints.map((saint, index) => {
+            const IconComponent = saint.icon
+            return (
+              <motion.div
+                key={saint.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                className="group"
+              >
+                <Card className={`bg-gradient-to-br ${saint.bgGradient} border-0 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer h-full`}
+                      onClick={() => setSelectedSaint(selectedSaint === saint.id ? null : saint.id)}>
+                  <CardContent className="p-6 text-center h-full flex flex-col">
+                    {/* Photo Section */}
+                    <div className="relative h-32 mb-4 rounded-xl overflow-hidden">
+                      <div 
+                        className="absolute inset-0 bg-cover bg-no-repeat"
+                        style={{
+                          backgroundImage: `url('${saint.photo}')`,
+                          backgroundPosition: 'center 20%'
+                        }}
+                      ></div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+                      <div className="absolute bottom-2 left-2 right-2">
+                        <h3 className="text-lg font-bold text-white truncate">{saint.name}</h3>
+                        <p className="text-white/90 text-xs">{saint.years}</p>
+                      </div>
+                    </div>
+
+                    {/* Content */}
+                    <div className="flex-1 flex flex-col">
+                      <div className="flex items-center justify-center mb-3">
+                        <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${saint.gradient} flex items-center justify-center`}>
+                          <IconComponent className="w-5 h-5 text-white" />
+                        </div>
+                      </div>
+                      
+                      <h4 className="text-lg font-bold text-gray-900 mb-2">{saint.title}</h4>
+                      <p className="text-gray-600 text-sm leading-relaxed mb-4 flex-1">
+                        {saint.description}
+                      </p>
+
+                      {/* Tags */}
+                      <div className="flex flex-wrap gap-1 mb-4 justify-center">
+                        {saint.tags.slice(0, 2).map((tag, tagIndex) => (
+                          <span 
+                            key={tagIndex}
+                            className="px-2 py-1 bg-white/60 text-gray-700 rounded-full text-xs font-medium"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+
+                      {/* Read More Button */}
+                      <Button 
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          window.open(`/saints/${saint.id}`, '_blank')
+                        }}
+                        className={`w-full bg-gradient-to-r ${saint.gradient} hover:opacity-90 text-white font-semibold px-4 py-2 rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg`}
+                        size="sm"
+                      >
+                        <IconComponent className="w-4 h-4 mr-2" />
+                        Read More
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )
+          })}
+        </div>
+
         {/* My Favorites Section */}
         {favoriteMiracles.length > 0 && (
           <Card className="mb-8 bg-gradient-to-r from-yellow-50 to-orange-50 border-0 rounded-2xl shadow-lg">
@@ -723,498 +914,25 @@ export default function SaintsPage() {
           </Card>
         )}
 
-        <Tabs defaultValue="carlo" className="w-full">
-          {/* Male Saints Row */}
-          <TabsList className="grid w-full grid-cols-4 bg-white rounded-2xl shadow-lg p-2 mb-4">
-            <TabsTrigger 
-              value="carlo" 
-              className="rounded-xl font-semibold data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white"
-            >
-              <Globe className="w-4 h-4 mr-2" />
-              Carlo Acutis
-            </TabsTrigger>
-            <TabsTrigger 
-              value="pier" 
-              className="rounded-xl font-semibold data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-600 data-[state=active]:to-emerald-600 data-[state=active]:text-white"
-            >
-              <Mountain className="w-4 h-4 mr-2" />
-              Pier Giorgio
-            </TabsTrigger>
-            <TabsTrigger 
-              value="oscar" 
-              className="rounded-xl font-semibold data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-600 data-[state=active]:to-orange-600 data-[state=active]:text-white"
-            >
-              <Heart className="w-4 h-4 mr-2" />
-              Oscar Romero
-            </TabsTrigger>
-            <TabsTrigger 
-              value="maximilian" 
-              className="rounded-xl font-semibold data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white"
-            >
-              <Heart className="w-4 h-4 mr-2" />
-              Maximilian
-            </TabsTrigger>
-          </TabsList>
-
-          {/* Female Saints Row */}
-          <TabsList className="grid w-full grid-cols-4 bg-white rounded-2xl shadow-lg p-2 mb-8">
-            <TabsTrigger 
-              value="teresa" 
-              className="rounded-xl font-semibold data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-600 data-[state=active]:to-orange-600 data-[state=active]:text-white"
-            >
-              <Heart className="w-4 h-4 mr-2" />
-              Mother Teresa
-            </TabsTrigger>
-            <TabsTrigger 
-              value="maria" 
-              className="rounded-xl font-semibold data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-600 data-[state=active]:to-rose-600 data-[state=active]:text-white"
-            >
-              <Heart className="w-4 h-4 mr-2" />
-              Maria Goretti
-            </TabsTrigger>
-            <TabsTrigger 
-              value="therese" 
-              className="rounded-xl font-semibold data-[state=active]:bg-gradient-to-r data-[state=active]:from-rose-600 data-[state=active]:to-pink-600 data-[state=active]:text-white"
-            >
-              <Heart className="w-4 h-4 mr-2" />
-              Thérèse
-            </TabsTrigger>
-            <TabsTrigger 
-              value="edith" 
-              className="rounded-xl font-semibold data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-600 data-[state=active]:to-purple-600 data-[state=active]:text-white"
-            >
-              <Heart className="w-4 h-4 mr-2" />
-              Edith Stein
-            </TabsTrigger>
-          </TabsList>
-
-          {/* Carlo Acutis Tab */}
-          <TabsContent value="carlo" id="carlo" className="space-y-8">
-            {/* Carlo Acutis Hero Section with Photo */}
-            <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-0 rounded-2xl shadow-lg overflow-hidden">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
-                {/* Photo Section */}
-                <div className="relative h-64 lg:h-auto overflow-hidden">
-                  {/* Background Photo - Carlo Acutis */}
-                  <div 
-                    className="absolute inset-0 bg-cover bg-no-repeat"
-                    style={{
-                      backgroundImage: `url('/saints/Photos/carlo-acutis.jpg')`,
-                      backgroundPosition: 'center 10%'
-                    }}
-                  ></div>
-                  
-                  {/* Content Overlay */}
-                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-6">
-                    <h3 className="text-2xl font-bold text-white mb-1">Carlo Acutis</h3>
-                    <p className="text-white/90 text-sm">1991 - 2006</p>
-                    <p className="text-white/80 text-xs">Patron of the Internet</p>
-                  </div>
-                </div>
-                
-                {/* Content Section */}
-                <div className="p-8 flex flex-col justify-center">
-                  <div className="inline-flex items-center px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-semibold mb-4 w-fit">
-                    <Globe className="w-4 h-4 mr-2" />
-                    Patron of the Internet
-                  </div>
-                  <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                    ✨ Carlo Acutis – Digital Saint
-                  </h2>
-                  <p className="text-lg text-gray-700 leading-relaxed mb-6">
-                    A young Italian who used technology to spread the Gospel and documented Eucharistic miracles around the world. 
-                    His life shows us how to be saints in the digital age.
-                  </p>
-                  <div className="flex flex-wrap gap-2 mb-6">
-                    <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">Technology</span>
-                    <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">Youth</span>
-                    <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">Eucharist</span>
-                    <span className="px-3 py-1 bg-pink-100 text-pink-700 rounded-full text-xs font-medium">Digital Evangelization</span>
-                  </div>
-                  <Button 
-                    onClick={() => window.open('/saints/carlo-acutis', '_blank')}
-                    className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-semibold px-6 py-2 rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
-                  >
-                    <Globe className="w-4 h-4 mr-2" />
-                    Read More About Carlo
-                  </Button>
-                </div>
-              </div>
-            </Card>
+        {/* Eucharistic Miracles Section */}
+        <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-0 rounded-2xl shadow-lg">
+          <CardContent className="p-8">
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                ✨ Eucharistic Miracles
+              </h2>
+              <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+                Discover the amazing Eucharistic miracles that Carlo Acutis documented and learn about their scientific verification.
+              </p>
+            </div>
             <CardGrid 
               eucharisticMiracles={eucharisticMiracles}
               favoriteMiracles={favoriteMiracles}
               onToggleFavorite={handleToggleFavorite}
             />
-          </TabsContent>
+          </CardContent>
+        </Card>
 
-          {/* Pier Giorgio Frassati Tab */}
-          <TabsContent value="pier" id="pier" className="space-y-8">
-            {/* Pier Giorgio Frassati Hero Section with Photo */}
-            <Card className="bg-gradient-to-r from-green-50 to-emerald-50 border-0 rounded-2xl shadow-lg overflow-hidden">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
-                {/* Photo Section */}
-                <div className="relative h-64 lg:h-auto overflow-hidden">
-                  {/* Background Photo - Pier Giorgio Frassati */}
-                  <div 
-                    className="absolute inset-0 bg-cover bg-no-repeat"
-                    style={{
-                      backgroundImage: `url('/saints/Photos/pier-giorgio-frassati.jpg')`,
-                      backgroundPosition: 'center 19%'
-                    }}
-                  ></div>
-                  
-                  {/* Content Overlay */}
-                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-6">
-                    <h3 className="text-2xl font-bold text-white mb-1">Pier Giorgio Frassati</h3>
-                    <p className="text-white/90 text-sm">1901 - 1925</p>
-                    <p className="text-white/80 text-xs">Verso l'alto</p>
-                  </div>
-                </div>
-                
-                {/* Content Section */}
-                <div className="p-8 flex flex-col justify-center">
-                  <div className="inline-flex items-center px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-semibold mb-4 w-fit">
-                    <Mountain className="w-4 h-4 mr-2" />
-                    Verso l'alto
-                  </div>
-                  <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                    ⛰️ Pier Giorgio Frassati – To the Heights
-                  </h2>
-                  <p className="text-lg text-gray-700 leading-relaxed mb-6">
-                    "Verso l'alto" (To the heights) was his motto. A young man who combined deep faith with love for the outdoors, 
-                    social justice, and friendship. His life inspires us to reach for the heights of holiness.
-                  </p>
-                  <div className="flex flex-wrap gap-2 mb-6">
-                    <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">Mountains</span>
-                    <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">Social Justice</span>
-                    <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">Friendship</span>
-                    <span className="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-xs font-medium">Adventure</span>
-                  </div>
-                  <Button 
-                    onClick={() => window.open('/saints/pier-giorgio', '_blank')}
-                    className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold px-6 py-2 rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
-                  >
-                    <Mountain className="w-4 h-4 mr-2" />
-                    Read More About Pier Giorgio
-                  </Button>
-                </div>
-              </div>
-            </Card>
-
-            {/* Pier Giorgio Frassati - Additional Content */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-              {/* His Story Card */}
-              <Card className="p-6 bg-gradient-to-br from-green-50 to-emerald-50 border-0 rounded-2xl shadow-lg">
-                <div className="flex items-center mb-4">
-                  <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mr-3">
-                    <Mountain className="w-5 h-5 text-green-600" />
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-900">His Story</h3>
-                </div>
-                <p className="text-gray-700 leading-relaxed mb-4">
-                  Born in Turin, Italy, Pier Giorgio was a passionate mountaineer who saw God's beauty in nature. 
-                  He dedicated his life to serving the poor while maintaining his love for adventure and friendship.
-                </p>
-                <div className="bg-green-100 rounded-lg p-3">
-                  <p className="text-green-800 text-sm font-medium italic">
-                    "The higher we go, the better we hear the voice of Christ."
-                  </p>
-                </div>
-              </Card>
-
-              {/* Daily Challenges Card */}
-              <Card className="p-6 bg-gradient-to-br from-blue-50 to-indigo-50 border-0 rounded-2xl shadow-lg">
-                <div className="flex items-center mb-4">
-                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3">
-                    <Mountain className="w-5 h-5 text-blue-600" />
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-900">Daily Challenges</h3>
-                </div>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm">
-                    <span className="text-sm font-medium text-gray-700">Morning Prayer</span>
-                    <div className="w-6 h-6 border-2 border-blue-300 rounded-full"></div>
-                  </div>
-                  <div className="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm">
-                    <span className="text-sm font-medium text-gray-700">Help Someone Today</span>
-                    <div className="w-6 h-6 border-2 border-blue-300 rounded-full"></div>
-                  </div>
-                  <div className="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm">
-                    <span className="text-sm font-medium text-gray-700">Spend Time in Nature</span>
-                    <div className="w-6 h-6 border-2 border-blue-300 rounded-full"></div>
-                  </div>
-                </div>
-              </Card>
-            </div>
-
-            {/* Enhanced Progress Tracker */}
-            <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-0 rounded-2xl shadow-lg overflow-hidden">
-              <CardContent className="p-8">
-                <div className="text-center mb-8">
-                  <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Mountain className="w-8 h-8 text-white" />
-                  </div>
-                  <h3 className="text-2xl font-bold text-gray-900 mb-2">Verso l'alto Progress</h3>
-                  <p className="text-gray-600">Climb the mountain of holiness, one step at a time</p>
-                </div>
-
-                {/* Mountain Progress Visualization */}
-                <div className="relative mb-8">
-                  <div className="flex justify-center">
-                    <div className="w-32 h-32 relative">
-                      {/* Mountain Background */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-gray-300 to-gray-100 rounded-t-full"></div>
-                      {/* Progress Fill */}
-                      <div 
-                        className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-green-500 to-emerald-400 rounded-t-full transition-all duration-1000"
-                        style={{ height: `${(goals.filter(g => g.completed).length / goals.length) * 100}%` }}
-                      ></div>
-                      {/* Peak */}
-                      <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-b-6 border-l-transparent border-r-transparent border-b-white"></div>
-                    </div>
-                  </div>
-                  <div className="text-center mt-4">
-                    <p className="text-lg font-semibold text-gray-700">
-                      {goals.filter(g => g.completed).length} of {goals.length} goals completed
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      {goals.filter(g => g.completed).length === goals.length 
-                        ? "🏔️ You've reached the summit! Verso l'alto!" 
-                        : `${goals.length - goals.filter(g => g.completed).length} more to reach the top!`
-                      }
-                    </p>
-                  </div>
-                </div>
-
-                {/* Goals List */}
-                <div className="space-y-4">
-                  {goals.map((goal, index) => (
-                    <motion.div
-                      key={goal.id}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                      className="flex items-center p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow"
-                    >
-                      <div className="flex items-center flex-1">
-                        <div className="w-8 h-8 bg-gradient-to-br from-green-100 to-emerald-100 rounded-full flex items-center justify-center mr-4">
-                          <span className="text-sm font-bold text-green-600">{index + 1}</span>
-                        </div>
-                        <div className="flex-1">
-                          <h4 className="font-semibold text-gray-900">{goal.name}</h4>
-                          <p className="text-sm text-gray-500">{goal.description}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-3">
-                        <div className="w-16 bg-gray-200 rounded-full h-2">
-                          <div 
-                            className={`h-2 rounded-full transition-all duration-500 ${
-                              goal.completed ? 'bg-gradient-to-r from-green-500 to-emerald-500' : 'bg-gray-300'
-                            }`}
-                            style={{ width: goal.completed ? '100%' : '0%' }}
-                          ></div>
-                        </div>
-                        <button
-                          onClick={() => handleGoalToggle(goal.id)}
-                          className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${
-                            goal.completed
-                              ? 'bg-green-500 border-green-500 text-white'
-                              : 'border-gray-300 hover:border-green-400'
-                          }`}
-                        >
-                          {goal.completed && <Check className="w-4 h-4" />}
-                        </button>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Oscar Romero Tab */}
-          <TabsContent value="oscar" id="oscar" className="space-y-8">
-            <Card className="bg-gradient-to-r from-red-50 to-orange-50 border-0 rounded-2xl shadow-lg overflow-hidden">
-              <CardContent className="p-8 text-center">
-                <div className="w-20 h-20 bg-gradient-to-br from-red-600 to-orange-700 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Heart className="w-10 h-10 text-white" />
-                </div>
-                <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                  ⚖️ St. Oscar Romero
-                </h2>
-                <p className="text-lg text-gray-700 max-w-3xl mx-auto leading-relaxed">
-                  Archbishop martyr who stood up for the poor and oppressed. He gave his life for social justice 
-                  and defending human rights in El Salvador.
-                </p>
-                <div className="mt-6">
-                  <Button 
-                    onClick={() => window.open('/saints/oscar-romero', '_blank')}
-                    className="bg-gradient-to-r from-red-600 to-orange-700 hover:from-red-700 hover:to-orange-800 text-white font-semibold px-6 py-3 rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
-                  >
-                    <Heart className="w-4 h-4 mr-2" />
-                    Read More About Oscar
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Maximilian Kolbe Tab */}
-          <TabsContent value="maximilian" id="maximilian" className="space-y-8">
-            <Card className="bg-gradient-to-r from-purple-50 to-indigo-50 border-0 rounded-2xl shadow-lg overflow-hidden">
-              <CardContent className="p-8 text-center">
-                <div className="w-20 h-20 bg-gradient-to-br from-purple-600 to-indigo-700 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Heart className="w-10 h-10 text-white" />
-                </div>
-                <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                  🛡️ St. Maximilian Kolbe
-                </h2>
-                <p className="text-lg text-gray-700 max-w-3xl mx-auto leading-relaxed">
-                  Franciscan priest who offered his life for another prisoner in Auschwitz. A true hero of 
-                  self-sacrifice and protecting the innocent.
-                </p>
-                <div className="mt-6">
-                  <Button 
-                    onClick={() => window.open('/saints/maximilian-kolbe', '_blank')}
-                    className="bg-gradient-to-r from-purple-600 to-indigo-700 hover:from-purple-700 hover:to-indigo-800 text-white font-semibold px-6 py-3 rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
-                  >
-                    <Heart className="w-4 h-4 mr-2" />
-                    Read More About Maximilian
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Mother Teresa Tab */}
-          <TabsContent value="teresa" id="teresa" className="space-y-8">
-            <Card className="bg-gradient-to-r from-yellow-50 to-orange-50 border-0 rounded-2xl shadow-lg overflow-hidden">
-              <CardContent className="p-8 text-center">
-                <div className="w-20 h-20 bg-gradient-to-br from-yellow-600 to-orange-700 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Heart className="w-10 h-10 text-white" />
-                </div>
-                <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                  🤲 St. Teresa of Calcutta
-                </h2>
-                <p className="text-lg text-gray-700 max-w-3xl mx-auto leading-relaxed">
-                  Missionary of Charity who served the poorest of the poor. She showed us that small acts of 
-                  love can change the world.
-                </p>
-                <div className="mt-6">
-                  <Button 
-                    onClick={() => window.open('/saints/mother-teresa', '_blank')}
-                    className="bg-gradient-to-r from-yellow-600 to-orange-700 hover:from-yellow-700 hover:to-orange-800 text-white font-semibold px-6 py-3 rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
-                  >
-                    <Heart className="w-4 h-4 mr-2" />
-                    Read More About Mother Teresa
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Maria Goretti Tab */}
-          <TabsContent value="maria" id="maria" className="space-y-8">
-            <Card className="bg-gradient-to-r from-pink-50 to-rose-50 border-0 rounded-2xl shadow-lg overflow-hidden">
-              <CardContent className="p-8 text-center">
-                <div className="w-20 h-20 bg-gradient-to-br from-pink-600 to-rose-700 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Heart className="w-10 h-10 text-white" />
-                </div>
-                <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                  🌸 St. Maria Goretti
-                </h2>
-                <p className="text-lg text-gray-700 max-w-3xl mx-auto leading-relaxed">
-                  Young martyr who chose death over sin at age 11. She forgave her attacker and showed us 
-                  the power of purity and forgiveness.
-                </p>
-                <div className="mt-6">
-                  <Button 
-                    onClick={() => window.open('/saints/maria-goretti', '_blank')}
-                    className="bg-gradient-to-r from-pink-600 to-rose-700 hover:from-pink-700 hover:to-rose-800 text-white font-semibold px-6 py-3 rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
-                  >
-                    <Heart className="w-4 h-4 mr-2" />
-                    Read More About Maria
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Thérèse of Lisieux Tab */}
-          <TabsContent value="therese" id="therese" className="space-y-8">
-            <Card className="bg-gradient-to-r from-rose-50 to-pink-50 border-0 rounded-2xl shadow-lg overflow-hidden">
-              <CardContent className="p-8 text-center">
-                <div className="w-20 h-20 bg-gradient-to-br from-rose-600 to-pink-700 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Heart className="w-10 h-10 text-white" />
-                </div>
-                <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                  🌹 St. Thérèse of Lisieux
-                </h2>
-                <p className="text-lg text-gray-700 max-w-3xl mx-auto leading-relaxed">
-                  "Little Flower" who showed us the "Little Way" of doing small things with great love. 
-                  She died at 24 but became a Doctor of the Church.
-                </p>
-                <div className="mt-6">
-                  <Button 
-                    onClick={() => window.open('/saints/therese-lisieux', '_blank')}
-                    className="bg-gradient-to-r from-rose-600 to-pink-700 hover:from-rose-700 hover:to-pink-800 text-white font-semibold px-6 py-3 rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
-                  >
-                    <Heart className="w-4 h-4 mr-2" />
-                    Read More About Thérèse
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Edith Stein Tab */}
-          <TabsContent value="edith" id="edith" className="space-y-8">
-            <Card className="bg-gradient-to-r from-indigo-50 to-purple-50 border-0 rounded-2xl shadow-lg overflow-hidden">
-              <CardContent className="p-8 text-center">
-                <div className="w-20 h-20 bg-gradient-to-br from-indigo-600 to-purple-700 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Heart className="w-10 h-10 text-white" />
-                </div>
-                <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                  📚 St. Edith Stein
-                </h2>
-                <p className="text-lg text-gray-700 max-w-3xl mx-auto leading-relaxed">
-                  Jewish philosopher who converted to Catholicism and became a Carmelite nun. She was martyred 
-                  in Auschwitz for her faith.
-                </p>
-                <div className="mt-6">
-                  <Button 
-                    onClick={() => window.open('/saints/edith-stein', '_blank')}
-                    className="bg-gradient-to-r from-indigo-600 to-purple-700 hover:from-indigo-700 hover:to-purple-800 text-white font-semibold px-6 py-3 rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
-                  >
-                    <Heart className="w-4 h-4 mr-2" />
-                    Read More About Edith
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* 7-Day Journey Tab */}
-          <TabsContent value="journey" className="space-y-8">
-            <Card className="bg-gradient-to-r from-purple-50 to-pink-50 border-0 rounded-2xl shadow-lg">
-              <CardContent className="p-8 text-center">
-                <div className="w-20 h-20 bg-gradient-to-br from-purple-600 to-pink-700 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Flame className="w-10 h-10 text-white" />
-                </div>
-                <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                  🔥 Walk with the New Saints
-                </h2>
-                <p className="text-lg text-gray-700 max-w-3xl mx-auto leading-relaxed">
-                  A 7-day spiritual journey inspired by the lives of modern saints. Each day offers reflection, 
-                  prayer, and practical challenges to help you grow in holiness.
-                </p>
-                {/* TODO: Connect to Supabase for journey progress, user reflections, and challenge completion tracking */}
-              </CardContent>
-            </Card>
-            <JourneyTabs />
-          </TabsContent>
-        </Tabs>
       </div>
     </div>
   )
