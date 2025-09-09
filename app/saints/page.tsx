@@ -813,11 +813,11 @@ export default function SaintsPage() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
                 {/* Photo Section */}
                 <div className="relative h-64 lg:h-auto bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center overflow-hidden">
-                  {/* Background Photo */}
+                  {/* Background Photo - Carlo Acutis */}
                   <div 
                     className="absolute inset-0 bg-cover bg-center bg-no-repeat"
                     style={{
-                      backgroundImage: `url('https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80')`
+                      backgroundImage: `url('https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Carlo_Acutis_2019.jpg/800px-Carlo_Acutis_2019.jpg')`
                     }}
                   ></div>
                   <div className="absolute inset-0 bg-gradient-to-br from-blue-600/80 to-indigo-700/80"></div>
@@ -873,11 +873,11 @@ export default function SaintsPage() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
                 {/* Photo Section */}
                 <div className="relative h-64 lg:h-auto bg-gradient-to-br from-green-600 to-emerald-700 flex items-center justify-center overflow-hidden">
-                  {/* Background Photo */}
+                  {/* Background Photo - Pier Giorgio Frassati */}
                   <div 
                     className="absolute inset-0 bg-cover bg-center bg-no-repeat"
                     style={{
-                      backgroundImage: `url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80')`
+                      backgroundImage: `url('https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Pier_Giorgio_Frassati_1924.jpg/800px-Pier_Giorgio_Frassati_1924.jpg')`
                     }}
                   ></div>
                   <div className="absolute inset-0 bg-gradient-to-br from-green-600/80 to-emerald-700/80"></div>
