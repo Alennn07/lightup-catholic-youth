@@ -24,7 +24,14 @@ import Link from "next/link"
 export default function PierGiorgioPage() {
   const [activeAdventure, setActiveAdventure] = useState(0)
   const [showSuccessMessage, setShowSuccessMessage] = useState(false)
-  const [selectedMiracle, setSelectedMiracle] = useState(null)
+  const [selectedMiracle, setSelectedMiracle] = useState<{
+    title: string;
+    description: string;
+    year: string;
+    emoji: string;
+    source: string;
+    fullStory: string;
+  } | null>(null)
 
   const adventures = [
     {
