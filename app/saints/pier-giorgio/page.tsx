@@ -16,7 +16,8 @@ import {
   MapPin,
   Calendar,
   Trophy,
-  Sparkles
+  Sparkles,
+  Lightbulb
 } from "lucide-react"
 import Link from "next/link"
 
