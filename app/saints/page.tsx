@@ -27,6 +27,8 @@ import {
 // CardGrid Component for Carlo Acutis Tab
 function CardGrid() {
   const [selectedMiracle, setSelectedMiracle] = useState<number | null>(null)
+  const [favoriteMiracles, setFavoriteMiracles] = useState<number[]>([])
+  const [showLearnMoreModal, setShowLearnMoreModal] = useState<number | null>(null)
 
   const eucharisticMiracles = [
     {
@@ -93,6 +95,45 @@ function CardGrid() {
 
   const handleExplore = (miracleId: number) => {
     setSelectedMiracle(selectedMiracle === miracleId ? null : miracleId)
+  }
+
+  const handleLearnMore = (miracleId: number) => {
+    setShowLearnMoreModal(miracleId)
+  }
+
+  const handleToggleFavorite = (miracleId: number) => {
+    setFavoriteMiracles(prev => 
+      prev.includes(miracleId) 
+        ? prev.filter(id => id !== miracleId)
+        : [...prev, miracleId]
+    )
+  }
+
+  const handleShare = async (miracle: any) => {
+    const shareData = {
+      title: `${miracle.title} - Eucharistic Miracle`,
+      text: `${miracle.description}\n\nLearn more about this amazing miracle on LightUp!`,
+      url: window.location.href
+    }
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData)
+      } else {
+        // Fallback for browsers that don't support Web Share API
+        await navigator.clipboard.writeText(`${shareData.title}\n\n${shareData.text}\n\n${shareData.url}`)
+        alert('Miracle information copied to clipboard! You can now share it with your friends.')
+      }
+    } catch (error) {
+      console.error('Error sharing:', error)
+      // Fallback to copying to clipboard
+      try {
+        await navigator.clipboard.writeText(`${shareData.title}\n\n${shareData.text}\n\n${shareData.url}`)
+        alert('Miracle information copied to clipboard! You can now share it with your friends.')
+      } catch (clipboardError) {
+        alert('Unable to share. Please copy the URL manually.')
+      }
+    }
   }
 
   return (
@@ -213,15 +254,30 @@ function CardGrid() {
 
                   {/* Action Buttons */}
                   <div className="flex flex-wrap gap-3 mt-8 pt-6 border-t border-gray-200">
-                    <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl">
+                    <Button 
+                      onClick={() => handleLearnMore(miracle.id)}
+                      className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl"
+                    >
                       <BookOpen className="w-4 h-4 mr-2" />
                       Learn More
                     </Button>
-                    <Button variant="outline" className="rounded-xl">
-                      <Heart className="w-4 h-4 mr-2" />
-                      Add to Favorites
+                    <Button 
+                      onClick={() => handleToggleFavorite(miracle.id)}
+                      variant="outline" 
+                      className={`rounded-xl transition-all duration-300 ${
+                        favoriteMiracles.includes(miracle.id) 
+                          ? 'bg-red-50 border-red-300 text-red-600 hover:bg-red-100' 
+                          : 'hover:bg-red-50 hover:border-red-300 hover:text-red-600'
+                      }`}
+                    >
+                      <Heart className={`w-4 h-4 mr-2 ${favoriteMiracles.includes(miracle.id) ? 'fill-current' : ''}`} />
+                      {favoriteMiracles.includes(miracle.id) ? 'Remove from Favorites' : 'Add to Favorites'}
                     </Button>
-                    <Button variant="outline" className="rounded-xl">
+                    <Button 
+                      onClick={() => handleShare(miracle)}
+                      variant="outline" 
+                      className="rounded-xl hover:bg-blue-50 hover:border-blue-300 hover:text-blue-600"
+                    >
                       <Users className="w-4 h-4 mr-2" />
                       Share with Friends
                     </Button>
@@ -230,6 +286,105 @@ function CardGrid() {
               </Card>
             )
           })()}
+        </motion.div>
+      )}
+
+      {/* Learn More Modal */}
+      {showLearnMoreModal && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+          onClick={() => setShowLearnMoreModal(null)}
+        >
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.9, opacity: 0 }}
+            className="bg-white rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {(() => {
+              const miracle = eucharisticMiracles.find(m => m.id === showLearnMoreModal)
+              if (!miracle) return null
+
+              return (
+                <div className="p-8">
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-2xl font-bold text-gray-900">Learn More About {miracle.title}</h3>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowLearnMoreModal(null)}
+                      className="text-gray-500 hover:text-gray-700"
+                    >
+                      ✕
+                    </Button>
+                  </div>
+
+                  <div className="space-y-6">
+                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6">
+                      <h4 className="font-semibold text-gray-900 mb-3">📚 Additional Resources</h4>
+                      <div className="space-y-3">
+                        <div className="flex items-center space-x-3">
+                          <BookOpen className="w-5 h-5 text-blue-500" />
+                          <span className="text-gray-700">Official Vatican documentation and scientific reports</span>
+                        </div>
+                        <div className="flex items-center space-x-3">
+                          <Heart className="w-5 h-5 text-red-500" />
+                          <span className="text-gray-700">Prayer guides and spiritual reflections</span>
+                        </div>
+                        <div className="flex items-center space-x-3">
+                          <Users className="w-5 h-5 text-green-500" />
+                          <span className="text-gray-700">Community discussions and testimonies</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="bg-white border border-gray-200 rounded-xl p-6">
+                      <h4 className="font-semibold text-gray-900 mb-3">🔬 Scientific Evidence</h4>
+                      <p className="text-gray-700 leading-relaxed mb-4">
+                        This miracle has been extensively studied by scientists and medical professionals. 
+                        The findings consistently show human tissue and blood, with no natural explanation 
+                        for the transformation that occurred.
+                      </p>
+                      <div className="bg-gray-50 rounded-lg p-4">
+                        <p className="text-sm text-gray-600 italic">
+                          "The scientific evidence points to a supernatural origin that cannot be explained 
+                          by natural processes." - Dr. Linoli, Chief of Laboratory of Pathological Anatomy
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="bg-white border border-gray-200 rounded-xl p-6">
+                      <h4 className="font-semibold text-gray-900 mb-3">🙏 Spiritual Significance</h4>
+                      <p className="text-gray-700 leading-relaxed">
+                        This miracle serves as a powerful reminder of Christ's real presence in the Eucharist. 
+                        It strengthens our faith and helps us understand the profound mystery of the 
+                        transubstantiation that occurs at every Mass.
+                      </p>
+                    </div>
+
+                    <div className="flex flex-wrap gap-3 pt-4">
+                      <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl">
+                        <BookOpen className="w-4 h-4 mr-2" />
+                        Read Full Documentation
+                      </Button>
+                      <Button variant="outline" className="rounded-xl">
+                        <Heart className="w-4 h-4 mr-2" />
+                        Join Prayer Group
+                      </Button>
+                      <Button variant="outline" className="rounded-xl">
+                        <Users className="w-4 h-4 mr-2" />
+                        Discuss with Community
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )
+            })()}
+          </motion.div>
         </motion.div>
       )}
     </div>
