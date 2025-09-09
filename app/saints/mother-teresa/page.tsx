@@ -164,7 +164,7 @@ export default function MotherTeresaPage() {
                 <div className="relative h-80 lg:h-auto overflow-hidden">
                   <div className="absolute inset-0 bg-cover bg-no-repeat" style={{
                     backgroundImage: `url('/saints/mother-teresa.jpg')`,
-                    backgroundPosition: 'center 30%'
+                    backgroundPosition: 'center 20%'
                   }}></div>
                   <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
                   <div className="absolute bottom-4 left-4 text-white">
