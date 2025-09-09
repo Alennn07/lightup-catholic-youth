@@ -25,73 +25,17 @@ import {
 } from "lucide-react"
 
 // CardGrid Component for Carlo Acutis Tab
-function CardGrid() {
+function CardGrid({ 
+  eucharisticMiracles, 
+  favoriteMiracles, 
+  onToggleFavorite 
+}: { 
+  eucharisticMiracles: any[], 
+  favoriteMiracles: number[], 
+  onToggleFavorite: (id: number) => void 
+}) {
   const [selectedMiracle, setSelectedMiracle] = useState<number | null>(null)
-  const [favoriteMiracles, setFavoriteMiracles] = useState<number[]>([])
   const [showLearnMoreModal, setShowLearnMoreModal] = useState<number | null>(null)
-
-  const eucharisticMiracles = [
-    {
-      id: 1,
-      title: "Miracle of Lanciano",
-      description: "The first and most scientifically studied Eucharistic miracle where bread and wine became actual flesh and blood.",
-      icon: Heart,
-      gradient: "from-red-500 to-pink-600",
-      details: {
-        year: "8th Century",
-        location: "Lanciano, Italy",
-        scientificTests: "Multiple DNA tests, blood type analysis, and histological studies",
-        significance: "First documented Eucharistic miracle with extensive scientific verification",
-        prayer: "Lord, help us to believe in Your real presence in the Eucharist, just as You revealed Yourself to the faithful in Lanciano.",
-        facts: [
-          "The host became human heart muscle tissue",
-          "The wine became human blood of type AB",
-          "The blood remained fresh for over 1200 years",
-          "Scientific tests were conducted in 1970-1971 and 1981"
-        ]
-      }
-    },
-    {
-      id: 2,
-      title: "Miracle of Buenos Aires",
-      description: "A host that turned into human heart tissue, showing signs of severe trauma and inflammation.",
-      icon: BookOpen,
-      gradient: "from-blue-500 to-indigo-600",
-      details: {
-        year: "1996",
-        location: "Buenos Aires, Argentina",
-        scientificTests: "DNA analysis, histological examination, and medical imaging",
-        significance: "Modern miracle showing the suffering of Christ in the Eucharist",
-        prayer: "Jesus, help us to understand the depth of Your love and sacrifice through this miraculous sign.",
-        facts: [
-          "The host became human heart tissue with signs of severe trauma",
-          "Blood type was identified as AB (same as Lanciano)",
-          "Tissue showed signs of inflammation and suffering",
-          "Occurred during Mass in a parish church"
-        ]
-      }
-    },
-    {
-      id: 3,
-      title: "Miracle of Sokolka",
-      description: "A host that transformed into human heart muscle tissue, scientifically verified by multiple experts.",
-      icon: Users,
-      gradient: "from-green-500 to-emerald-600",
-      details: {
-        year: "2008",
-        location: "Sokolka, Poland",
-        scientificTests: "Multiple independent scientific examinations and DNA analysis",
-        significance: "Recent miracle confirming the ongoing reality of Eucharistic miracles",
-        prayer: "Holy Spirit, strengthen our faith in the real presence of Christ in the Eucharist.",
-        facts: [
-          "The host became human heart muscle tissue",
-          "Blood type was identified as AB (consistent with other miracles)",
-          "Multiple independent scientists confirmed the findings",
-          "The miracle occurred during a regular Mass"
-        ]
-      }
-    }
-  ]
 
   const handleExplore = (miracleId: number) => {
     setSelectedMiracle(selectedMiracle === miracleId ? null : miracleId)
@@ -99,14 +43,6 @@ function CardGrid() {
 
   const handleLearnMore = (miracleId: number) => {
     setShowLearnMoreModal(miracleId)
-  }
-
-  const handleToggleFavorite = (miracleId: number) => {
-    setFavoriteMiracles(prev => 
-      prev.includes(miracleId) 
-        ? prev.filter(id => id !== miracleId)
-        : [...prev, miracleId]
-    )
   }
 
   const handleShare = async (miracle: any) => {
@@ -287,7 +223,7 @@ function CardGrid() {
                           Key Facts
                         </h4>
                         <ul className="space-y-2">
-                          {miracle.details.facts.map((fact, index) => (
+                          {miracle.details.facts.map((fact: string, index: number) => (
                             <li key={index} className="flex items-start">
                               <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
                               <span className="text-gray-700 text-sm">{fact}</span>
@@ -308,7 +244,7 @@ function CardGrid() {
                       Learn More
                     </Button>
                     <Button 
-                      onClick={() => handleToggleFavorite(miracle.id)}
+                      onClick={() => onToggleFavorite(miracle.id)}
                       variant="outline" 
                       className={`rounded-xl transition-all duration-300 ${
                         favoriteMiracles.includes(miracle.id) 
@@ -678,6 +614,88 @@ function JourneyTabs() {
 
 // Main Saints Page Component
 export default function SaintsPage() {
+  const [favoriteMiracles, setFavoriteMiracles] = useState<number[]>([])
+
+  const eucharisticMiracles = [
+    {
+      id: 1,
+      title: "Miracle of Lanciano",
+      description: "The first and most scientifically studied Eucharistic miracle where bread and wine became actual flesh and blood.",
+      icon: Heart,
+      gradient: "from-red-500 to-pink-600",
+      details: {
+        year: "8th Century",
+        location: "Lanciano, Italy",
+        scientificTests: "Multiple DNA tests, blood type analysis, and histological studies",
+        significance: "First documented Eucharistic miracle with extensive scientific verification",
+        prayer: "Lord, help us to believe in Your real presence in the Eucharist, just as You revealed Yourself to the faithful in Lanciano.",
+        facts: [
+          "The host became human heart muscle tissue",
+          "The wine became human blood of type AB",
+          "The blood remained fresh for over 1200 years",
+          "Scientific tests were conducted in 1970-1971 and 1981"
+        ]
+      }
+    },
+    {
+      id: 2,
+      title: "Miracle of Buenos Aires",
+      description: "A host that turned into human heart tissue, showing signs of severe trauma and inflammation.",
+      icon: BookOpen,
+      gradient: "from-blue-500 to-indigo-600",
+      details: {
+        year: "1996",
+        location: "Buenos Aires, Argentina",
+        scientificTests: "DNA analysis, histological examination, and medical imaging",
+        significance: "Modern miracle showing the suffering of Christ in the Eucharist",
+        prayer: "Jesus, help us to understand the depth of Your love and sacrifice through this miraculous sign.",
+        facts: [
+          "The host became human heart tissue with signs of severe trauma",
+          "Blood type was identified as AB (same as Lanciano)",
+          "Tissue showed signs of inflammation and suffering",
+          "Occurred during Mass in a parish church"
+        ]
+      }
+    },
+    {
+      id: 3,
+      title: "Miracle of Sokolka",
+      description: "A host that transformed into human heart muscle tissue, scientifically verified by multiple experts.",
+      icon: Users,
+      gradient: "from-green-500 to-emerald-600",
+      details: {
+        year: "2008",
+        location: "Sokolka, Poland",
+        scientificTests: "Multiple independent scientific examinations and DNA analysis",
+        significance: "Recent miracle confirming the ongoing reality of Eucharistic miracles",
+        prayer: "Holy Spirit, strengthen our faith in the real presence of Christ in the Eucharist.",
+        facts: [
+          "The host became human heart muscle tissue",
+          "Blood type was identified as AB (consistent with other miracles)",
+          "Multiple independent scientists confirmed the findings",
+          "The miracle occurred during a regular Mass"
+        ]
+      }
+    }
+  ]
+
+  const handleToggleFavorite = (miracleId: number) => {
+    setFavoriteMiracles(prev => 
+      prev.includes(miracleId) 
+        ? prev.filter(id => id !== miracleId)
+        : [...prev, miracleId]
+    )
+  }
+
+  const handleExplore = (miracleId: number) => {
+    // This will be handled by the CardGrid component
+    // For now, we'll scroll to the Carlo Acutis tab
+    const carloTab = document.querySelector('[data-state="active"]')
+    if (carloTab) {
+      carloTab.scrollIntoView({ behavior: 'smooth' })
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
       {/* Header Section */}
@@ -698,6 +716,71 @@ export default function SaintsPage() {
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-12">
+        {/* My Favorites Section */}
+        {favoriteMiracles.length > 0 && (
+          <Card className="mb-8 bg-gradient-to-r from-yellow-50 to-orange-50 border-0 rounded-2xl shadow-lg">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-2xl font-bold text-gray-900 flex items-center">
+                  <Heart className="w-6 h-6 mr-3 text-red-500 fill-current" />
+                  My Favorites
+                </h2>
+                <span className="bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm font-semibold">
+                  {favoriteMiracles.length} {favoriteMiracles.length === 1 ? 'Miracle' : 'Miracles'}
+                </span>
+              </div>
+              <p className="text-gray-600 mb-4">
+                Your saved Eucharistic miracles for easy access and reflection.
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {favoriteMiracles.map((miracleId) => {
+                  const miracle = eucharisticMiracles.find(m => m.id === miracleId)
+                  if (!miracle) return null
+                  
+                  const IconComponent = miracle.icon
+                  return (
+                    <Card key={miracleId} className="bg-white border-0 rounded-xl shadow-md hover:shadow-lg transition-all duration-300">
+                      <CardContent className="p-4">
+                        <div className="flex items-start space-x-3">
+                          <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${miracle.gradient} flex items-center justify-center flex-shrink-0`}>
+                            <IconComponent className="w-5 h-5 text-white" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-semibold text-gray-900 text-sm truncate">
+                              {miracle.title}
+                            </h3>
+                            <p className="text-gray-600 text-xs mt-1 line-clamp-2">
+                              {miracle.description}
+                            </p>
+                            <div className="flex items-center justify-between mt-3">
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => handleExplore(miracleId)}
+                                className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 text-xs px-2 py-1"
+                              >
+                                View Details
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => handleToggleFavorite(miracleId)}
+                                className="text-red-600 hover:text-red-700 hover:bg-red-50 text-xs px-2 py-1"
+                              >
+                                <Heart className="w-3 h-3 fill-current" />
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         <Tabs defaultValue="carlo" className="w-full">
           <TabsList className="grid w-full grid-cols-3 bg-white rounded-2xl shadow-lg p-2 mb-8">
             <TabsTrigger 
@@ -740,7 +823,11 @@ export default function SaintsPage() {
                 {/* TODO: Connect to Supabase for Carlo Acutis content and user progress tracking */}
               </CardContent>
             </Card>
-            <CardGrid />
+            <CardGrid 
+              eucharisticMiracles={eucharisticMiracles}
+              favoriteMiracles={favoriteMiracles}
+              onToggleFavorite={handleToggleFavorite}
+            />
           </TabsContent>
 
           {/* Pier Giorgio Frassati Tab */}
