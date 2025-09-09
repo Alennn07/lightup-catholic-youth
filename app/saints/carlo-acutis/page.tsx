@@ -28,7 +28,74 @@ import Link from "next/link"
 export default function CarloAcutisPage() {
   const [activeTech, setActiveTech] = useState(0)
   const [showSuccessMessage, setShowSuccessMessage] = useState(false)
-  const [selectedMiracle, setSelectedMiracle] = useState(null)
+  const [selectedMiracle, setSelectedMiracle] = useState<{
+    title: string;
+    description: string;
+    year: string;
+    emoji: string;
+    source: string;
+    fullStory: string;
+  } | null>(null)
+  const [favoriteMiracles, setFavoriteMiracles] = useState<number[]>([])
+
+  const handleToggleFavorite = (miracleIndex: number) => {
+    setFavoriteMiracles(prev => 
+      prev.includes(miracleIndex) 
+        ? prev.filter(id => id !== miracleIndex)
+        : [...prev, miracleIndex]
+    )
+  }
+
+  const miracles = [
+    {
+      title: "💻 Tech Career Miracle",
+      description: "A young programmer struggling to find work prayed to Carlo and got hired at their dream tech company!",
+      year: "2022",
+      emoji: "💻",
+      source: "Catholic News Agency",
+      fullStory: "A 20-year-old computer science graduate had been job hunting for 6 months with no success. After learning about Carlo Acutis and praying to him for help with their career, they received an unexpected call from a major tech company. The interview went perfectly, and they were offered their dream position working on Catholic educational software. The timing was so remarkable that they now include Carlo's story in their presentations about faith and technology."
+    },
+    {
+      title: "📱 Digital Evangelization",
+      description: "Someone's social media post about faith went viral after praying to Carlo for help spreading the Gospel!",
+      year: "2021",
+      emoji: "📱",
+      source: "Vatican News",
+      fullStory: "A Catholic youth minister was struggling to reach young people through social media. After praying to Carlo Acutis for help with digital evangelization, they created a post about Carlo's life that unexpectedly went viral, reaching over 2 million people. The post led to hundreds of young people returning to the Church and starting their own faith-based social media accounts. The minister now runs a successful digital ministry inspired by Carlo's example."
+    },
+    {
+      title: "🎓 Academic Success",
+      description: "A student failing computer science prayed to Carlo and aced their final exam!",
+      year: "2020",
+      emoji: "📚",
+      source: "Personal testimony",
+      fullStory: "A university student was failing their computer science course and facing academic probation. After discovering Carlo Acutis and praying to him for help with their studies, the student not only passed the course but achieved the highest grade in the class. The student later created a website documenting Eucharistic miracles, inspired by Carlo's work. They credit Carlo's intercession for both academic success and a renewed commitment to using technology for God's glory."
+    },
+    {
+      title: "❤️ Healing from Illness",
+      description: "A teenager with a serious illness was completely healed after praying to Carlo!",
+      year: "2019",
+      emoji: "💚",
+      source: "Official Vatican documentation",
+      fullStory: "A 15-year-old boy was diagnosed with a rare autoimmune disease that doctors said was incurable. His family began praying to Carlo Acutis, asking for his intercession. After several months of prayer and medical treatment, the boy's condition completely reversed. Medical tests showed no trace of the disease, and doctors were unable to explain the sudden recovery. This healing was officially recognized by the Vatican and contributed to Carlo's beatification process."
+    },
+    {
+      title: "🌐 Website Success",
+      description: "Someone's Catholic website got thousands of visitors after praying to Carlo for help!",
+      year: "2023",
+      emoji: "🌐",
+      source: "Catholic Herald",
+      fullStory: "A young Catholic developer created a website about the Eucharist but was struggling to get visitors. After praying to Carlo Acutis for help with their digital ministry, the website suddenly gained thousands of daily visitors. The site now helps thousands of people learn about the Catholic faith and has led to numerous conversions. The developer attributes the success to Carlo's intercession and now volunteers to help other Catholic organizations with their digital presence."
+    },
+    {
+      title: "🙏 Faith Conversion",
+      description: "A young person struggling with doubt prayed to Carlo and experienced a powerful return to faith!",
+      year: "2022",
+      emoji: "✨",
+      source: "Catholic World Report",
+      fullStory: "A 16-year-old had completely lost their faith and was living a life far from God. After learning about Carlo Acutis through a friend, they began praying to him for help with their spiritual struggles. Within weeks, they experienced a profound conversion, returned to the Church, and now leads a youth group focused on using technology to spread the Gospel. They credit Carlo's intercession for their complete spiritual transformation and now share his story with other young people."
+    }
+  ]
 
   const techAdventures = [
     {
@@ -410,56 +477,7 @@ export default function CarloAcutisPage() {
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-              {
-                title: "💻 Tech Career Miracle",
-                description: "A young programmer struggling to find work prayed to Carlo and got hired at their dream tech company!",
-                year: "2022",
-                emoji: "💻",
-                source: "Catholic News Agency",
-                fullStory: "A 20-year-old computer science graduate had been job hunting for 6 months with no success. After learning about Carlo Acutis and praying to him for help with their career, they received an unexpected call from a major tech company. The interview went perfectly, and they were offered their dream position working on Catholic educational software. The timing was so remarkable that they now include Carlo's story in their presentations about faith and technology."
-              },
-              {
-                title: "📱 Digital Evangelization",
-                description: "Someone's social media post about faith went viral after praying to Carlo for help spreading the Gospel!",
-                year: "2021",
-                emoji: "📱",
-                source: "Vatican News",
-                fullStory: "A Catholic youth minister was struggling to reach young people through social media. After praying to Carlo Acutis for help with digital evangelization, they created a post about Carlo's life that unexpectedly went viral, reaching over 2 million people. The post led to hundreds of young people returning to the Church and starting their own faith-based social media accounts. The minister now runs a successful digital ministry inspired by Carlo's example."
-              },
-              {
-                title: "🎓 Academic Success",
-                description: "A student failing computer science prayed to Carlo and aced their final exam!",
-                year: "2020",
-                emoji: "📚",
-                source: "Personal testimony",
-                fullStory: "A university student was failing their computer science course and facing academic probation. After discovering Carlo Acutis and praying to him for help with their studies, the student not only passed the course but achieved the highest grade in the class. The student later created a website documenting Eucharistic miracles, inspired by Carlo's work. They credit Carlo's intercession for both academic success and a renewed commitment to using technology for God's glory."
-              },
-              {
-                title: "❤️ Healing from Illness",
-                description: "A teenager with a serious illness was completely healed after praying to Carlo!",
-                year: "2019",
-                emoji: "💚",
-                source: "Official Vatican documentation",
-                fullStory: "A 15-year-old boy was diagnosed with a rare autoimmune disease that doctors said was incurable. His family began praying to Carlo Acutis, asking for his intercession. After several months of prayer and medical treatment, the boy's condition completely reversed. Medical tests showed no trace of the disease, and doctors were unable to explain the sudden recovery. This healing was officially recognized by the Vatican and contributed to Carlo's beatification process."
-              },
-              {
-                title: "🌐 Website Success",
-                description: "Someone's Catholic website got thousands of visitors after praying to Carlo for help!",
-                year: "2023",
-                emoji: "🌐",
-                source: "Catholic Herald",
-                fullStory: "A young Catholic developer created a website about the Eucharist but was struggling to get visitors. After praying to Carlo Acutis for help with their digital ministry, the website suddenly gained thousands of daily visitors. The site now helps thousands of people learn about the Catholic faith and has led to numerous conversions. The developer attributes the success to Carlo's intercession and now volunteers to help other Catholic organizations with their digital presence."
-              },
-              {
-                title: "🙏 Faith Conversion",
-                description: "A young person struggling with doubt prayed to Carlo and experienced a powerful return to faith!",
-                year: "2022",
-                emoji: "✨",
-                source: "Catholic World Report",
-                fullStory: "A 16-year-old had completely lost their faith and was living a life far from God. After learning about Carlo Acutis through a friend, they began praying to him for help with their spiritual struggles. Within weeks, they experienced a profound conversion, returned to the Church, and now leads a youth group focused on using technology to spread the Gospel. They credit Carlo's intercession for their complete spiritual transformation and now share his story with other young people."
-              }
-            ].map((miracle, index) => (
+            {miracles.map((miracle, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, y: 20 }}
@@ -519,6 +537,77 @@ export default function CarloAcutisPage() {
           </motion.div>
         </div>
       </div>
+
+      {/* My Favorites Section */}
+      {favoriteMiracles.length > 0 && (
+        <section className="py-16 bg-gradient-to-br from-blue-50 to-indigo-50">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-center mb-12"
+            >
+              <h2 className="text-4xl font-bold text-gray-900 mb-4">
+                ❤️ My Favorite Miracles
+              </h2>
+              <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+                Your personal collection of Carlo's miraculous intercessions
+              </p>
+            </motion.div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {favoriteMiracles.map((miracleIndex) => {
+                const miracle = miracles[miracleIndex];
+                return (
+                  <motion.div
+                    key={miracleIndex}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    whileHover={{ scale: 1.05 }}
+                    className="transform transition-all duration-300"
+                  >
+                    <Card className="bg-white border-0 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 h-full">
+                      <CardContent className="p-6">
+                        <div className="text-4xl mb-4 text-center">{miracle.emoji}</div>
+                        <h3 className="text-lg font-bold text-gray-900 mb-3 text-center">
+                          {miracle.title}
+                        </h3>
+                        <p className="text-gray-600 text-sm mb-4 text-center">
+                          {miracle.description}
+                        </p>
+                        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-3 text-center mb-4">
+                          <p className="text-blue-700 font-semibold text-xs">
+                            Year: {miracle.year} • Source: {miracle.source}
+                          </p>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            className="flex-1 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white text-xs"
+                            onClick={() => setSelectedMiracle(miracle)}
+                          >
+                            📖 Read Full Story
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="border-red-500 text-red-600 hover:bg-red-50 text-xs"
+                            onClick={() => handleToggleFavorite(miracleIndex)}
+                          >
+                            ❌ Remove
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* FAQ Section */}
       <div className="container mx-auto px-4 py-16">
@@ -833,15 +922,16 @@ export default function CarloAcutisPage() {
 
               {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row gap-4 mt-8">
-                <Button 
+                <Button
                   className="flex-1 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white"
                   onClick={() => {
-                    // Add to favorites functionality
-                    alert('Added to favorites!');
+                    const miracleIndex = miracles.findIndex(m => m.title === selectedMiracle.title);
+                    handleToggleFavorite(miracleIndex);
+                    setSelectedMiracle(null);
                   }}
                 >
                   <Heart className="w-4 h-4 mr-2" />
-                  Add to Favorites
+                  {favoriteMiracles.includes(miracles.findIndex(m => m.title === selectedMiracle.title)) ? 'Remove from Favorites' : 'Add to Favorites'}
                 </Button>
                 <Button 
                   variant="outline"
