@@ -333,11 +333,11 @@ export default function PierGiorgioPage() {
             <p className="text-xl text-green-100 mb-8">
               Start your own "Verso l'alto" journey today!
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Link href="/saints">
                 <Button 
                   size="lg"
-                  className="bg-white text-green-600 hover:bg-green-50 font-semibold px-8 py-3 rounded-full transition-all duration-300 transform hover:scale-105"
+                  className="bg-white text-green-600 hover:bg-green-50 font-semibold px-8 py-3 rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg"
                 >
                   <Mountain className="w-5 h-5 mr-2" />
                   Back to Saints
@@ -345,8 +345,7 @@ export default function PierGiorgioPage() {
               </Link>
               <Button 
                 size="lg"
-                variant="outline"
-                className="border-white text-white hover:bg-white hover:text-green-600 font-semibold px-8 py-3 rounded-full transition-all duration-300 transform hover:scale-105"
+                className="bg-white/20 backdrop-blur-sm border-2 border-white text-white hover:bg-white hover:text-green-600 font-semibold px-8 py-3 rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg"
               >
                 <Heart className="w-5 h-5 mr-2" />
                 Start Your Journey
