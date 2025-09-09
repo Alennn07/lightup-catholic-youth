@@ -136,6 +136,52 @@ function CardGrid() {
     }
   }
 
+  const handleReadDocumentation = (miracle: any) => {
+    // TODO: Connect to Supabase for documentation links
+    const documentationLinks = {
+      1: "https://www.miracolieucaristici.org/en/Liste/list.html", // Lanciano official site
+      2: "https://www.catholicnewsagency.com/news/argentina_eucharistic_miracle_confirmed_by_science", // Buenos Aires
+      3: "https://www.catholicnewsagency.com/news/polish_eucharistic_miracle_confirmed_by_science" // Sokolka
+    }
+    
+    const link = documentationLinks[miracle.id as keyof typeof documentationLinks]
+    if (link) {
+      window.open(link, '_blank', 'noopener,noreferrer')
+    } else {
+      alert('Documentation link not available. Please check back later.')
+    }
+  }
+
+  const handleJoinPrayerGroup = (miracle: any) => {
+    // TODO: Connect to Supabase for prayer group management
+    const prayerGroupData = {
+      miracleId: miracle.id,
+      miracleName: miracle.title,
+      groupName: `${miracle.title} Prayer Group`,
+      description: `Join our prayer group dedicated to ${miracle.title}. We meet weekly to pray and reflect on this amazing Eucharistic miracle.`,
+      members: Math.floor(Math.random() * 50) + 10, // Random member count for demo
+      nextMeeting: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString() // Next week
+    }
+    
+    // For now, show a modal with prayer group details
+    alert(`🙏 ${prayerGroupData.groupName}\n\n${prayerGroupData.description}\n\n👥 Members: ${prayerGroupData.members}\n📅 Next Meeting: ${prayerGroupData.nextMeeting}\n\nThis feature will be fully integrated with the youth groups system!`)
+  }
+
+  const handleDiscussCommunity = (miracle: any) => {
+    // TODO: Connect to Supabase for community discussions
+    const discussionData = {
+      miracleId: miracle.id,
+      miracleName: miracle.title,
+      topic: `Discussion: ${miracle.title}`,
+      description: `Share your thoughts, questions, and experiences related to ${miracle.title}. Connect with other believers who are inspired by this miracle.`,
+      recentPosts: Math.floor(Math.random() * 20) + 5, // Random post count for demo
+      lastActivity: new Date(Date.now() - Math.random() * 24 * 60 * 60 * 1000).toLocaleString() // Random time within last 24h
+    }
+    
+    // For now, show a modal with community discussion details
+    alert(`💬 ${discussionData.topic}\n\n${discussionData.description}\n\n📝 Recent Posts: ${discussionData.recentPosts}\n🕒 Last Activity: ${discussionData.lastActivity}\n\nThis feature will be fully integrated with the community discussion system!`)
+  }
+
   return (
     <div className="space-y-8 mt-8">
       {/* Cards Grid */}
@@ -367,15 +413,26 @@ function CardGrid() {
                     </div>
 
                     <div className="flex flex-wrap gap-3 pt-4">
-                      <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl">
+                      <Button 
+                        onClick={() => handleReadDocumentation(miracle)}
+                        className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl"
+                      >
                         <BookOpen className="w-4 h-4 mr-2" />
                         Read Full Documentation
                       </Button>
-                      <Button variant="outline" className="rounded-xl">
+                      <Button 
+                        onClick={() => handleJoinPrayerGroup(miracle)}
+                        variant="outline" 
+                        className="rounded-xl hover:bg-red-50 hover:border-red-300 hover:text-red-600"
+                      >
                         <Heart className="w-4 h-4 mr-2" />
                         Join Prayer Group
                       </Button>
-                      <Button variant="outline" className="rounded-xl">
+                      <Button 
+                        onClick={() => handleDiscussCommunity(miracle)}
+                        variant="outline" 
+                        className="rounded-xl hover:bg-blue-50 hover:border-blue-300 hover:text-blue-600"
+                      >
                         <Users className="w-4 h-4 mr-2" />
                         Discuss with Community
                       </Button>
