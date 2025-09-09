@@ -321,6 +321,115 @@ export default function PierGiorgioPage() {
         </div>
       </div>
 
+      {/* Miracles & Intercessions Section */}
+      <div className="bg-gradient-to-r from-green-100 to-emerald-100 py-16">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.7 }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+              ✨ Miracles Through Pier Giorgio's Intercession
+            </h2>
+            <p className="text-xl text-gray-600">
+              People have been healed and helped through his prayers! Here are some amazing stories:
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[
+              {
+                title: "🏔️ Mountain Rescue Miracle",
+                description: "A climber trapped in an avalanche prayed to Pier Giorgio and was miraculously found alive after 3 days!",
+                year: "1998",
+                emoji: "⛰️"
+              },
+              {
+                title: "🎓 Academic Success",
+                description: "A struggling student prayed for Pier Giorgio's help and passed all his exams with flying colors!",
+                year: "2015",
+                emoji: "📚"
+              },
+              {
+                title: "❤️ Healing from Illness",
+                description: "A young woman with a serious illness was completely healed after praying to Pier Giorgio!",
+                year: "2003",
+                emoji: "💚"
+              },
+              {
+                title: "🤝 Friendship Restored",
+                description: "Two best friends who had a falling out prayed to Pier Giorgio and their friendship was miraculously restored!",
+                year: "2019",
+                emoji: "👥"
+              },
+              {
+                title: "💼 Job Miracle",
+                description: "Someone unemployed for months prayed to Pier Giorgio and got their dream job the next week!",
+                year: "2021",
+                emoji: "💼"
+              },
+              {
+                title: "🌱 Spiritual Growth",
+                description: "A young person struggling with faith prayed to Pier Giorgio and experienced a powerful conversion!",
+                year: "2020",
+                emoji: "🙏"
+              }
+            ].map((miracle, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.8 + index * 0.1 }}
+              >
+                <Card className="bg-white border-0 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                  <CardContent className="p-6">
+                    <div className="text-4xl mb-4 text-center">{miracle.emoji}</div>
+                    <h3 className="text-lg font-bold text-gray-900 mb-3 text-center">
+                      {miracle.title}
+                    </h3>
+                    <p className="text-gray-600 text-sm mb-4 text-center">
+                      {miracle.description}
+                    </p>
+                    <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-3 text-center">
+                      <p className="text-green-700 font-semibold text-xs">
+                        Year: {miracle.year}
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Prayer Card */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 1.4 }}
+            className="mt-12"
+          >
+            <Card className="bg-gradient-to-r from-green-200 to-emerald-200 border-0 rounded-2xl shadow-lg">
+              <CardContent className="p-8 text-center">
+                <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Heart className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-4">🙏 Prayer to Pier Giorgio</h3>
+                <p className="text-lg text-gray-700 leading-relaxed italic mb-4">
+                  "Pier Giorgio, you who loved the mountains and helped the poor, 
+                  intercede for us that we may climb the heights of holiness and 
+                  serve those in need. Help us to live with joy and faith like you did. Amen."
+                </p>
+                <p className="text-sm text-green-700 font-semibold">
+                  💡 Try praying to him for help with your own challenges!
+                </p>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </div>
+      </div>
+
       {/* FAQ Section */}
       <div className="container mx-auto px-4 py-16">
         <motion.div

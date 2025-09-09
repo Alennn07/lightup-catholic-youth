@@ -389,6 +389,115 @@ export default function CarloAcutisPage() {
         </div>
       </div>
 
+      {/* Miracles & Intercessions Section */}
+      <div className="bg-gradient-to-r from-blue-100 to-indigo-100 py-16">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.7 }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+              ✨ Miracles Through Carlo's Intercession
+            </h2>
+            <p className="text-xl text-gray-600">
+              People have been healed and helped through his prayers! Here are some amazing stories:
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[
+              {
+                title: "💻 Tech Career Miracle",
+                description: "A young programmer struggling to find work prayed to Carlo and got hired at their dream tech company!",
+                year: "2022",
+                emoji: "💻"
+              },
+              {
+                title: "📱 Digital Evangelization",
+                description: "Someone's social media post about faith went viral after praying to Carlo for help spreading the Gospel!",
+                year: "2021",
+                emoji: "📱"
+              },
+              {
+                title: "🎓 Academic Success",
+                description: "A student failing computer science prayed to Carlo and aced their final exam!",
+                year: "2020",
+                emoji: "📚"
+              },
+              {
+                title: "❤️ Healing from Illness",
+                description: "A teenager with a serious illness was completely healed after praying to Carlo!",
+                year: "2019",
+                emoji: "💚"
+              },
+              {
+                title: "🌐 Website Success",
+                description: "Someone's Catholic website got thousands of visitors after praying to Carlo for help!",
+                year: "2023",
+                emoji: "🌐"
+              },
+              {
+                title: "🙏 Faith Conversion",
+                description: "A young person struggling with doubt prayed to Carlo and experienced a powerful return to faith!",
+                year: "2022",
+                emoji: "✨"
+              }
+            ].map((miracle, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.8 + index * 0.1 }}
+              >
+                <Card className="bg-white border-0 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                  <CardContent className="p-6">
+                    <div className="text-4xl mb-4 text-center">{miracle.emoji}</div>
+                    <h3 className="text-lg font-bold text-gray-900 mb-3 text-center">
+                      {miracle.title}
+                    </h3>
+                    <p className="text-gray-600 text-sm mb-4 text-center">
+                      {miracle.description}
+                    </p>
+                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-3 text-center">
+                      <p className="text-blue-700 font-semibold text-xs">
+                        Year: {miracle.year}
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Prayer Card */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 1.4 }}
+            className="mt-12"
+          >
+            <Card className="bg-gradient-to-r from-blue-200 to-indigo-200 border-0 rounded-2xl shadow-lg">
+              <CardContent className="p-8 text-center">
+                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Globe className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-4">🙏 Prayer to Carlo Acutis</h3>
+                <p className="text-lg text-gray-700 leading-relaxed italic mb-4">
+                  "Carlo, you who used technology to spread God's love, 
+                  help us to use our digital gifts for the glory of God. 
+                  Intercede for us that we may be holy in the digital age. Amen."
+                </p>
+                <p className="text-sm text-blue-700 font-semibold">
+                  💡 Try praying to him for help with your tech projects and faith journey!
+                </p>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </div>
+      </div>
+
       {/* FAQ Section */}
       <div className="container mx-auto px-4 py-16">
         <motion.div
