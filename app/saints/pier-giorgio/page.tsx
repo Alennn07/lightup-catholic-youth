@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -33,6 +33,19 @@ export default function PierGiorgioPage() {
     fullStory: string;
   } | null>(null)
   const [favoriteMiracles, setFavoriteMiracles] = useState<number[]>([])
+
+  // Load favorites from localStorage on component mount
+  useEffect(() => {
+    const savedFavorites = localStorage.getItem('pier-giorgio-favorites')
+    if (savedFavorites) {
+      setFavoriteMiracles(JSON.parse(savedFavorites))
+    }
+  }, [])
+
+  // Save favorites to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('pier-giorgio-favorites', JSON.stringify(favoriteMiracles))
+  }, [favoriteMiracles])
 
   const handleToggleFavorite = (miracleIndex: number) => {
     setFavoriteMiracles(prev => 
