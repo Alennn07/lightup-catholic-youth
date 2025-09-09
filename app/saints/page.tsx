@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import Image from "next/image"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -536,6 +536,19 @@ export default function SaintsPage() {
     { id: 4, name: "Fitness", description: "Take care of your body", completed: false },
     { id: 5, name: "Friendship", description: "Build meaningful relationships", completed: false }
   ])
+
+  // Load goals from localStorage on component mount
+  useEffect(() => {
+    const savedGoals = localStorage.getItem('saints-goals')
+    if (savedGoals) {
+      setGoals(JSON.parse(savedGoals))
+    }
+  }, [])
+
+  // Save goals to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('saints-goals', JSON.stringify(goals))
+  }, [goals])
 
   const eucharisticMiracles = [
     {
