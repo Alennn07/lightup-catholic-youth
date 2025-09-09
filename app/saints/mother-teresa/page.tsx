@@ -264,93 +264,13 @@ export default function MotherTeresaPage() {
         </div>
       </div>
 
-      {/* Eucharistic Miracles Section */}
-      <div className="bg-gradient-to-r from-yellow-100 to-orange-100 py-16">
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="text-center mb-12"
-          >
-            <h2 className="text-4xl font-bold text-gray-900 mb-4 flex items-center justify-center">
-              <Sparkles className="w-8 h-8 mr-3 text-orange-600" />
-              Eucharistic Miracles Mother Teresa Documented
-            </h2>
-            <p className="text-xl text-gray-600">
-              Mother Teresa witnessed and documented these incredible miracles!
-            </p>
-          </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-              {
-                title: "Healing Miracle",
-                description: "A dying man was completely healed after receiving the Eucharist!",
-                year: "1952",
-                icon: "🤲"
-              },
-              {
-                title: "Conversion Miracle",
-                description: "A hardened criminal converted after witnessing a Eucharistic miracle!",
-                year: "1965",
-                icon: "💝"
-              },
-              {
-                title: "Protection Miracle",
-                description: "A family was protected from a natural disaster through the Eucharist!",
-                year: "1978",
-                icon: "🛡️"
-              },
-              {
-                title: "Healing Miracle",
-                description: "A child with terminal illness was healed through Eucharistic adoration!",
-                year: "1983",
-                icon: "✨"
-              },
-              {
-                title: "Conversion Miracle",
-                description: "An atheist scientist converted after witnessing a Eucharistic miracle!",
-                year: "1991",
-                icon: "🌟"
-              },
-              {
-                title: "Protection Miracle",
-                description: "A mission was protected from violence through the power of the Eucharist!",
-                year: "1995",
-                icon: "💪"
-              }
-            ].map((miracle, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.5 + index * 0.1 }}
-              >
-                <Card className="bg-white border-0 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
-                  <CardContent className="p-6 text-center">
-                    <div className="text-4xl mb-4">{miracle.icon}</div>
-                    <h3 className="text-lg font-bold text-gray-900 mb-3">{miracle.title}</h3>
-                    <p className="text-gray-600 text-sm mb-4">{miracle.description}</p>
-                    <div className="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg p-3">
-                      <p className="text-yellow-700 font-semibold text-xs">
-                        Year: {miracle.year} • Source: Missionaries of Charity
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </div>
 
       {/* Wisdom Section */}
       <div className="container mx-auto px-4 py-16">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.6 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
           className="text-center mb-12"
         >
           <h2 className="text-4xl font-bold text-gray-900 mb-4 flex items-center justify-center">
@@ -368,7 +288,7 @@ export default function MotherTeresaPage() {
               key={index}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.7 + index * 0.1 }}
+              transition={{ duration: 0.6, delay: 0.5 + index * 0.1 }}
             >
               <Card className="bg-white border-0 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 h-full">
                 <CardContent className="p-6">
@@ -393,7 +313,7 @@ export default function MotherTeresaPage() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.8 }}
+            transition={{ duration: 0.6, delay: 0.6 }}
             className="text-center mb-12"
           >
             <h2 className="text-4xl font-bold text-gray-900 mb-4 flex items-center justify-center">
@@ -415,7 +335,7 @@ export default function MotherTeresaPage() {
                 <motion.div
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.6, delay: 0.9 }}
+                  transition={{ duration: 0.6, delay: 0.7 }}
                   className="relative flex items-center"
                 >
                   <div className="w-16 h-16 bg-yellow-500 rounded-full flex items-center justify-center text-white font-bold text-lg z-10">
@@ -437,7 +357,7 @@ export default function MotherTeresaPage() {
                 <motion.div
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.6, delay: 1.0 }}
+                  transition={{ duration: 0.6, delay: 0.8 }}
                   className="relative flex items-center"
                 >
                   <div className="w-16 h-16 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold text-lg z-10">
@@ -459,7 +379,7 @@ export default function MotherTeresaPage() {
                 <motion.div
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.6, delay: 1.1 }}
+                  transition={{ duration: 0.6, delay: 0.9 }}
                   className="relative flex items-center"
                 >
                   <div className="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center text-white font-bold text-lg z-10">
@@ -481,7 +401,7 @@ export default function MotherTeresaPage() {
                 <motion.div
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.6, delay: 1.2 }}
+                  transition={{ duration: 0.6, delay: 1.0 }}
                   className="relative flex items-center"
                 >
                   <div className="w-16 h-16 bg-purple-500 rounded-full flex items-center justify-center text-white font-bold text-lg z-10">
@@ -511,7 +431,7 @@ export default function MotherTeresaPage() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 1.3 }}
+            transition={{ duration: 0.6, delay: 1.1 }}
             className="text-center mb-12"
           >
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
@@ -528,7 +448,7 @@ export default function MotherTeresaPage() {
                 key={index}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 1.4 + index * 0.1 }}
+                transition={{ duration: 0.6, delay: 1.2 + index * 0.1 }}
               >
                 <Card className="bg-white border-0 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
                   <CardContent className="p-6">
@@ -564,7 +484,7 @@ export default function MotherTeresaPage() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 1.5 }}
+          transition={{ duration: 0.6, delay: 1.3 }}
           className="text-center mb-12"
         >
           <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-0 rounded-2xl shadow-lg max-w-4xl mx-auto">
@@ -793,7 +713,7 @@ export default function MotherTeresaPage() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 1.7 }}
+            transition={{ duration: 0.6, delay: 1.4 }}
             className="text-center mb-12"
           >
             <Card className="bg-gradient-to-br from-blue-50 to-purple-50 border-0 rounded-2xl shadow-lg max-w-4xl mx-auto">
@@ -820,7 +740,7 @@ export default function MotherTeresaPage() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 1.8 }}
+            transition={{ duration: 0.6, delay: 1.5 }}
           >
             <div className="flex items-center justify-center mb-6">
               <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mr-4">
