@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { motion } from "framer-motion"
+import Image from "next/image"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -814,12 +815,16 @@ export default function SaintsPage() {
                 {/* Photo Section */}
                 <div className="relative h-64 lg:h-auto bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center overflow-hidden">
                   {/* Background Photo - Carlo Acutis */}
-                  <div 
-                    className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-                    style={{
-                      backgroundImage: `url('https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Carlo_Acutis_2019.jpg/800px-Carlo_Acutis_2019.jpg')`
+                  <Image
+                    src="https://www.catholicnewsagency.com/images/2020/10/12/1/carlo-acutis.jpg"
+                    alt="Carlo Acutis - Patron of the Internet"
+                    fill
+                    className="object-cover"
+                    onError={(e) => {
+                      // Fallback to gradient if image fails to load
+                      e.currentTarget.style.display = 'none'
                     }}
-                  ></div>
+                  />
                   <div className="absolute inset-0 bg-gradient-to-br from-blue-600/80 to-indigo-700/80"></div>
                   
                   {/* Content Overlay */}
@@ -874,12 +879,16 @@ export default function SaintsPage() {
                 {/* Photo Section */}
                 <div className="relative h-64 lg:h-auto bg-gradient-to-br from-green-600 to-emerald-700 flex items-center justify-center overflow-hidden">
                   {/* Background Photo - Pier Giorgio Frassati */}
-                  <div 
-                    className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-                    style={{
-                      backgroundImage: `url('https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Pier_Giorgio_Frassati_1924.jpg/800px-Pier_Giorgio_Frassati_1924.jpg')`
+                  <Image
+                    src="https://www.catholicnewsagency.com/images/2020/07/04/1/pier-giorgio-frassati.jpg"
+                    alt="Pier Giorgio Frassati - Verso l'alto"
+                    fill
+                    className="object-cover"
+                    onError={(e) => {
+                      // Fallback to gradient if image fails to load
+                      e.currentTarget.style.display = 'none'
                     }}
-                  ></div>
+                  />
                   <div className="absolute inset-0 bg-gradient-to-br from-green-600/80 to-emerald-700/80"></div>
                   
                   {/* Content Overlay */}
