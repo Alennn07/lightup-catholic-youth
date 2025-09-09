@@ -166,7 +166,7 @@ export default function EdithSteinPage() {
                 <div className="relative h-80 lg:h-auto overflow-hidden">
                   <div className="absolute inset-0 bg-cover bg-no-repeat" style={{
                     backgroundImage: `url('/saints/edith-stein.jpg')`,
-                    backgroundPosition: 'center 20%'
+                    backgroundPosition: 'center 7%'
                   }}></div>
                   <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
                   <div className="absolute bottom-4 left-4 text-white">
