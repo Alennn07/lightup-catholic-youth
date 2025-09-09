@@ -131,33 +131,6 @@ export default function CarloAcutisPage() {
     "I'm happy to die because I've lived my life without wasting even a minute of it on anything that wasn't pleasing to God."
   ]
 
-  const miracles = [
-    {
-      name: "Lanciano Miracle",
-      year: "8th Century",
-      description: "Bread and wine became actual flesh and blood",
-      emoji: "🍞➡️❤️"
-    },
-    {
-      name: "Buenos Aires Miracle",
-      year: "1996",
-      description: "Host turned into human heart tissue",
-      emoji: "❤️‍🩹"
-    },
-    {
-      name: "Tixtla Miracle",
-      year: "2006",
-      description: "Blood appeared on a host during Mass",
-      emoji: "🩸"
-    },
-    {
-      name: "Sokolka Miracle",
-      year: "2008",
-      description: "Host showed signs of heart muscle tissue",
-      emoji: "💓"
-    }
-  ]
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
       {/* Hero Section */}
@@ -331,7 +304,7 @@ export default function CarloAcutisPage() {
                 <Card className="bg-white border-0 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300">
                   <CardContent className="p-6 text-center">
                     <div className="text-4xl mb-4">{miracle.emoji}</div>
-                    <h3 className="font-bold text-gray-900 mb-2">{miracle.name}</h3>
+                    <h3 className="font-bold text-gray-900 mb-2">{miracle.title}</h3>
                     <p className="text-sm text-blue-600 font-semibold mb-2">{miracle.year}</p>
                     <p className="text-gray-600 text-sm">{miracle.description}</p>
                   </CardContent>
