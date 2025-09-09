@@ -819,7 +819,7 @@ export default function SaintsPage() {
                     className="absolute inset-0 bg-cover bg-no-repeat"
                     style={{
                       backgroundImage: `url('/saints/Photos/carlo-acutis.jpg')`,
-                      backgroundPosition: 'center 20%'
+                      backgroundPosition: 'center 15%'
                     }}
                   ></div>
                   
@@ -872,7 +872,7 @@ export default function SaintsPage() {
                     className="absolute inset-0 bg-cover bg-no-repeat"
                     style={{
                       backgroundImage: `url('/saints/Photos/pier-giorgio-frassati.jpg')`,
-                      backgroundPosition: 'center 25%'
+                      backgroundPosition: 'center 20%'
                     }}
                   ></div>
                   
