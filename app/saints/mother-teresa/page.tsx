@@ -158,6 +158,16 @@ export default function MotherTeresaPage() {
             transition={{ duration: 0.6 }}
             className="relative z-10"
           >
+            {/* Back to Saints Button */}
+            <Link href="/saints">
+              <Button 
+                variant="ghost" 
+                className="mb-8 text-orange-600 hover:text-orange-700 hover:bg-orange-100"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back to Saints
+              </Button>
+            </Link>
             <Card className="bg-gradient-to-r from-yellow-50 to-orange-50 border-0 rounded-2xl shadow-2xl overflow-hidden">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
                 {/* Photo Section */}

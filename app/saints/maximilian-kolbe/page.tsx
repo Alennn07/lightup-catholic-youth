@@ -158,6 +158,16 @@ export default function MaximilianKolbePage() {
             transition={{ duration: 0.6 }}
             className="relative z-10"
           >
+            {/* Back to Saints Button */}
+            <Link href="/saints">
+              <Button 
+                variant="ghost" 
+                className="mb-8 text-purple-600 hover:text-purple-700 hover:bg-purple-100"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back to Saints
+              </Button>
+            </Link>
             <Card className="bg-gradient-to-r from-purple-50 to-indigo-50 border-0 rounded-2xl shadow-2xl overflow-hidden">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
                 {/* Photo Section */}

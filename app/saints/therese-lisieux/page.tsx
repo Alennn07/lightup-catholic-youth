@@ -159,6 +159,16 @@ export default function ThereseLisieuxPage() {
             transition={{ duration: 0.6 }}
             className="relative z-10"
           >
+            {/* Back to Saints Button */}
+            <Link href="/saints">
+              <Button 
+                variant="ghost" 
+                className="mb-8 text-rose-600 hover:text-rose-700 hover:bg-rose-100"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back to Saints
+              </Button>
+            </Link>
             <Card className="bg-gradient-to-r from-rose-50 to-pink-50 border-0 rounded-2xl shadow-2xl overflow-hidden">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
                 {/* Photo Section */}

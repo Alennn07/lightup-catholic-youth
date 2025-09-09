@@ -326,6 +326,18 @@ export default function SaintsPage() {
               <p className="text-blue-100 text-sm">Walk with the Saints</p>
             </div>
           </div>
+          
+          {/* Back to Home Button - Prominent Style */}
+          <div className="mb-8">
+            <Button
+              onClick={() => window.open('/', '_blank')}
+              className="bg-gradient-to-r from-white/20 to-white/30 hover:from-white/30 hover:to-white/40 text-white font-semibold px-8 py-4 rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg border border-white/30"
+              size="lg"
+            >
+              <ArrowLeft className="w-5 h-5 mr-2" />
+              Back to Home
+            </Button>
+          </div>
           <div className="inline-flex items-center px-4 py-2 bg-white/20 rounded-full text-sm font-semibold mb-6">
             <Flame className="w-4 h-4 mr-2" />
             New Saints for a New Generation
