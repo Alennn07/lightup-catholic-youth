@@ -393,7 +393,19 @@ export default function SaintsPage() {
                       <Button 
                         onClick={(e) => {
                           e.stopPropagation()
-                          window.open(`/saints/${saint.id}`, '_blank')
+                          // Map saint IDs to correct page paths
+                          const pageMap: { [key: string]: string } = {
+                            'carlo': '/saints/carlo-acutis',
+                            'pier': '/saints/pier-giorgio', 
+                            'oscar': '/saints/oscar-romero',
+                            'maximilian': '/saints/maximilian-kolbe',
+                            'teresa': '/saints/mother-teresa',
+                            'maria': '/saints/maria-goretti',
+                            'therese': '/saints/therese-lisieux',
+                            'edith': '/saints/edith-stein'
+                          }
+                          const pagePath = pageMap[saint.id] || `/saints/${saint.id}`
+                          window.open(pagePath, '_blank')
                         }}
                         className={`w-full bg-gradient-to-r ${saint.gradient} hover:opacity-90 text-white font-semibold px-4 py-2 rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg`}
                         size="sm"

@@ -33,6 +33,7 @@ export default function PierGiorgioPage() {
     fullStory: string;
   } | null>(null)
   const [favoriteMiracles, setFavoriteMiracles] = useState<number[]>([])
+  const [dailyChallenges, setDailyChallenges] = useState<boolean[]>([false, false, false, false, false])
 
   // Load favorites from localStorage on component mount
   useEffect(() => {
@@ -42,16 +43,37 @@ export default function PierGiorgioPage() {
     }
   }, [])
 
+  // Load daily challenges from localStorage on component mount
+  useEffect(() => {
+    const savedChallenges = localStorage.getItem('pier-giorgio-challenges')
+    if (savedChallenges) {
+      setDailyChallenges(JSON.parse(savedChallenges))
+    }
+  }, [])
+
   // Save favorites to localStorage whenever they change
   useEffect(() => {
     localStorage.setItem('pier-giorgio-favorites', JSON.stringify(favoriteMiracles))
   }, [favoriteMiracles])
+
+  // Save daily challenges to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('pier-giorgio-challenges', JSON.stringify(dailyChallenges))
+  }, [dailyChallenges])
 
   const handleToggleFavorite = (miracleIndex: number) => {
     setFavoriteMiracles(prev => 
       prev.includes(miracleIndex) 
         ? prev.filter(id => id !== miracleIndex)
         : [...prev, miracleIndex]
+    )
+  }
+
+  const handleToggleChallenge = (challengeIndex: number) => {
+    setDailyChallenges(prev => 
+      prev.map((completed, index) => 
+        index === challengeIndex ? !completed : completed
+      )
     )
   }
 
