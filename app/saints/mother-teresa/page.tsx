@@ -163,7 +163,7 @@ export default function MotherTeresaPage() {
                 {/* Photo Section */}
                 <div className="relative h-80 lg:h-96 bg-gradient-to-br from-yellow-100 to-orange-100">
                   <div className="absolute inset-0 bg-cover bg-no-repeat" style={{
-                    backgroundImage: `url('/saints/Photos/mother-teresa.jpg')`,
+                    backgroundImage: `url('/saints/mother-teresa.jpg')`,
                     backgroundPosition: 'center 20%'
                   }}></div>
                   <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>

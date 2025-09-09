@@ -164,7 +164,7 @@ export default function MariaGorettiPage() {
                 {/* Photo Section */}
                 <div className="relative h-80 lg:h-96 bg-gradient-to-br from-pink-100 to-purple-100">
                   <div className="absolute inset-0 bg-cover bg-no-repeat" style={{
-                    backgroundImage: `url('/saints/Photos/maria-goretti.jpg')`,
+                    backgroundImage: `url('/saints/maria-goretti.jpg')`,
                     backgroundPosition: 'center 20%'
                   }}></div>
                   <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>

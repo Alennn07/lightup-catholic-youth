@@ -199,7 +199,7 @@ export default function PierGiorgioPage() {
                   <div 
                     className="absolute inset-0 bg-cover bg-no-repeat"
                     style={{
-                      backgroundImage: `url('/saints/Photos/pier-giorgio-frassati.jpg')`,
+                      backgroundImage: `url('/saints/pier-giorgio-frassati.jpg')`,
                       backgroundPosition: 'center 19%'
                     }}
                   ></div>

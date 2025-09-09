@@ -164,7 +164,7 @@ export default function OscarRomeroPage() {
                 {/* Photo Section */}
                 <div className="relative h-80 lg:h-96 bg-gradient-to-br from-red-100 to-orange-100">
                   <div className="absolute inset-0 bg-cover bg-no-repeat" style={{
-                    backgroundImage: `url('/saints/Photos/oscar-romero.jpg')`,
+                    backgroundImage: `url('/saints/oscar-romero.jpg')`,
                     backgroundPosition: 'center 20%'
                   }}></div>
                   <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>

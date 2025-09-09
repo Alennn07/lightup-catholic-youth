@@ -181,7 +181,7 @@ export default function CarloAcutisPage() {
                   <div 
                     className="absolute inset-0 bg-cover bg-no-repeat"
                     style={{
-                      backgroundImage: `url('/saints/Photos/carlo-acutis.jpg')`,
+                      backgroundImage: `url('/saints/carlo-acutis.jpg')`,
                       backgroundPosition: 'center 10%'
                     }}
                   ></div>

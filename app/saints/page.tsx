@@ -212,7 +212,7 @@ export default function SaintsPage() {
       gradient: "from-blue-500 to-indigo-600",
       bgGradient: "from-blue-50 to-indigo-50",
       tags: ["Technology", "Youth", "Eucharist", "Digital Evangelization"],
-      photo: "/saints/Photos/carlo-acutis.jpg"
+      photo: "/saints/carlo-acutis.jpg"
     },
     {
       id: "pier",
@@ -224,7 +224,7 @@ export default function SaintsPage() {
       gradient: "from-green-500 to-emerald-600",
       bgGradient: "from-green-50 to-emerald-50",
       tags: ["Mountains", "Social Justice", "Friendship", "Adventure"],
-      photo: "/saints/Photos/pier-giorgio-frassati.jpg"
+      photo: "/saints/pier-giorgio-frassati.jpg"
     },
     {
       id: "oscar",
@@ -236,7 +236,7 @@ export default function SaintsPage() {
       gradient: "from-red-500 to-orange-600",
       bgGradient: "from-red-50 to-orange-50",
       tags: ["Justice", "Social Justice", "Martyr", "Voice of the Poor"],
-      photo: "/saints/Photos/oscar-romero.jpg"
+      photo: "/saints/oscar-romero.jpg"
     },
     {
       id: "maximilian",
@@ -248,7 +248,7 @@ export default function SaintsPage() {
       gradient: "from-purple-500 to-indigo-600",
       bgGradient: "from-purple-50 to-indigo-50",
       tags: ["Self-Sacrifice", "Protection", "Courage", "Love"],
-      photo: "/saints/Photos/meximilian-kolbe.jpg"
+      photo: "/saints/meximilian-kolbe.jpg"
     },
     {
       id: "teresa",
@@ -260,7 +260,7 @@ export default function SaintsPage() {
       gradient: "from-yellow-500 to-orange-600",
       bgGradient: "from-yellow-50 to-orange-50",
       tags: ["Service", "Compassion", "Love", "Missionary"],
-      photo: "/saints/Photos/mother-teresa.jpg"
+      photo: "/saints/mother-teresa.jpg"
     },
     {
       id: "maria",
@@ -272,7 +272,7 @@ export default function SaintsPage() {
       gradient: "from-pink-500 to-rose-600",
       bgGradient: "from-pink-50 to-rose-50",
       tags: ["Purity", "Forgiveness", "Youth", "Martyr"],
-      photo: "/saints/Photos/maria-goretti.jpg"
+      photo: "/saints/maria-goretti.jpg"
     },
     {
       id: "therese",
@@ -284,7 +284,7 @@ export default function SaintsPage() {
       gradient: "from-rose-500 to-pink-600",
       bgGradient: "from-rose-50 to-pink-50",
       tags: ["Little Way", "Love", "Simplicity", "Doctor of Church"],
-      photo: "/saints/Photos/therese-lisieux.jpg"
+      photo: "/saints/therese-lisieux.jpg"
     },
     {
       id: "edith",
@@ -296,7 +296,7 @@ export default function SaintsPage() {
       gradient: "from-indigo-500 to-purple-600",
       bgGradient: "from-indigo-50 to-purple-50",
       tags: ["Philosophy", "Conversion", "Martyr", "Intellectual"],
-      photo: "/saints/Photos/edith-stein.jpg"
+      photo: "/saints/edith-stein.jpg"
     }
   ]
 

@@ -163,7 +163,7 @@ export default function MaximilianKolbePage() {
                 {/* Photo Section */}
                 <div className="relative h-80 lg:h-96 bg-gradient-to-br from-purple-100 to-indigo-100">
                   <div className="absolute inset-0 bg-cover bg-no-repeat" style={{
-                    backgroundImage: `url('/saints/Photos/meximilian-kolbe.jpg')`,
+                    backgroundImage: `url('/saints/meximilian-kolbe.jpg')`,
                     backgroundPosition: 'center 20%'
                   }}></div>
                   <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
