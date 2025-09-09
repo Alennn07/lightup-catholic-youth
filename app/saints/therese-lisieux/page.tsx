@@ -21,6 +21,7 @@ import {
   Shield,
   Flower
 } from "lucide-react"
+import Link from "next/link"
 
 export default function ThereseLisieuxPage() {
   const [activeMission, setActiveMission] = useState(0)

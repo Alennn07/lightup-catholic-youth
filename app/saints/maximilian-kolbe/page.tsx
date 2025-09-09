@@ -20,6 +20,7 @@ import {
   Globe,
   Shield
 } from "lucide-react"
+import Link from "next/link"
 
 export default function MaximilianKolbePage() {
   const [activeMission, setActiveMission] = useState(0)
@@ -274,23 +275,23 @@ export default function MaximilianKolbePage() {
         </div>
       </div>
 
-      {/* Wisdom Section */}
-      <motion.section
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.2 }}
-        className="py-16 bg-gradient-to-br from-purple-50 to-indigo-50"
-      >
+      {/* Quotes Section */}
+      <div className="bg-gradient-to-r from-purple-100 to-indigo-100 py-16">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.6 }}
+            className="text-center mb-12"
+          >
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
               💬 Maximilian's Wisdom
             </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            <p className="text-xl text-gray-600">
               Profound insights from a man who gave everything for love
             </p>
-          </div>
-          
+          </motion.div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {[
               {
@@ -328,72 +329,80 @@ export default function MaximilianKolbePage() {
             ))}
           </div>
         </div>
-      </motion.section>
+      </div>
 
       {/* Timeline Section */}
-      <motion.section
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.3 }}
-        className="py-16 bg-white"
-      >
+      <div className="bg-gradient-to-r from-purple-100 to-indigo-100 py-16">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.8 }}
+            className="text-center mb-12"
+          >
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
               📅 Maximilian's Timeline
             </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            <p className="text-xl text-gray-600">
               The journey of a man who became a hero of self-sacrifice
             </p>
-          </div>
-          
-          <div className="relative max-w-4xl mx-auto">
+          </motion.div>
+
+          <div className="relative">
             {/* Timeline Line */}
-            <div className="absolute left-1/2 transform -translate-x-1/2 w-1 h-full bg-gradient-to-b from-purple-500 to-indigo-500"></div>
+            <div className="absolute left-8 top-0 bottom-0 w-1 bg-gradient-to-b from-purple-500 to-indigo-500 rounded-full"></div>
             
-            {[
-              {
-                year: "1894",
-                title: "Birth in Poland",
-                description: "Born in Zduńska Wola, Poland, into a devout Catholic family"
-              },
-              {
-                year: "1910",
-                title: "Joined Franciscans",
-                description: "Entered the Franciscan Order and took the name Maximilian"
-              },
-              {
-                year: "1918",
-                title: "Ordained Priest",
-                description: "Ordained as a Catholic priest and began his missionary work"
-              },
-              {
-                year: "1941",
-                title: "Martyrdom in Auschwitz",
-                description: "Volunteered to die in place of a father with a family, becoming a martyr of love"
-              }
-            ].map((event, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.2 }}
-                className={`relative flex items-center mb-12 ${index % 2 === 0 ? 'flex-row' : 'flex-row-reverse'}`}
-              >
-                <div className={`w-1/2 ${index % 2 === 0 ? 'pr-8 text-right' : 'pl-8 text-left'}`}>
-                  <div className="bg-white rounded-2xl p-6 shadow-lg border-l-4 border-purple-500">
-                    <div className="text-purple-600 font-bold text-lg mb-2">{event.year}</div>
+            <div className="space-y-8">
+              {[
+                {
+                  year: "1894",
+                  title: "Born in Poland",
+                  description: "Born in Zduńska Wola, Poland, into a devout Catholic family",
+                  icon: <Sparkles className="w-6 h-6" />
+                },
+                {
+                  year: "1910",
+                  title: "Joined Franciscans",
+                  description: "Entered the Franciscan Order and took the name Maximilian",
+                  icon: <Heart className="w-6 h-6" />
+                },
+                {
+                  year: "1918",
+                  title: "Ordained Priest",
+                  description: "Ordained as a Catholic priest and began his missionary work",
+                  icon: <Shield className="w-6 h-6" />
+                },
+                {
+                  year: "1941",
+                  title: "Martyrdom in Auschwitz",
+                  description: "Volunteered to die in place of a father with a family, becoming a martyr of love",
+                  icon: <Trophy className="w-6 h-6" />
+                }
+              ].map((event, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, x: -50 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.6, delay: index * 0.2 }}
+                  className="relative flex items-center"
+                >
+                  <div className="absolute left-6 w-4 h-4 bg-purple-500 rounded-full border-4 border-white shadow-lg flex items-center justify-center">
+                    <div className="text-white text-xs font-bold">{index + 1}</div>
+                  </div>
+                  <div className="ml-16 bg-white rounded-2xl p-6 shadow-lg flex-1">
+                    <div className="flex items-center mb-2">
+                      <div className="text-purple-500 mr-3">{event.icon}</div>
+                      <div className="text-purple-600 font-bold text-lg">{event.year}</div>
+                    </div>
                     <h3 className="text-xl font-bold text-gray-900 mb-2">{event.title}</h3>
                     <p className="text-gray-600">{event.description}</p>
                   </div>
-                </div>
-                <div className="absolute left-1/2 transform -translate-x-1/2 w-4 h-4 bg-purple-500 rounded-full border-4 border-white shadow-lg"></div>
-                <div className="w-1/2"></div>
-              </motion.div>
-            ))}
+                </motion.div>
+              ))}
+            </div>
           </div>
         </div>
-      </motion.section>
+      </div>
 
       {/* Miracles & Intercessions Section */}
       <div className="bg-gradient-to-r from-purple-100 to-indigo-100 py-16">

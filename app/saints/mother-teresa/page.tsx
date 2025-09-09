@@ -20,6 +20,7 @@ import {
   Globe,
   Shield
 } from "lucide-react"
+import Link from "next/link"
 
 export default function MotherTeresaPage() {
   const [activeMission, setActiveMission] = useState(0)

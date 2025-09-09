@@ -22,6 +22,7 @@ import {
   Cross,
   GraduationCap
 } from "lucide-react"
+import Link from "next/link"
 
 export default function EdithSteinPage() {
   const [activeMission, setActiveMission] = useState(0)
