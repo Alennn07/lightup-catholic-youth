@@ -24,6 +24,7 @@ import Link from "next/link"
 
 export default function CarloAcutisPage() {
   const [activeTech, setActiveTech] = useState(0)
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false)
 
   const techAdventures = [
     {
@@ -413,6 +414,12 @@ export default function CarloAcutisPage() {
               </Link>
               <Button 
                 size="lg"
+                onClick={() => {
+                  setShowSuccessMessage(true);
+                  setTimeout(() => {
+                    window.open('/saints#carlo', '_blank');
+                  }, 1500);
+                }}
                 className="bg-white/20 backdrop-blur-sm border-2 border-white text-white hover:bg-white hover:text-blue-600 font-semibold px-8 py-3 rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg"
               >
                 <Heart className="w-5 h-5 mr-2" />
@@ -422,6 +429,50 @@ export default function CarloAcutisPage() {
           </motion.div>
         </div>
       </div>
+
+      {/* Success Message Modal */}
+      {showSuccessMessage && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.8 }}
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50"
+          onClick={() => setShowSuccessMessage(false)}
+        >
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white rounded-3xl p-8 max-w-md mx-4 text-center shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Globe className="w-8 h-8 text-white" />
+            </div>
+            <h3 className="text-2xl font-bold text-gray-900 mb-2">🚀 Digital Journey Started!</h3>
+            <p className="text-gray-600 mb-6">
+              You're now ready to follow Carlo's example! Let's use technology to spread God's love together!
+            </p>
+            <div className="flex space-x-3">
+              <Button
+                onClick={() => setShowSuccessMessage(false)}
+                variant="outline"
+                className="flex-1"
+              >
+                Stay Here
+              </Button>
+              <Button
+                onClick={() => {
+                  setShowSuccessMessage(false);
+                  window.open('/saints#carlo', '_blank');
+                }}
+                className="flex-1 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
+              >
+                Go to Carlo's Tab
+              </Button>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
     </div>
   )
 }

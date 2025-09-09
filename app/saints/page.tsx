@@ -736,7 +736,7 @@ export default function SaintsPage() {
           </TabsList>
 
           {/* Carlo Acutis Tab */}
-          <TabsContent value="carlo" className="space-y-8">
+          <TabsContent value="carlo" id="carlo" className="space-y-8">
             {/* Carlo Acutis Hero Section with Photo */}
             <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-0 rounded-2xl shadow-lg overflow-hidden">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
@@ -796,7 +796,7 @@ export default function SaintsPage() {
           </TabsContent>
 
           {/* Pier Giorgio Frassati Tab */}
-          <TabsContent value="pier" className="space-y-8">
+          <TabsContent value="pier" id="pier" className="space-y-8">
             {/* Pier Giorgio Frassati Hero Section with Photo */}
             <Card className="bg-gradient-to-r from-green-50 to-emerald-50 border-0 rounded-2xl shadow-lg overflow-hidden">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
