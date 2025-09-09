@@ -165,7 +165,7 @@ export default function ThereseLisieuxPage() {
                 <div className="relative h-80 lg:h-96 bg-gradient-to-br from-rose-100 to-pink-100">
                   <div className="absolute inset-0 bg-cover bg-no-repeat" style={{
                     backgroundImage: `url('/saints/therese-lisieux.jpg')`,
-                    backgroundPosition: 'center 10%'
+                    backgroundPosition: 'center 30%'
                   }}></div>
                   <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
                   <div className="absolute bottom-4 left-4 text-white">
