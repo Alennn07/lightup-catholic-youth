@@ -163,7 +163,7 @@ export default function EdithSteinPage() {
             <Card className="bg-gradient-to-r from-indigo-50 to-purple-50 border-0 rounded-2xl shadow-2xl overflow-hidden">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
                 {/* Photo Section */}
-                <div className="relative h-80 lg:h-96 bg-gradient-to-br from-indigo-100 to-purple-100">
+                <div className="relative h-80 lg:h-auto overflow-hidden">
                   <div className="absolute inset-0 bg-cover bg-no-repeat" style={{
                     backgroundImage: `url('/saints/edith-stein.jpg')`,
                     backgroundPosition: 'center 30%'

@@ -162,7 +162,7 @@ export default function OscarRomeroPage() {
             <Card className="bg-gradient-to-r from-red-50 to-orange-50 border-0 rounded-2xl shadow-2xl overflow-hidden">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
                 {/* Photo Section */}
-                <div className="relative h-80 lg:h-96 bg-gradient-to-br from-red-100 to-orange-100">
+                <div className="relative h-80 lg:h-auto overflow-hidden">
                   <div className="absolute inset-0 bg-cover bg-no-repeat" style={{
                     backgroundImage: `url('/saints/oscar-romero.jpg')`,
                     backgroundPosition: 'center 30%'

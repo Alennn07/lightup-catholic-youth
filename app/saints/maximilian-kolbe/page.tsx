@@ -161,7 +161,7 @@ export default function MaximilianKolbePage() {
             <Card className="bg-gradient-to-r from-purple-50 to-indigo-50 border-0 rounded-2xl shadow-2xl overflow-hidden">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
                 {/* Photo Section */}
-                <div className="relative h-80 lg:h-96 bg-gradient-to-br from-purple-100 to-indigo-100">
+                <div className="relative h-80 lg:h-auto overflow-hidden">
                   <div className="absolute inset-0 bg-cover bg-no-repeat" style={{
                     backgroundImage: `url('/saints/meximilian-kolbe.jpg')`,
                     backgroundPosition: 'center 30%'

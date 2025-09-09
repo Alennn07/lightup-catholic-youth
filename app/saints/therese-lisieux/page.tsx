@@ -162,7 +162,7 @@ export default function ThereseLisieuxPage() {
             <Card className="bg-gradient-to-r from-rose-50 to-pink-50 border-0 rounded-2xl shadow-2xl overflow-hidden">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
                 {/* Photo Section */}
-                <div className="relative h-80 lg:h-96 bg-gradient-to-br from-rose-100 to-pink-100">
+                <div className="relative h-80 lg:h-auto overflow-hidden">
                   <div className="absolute inset-0 bg-cover bg-no-repeat" style={{
                     backgroundImage: `url('/saints/therese-lisieux.jpg')`,
                     backgroundPosition: 'center 30%'
