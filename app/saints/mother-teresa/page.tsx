@@ -587,32 +587,6 @@ export default function MotherTeresaPage() {
         </motion.div>
       </div>
 
-      {/* The Big Secret Section */}
-      <div className="bg-gradient-to-r from-yellow-100 to-orange-100 py-16">
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 1.6 }}
-            className="text-center mb-12"
-          >
-            <Card className="bg-gradient-to-br from-blue-50 to-purple-50 border-0 rounded-2xl shadow-lg max-w-4xl mx-auto">
-              <CardContent className="p-8">
-                <div className="flex items-center justify-center mb-6">
-                  <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mr-4">
-                    <Globe className="w-8 h-8 text-white" />
-                  </div>
-                  <div className="text-4xl">💡</div>
-                </div>
-                <h2 className="text-3xl font-bold text-gray-900 mb-6">The Big Secret</h2>
-                <p className="text-xl text-gray-700 leading-relaxed">
-                  Mother Teresa wasn't special because she was famous or won awards - she was special because she saw Christ in everyone she served! She showed us that you can be small, humble, and ordinary AND be a saint! The key is putting God's love first in everything you do! 🚀
-                </p>
-              </CardContent>
-            </Card>
-          </motion.div>
-        </div>
-      </div>
 
       {/* My Favorites Section */}
       {favoriteMiracles.length > 0 && (
@@ -813,13 +787,40 @@ export default function MotherTeresaPage() {
         </div>
       </div>
 
+      {/* The Big Secret Section */}
+      <div className="bg-gradient-to-r from-yellow-100 to-orange-100 py-16">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 1.7 }}
+            className="text-center mb-12"
+          >
+            <Card className="bg-gradient-to-br from-blue-50 to-purple-50 border-0 rounded-2xl shadow-lg max-w-4xl mx-auto">
+              <CardContent className="p-8">
+                <div className="flex items-center justify-center mb-6">
+                  <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mr-4">
+                    <Globe className="w-8 h-8 text-white" />
+                  </div>
+                  <div className="text-4xl">💡</div>
+                </div>
+                <h2 className="text-3xl font-bold text-gray-900 mb-6">The Big Secret</h2>
+                <p className="text-xl text-gray-700 leading-relaxed">
+                  Mother Teresa wasn't special because she was famous or won awards - she was special because she saw Christ in everyone she served! She showed us that you can be small, humble, and ordinary AND be a saint! The key is putting God's love first in everything you do! 🚀
+                </p>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </div>
+      </div>
+
       {/* Call to Action */}
       <div className="bg-gradient-to-r from-yellow-600 to-orange-600 py-16">
         <div className="container mx-auto px-4 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 1 }}
+            transition={{ duration: 0.6, delay: 1.8 }}
           >
             <div className="flex items-center justify-center mb-6">
               <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mr-4">
