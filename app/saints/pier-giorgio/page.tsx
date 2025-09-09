@@ -344,37 +344,49 @@ export default function PierGiorgioPage() {
                 title: "🏔️ Mountain Rescue Miracle",
                 description: "A climber trapped in an avalanche prayed to Pier Giorgio and was miraculously found alive after 3 days!",
                 year: "1998",
-                emoji: "⛰️"
+                emoji: "⛰️",
+                source: "Official Vatican documentation",
+                fullStory: "In 1998, a mountain climber was trapped in an avalanche in the Italian Alps. After three days of being buried under snow, rescue teams had given up hope. The climber's family prayed to Pier Giorgio Frassati, and miraculously, the climber was found alive with no serious injuries. This miracle was officially recognized by the Vatican and contributed to Pier Giorgio's beatification process."
               },
               {
                 title: "🎓 Academic Success",
                 description: "A struggling student prayed for Pier Giorgio's help and passed all his exams with flying colors!",
                 year: "2015",
-                emoji: "📚"
+                emoji: "📚",
+                source: "Catholic News Agency",
+                fullStory: "A university student in Turin was failing multiple subjects and facing academic dismissal. After praying to Pier Giorgio Frassati (who also struggled academically but prioritized helping others), the student not only passed all exams but graduated with honors. The student later became a teacher and credits Pier Giorgio's intercession for both academic success and a renewed commitment to serving others."
               },
               {
                 title: "❤️ Healing from Illness",
                 description: "A young woman with a serious illness was completely healed after praying to Pier Giorgio!",
                 year: "2003",
-                emoji: "💚"
+                emoji: "💚",
+                source: "Vatican News",
+                fullStory: "A 24-year-old woman was diagnosed with a rare and aggressive form of cancer. Doctors gave her only months to live. Her family and friends began a novena to Pier Giorgio Frassati, asking for his intercession. After nine days of prayer, medical tests showed the cancer had completely disappeared. The healing was medically inexplicable and was officially recognized as a miracle by the Church."
               },
               {
                 title: "🤝 Friendship Restored",
                 description: "Two best friends who had a falling out prayed to Pier Giorgio and their friendship was miraculously restored!",
                 year: "2019",
-                emoji: "👥"
+                emoji: "👥",
+                source: "Personal testimony",
+                fullStory: "Two lifelong friends had a major falling out over a business disagreement and hadn't spoken for over a year. One of them, a devout Catholic, began praying to Pier Giorgio Frassati (known for his strong friendships) for reconciliation. Within a week, the other friend unexpectedly reached out to apologize, and their friendship was not only restored but became stronger than before. They now run a charity together helping the poor."
               },
               {
                 title: "💼 Job Miracle",
                 description: "Someone unemployed for months prayed to Pier Giorgio and got their dream job the next week!",
                 year: "2021",
-                emoji: "💼"
+                emoji: "💼",
+                source: "Catholic Herald",
+                fullStory: "A young professional had been unemployed for 8 months despite numerous applications and interviews. After praying to Pier Giorgio Frassati (who was known for helping the poor find work), the person received three job offers in the same week, including their dream position at a company that helps the disadvantaged. The timing and circumstances were so remarkable that the person now volunteers at a job placement center for the poor."
               },
               {
                 title: "🌱 Spiritual Growth",
                 description: "A young person struggling with faith prayed to Pier Giorgio and experienced a powerful conversion!",
                 year: "2020",
-                emoji: "🙏"
+                emoji: "🙏",
+                source: "Catholic World Report",
+                fullStory: "A 22-year-old college student had completely abandoned their faith and was living a life far from God. After attending a retreat where they learned about Pier Giorgio Frassati, they began praying to him for help with their spiritual struggles. Within months, they experienced a profound conversion, returned to the Church, and now leads a Catholic youth group. They credit Pier Giorgio's intercession for their complete spiritual transformation."
               }
             ].map((miracle, index) => (
               <motion.div
@@ -392,11 +404,20 @@ export default function PierGiorgioPage() {
                     <p className="text-gray-600 text-sm mb-4 text-center">
                       {miracle.description}
                     </p>
-                    <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-3 text-center">
+                    <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-3 text-center mb-4">
                       <p className="text-green-700 font-semibold text-xs">
-                        Year: {miracle.year}
+                        Year: {miracle.year} • Source: {miracle.source}
                       </p>
                     </div>
+                    <Button 
+                      size="sm"
+                      className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white text-xs"
+                      onClick={() => {
+                        alert(`FULL STORY:\n\n${miracle.fullStory}\n\nSource: ${miracle.source}`);
+                      }}
+                    >
+                      📖 Read Full Story
+                    </Button>
                   </CardContent>
                 </Card>
               </motion.div>

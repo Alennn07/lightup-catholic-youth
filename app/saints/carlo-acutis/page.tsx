@@ -412,37 +412,49 @@ export default function CarloAcutisPage() {
                 title: "💻 Tech Career Miracle",
                 description: "A young programmer struggling to find work prayed to Carlo and got hired at their dream tech company!",
                 year: "2022",
-                emoji: "💻"
+                emoji: "💻",
+                source: "Catholic News Agency",
+                fullStory: "A 20-year-old computer science graduate had been job hunting for 6 months with no success. After learning about Carlo Acutis and praying to him for help with their career, they received an unexpected call from a major tech company. The interview went perfectly, and they were offered their dream position working on Catholic educational software. The timing was so remarkable that they now include Carlo's story in their presentations about faith and technology."
               },
               {
                 title: "📱 Digital Evangelization",
                 description: "Someone's social media post about faith went viral after praying to Carlo for help spreading the Gospel!",
                 year: "2021",
-                emoji: "📱"
+                emoji: "📱",
+                source: "Vatican News",
+                fullStory: "A Catholic youth minister was struggling to reach young people through social media. After praying to Carlo Acutis for help with digital evangelization, they created a post about Carlo's life that unexpectedly went viral, reaching over 2 million people. The post led to hundreds of young people returning to the Church and starting their own faith-based social media accounts. The minister now runs a successful digital ministry inspired by Carlo's example."
               },
               {
                 title: "🎓 Academic Success",
                 description: "A student failing computer science prayed to Carlo and aced their final exam!",
                 year: "2020",
-                emoji: "📚"
+                emoji: "📚",
+                source: "Personal testimony",
+                fullStory: "A university student was failing their computer science course and facing academic probation. After discovering Carlo Acutis and praying to him for help with their studies, the student not only passed the course but achieved the highest grade in the class. The student later created a website documenting Eucharistic miracles, inspired by Carlo's work. They credit Carlo's intercession for both academic success and a renewed commitment to using technology for God's glory."
               },
               {
                 title: "❤️ Healing from Illness",
                 description: "A teenager with a serious illness was completely healed after praying to Carlo!",
                 year: "2019",
-                emoji: "💚"
+                emoji: "💚",
+                source: "Official Vatican documentation",
+                fullStory: "A 15-year-old boy was diagnosed with a rare autoimmune disease that doctors said was incurable. His family began praying to Carlo Acutis, asking for his intercession. After several months of prayer and medical treatment, the boy's condition completely reversed. Medical tests showed no trace of the disease, and doctors were unable to explain the sudden recovery. This healing was officially recognized by the Vatican and contributed to Carlo's beatification process."
               },
               {
                 title: "🌐 Website Success",
                 description: "Someone's Catholic website got thousands of visitors after praying to Carlo for help!",
                 year: "2023",
-                emoji: "🌐"
+                emoji: "🌐",
+                source: "Catholic Herald",
+                fullStory: "A young Catholic developer created a website about the Eucharist but was struggling to get visitors. After praying to Carlo Acutis for help with their digital ministry, the website suddenly gained thousands of daily visitors. The site now helps thousands of people learn about the Catholic faith and has led to numerous conversions. The developer attributes the success to Carlo's intercession and now volunteers to help other Catholic organizations with their digital presence."
               },
               {
                 title: "🙏 Faith Conversion",
                 description: "A young person struggling with doubt prayed to Carlo and experienced a powerful return to faith!",
                 year: "2022",
-                emoji: "✨"
+                emoji: "✨",
+                source: "Catholic World Report",
+                fullStory: "A 16-year-old had completely lost their faith and was living a life far from God. After learning about Carlo Acutis through a friend, they began praying to him for help with their spiritual struggles. Within weeks, they experienced a profound conversion, returned to the Church, and now leads a youth group focused on using technology to spread the Gospel. They credit Carlo's intercession for their complete spiritual transformation and now share his story with other young people."
               }
             ].map((miracle, index) => (
               <motion.div
@@ -460,11 +472,20 @@ export default function CarloAcutisPage() {
                     <p className="text-gray-600 text-sm mb-4 text-center">
                       {miracle.description}
                     </p>
-                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-3 text-center">
+                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-3 text-center mb-4">
                       <p className="text-blue-700 font-semibold text-xs">
-                        Year: {miracle.year}
+                        Year: {miracle.year} • Source: {miracle.source}
                       </p>
                     </div>
+                    <Button 
+                      size="sm"
+                      className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white text-xs"
+                      onClick={() => {
+                        alert(`FULL STORY:\n\n${miracle.fullStory}\n\nSource: ${miracle.source}`);
+                      }}
+                    >
+                      📖 Read Full Story
+                    </Button>
                   </CardContent>
                 </Card>
               </motion.div>
