@@ -388,6 +388,119 @@ export default function CarloAcutisPage() {
         </div>
       </div>
 
+      {/* FAQ Section */}
+      <div className="container mx-auto px-4 py-16">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.8 }}
+          className="text-center mb-12"
+        >
+          <h2 className="text-4xl font-bold text-gray-900 mb-4">
+            🤔 Why Carlo Became a Saint?
+          </h2>
+          <p className="text-xl text-gray-600">
+            Let's discover what made this young tech genius so special!
+          </p>
+        </motion.div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Question 1 */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.9 }}
+          >
+            <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-0 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300">
+              <CardContent className="p-8">
+                <div className="flex items-center mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center mr-4">
+                    <Star className="w-6 h-6 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900">What Made Him Extra Special?</h3>
+                </div>
+                <div className="space-y-4">
+                  <div className="bg-white rounded-xl p-4 shadow-sm">
+                    <p className="text-gray-700 font-medium mb-2">💻 <strong>Tech + Faith = Power</strong></p>
+                    <p className="text-gray-600 text-sm">He used technology to spread the Gospel when most adults were still figuring out the internet!</p>
+                  </div>
+                  <div className="bg-white rounded-xl p-4 shadow-sm">
+                    <p className="text-gray-700 font-medium mb-2">🍞 <strong>Eucharist Obsessed</strong></p>
+                    <p className="text-gray-600 text-sm">He went to daily Mass and spent hours in adoration - even as a teenager!</p>
+                  </div>
+                  <div className="bg-white rounded-xl p-4 shadow-sm">
+                    <p className="text-gray-700 font-medium mb-2">📸 <strong>Miracle Hunter</strong></p>
+                    <p className="text-gray-600 text-sm">He traveled around documenting Eucharistic miracles to prove God's real presence!</p>
+                  </div>
+                  <div className="bg-white rounded-xl p-4 shadow-sm">
+                    <p className="text-gray-700 font-medium mb-2">🎮 <strong>Balanced Life</strong></p>
+                    <p className="text-gray-600 text-sm">He loved video games but always put God first - no compromise!</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          {/* Question 2 */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 1.0 }}
+          >
+            <Card className="bg-gradient-to-br from-purple-50 to-pink-50 border-0 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300">
+              <CardContent className="p-8">
+                <div className="flex items-center mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center mr-4">
+                    <Lightbulb className="w-6 h-6 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900">What Can We Learn?</h3>
+                </div>
+                <div className="space-y-4">
+                  <div className="bg-white rounded-xl p-4 shadow-sm">
+                    <p className="text-gray-700 font-medium mb-2">📱 <strong>Use Tech for Good</strong></p>
+                    <p className="text-gray-600 text-sm">Your phone and computer can be tools for evangelization - use them wisely!</p>
+                  </div>
+                  <div className="bg-white rounded-xl p-4 shadow-sm">
+                    <p className="text-gray-700 font-medium mb-2">⏰ <strong>Prioritize God</strong></p>
+                    <p className="text-gray-600 text-sm">Even with busy schedules, make time for prayer and Mass - it's non-negotiable!</p>
+                  </div>
+                  <div className="bg-white rounded-xl p-4 shadow-sm">
+                    <p className="text-gray-700 font-medium mb-2">🎯 <strong>Be a Digital Missionary</strong></p>
+                    <p className="text-gray-600 text-sm">Share your faith online - you never know who you might inspire!</p>
+                  </div>
+                  <div className="bg-white rounded-xl p-4 shadow-sm">
+                    <p className="text-gray-700 font-medium mb-2">🌟 <strong>Start Young</strong></p>
+                    <p className="text-gray-600 text-sm">Don't wait to be holy - start now! Age doesn't matter to God!</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </div>
+
+        {/* Key Takeaway */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 1.1 }}
+          className="mt-12"
+        >
+          <Card className="bg-gradient-to-r from-blue-100 to-indigo-100 border-0 rounded-2xl shadow-lg">
+            <CardContent className="p-8 text-center">
+              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Globe className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">💡 The Big Secret</h3>
+              <p className="text-lg text-gray-700 leading-relaxed">
+                Carlo wasn't special because he was a tech genius - he was special because he used his gifts to serve God! 
+                He showed us that you can be young, love technology, have fun, AND be a saint! 
+                The key is putting God first in everything you do! 🚀
+              </p>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
+
       {/* Call to Action */}
       <div className="bg-gradient-to-r from-blue-500 to-indigo-600 py-16">
         <div className="container mx-auto px-4 text-center">

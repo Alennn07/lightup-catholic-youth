@@ -320,6 +320,119 @@ export default function PierGiorgioPage() {
         </div>
       </div>
 
+      {/* FAQ Section */}
+      <div className="container mx-auto px-4 py-16">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.8 }}
+          className="text-center mb-12"
+        >
+          <h2 className="text-4xl font-bold text-gray-900 mb-4">
+            🤔 Why Pier Giorgio Became a Saint?
+          </h2>
+          <p className="text-xl text-gray-600">
+            Let's discover what made him so special and what we can learn!
+          </p>
+        </motion.div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Question 1 */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.9 }}
+          >
+            <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-0 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300">
+              <CardContent className="p-8">
+                <div className="flex items-center mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center mr-4">
+                    <Star className="w-6 h-6 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900">What Made Him Extra Special?</h3>
+                </div>
+                <div className="space-y-4">
+                  <div className="bg-white rounded-xl p-4 shadow-sm">
+                    <p className="text-gray-700 font-medium mb-2">🏔️ <strong>Ordinary Life, Extraordinary Love</strong></p>
+                    <p className="text-gray-600 text-sm">He wasn't a priest or monk - just a regular university student who loved God with his whole heart!</p>
+                  </div>
+                  <div className="bg-white rounded-xl p-4 shadow-sm">
+                    <p className="text-gray-700 font-medium mb-2">❤️ <strong>Secret Service</strong></p>
+                    <p className="text-gray-600 text-sm">He secretly helped the poor every day, giving away his money and clothes without anyone knowing!</p>
+                  </div>
+                  <div className="bg-white rounded-xl p-4 shadow-sm">
+                    <p className="text-gray-700 font-medium mb-2">🎯 <strong>Daily Mass & Prayer</strong></p>
+                    <p className="text-gray-600 text-sm">He never missed daily Mass and spent hours in prayer, even with his busy social life!</p>
+                  </div>
+                  <div className="bg-white rounded-xl p-4 shadow-sm">
+                    <p className="text-gray-700 font-medium mb-2">👥 <strong>Influenced Everyone</strong></p>
+                    <p className="text-gray-600 text-sm">His friends said being around him made them want to be better people!</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          {/* Question 2 */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 1.0 }}
+          >
+            <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-0 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300">
+              <CardContent className="p-8">
+                <div className="flex items-center mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center mr-4">
+                    <Lightbulb className="w-6 h-6 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900">What Can We Learn?</h3>
+                </div>
+                <div className="space-y-4">
+                  <div className="bg-white rounded-xl p-4 shadow-sm">
+                    <p className="text-gray-700 font-medium mb-2">🌅 <strong>Start Your Day Right</strong></p>
+                    <p className="text-gray-600 text-sm">Begin each day with prayer and Mass - it sets the tone for everything else!</p>
+                  </div>
+                  <div className="bg-white rounded-xl p-4 shadow-sm">
+                    <p className="text-gray-700 font-medium mb-2">🤝 <strong>Help Others Secretly</strong></p>
+                    <p className="text-gray-600 text-sm">Do good deeds without expecting recognition - true charity is quiet!</p>
+                  </div>
+                  <div className="bg-white rounded-xl p-4 shadow-sm">
+                    <p className="text-gray-700 font-medium mb-2">🎉 <strong>Have Fun & Be Holy</strong></p>
+                    <p className="text-gray-600 text-sm">You can enjoy life, have friends, and still be close to God - they're not opposites!</p>
+                  </div>
+                  <div className="bg-white rounded-xl p-4 shadow-sm">
+                    <p className="text-gray-700 font-medium mb-2">⛰️ <strong>Keep Climbing Higher</strong></p>
+                    <p className="text-gray-600 text-sm">Always strive to be better - "Verso l'alto" means never settling for mediocrity!</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </div>
+
+        {/* Key Takeaway */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 1.1 }}
+          className="mt-12"
+        >
+          <Card className="bg-gradient-to-r from-green-100 to-emerald-100 border-0 rounded-2xl shadow-lg">
+            <CardContent className="p-8 text-center">
+              <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Heart className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">💡 The Big Secret</h3>
+              <p className="text-lg text-gray-700 leading-relaxed">
+                Pier Giorgio wasn't special because he was perfect - he was special because he <strong>tried every day</strong> to be better! 
+                He showed us that holiness isn't about being extraordinary, it's about loving God and others in ordinary ways, 
+                but with extraordinary dedication! 🌟
+              </p>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
+
       {/* Call to Action */}
       <div className="bg-gradient-to-r from-green-500 to-emerald-600 py-16">
         <div className="container mx-auto px-4 text-center">
