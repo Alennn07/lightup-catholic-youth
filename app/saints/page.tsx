@@ -815,16 +815,12 @@ export default function SaintsPage() {
                 {/* Photo Section */}
                 <div className="relative h-64 lg:h-auto bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center overflow-hidden">
                   {/* Background Photo - Carlo Acutis */}
-                  <Image
-                    src="https://www.catholicnewsagency.com/images/2020/10/12/1/carlo-acutis.jpg"
-                    alt="Carlo Acutis - Patron of the Internet"
-                    fill
-                    className="object-cover"
-                    onError={(e) => {
-                      // Fallback to gradient if image fails to load
-                      e.currentTarget.style.display = 'none'
+                  <div 
+                    className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+                    style={{
+                      backgroundImage: `url('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80')`
                     }}
-                  />
+                  ></div>
                   <div className="absolute inset-0 bg-gradient-to-br from-blue-600/80 to-indigo-700/80"></div>
                   
                   {/* Content Overlay */}
@@ -879,16 +875,12 @@ export default function SaintsPage() {
                 {/* Photo Section */}
                 <div className="relative h-64 lg:h-auto bg-gradient-to-br from-green-600 to-emerald-700 flex items-center justify-center overflow-hidden">
                   {/* Background Photo - Pier Giorgio Frassati */}
-                  <Image
-                    src="https://www.catholicnewsagency.com/images/2020/07/04/1/pier-giorgio-frassati.jpg"
-                    alt="Pier Giorgio Frassati - Verso l'alto"
-                    fill
-                    className="object-cover"
-                    onError={(e) => {
-                      // Fallback to gradient if image fails to load
-                      e.currentTarget.style.display = 'none'
+                  <div 
+                    className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+                    style={{
+                      backgroundImage: `url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80')`
                     }}
-                  />
+                  ></div>
                   <div className="absolute inset-0 bg-gradient-to-br from-green-600/80 to-emerald-700/80"></div>
                   
                   {/* Content Overlay */}
