@@ -818,7 +818,7 @@ export default function SaintsPage() {
                   <div 
                     className="absolute inset-0 bg-cover bg-center bg-no-repeat"
                     style={{
-                      backgroundImage: `url('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80')`
+                      backgroundImage: `url('/saints/Photos/carlo-acutis.jpg')`
                     }}
                   ></div>
                   <div className="absolute inset-0 bg-gradient-to-br from-blue-600/80 to-indigo-700/80"></div>
@@ -878,7 +878,7 @@ export default function SaintsPage() {
                   <div 
                     className="absolute inset-0 bg-cover bg-center bg-no-repeat"
                     style={{
-                      backgroundImage: `url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80')`
+                      backgroundImage: `url('/saints/Photos/pier-giorgio-frassati.jpg')`
                     }}
                   ></div>
                   <div className="absolute inset-0 bg-gradient-to-br from-green-600/80 to-emerald-700/80"></div>
