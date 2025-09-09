@@ -772,12 +772,19 @@ export default function SaintsPage() {
                     A young Italian who used technology to spread the Gospel and documented Eucharistic miracles around the world. 
                     His life shows us how to be saints in the digital age.
                   </p>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-2 mb-6">
                     <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">Technology</span>
                     <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">Youth</span>
                     <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">Eucharist</span>
                     <span className="px-3 py-1 bg-pink-100 text-pink-700 rounded-full text-xs font-medium">Digital Evangelization</span>
                   </div>
+                  <Button 
+                    onClick={() => window.open('/saints/carlo-acutis', '_blank')}
+                    className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-semibold px-6 py-2 rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                  >
+                    <Globe className="w-4 h-4 mr-2" />
+                    Read More About Carlo
+                  </Button>
                 </div>
               </div>
             </Card>
@@ -825,12 +832,19 @@ export default function SaintsPage() {
                     "Verso l'alto" (To the heights) was his motto. A young man who combined deep faith with love for the outdoors, 
                     social justice, and friendship. His life inspires us to reach for the heights of holiness.
                   </p>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-2 mb-6">
                     <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">Mountains</span>
                     <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">Social Justice</span>
                     <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">Friendship</span>
                     <span className="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-xs font-medium">Adventure</span>
                   </div>
+                  <Button 
+                    onClick={() => window.open('/saints/pier-giorgio', '_blank')}
+                    className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold px-6 py-2 rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                  >
+                    <Mountain className="w-4 h-4 mr-2" />
+                    Read More About Pier Giorgio
+                  </Button>
                 </div>
               </div>
             </Card>
