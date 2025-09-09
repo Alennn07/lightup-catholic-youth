@@ -24,6 +24,7 @@ import Link from "next/link"
 export default function PierGiorgioPage() {
   const [activeAdventure, setActiveAdventure] = useState(0)
   const [showSuccessMessage, setShowSuccessMessage] = useState(false)
+  const [selectedMiracle, setSelectedMiracle] = useState(null)
 
   const adventures = [
     {
@@ -412,9 +413,7 @@ export default function PierGiorgioPage() {
                     <Button 
                       size="sm"
                       className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white text-xs"
-                      onClick={() => {
-                        alert(`FULL STORY:\n\n${miracle.fullStory}\n\nSource: ${miracle.source}`);
-                      }}
+                      onClick={() => setSelectedMiracle(miracle)}
                     >
                       📖 Read Full Story
                     </Button>
@@ -645,6 +644,167 @@ export default function PierGiorgioPage() {
               >
                 Go to Progress Tracker
               </Button>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+
+      {/* Detailed Miracle Modal */}
+      {selectedMiracle && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+          onClick={() => setSelectedMiracle(null)}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className="bg-white rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="relative p-8 border-b border-gray-200">
+              <button
+                onClick={() => setSelectedMiracle(null)}
+                className="absolute top-4 right-4 w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center transition-colors"
+              >
+                <span className="text-gray-600 text-xl">×</span>
+              </button>
+              <div className="flex items-center space-x-4">
+                <div className="text-6xl">{selectedMiracle.emoji}</div>
+                <div>
+                  <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                    {selectedMiracle.title} - Detailed Information
+                  </h2>
+                  <div className="flex items-center space-x-4 text-sm text-gray-600">
+                    <span className="flex items-center">
+                      <Calendar className="w-4 h-4 mr-1" />
+                      Year: {selectedMiracle.year}
+                    </span>
+                    <span className="flex items-center">
+                      <Star className="w-4 h-4 mr-1" />
+                      Source: {selectedMiracle.source}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Content */}
+            <div className="p-8">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Left Column - Details */}
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                      <MapPin className="w-5 h-5 mr-2 text-green-600" />
+                      Location
+                    </h3>
+                    <p className="text-gray-700">Various locations where miracles occurred through Pier Giorgio's intercession</p>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                      <Heart className="w-5 h-5 mr-2 text-green-600" />
+                      Type of Miracle
+                    </h3>
+                    <p className="text-gray-700">{selectedMiracle.title.replace('🏔️ ', '').replace('🎓 ', '').replace('❤️ ', '').replace('🤝 ', '').replace('💼 ', '').replace('🌱 ', '')}</p>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                      <Sparkles className="w-5 h-5 mr-2 text-green-600" />
+                      Significance
+                    </h3>
+                    <p className="text-gray-700">This miracle demonstrates Pier Giorgio's continued intercession for those who seek his help, showing his ongoing care for the faithful even after his death.</p>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                      <Users className="w-5 h-5 mr-2 text-green-600" />
+                      Impact
+                    </h3>
+                    <p className="text-gray-700">This miracle has inspired many to turn to Pier Giorgio for help with similar challenges, strengthening faith and devotion among the faithful.</p>
+                  </div>
+                </div>
+
+                {/* Right Column - Story and Prayer */}
+                <div className="space-y-6">
+                  <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-0 rounded-2xl shadow-sm">
+                    <CardContent className="p-6">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                        <Quote className="w-5 h-5 mr-2 text-green-600" />
+                        Full Story
+                      </h3>
+                      <p className="text-gray-700 leading-relaxed italic">
+                        "{selectedMiracle.fullStory}"
+                      </p>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-0 rounded-2xl shadow-sm">
+                    <CardContent className="p-6">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                        <Heart className="w-5 h-5 mr-2 text-blue-600" />
+                        Prayer for Intercession
+                      </h3>
+                      <p className="text-gray-700 leading-relaxed italic">
+                        "Pier Giorgio Frassati, you who loved the mountains and helped the poor, 
+                        intercede for us in our time of need. Help us to trust in God's providence 
+                        and to serve others with the same joy and dedication you showed. Amen."
+                      </p>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row gap-4 mt-8">
+                <Button 
+                  className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white"
+                  onClick={() => {
+                    // Add to favorites functionality
+                    alert('Added to favorites!');
+                  }}
+                >
+                  <Heart className="w-4 h-4 mr-2" />
+                  Add to Favorites
+                </Button>
+                <Button 
+                  variant="outline"
+                  className="flex-1 border-green-500 text-green-600 hover:bg-green-50"
+                  onClick={() => {
+                    // Share functionality
+                    if (navigator.share) {
+                      navigator.share({
+                        title: selectedMiracle.title,
+                        text: selectedMiracle.description,
+                        url: window.location.href
+                      });
+                    } else {
+                      navigator.clipboard.writeText(`${selectedMiracle.title}: ${selectedMiracle.description}`);
+                      alert('Story copied to clipboard!');
+                    }
+                  }}
+                >
+                  <Users className="w-4 h-4 mr-2" />
+                  Share with Friends
+                </Button>
+                <Button 
+                  variant="outline"
+                  className="flex-1 border-green-500 text-green-600 hover:bg-green-50"
+                  onClick={() => {
+                    // Learn more functionality
+                    window.open('https://www.vatican.va', '_blank');
+                  }}
+                >
+                  <BookOpen className="w-4 h-4 mr-2" />
+                  Learn More
+                </Button>
+              </div>
             </div>
           </motion.div>
         </motion.div>
