@@ -19,7 +19,9 @@ import {
   Sparkles,
   Laptop,
   Smartphone,
-  Lightbulb
+  Lightbulb,
+  Users,
+  BookOpen
 } from "lucide-react"
 import Link from "next/link"
 
