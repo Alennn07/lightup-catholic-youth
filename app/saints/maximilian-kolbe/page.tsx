@@ -274,6 +274,127 @@ export default function MaximilianKolbePage() {
         </div>
       </div>
 
+      {/* Wisdom Section */}
+      <motion.section
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.2 }}
+        className="py-16 bg-gradient-to-br from-purple-50 to-indigo-50"
+      >
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+              💬 Maximilian's Wisdom
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Profound insights from a man who gave everything for love
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {[
+              {
+                quote: "The most deadly poison of our time is indifference.",
+                context: "On the danger of apathy in the face of evil"
+              },
+              {
+                quote: "I am a Catholic priest. I want to die for God. If you kill me, I forgive you.",
+                context: "His final words before being killed in Auschwitz"
+              },
+              {
+                quote: "Hate is not a creative force. Love alone is creative.",
+                context: "On the power of love over hatred"
+              },
+              {
+                quote: "No one in the world can change Truth. What we can do and should do is to seek truth and to serve it when we have found it.",
+                context: "On the importance of seeking and serving truth"
+              }
+            ].map((item, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300"
+              >
+                <Quote className="w-8 h-8 text-purple-500 mb-4" />
+                <blockquote className="text-gray-800 text-lg italic mb-4 leading-relaxed">
+                  "{item.quote}"
+                </blockquote>
+                <p className="text-purple-600 font-semibold text-sm">
+                  {item.context}
+                </p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </motion.section>
+
+      {/* Timeline Section */}
+      <motion.section
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.3 }}
+        className="py-16 bg-white"
+      >
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+              📅 Maximilian's Timeline
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              The journey of a man who became a hero of self-sacrifice
+            </p>
+          </div>
+          
+          <div className="relative max-w-4xl mx-auto">
+            {/* Timeline Line */}
+            <div className="absolute left-1/2 transform -translate-x-1/2 w-1 h-full bg-gradient-to-b from-purple-500 to-indigo-500"></div>
+            
+            {[
+              {
+                year: "1894",
+                title: "Birth in Poland",
+                description: "Born in Zduńska Wola, Poland, into a devout Catholic family"
+              },
+              {
+                year: "1910",
+                title: "Joined Franciscans",
+                description: "Entered the Franciscan Order and took the name Maximilian"
+              },
+              {
+                year: "1918",
+                title: "Ordained Priest",
+                description: "Ordained as a Catholic priest and began his missionary work"
+              },
+              {
+                year: "1941",
+                title: "Martyrdom in Auschwitz",
+                description: "Volunteered to die in place of a father with a family, becoming a martyr of love"
+              }
+            ].map((event, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.6, delay: index * 0.2 }}
+                className={`relative flex items-center mb-12 ${index % 2 === 0 ? 'flex-row' : 'flex-row-reverse'}`}
+              >
+                <div className={`w-1/2 ${index % 2 === 0 ? 'pr-8 text-right' : 'pl-8 text-left'}`}>
+                  <div className="bg-white rounded-2xl p-6 shadow-lg border-l-4 border-purple-500">
+                    <div className="text-purple-600 font-bold text-lg mb-2">{event.year}</div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">{event.title}</h3>
+                    <p className="text-gray-600">{event.description}</p>
+                  </div>
+                </div>
+                <div className="absolute left-1/2 transform -translate-x-1/2 w-4 h-4 bg-purple-500 rounded-full border-4 border-white shadow-lg"></div>
+                <div className="w-1/2"></div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </motion.section>
+
       {/* Miracles & Intercessions Section */}
       <div className="bg-gradient-to-r from-purple-100 to-indigo-100 py-16">
         <div className="container mx-auto px-4">
@@ -398,6 +519,96 @@ export default function MaximilianKolbePage() {
           </div>
         </section>
       )}
+
+      {/* Prayer Section */}
+      <motion.section
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.4 }}
+        className="py-16 bg-gradient-to-br from-purple-50 to-indigo-50"
+      >
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto">
+            <div className="bg-white rounded-2xl p-8 shadow-xl">
+              <div className="text-center mb-8">
+                <h2 className="text-4xl font-bold text-gray-900 mb-4">
+                  🙏 Prayer to Maximilian Kolbe
+                </h2>
+                <p className="text-lg text-gray-600">
+                  A prayer for courage and self-sacrifice in our daily lives
+                </p>
+              </div>
+              
+              <div className="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl p-6 mb-6">
+                <p className="text-gray-800 text-lg leading-relaxed italic">
+                  "Saint Maximilian Kolbe, you who gave your life for another in Auschwitz, 
+                  teach us to love as Christ loved. Help us to put others before ourselves, 
+                  to choose love over comfort, and to be willing to sacrifice for those we love. 
+                  Give us the courage to stand up for what is right, even when it costs us everything. 
+                  May we learn from your example of selfless love and become true heroes of the heart. Amen."
+                </p>
+              </div>
+              
+              <div className="text-center">
+                <p className="text-purple-600 font-semibold">
+                  "The most deadly poison of our time is indifference." - Maximilian Kolbe
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </motion.section>
+
+      {/* The Big Secret Section */}
+      <motion.section
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.5 }}
+        className="py-16 bg-white"
+      >
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto">
+            <div className="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-2xl p-8 shadow-xl">
+              <div className="text-center mb-8">
+                <h2 className="text-4xl font-bold text-gray-900 mb-4">
+                  💡 The Big Secret
+                </h2>
+                <p className="text-lg text-gray-600">
+                  What made Maximilian Kolbe so extraordinary?
+                </p>
+              </div>
+              
+              <div className="bg-white rounded-xl p-6">
+                <p className="text-gray-800 text-lg leading-relaxed mb-6">
+                  Maximilian Kolbe's secret wasn't that he was superhuman or fearless. His secret was that he 
+                  <span className="font-bold text-purple-600"> loved like Jesus loved</span>. 
+                  When a father with a family was chosen to die in Auschwitz, Maximilian didn't just feel sorry for him...
+                </p>
+                
+                <p className="text-gray-800 text-lg leading-relaxed mb-6">
+                  He stepped forward and said, <span className="font-bold text-purple-600">"Take me instead."</span> 
+                  He didn't do this because he wanted to die. He did it because he understood that 
+                  <span className="font-bold text-purple-600"> true love means putting others first</span>, 
+                  even when it costs you everything.
+                </p>
+                
+                <p className="text-gray-800 text-lg leading-relaxed mb-6">
+                  In that moment, Maximilian showed us what it means to be a real hero. Not the kind who fights with weapons, 
+                  but the kind who fights with <span className="font-bold text-purple-600">love and sacrifice</span>. 
+                  He proved that one person's love can change everything.
+                </p>
+                
+                <div className="bg-purple-50 rounded-lg p-4 border-l-4 border-purple-500">
+                  <p className="text-purple-800 font-semibold">
+                    The secret? Maximilian Kolbe shows us that the greatest power in the world isn't strength or fame. 
+                    It's the power to love others more than we love ourselves.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </motion.section>
 
       {/* FAQ Section */}
       <div className="container mx-auto px-4 py-16">

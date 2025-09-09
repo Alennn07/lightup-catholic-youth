@@ -275,6 +275,127 @@ export default function OscarRomeroPage() {
         </div>
       </div>
 
+      {/* Wisdom Section */}
+      <motion.section
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.2 }}
+        className="py-16 bg-gradient-to-br from-red-50 to-orange-50"
+      >
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+              💬 Oscar's Wisdom
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Powerful words from a man who gave his life for justice and truth
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {[
+              {
+                quote: "A church that doesn't provoke any crisis, a gospel that doesn't unsettle, a word of God that doesn't touch the concrete sin of the society in which it is being proclaimed - what gospel is that?",
+                context: "On the Church's mission to challenge injustice"
+              },
+              {
+                quote: "I will not run away. I will stay here with my people. If they kill me, I will rise again in the Salvadoran people.",
+                context: "His commitment to staying with the oppressed"
+              },
+              {
+                quote: "The church would betray its own love for God and its fidelity to the gospel if it stopped being the voice of the voiceless.",
+                context: "On the Church's duty to speak for the poor"
+              },
+              {
+                quote: "I have frequently been threatened with death. I must say that, as a Christian, I do not believe in death without resurrection. If they kill me, I will be resurrected in the Salvadoran people.",
+                context: "His faith in resurrection and the people"
+              }
+            ].map((item, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300"
+              >
+                <Quote className="w-8 h-8 text-red-500 mb-4" />
+                <blockquote className="text-gray-800 text-lg italic mb-4 leading-relaxed">
+                  "{item.quote}"
+                </blockquote>
+                <p className="text-red-600 font-semibold text-sm">
+                  {item.context}
+                </p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </motion.section>
+
+      {/* Timeline Section */}
+      <motion.section
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.3 }}
+        className="py-16 bg-white"
+      >
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+              📅 Oscar's Timeline
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              The journey of a man who became the voice of the voiceless
+            </p>
+          </div>
+          
+          <div className="relative max-w-4xl mx-auto">
+            {/* Timeline Line */}
+            <div className="absolute left-1/2 transform -translate-x-1/2 w-1 h-full bg-gradient-to-b from-red-500 to-orange-500"></div>
+            
+            {[
+              {
+                year: "1917",
+                title: "Birth in El Salvador",
+                description: "Born in Ciudad Barrios, El Salvador, into a modest family"
+              },
+              {
+                year: "1942",
+                title: "Ordained Priest",
+                description: "Ordained as a Catholic priest and began his ministry"
+              },
+              {
+                year: "1977",
+                title: "Appointed Archbishop",
+                description: "Became Archbishop of San Salvador, initially seen as conservative"
+              },
+              {
+                year: "1980",
+                title: "Martyrdom",
+                description: "Assassinated while celebrating Mass, becoming a martyr for justice"
+              }
+            ].map((event, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.6, delay: index * 0.2 }}
+                className={`relative flex items-center mb-12 ${index % 2 === 0 ? 'flex-row' : 'flex-row-reverse'}`}
+              >
+                <div className={`w-1/2 ${index % 2 === 0 ? 'pr-8 text-right' : 'pl-8 text-left'}`}>
+                  <div className="bg-white rounded-2xl p-6 shadow-lg border-l-4 border-red-500">
+                    <div className="text-red-600 font-bold text-lg mb-2">{event.year}</div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">{event.title}</h3>
+                    <p className="text-gray-600">{event.description}</p>
+                  </div>
+                </div>
+                <div className="absolute left-1/2 transform -translate-x-1/2 w-4 h-4 bg-red-500 rounded-full border-4 border-white shadow-lg"></div>
+                <div className="w-1/2"></div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </motion.section>
+
       {/* Miracles & Intercessions Section */}
       <div className="bg-gradient-to-r from-red-100 to-orange-100 py-16">
         <div className="container mx-auto px-4">
@@ -399,6 +520,95 @@ export default function OscarRomeroPage() {
           </div>
         </section>
       )}
+
+      {/* Prayer Section */}
+      <motion.section
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.4 }}
+        className="py-16 bg-gradient-to-br from-red-50 to-orange-50"
+      >
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto">
+            <div className="bg-white rounded-2xl p-8 shadow-xl">
+              <div className="text-center mb-8">
+                <h2 className="text-4xl font-bold text-gray-900 mb-4">
+                  🙏 Prayer to Oscar Romero
+                </h2>
+                <p className="text-lg text-gray-600">
+                  A prayer for courage and justice in our world today
+                </p>
+              </div>
+              
+              <div className="bg-gradient-to-r from-red-50 to-orange-50 rounded-xl p-6 mb-6">
+                <p className="text-gray-800 text-lg leading-relaxed italic">
+                  "Oscar Romero, you who gave your life for the poor and oppressed, 
+                  intercede for us that we may have the courage to speak truth to power. 
+                  Help us to be the voice of the voiceless and to work for justice in our world. 
+                  May we never turn away from those who suffer, but always stand with them in solidarity. 
+                  Give us the strength to follow Christ's example of love and sacrifice. Amen."
+                </p>
+              </div>
+              
+              <div className="text-center">
+                <p className="text-red-600 font-semibold">
+                  "A church that doesn't provoke any crisis, a gospel that doesn't unsettle... what gospel is that?" - Oscar Romero
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </motion.section>
+
+      {/* The Big Secret Section */}
+      <motion.section
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.5 }}
+        className="py-16 bg-white"
+      >
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto">
+            <div className="bg-gradient-to-r from-red-50 to-orange-50 rounded-2xl p-8 shadow-xl">
+              <div className="text-center mb-8">
+                <h2 className="text-4xl font-bold text-gray-900 mb-4">
+                  💡 The Big Secret
+                </h2>
+                <p className="text-lg text-gray-600">
+                  What made Oscar Romero so powerful?
+                </p>
+              </div>
+              
+              <div className="bg-white rounded-xl p-6">
+                <p className="text-gray-800 text-lg leading-relaxed mb-6">
+                  Oscar Romero's secret wasn't that he was perfect or fearless. His secret was that he 
+                  <span className="font-bold text-red-600"> listened to the poor</span>. 
+                  When he became Archbishop, he was actually quite conservative. But then something happened...
+                </p>
+                
+                <p className="text-gray-800 text-lg leading-relaxed mb-6">
+                  His friend, Father Rutilio Grande, was murdered for helping the poor. This shook Oscar to his core. 
+                  He realized that <span className="font-bold text-red-600">true Christianity means standing with the oppressed</span>, 
+                  not just saying nice things about them from a distance.
+                </p>
+                
+                <p className="text-gray-800 text-lg leading-relaxed mb-6">
+                  From that moment on, Oscar Romero became the voice of the voiceless. He used his radio broadcasts 
+                  to expose the truth about government violence. He knew it would cost him his life, but he chose 
+                  <span className="font-bold text-red-600"> love over safety</span>.
+                </p>
+                
+                <div className="bg-red-50 rounded-lg p-4 border-l-4 border-red-500">
+                  <p className="text-red-800 font-semibold">
+                    The secret? Oscar Romero shows us that being a Christian isn't about being comfortable. 
+                    It's about being courageous enough to love the way Jesus loved - even when it's dangerous.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </motion.section>
 
       {/* FAQ Section */}
       <div className="container mx-auto px-4 py-16">
