@@ -808,20 +808,45 @@ export default function SaintsPage() {
 
           {/* Carlo Acutis Tab */}
           <TabsContent value="carlo" className="space-y-8">
-            <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-0 rounded-2xl shadow-lg">
-              <CardContent className="p-8 text-center">
-                <div className="w-20 h-20 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Globe className="w-10 h-10 text-white" />
+            {/* Carlo Acutis Hero Section with Photo */}
+            <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-0 rounded-2xl shadow-lg overflow-hidden">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
+                {/* Photo Section */}
+                <div className="relative h-64 lg:h-auto bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center">
+                  <div className="absolute inset-0 bg-black/20"></div>
+                  <div className="relative z-10 text-center text-white p-8">
+                    <div className="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4 backdrop-blur-sm">
+                      <Globe className="w-12 h-12 text-white" />
+                    </div>
+                    <h3 className="text-2xl font-bold mb-2">Carlo Acutis</h3>
+                    <p className="text-blue-100 text-sm">1991 - 2006</p>
+                  </div>
+                  {/* Decorative Elements */}
+                  <div className="absolute top-4 right-4 w-8 h-8 bg-yellow-400 rounded-full opacity-60"></div>
+                  <div className="absolute bottom-4 left-4 w-6 h-6 bg-pink-400 rounded-full opacity-60"></div>
                 </div>
-                <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                  ✨ Carlo Acutis – Patron of the Internet & Youth
-                </h2>
-                <p className="text-lg text-gray-700 max-w-3xl mx-auto leading-relaxed">
-                  A young Italian who used technology to spread the Gospel and documented Eucharistic miracles around the world. 
-                  His life shows us how to be saints in the digital age.
-                </p>
-                {/* TODO: Connect to Supabase for Carlo Acutis content and user progress tracking */}
-              </CardContent>
+                
+                {/* Content Section */}
+                <div className="p-8 flex flex-col justify-center">
+                  <div className="inline-flex items-center px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-semibold mb-4 w-fit">
+                    <Globe className="w-4 h-4 mr-2" />
+                    Patron of the Internet
+                  </div>
+                  <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                    ✨ Carlo Acutis – Digital Saint
+                  </h2>
+                  <p className="text-lg text-gray-700 leading-relaxed mb-6">
+                    A young Italian who used technology to spread the Gospel and documented Eucharistic miracles around the world. 
+                    His life shows us how to be saints in the digital age.
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">Technology</span>
+                    <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">Youth</span>
+                    <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">Eucharist</span>
+                    <span className="px-3 py-1 bg-pink-100 text-pink-700 rounded-full text-xs font-medium">Digital Evangelization</span>
+                  </div>
+                </div>
+              </div>
             </Card>
             <CardGrid 
               eucharisticMiracles={eucharisticMiracles}
@@ -832,20 +857,45 @@ export default function SaintsPage() {
 
           {/* Pier Giorgio Frassati Tab */}
           <TabsContent value="pier" className="space-y-8">
-            <Card className="bg-gradient-to-r from-green-50 to-emerald-50 border-0 rounded-2xl shadow-lg">
-              <CardContent className="p-8 text-center">
-                <div className="w-20 h-20 bg-gradient-to-br from-green-600 to-emerald-700 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Mountain className="w-10 h-10 text-white" />
+            {/* Pier Giorgio Frassati Hero Section with Photo */}
+            <Card className="bg-gradient-to-r from-green-50 to-emerald-50 border-0 rounded-2xl shadow-lg overflow-hidden">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
+                {/* Photo Section */}
+                <div className="relative h-64 lg:h-auto bg-gradient-to-br from-green-600 to-emerald-700 flex items-center justify-center">
+                  <div className="absolute inset-0 bg-black/20"></div>
+                  <div className="relative z-10 text-center text-white p-8">
+                    <div className="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4 backdrop-blur-sm">
+                      <Mountain className="w-12 h-12 text-white" />
+                    </div>
+                    <h3 className="text-2xl font-bold mb-2">Pier Giorgio Frassati</h3>
+                    <p className="text-green-100 text-sm">1901 - 1925</p>
+                  </div>
+                  {/* Decorative Elements */}
+                  <div className="absolute top-4 right-4 w-8 h-8 bg-yellow-400 rounded-full opacity-60"></div>
+                  <div className="absolute bottom-4 left-4 w-6 h-6 bg-blue-400 rounded-full opacity-60"></div>
                 </div>
-                <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                  ⛰️ Pier Giorgio Frassati – Verso l'alto
-                </h2>
-                <p className="text-lg text-gray-700 max-w-3xl mx-auto leading-relaxed">
-                  "Verso l'alto" (To the heights) was his motto. A young man who combined deep faith with love for the outdoors, 
-                  social justice, and friendship. His life inspires us to reach for the heights of holiness.
-                </p>
-                {/* TODO: Connect to Supabase for progress tracking and goal management */}
-              </CardContent>
+                
+                {/* Content Section */}
+                <div className="p-8 flex flex-col justify-center">
+                  <div className="inline-flex items-center px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-semibold mb-4 w-fit">
+                    <Mountain className="w-4 h-4 mr-2" />
+                    Verso l'alto
+                  </div>
+                  <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                    ⛰️ Pier Giorgio Frassati – To the Heights
+                  </h2>
+                  <p className="text-lg text-gray-700 leading-relaxed mb-6">
+                    "Verso l'alto" (To the heights) was his motto. A young man who combined deep faith with love for the outdoors, 
+                    social justice, and friendship. His life inspires us to reach for the heights of holiness.
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">Mountains</span>
+                    <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">Social Justice</span>
+                    <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">Friendship</span>
+                    <span className="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-xs font-medium">Adventure</span>
+                  </div>
+                </div>
+              </div>
             </Card>
             <ProgressTracker />
           </TabsContent>
