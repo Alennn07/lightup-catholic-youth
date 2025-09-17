@@ -4,11 +4,19 @@ import { createServerClient } from "@supabase/ssr"
 
 export async function middleware(request: NextRequest) {
   console.log(`🔍 Middleware: Running for ${request.nextUrl.pathname}`)
+  
+  // Create response first
   const res = NextResponse.next()
   
+  // Check if we have the required environment variables
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+    console.log(`🔍 Middleware: Missing Supabase environment variables`)
+    return res
+  }
+  
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
     {
       cookies: {
         get(name: string) {
@@ -46,6 +54,17 @@ export async function middleware(request: NextRequest) {
     '/community' // Redirect community to login since it's removed
   ]
 
+  // Skip middleware for certain paths
+  const skipPaths = ['/', '/features', '/saints', '/about', '/support', '/auth']
+  const shouldSkip = skipPaths.some(path => 
+    request.nextUrl.pathname === path || request.nextUrl.pathname.startsWith(path + '/')
+  )
+  
+  if (shouldSkip) {
+    console.log(`🔍 Middleware: Skipping middleware for ${request.nextUrl.pathname}`)
+    return res
+  }
+
   // Check if the current path is protected
   const isProtectedRoute = protectedRoutes.some(route => 
     request.nextUrl.pathname.startsWith(route)
@@ -67,12 +86,18 @@ export async function middleware(request: NextRequest) {
         error: error?.message 
       })
       
+      if (error) {
+        console.log(`🔍 Middleware: Supabase error:`, error.message)
+        // If there's a Supabase error, allow access but log it
+        return res
+      }
+      
       if (!session) {
         console.log(`🔍 Middleware: No session, redirecting to sign-in`)
         // Redirect to sign-in if not authenticated
-        const redirectUrl = new URL("/auth/sign-in", request.url)
-        redirectUrl.searchParams.set("redirectTo", request.nextUrl.pathname)
-        return NextResponse.redirect(redirectUrl)
+        const signInUrl = new URL("/auth/sign-in", request.url)
+        signInUrl.searchParams.set("redirectTo", request.nextUrl.pathname)
+        return NextResponse.redirect(signInUrl)
       } else {
         console.log(`🔍 Middleware: Session found, allowing access to ${request.nextUrl.pathname}`)
         // Add user info to headers for debugging
@@ -81,10 +106,9 @@ export async function middleware(request: NextRequest) {
       }
     } catch (error) {
       console.log(`🔍 Middleware: Error checking session:`, error)
-      // If there's an error checking session, redirect to sign-in
-      const redirectUrl = new URL("/auth/sign-in", request.url)
-      redirectUrl.searchParams.set("redirectTo", request.nextUrl.pathname)
-      return NextResponse.redirect(redirectUrl)
+      // If there's an error checking session, allow access but log it
+      console.log(`🔍 Middleware: Allowing access due to error: ${error}`)
+      return res
     }
   }
 
