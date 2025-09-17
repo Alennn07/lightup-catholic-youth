@@ -5,6 +5,8 @@ import { RegisterSchema } from '@/lib/validations';
 import { checkRateLimit, getRateLimitHeaders } from '@/lib/rate-limiter';
 import { getClientIP, createFriendlyError, logSecurityEvent, generateSecureToken, storeToken } from '@/lib/auth-helpers';
 import { validateEmailDomain } from '@/lib/email-validation';
+import { ensureUserProfile, updateLastLogin } from '@/lib/user-service';
+import { createSuccessResponse, createErrorResponse, ERROR_MESSAGES, SUCCESS_MESSAGES } from '@/lib/api-response';
 
 // Initialize Supabase client for user registration
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -111,41 +113,36 @@ export async function POST(request: NextRequest) {
       if (authError.message?.includes('Password should be at least') ||
           authError.message?.includes('password') ||
           authError.code === 'weak_password') {
-        return NextResponse.json({ 
-          error: 'Password must be at least 6 characters long.',
-          code: 'WEAK_PASSWORD'
-        }, { status: 400 });
+        return NextResponse.json(createErrorResponse(
+          'Password must be at least 6 characters long.',
+          undefined,
+          'WEAK_PASSWORD'
+        ), { status: 400 });
       }
       
       // Generic error fallback - show actual error message
-      return NextResponse.json(
-        { 
-          error: authError.message || 'Registration failed. Please try again.',
-          code: 'AUTH_ERROR'
-        },
-        { status: 400 }
-      );
+      return NextResponse.json(createErrorResponse(
+        authError.message || 'Registration failed. Please try again.',
+        undefined,
+        'AUTH_ERROR'
+      ), { status: 400 });
     }
 
     console.log('✅ Auth user created:', authData.user?.id);
 
-    // 2. Create user profile in users table
-    const { error: profileError } = await supabase
-      .from('users')
-      .insert({
+    // 2. Create user profile using the user service
+    try {
+      const userProfile = await ensureUserProfile({
         id: authData.user!.id,
+        email,
         name,
         username,
-        email,
         age: age,
         parish,
-        diocese,
-        email_verified: true, // AUTO-VERIFY EMAIL FOR LAUNCH
-        email_verified_at: new Date().toISOString(),
-        created_at: new Date().toISOString()
+        diocese
       });
-
-    if (profileError) {
+      console.log('✅ User profile created/ensured successfully:', userProfile.id);
+    } catch (profileError: any) {
       console.error('❌ Profile creation failed:', profileError);
       
       // Log security event
@@ -156,8 +153,6 @@ export async function POST(request: NextRequest) {
       // If profile creation fails, we should clean up the auth user
       // But for now, let's just log it
       console.warn('⚠️ Profile creation failed, auth user remains');
-    } else {
-      console.log('✅ User profile created successfully');
     }
 
     // 3. Email verification DISABLED for launch - users can sign in immediately
@@ -176,9 +171,7 @@ export async function POST(request: NextRequest) {
       console.warn('⚠️ Could not generate auto-login link:', sessionError.message);
     }
 
-    return NextResponse.json({
-      success: true,
-      message: 'Registration successful! You are now logged in.',
+    return NextResponse.json(createSuccessResponse({
       user: {
         id: authData.user!.id,
         name,
@@ -190,7 +183,7 @@ export async function POST(request: NextRequest) {
       },
       // Enable auto-login with session data
       autoLogin: true
-    }, { status: 200 });
+    }, 'Registration successful! You are now logged in.'), { status: 200 });
 
   } catch (error: any) {
     console.error('❌ Simple registration API error:', error);

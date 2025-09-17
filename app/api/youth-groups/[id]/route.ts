@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { logIfEnabled } from '@/lib/performance-monitor'
+import { createSuccessResponse, createErrorResponse, ERROR_MESSAGES, SUCCESS_MESSAGES } from '@/lib/api-response'
 
 export const dynamic = 'force-dynamic'
 
@@ -65,7 +66,7 @@ export async function GET(
 
     if (groupError || !group) {
       logIfEnabled(`❌ Group not found: ${groupError?.message}`)
-      return NextResponse.json({ error: 'Group not found' }, { status: 404 })
+      return NextResponse.json(createErrorResponse(ERROR_MESSAGES.GROUP_NOT_FOUND), { status: 404 })
     }
 
     // Check if user is a member of the group (only if user is authenticated)
@@ -97,17 +98,17 @@ export async function GET(
 
     logIfEnabled(`✅ Group details fetched for ${groupId}: ${group.name}`)
     
-    return NextResponse.json({
-      success: true,
-      group: groupWithMembership
-    })
+    return NextResponse.json(createSuccessResponse(
+      groupWithMembership,
+      'Group details fetched successfully'
+    ))
 
   } catch (error: any) {
     logIfEnabled(`❌ Error in get group API: ${error.message}`, 'error')
-    return NextResponse.json({ 
-      error: 'Internal server error',
-      details: error.message 
-    }, { status: 500 })
+    return NextResponse.json(createErrorResponse(
+      ERROR_MESSAGES.INTERNAL_ERROR,
+      error.message
+    ), { status: 500 })
   }
 }
 
@@ -121,7 +122,7 @@ export async function PUT(
     const token = authHeader?.replace('Bearer ', '')
     
     if (!token) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json(createErrorResponse(ERROR_MESSAGES.UNAUTHORIZED), { status: 401 })
     }
 
     const supabase = createClient(
@@ -136,7 +137,7 @@ export async function PUT(
     // Verify user authentication
     const { data: { user }, error: authError } = await supabase.auth.getUser(token)
     if (authError || !user) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
+      return NextResponse.json(createErrorResponse(ERROR_MESSAGES.INVALID_TOKEN), { status: 401 })
     }
 
     // Check if user is group owner
@@ -147,11 +148,11 @@ export async function PUT(
       .single()
 
     if (groupError || !group) {
-      return NextResponse.json({ error: 'Group not found' }, { status: 404 })
+      return NextResponse.json(createErrorResponse(ERROR_MESSAGES.GROUP_NOT_FOUND), { status: 404 })
     }
 
     if (group.owner_id !== user.id) {
-      return NextResponse.json({ error: 'Only group owners can update group' }, { status: 403 })
+      return NextResponse.json(createErrorResponse(ERROR_MESSAGES.FORBIDDEN, 'Only group owners can update group'), { status: 403 })
     }
 
     const updateData = await request.json()
@@ -187,22 +188,24 @@ export async function PUT(
 
     if (updateError) {
       logIfEnabled(`❌ Error updating group: ${updateError.message}`, 'error')
-      return NextResponse.json({ error: 'Failed to update group' }, { status: 500 })
+      return NextResponse.json(createErrorResponse(
+        'Failed to update group',
+        updateError.message
+      ), { status: 500 })
     }
 
     logIfEnabled(`✅ Group updated: ${groupId}`)
     
-    return NextResponse.json({
-      success: true,
-      message: 'Group updated successfully',
-      group: updatedGroup
-    })
+    return NextResponse.json(createSuccessResponse(
+      updatedGroup,
+      SUCCESS_MESSAGES.GROUP_UPDATED
+    ))
 
   } catch (error: any) {
     logIfEnabled(`❌ Error in update group API: ${error.message}`, 'error')
-    return NextResponse.json({ 
-      error: 'Internal server error',
-      details: error.message 
-    }, { status: 500 })
+    return NextResponse.json(createErrorResponse(
+      ERROR_MESSAGES.INTERNAL_ERROR,
+      error.message
+    ), { status: 500 })
   }
 }

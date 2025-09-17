@@ -4,6 +4,9 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/auth-context'
 import { useToast } from '@/hooks/use-toast'
 import { usePermissions } from '@/hooks/use-permissions'
+import { useYouthGroupsApi } from '@/hooks/use-youth-groups-api'
+import { YouthGroup, GroupMember, GroupEvent, GroupPost, CreateGroupFormData, EditGroupFormData, CreateEventFormData, CreatePostFormData } from '@/types/youth-groups'
+import { YouthGroupsErrorBoundary, useErrorHandler } from '@/components/youth-groups-error-boundary'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -21,48 +24,15 @@ import { RoleBasedWrapper, CanCreateGroups, GroupOwnerOnly, CanManageMembers } f
 import { MemberRequestModal } from '@/components/member-request-modal'
 import { NotificationBadge } from '@/components/notification-badge'
 
-interface YouthGroup {
-  id: string
-  name: string
-  description: string
-  mission_statement?: string
-  parish?: string
-  diocese?: string
-  city?: string
-  state?: string
-  country?: string
-  meeting_location?: string
-  meeting_time?: string
-  meeting_frequency?: string
-  age_range?: string
-  max_members: number
-  is_public: boolean
-  is_active: boolean
-  owner_id: string
-  requires_approval: boolean
-  created_at: string
-  updated_at: string
-  owner?: {
-    id: string
-    email: string
-    user_metadata?: any
-  }
-  member_count?: number
-  user_role?: string
-  user_status?: string
-  is_member?: boolean
-  is_owner?: boolean
-  is_pending?: boolean
-  members?: any[]
-  events?: any[]
-  posts?: any[]
-}
+// YouthGroup interface is now imported from types/youth-groups.ts
 
-export default function EnhancedYouthGroups() {
+function EnhancedYouthGroupsContent() {
   const { t } = useTranslation()
   const { user, getAccessToken } = useAuth()
   const { toast } = useToast()
   const { permissions, loading: permissionsLoading } = usePermissions()
+  const { handleError, handleAsyncError } = useErrorHandler()
+  const api = useYouthGroupsApi()
   
   const [groups, setGroups] = useState<YouthGroup[]>([])
   const [loading, setLoading] = useState(true)
@@ -84,15 +54,15 @@ export default function EnhancedYouthGroups() {
   const [newMemberEmail, setNewMemberEmail] = useState('')
   const [joinRequestMessage, setJoinRequestMessage] = useState('')
   const [showJoinRequestModal, setShowJoinRequestModal] = useState(false)
-  const [groupMembers, setGroupMembers] = useState<any[]>([])
-  const [groupEvents, setGroupEvents] = useState<any[]>([])
-  const [groupPosts, setGroupPosts] = useState<any[]>([])
+  const [groupMembers, setGroupMembers] = useState<GroupMember[]>([])
+  const [groupEvents, setGroupEvents] = useState<GroupEvent[]>([])
+  const [groupPosts, setGroupPosts] = useState<GroupPost[]>([])
   const [loadingMembers, setLoadingMembers] = useState(false)
   const [loadingEvents, setLoadingEvents] = useState(false)
   const [loadingPosts, setLoadingPosts] = useState(false)
   
   // Event form state
-  const [eventForm, setEventForm] = useState({
+  const [eventForm, setEventForm] = useState<CreateEventFormData>({
     title: '',
     description: '',
     date: '',
@@ -102,14 +72,14 @@ export default function EnhancedYouthGroups() {
   })
   
   // Post form state
-  const [postForm, setPostForm] = useState({
+  const [postForm, setPostForm] = useState<CreatePostFormData>({
     title: '',
     content: '',
     type: 'announcement'
   })
   
   // Edit group form state
-  const [editGroupForm, setEditGroupForm] = useState({
+  const [editGroupForm, setEditGroupForm] = useState<EditGroupFormData>({
     name: '',
     description: '',
     mission_statement: '',
@@ -122,7 +92,7 @@ export default function EnhancedYouthGroups() {
   })
 
   // Form state for creating groups
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<CreateGroupFormData>({
     name: '',
     description: '',
     mission_statement: '',
@@ -161,14 +131,14 @@ export default function EnhancedYouthGroups() {
 
       if (response.ok) {
         const data = await response.json()
-        setSelectedGroup(data.group)
-        console.log('✅ Group details fetched:', data.group)
+        setSelectedGroup(data.data)
+        console.log('✅ Group details fetched:', data.data)
         
         // Update the group in the main list with correct membership info
         setGroups(prevGroups => 
           prevGroups.map(group => 
             group.id === groupId 
-              ? { ...group, is_member: data.group.is_member, is_owner: data.group.is_owner }
+              ? { ...group, is_member: data.data.is_member, is_owner: data.data.is_owner }
               : group
           )
         )
@@ -236,7 +206,7 @@ export default function EnhancedYouthGroups() {
 
       if (response.ok) {
         const data = await response.json()
-        setGroups(data.groups || [])
+        setGroups(data.data || [])
       } else {
         const error = await response.json()
         toast({
@@ -658,8 +628,8 @@ export default function EnhancedYouthGroups() {
       if (response.ok) {
         const data = await response.json()
         console.log('✅ Members data received:', data)
-        setGroupMembers(data.members || [])
-        console.log('✅ Members set in state:', data.members?.length || 0)
+        setGroupMembers(data.data || [])
+        console.log('✅ Members set in state:', data.data?.length || 0)
       } else {
         const error = await response.json()
         console.error('❌ Failed to fetch members:', error)
@@ -709,8 +679,8 @@ export default function EnhancedYouthGroups() {
       if (response.ok) {
         const data = await response.json()
         console.log('✅ Events data received:', data)
-        setGroupEvents(data.events || [])
-        console.log('✅ Events set in state:', data.events?.length || 0)
+        setGroupEvents(data.data || [])
+        console.log('✅ Events set in state:', data.data?.length || 0)
       } else {
         const error = await response.json()
         console.error('❌ Failed to fetch events:', error)
@@ -760,8 +730,8 @@ export default function EnhancedYouthGroups() {
       if (response.ok) {
         const data = await response.json()
         console.log('✅ Posts data received:', data)
-        setGroupPosts(data.posts || [])
-        console.log('✅ Posts set in state:', data.posts?.length || 0)
+        setGroupPosts(data.data || [])
+        console.log('✅ Posts set in state:', data.data?.length || 0)
       } else {
         const error = await response.json()
         console.error('❌ Failed to fetch posts:', error)
@@ -860,7 +830,7 @@ export default function EnhancedYouthGroups() {
         setPostForm({
           title: '',
           content: '',
-          type: 'announcement'
+          type: 'announcement' as const
         })
         setShowCreatePost(false)
         fetchGroupPosts() // Refresh posts list
@@ -913,7 +883,7 @@ export default function EnhancedYouthGroups() {
     setPostForm({
       title: post.title || '',
       content: post.content || '',
-      type: post.post_type || post.type || 'announcement'
+      type: (post.post_type || 'announcement') as 'announcement' | 'discussion' | 'prayer_request' | 'event_reminder'
     })
     setShowEditPost(true)
   }
@@ -1887,7 +1857,7 @@ export default function EnhancedYouthGroups() {
                                   <div className="flex items-center space-x-2 mb-2">
                                     <h4 className="font-semibold text-gray-900">{post.title}</h4>
                                     <Badge variant="outline" className="text-xs">
-                                      {post.post_type || post.type}
+                                      {post.post_type}
                                     </Badge>
                                   </div>
                                   <p className="text-sm text-gray-600 mb-2">{post.content}</p>
@@ -2275,7 +2245,7 @@ export default function EnhancedYouthGroups() {
                 <Label htmlFor="post_type">Post Type</Label>
                 <Select
                   value={postForm.type}
-                  onValueChange={(value) => setPostForm(prev => ({ ...prev, type: value }))}
+                  onValueChange={(value) => setPostForm(prev => ({ ...prev, type: value as 'announcement' | 'discussion' | 'prayer_request' | 'event_reminder' }))}
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -2518,7 +2488,7 @@ export default function EnhancedYouthGroups() {
                 <Label htmlFor="edit_post_type">Post Type</Label>
                 <Select
                   value={postForm.type}
-                  onValueChange={(value) => setPostForm(prev => ({ ...prev, type: value }))}
+                  onValueChange={(value) => setPostForm(prev => ({ ...prev, type: value as 'announcement' | 'discussion' | 'prayer_request' | 'event_reminder' }))}
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -2557,5 +2527,14 @@ export default function EnhancedYouthGroups() {
         </DialogContent>
       </Dialog>
     </div>
+  )
+}
+
+// Export the component wrapped with error boundary
+export default function EnhancedYouthGroups() {
+  return (
+    <YouthGroupsErrorBoundary>
+      <EnhancedYouthGroupsContent />
+    </YouthGroupsErrorBoundary>
   )
 }

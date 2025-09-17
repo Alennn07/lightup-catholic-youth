@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { checkRateLimit, getRateLimitHeaders } from '@/lib/rate-limiter'
+import { createSuccessResponse, createErrorResponse, ERROR_MESSAGES, SUCCESS_MESSAGES } from '@/lib/api-response'
 
 export const dynamic = 'force-dynamic'
 
@@ -74,10 +75,10 @@ export async function GET(request: NextRequest) {
 
     if (groupsResult.error) {
       console.error(`❌ Error fetching groups: ${groupsResult.error.message}`)
-      return NextResponse.json({ 
-        error: 'Failed to fetch groups',
-        details: groupsResult.error.message 
-      }, { status: 500 })
+      return NextResponse.json(createErrorResponse(
+        'Failed to fetch groups',
+        groupsResult.error.message
+      ), { status: 500 })
     }
 
     const groups = groupsResult.data || []
@@ -101,10 +102,16 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    return NextResponse.json({ 
-      groups: groupsWithUserInfo,
-      total: groupsWithUserInfo.length
-    }, {
+    return NextResponse.json(createSuccessResponse(
+      groupsWithUserInfo,
+      `Found ${groupsWithUserInfo.length} groups`,
+      {
+        page: 1,
+        limit: 50,
+        total: groupsWithUserInfo.length,
+        totalPages: 1
+      }
+    ), {
       headers: {
         'Cache-Control': 'public, max-age=300', // 5 minutes cache
         'CDN-Cache-Control': 'max-age=300'
@@ -113,10 +120,10 @@ export async function GET(request: NextRequest) {
 
   } catch (error: any) {
     console.error(`❌ Error in Youth Groups API:`, error)
-    return NextResponse.json({ 
-      error: 'Internal server error',
-      details: error.message || 'Unknown error occurred'
-    }, { status: 500 })
+    return NextResponse.json(createErrorResponse(
+      ERROR_MESSAGES.INTERNAL_ERROR,
+      error.message || 'Unknown error occurred'
+    ), { status: 500 })
   }
 }
 
@@ -152,12 +159,12 @@ export async function POST(request: NextRequest) {
     const token = authHeader?.replace('Bearer ', '')
     
     if (!token) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json(createErrorResponse(ERROR_MESSAGES.UNAUTHORIZED), { status: 401 })
     }
 
     const { data: { user }, error: authError } = await supabase.auth.getUser(token)
     if (authError || !user) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
+      return NextResponse.json(createErrorResponse(ERROR_MESSAGES.INVALID_TOKEN), { status: 401 })
     }
 
     // Create group
@@ -183,10 +190,10 @@ export async function POST(request: NextRequest) {
 
     if (createError) {
       console.error('❌ Error creating group:', createError)
-      return NextResponse.json({ 
-        error: 'Failed to create group',
-        details: createError.message 
-      }, { status: 500 })
+      return NextResponse.json(createErrorResponse(
+        'Failed to create group',
+        createError.message
+      ), { status: 500 })
     }
 
     // Add the creator as an owner member
@@ -205,13 +212,16 @@ export async function POST(request: NextRequest) {
     }
 
     console.log('✅ Group created successfully:', group.id)
-    return NextResponse.json({ group })
+    return NextResponse.json(createSuccessResponse(
+      group,
+      SUCCESS_MESSAGES.GROUP_CREATED
+    ))
 
   } catch (error: any) {
     console.error('❌ Unexpected error in POST /api/youth-groups:', error)
-    return NextResponse.json({ 
-      error: 'Internal server error',
-      details: error.message || 'Unknown error occurred'
-    }, { status: 500 })
+    return NextResponse.json(createErrorResponse(
+      ERROR_MESSAGES.INTERNAL_ERROR,
+      error.message || 'Unknown error occurred'
+    ), { status: 500 })
   }
 }
