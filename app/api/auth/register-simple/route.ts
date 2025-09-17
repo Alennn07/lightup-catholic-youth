@@ -189,8 +189,7 @@ export async function POST(request: NextRequest) {
         diocese,
       },
       // Enable auto-login with session data
-      autoLogin: true,
-      session: authData.session
+      autoLogin: true
     }, { status: 200 });
 
   } catch (error: any) {
