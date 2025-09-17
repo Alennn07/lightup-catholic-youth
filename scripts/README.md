@@ -37,5 +37,8 @@ To set up the Daily Bible Verse feature, run:
 -- Copy and paste the content of daily-bible-verse-complete-setup.sql
 ```
 
+## 📊 **Analytics & Development**
+- **`dev/scripts/add-analytics-tables.sql`** - Analytics tables for Youth Groups (moved to dev folder)
+
 ## 📝 **Note**
-All old development scripts have been cleaned up. Only production-ready scripts remain.
+All old development scripts have been cleaned up. Only production-ready scripts remain. Development and testing scripts are now organized in the `dev/` folder.

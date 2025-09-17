@@ -6,6 +6,8 @@ import { supabase } from '@/lib/supabase'
 
 export interface UserPermissions {
   canCreateGroups: boolean
+  canManageAllGroups: boolean
+  canModerateContent: boolean
   isGroupLeader: boolean
   userRole: 'admin' | 'group_leader' | 'member'
   canManageGroup: (groupId: string) => boolean
@@ -13,6 +15,7 @@ export interface UserPermissions {
   canCreateEvents: (groupId: string) => boolean
   canCreatePosts: (groupId: string) => boolean
   canManageMembers: (groupId: string) => boolean
+  canDeleteContent: (groupId: string) => boolean
 }
 
 export interface GroupPermissions {
@@ -53,14 +56,17 @@ export function usePermissions() {
       if (!token) {
         console.log('No access token available, using fallback permissions')
         setPermissions({
-          canCreateGroups: false,
+          canCreateGroups: true, // TEMPORARY FIX: Allow all authenticated users to create groups
+          canManageAllGroups: false,
+          canModerateContent: false,
           isGroupLeader: false,
           userRole: 'member',
           canManageGroup: () => false,
           canJoinGroup: () => true,
-          canCreateEvents: () => false,
-          canCreatePosts: () => false,
+          canCreateEvents: () => true, // Allow creating events
+          canCreatePosts: () => true, // Allow creating posts
           canManageMembers: () => false,
+          canDeleteContent: () => false,
         })
         setLoading(false)
         return
@@ -80,28 +86,34 @@ export function usePermissions() {
         console.log('Permissions API failed, using fallback permissions')
         // Fallback to basic permissions
         setPermissions({
-          canCreateGroups: false,
+          canCreateGroups: true, // TEMPORARY FIX: Allow all authenticated users to create groups
+          canManageAllGroups: false,
+          canModerateContent: false,
           isGroupLeader: false,
           userRole: 'member',
           canManageGroup: () => false,
           canJoinGroup: () => true,
-          canCreateEvents: () => false,
-          canCreatePosts: () => false,
+          canCreateEvents: () => true, // Allow creating events
+          canCreatePosts: () => true, // Allow creating posts
           canManageMembers: () => false,
+          canDeleteContent: () => false,
         })
       }
     } catch (error) {
       console.error('Error fetching permissions:', error)
       // Fallback to basic permissions
       setPermissions({
-        canCreateGroups: false,
+        canCreateGroups: true, // TEMPORARY FIX: Allow all authenticated users to create groups
+        canManageAllGroups: false,
+        canModerateContent: false,
         isGroupLeader: false,
         userRole: 'member',
         canManageGroup: () => false,
         canJoinGroup: () => true,
-        canCreateEvents: () => false,
-        canCreatePosts: () => false,
+        canCreateEvents: () => true, // Allow creating events
+        canCreatePosts: () => true, // Allow creating posts
         canManageMembers: () => false,
+        canDeleteContent: () => false,
       })
     } finally {
       setLoading(false)

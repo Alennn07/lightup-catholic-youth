@@ -56,6 +56,10 @@ function checkPermission(permissions: any, permission: string, groupId?: string)
   switch (permission) {
     case 'create_groups':
       return permissions.canCreateGroups
+    case 'manage_all_groups':
+      return permissions.canManageAllGroups
+    case 'moderate_content':
+      return permissions.canModerateContent
     case 'manage_group':
       return groupId ? permissions.canManageGroup(groupId) : false
     case 'join_group':
@@ -66,6 +70,8 @@ function checkPermission(permissions: any, permission: string, groupId?: string)
       return groupId ? permissions.canCreatePosts(groupId) : false
     case 'manage_members':
       return groupId ? permissions.canManageMembers(groupId) : false
+    case 'delete_content':
+      return groupId ? permissions.canDeleteContent(groupId) : false
     default:
       return false
   }
@@ -188,6 +194,63 @@ export function CanCreatePosts({
   return (
     <RoleBasedWrapper 
       requiredPermission="create_posts" 
+      groupId={groupId} 
+      fallback={fallback}
+    >
+      {children}
+    </RoleBasedWrapper>
+  )
+}
+
+export function CanModerateContent({ 
+  children, 
+  groupId, 
+  fallback = null 
+}: { 
+  children: ReactNode
+  groupId?: string
+  fallback?: ReactNode 
+}) {
+  return (
+    <RoleBasedWrapper 
+      requiredPermission="moderate_content" 
+      groupId={groupId} 
+      fallback={fallback}
+    >
+      {children}
+    </RoleBasedWrapper>
+  )
+}
+
+export function CanManageAllGroups({ 
+  children, 
+  fallback = null 
+}: { 
+  children: ReactNode
+  fallback?: ReactNode 
+}) {
+  return (
+    <RoleBasedWrapper 
+      requiredPermission="manage_all_groups" 
+      fallback={fallback}
+    >
+      {children}
+    </RoleBasedWrapper>
+  )
+}
+
+export function CanDeleteContent({ 
+  children, 
+  groupId, 
+  fallback = null 
+}: { 
+  children: ReactNode
+  groupId: string
+  fallback?: ReactNode 
+}) {
+  return (
+    <RoleBasedWrapper 
+      requiredPermission="delete_content" 
       groupId={groupId} 
       fallback={fallback}
     >

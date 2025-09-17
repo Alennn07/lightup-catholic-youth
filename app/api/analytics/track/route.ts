@@ -1,180 +1,174 @@
+// Analytics Tracking API
+// Tracks user activities and engagement metrics
+
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { createSuccessResponse, createErrorResponse, ERROR_MESSAGES } from '@/lib/api-response'
 
-// Force this route to be dynamic since it uses request.url
-export const dynamic = 'force-dynamic'
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
-
-const supabase = createClient(supabaseUrl, supabaseServiceKey, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false
-  }
-})
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId, activityType, activityData, featureId } = await request.json()
-
-    if (!userId || !activityType) {
-      return NextResponse.json(
-        { error: 'User ID and activity type are required' },
-        { status: 400 }
-      )
+    const authHeader = request.headers.get('authorization')
+    const token = authHeader?.replace('Bearer ', '')
+    
+    if (!token) {
+      return NextResponse.json(createErrorResponse(ERROR_MESSAGES.UNAUTHORIZED), { status: 401 })
     }
 
-    // Track the user activity
-    const { error: activityError } = await supabase
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+    if (authError || !user) {
+      return NextResponse.json(createErrorResponse(ERROR_MESSAGES.INVALID_TOKEN), { status: 401 })
+    }
+
+    const body = await request.json()
+    const { userId, activity, groupId, eventId, postId, metadata, timestamp } = body
+
+    // Validate required fields
+    if (!userId || !activity || !timestamp) {
+      return NextResponse.json(createErrorResponse(
+        'Missing required fields: userId, activity, timestamp'
+      ), { status: 400 })
+    }
+
+    // Create activity record
+    const { data, error } = await supabase
       .from('user_activities')
-      .insert({
+      .insert([{
         user_id: userId,
-        activity_type: activityType,
-        activity_data: activityData || {},
+        activity_type: activity,
+        group_id: groupId,
+        event_id: eventId,
+        post_id: postId,
+        metadata: metadata || {},
+        activity_timestamp: timestamp,
         created_at: new Date().toISOString()
-      })
+      }])
+      .select()
+      .single()
 
-    if (activityError) {
-      console.error('Error tracking activity:', activityError)
+    if (error) {
+      console.error('Error creating activity record:', error)
+      return NextResponse.json(createErrorResponse(
+        'Failed to track activity',
+        error.message
+      ), { status: 500 })
     }
 
-    // Update feature statistics if featureId is provided
-    if (featureId) {
-      await updateFeatureStats(featureId, activityType)
+    // Update user engagement metrics
+    await updateUserEngagementMetrics(userId, activity)
+
+    // Update group activity metrics if groupId is provided
+    if (groupId) {
+      await updateGroupActivityMetrics(groupId, activity)
     }
 
-    return NextResponse.json({ 
-      success: true, 
-      message: 'Activity tracked successfully' 
-    })
+    return NextResponse.json(createSuccessResponse(
+      data,
+      'Activity tracked successfully'
+    ))
 
-  } catch (error) {
-    console.error('Analytics tracking error:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+  } catch (error: any) {
+    console.error('Error in analytics tracking:', error)
+    return NextResponse.json(createErrorResponse(
+      ERROR_MESSAGES.INTERNAL_ERROR,
+      error.message
+    ), { status: 500 })
   }
 }
 
-async function updateFeatureStats(featureId: string, activityType: string) {
+// Update user engagement metrics
+async function updateUserEngagementMetrics(userId: string, activity: string) {
   try {
-    // Get current feature stats
-    const { data: feature, error: fetchError } = await supabase
-      .from('features')
-      .select('user_count, rating')
-      .eq('id', featureId)
+    // Get current user profile
+    const { data: userProfile, error: profileError } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', userId)
       .single()
 
-    if (fetchError || !feature) {
-      console.error('Error fetching feature:', fetchError)
+    if (profileError || !userProfile) {
+      console.error('Error fetching user profile:', profileError)
       return
     }
 
-    let newUserCount = feature.user_count || 0
-    let newRating = feature.rating || 0
-
-    // Update based on activity type
-    switch (activityType) {
-      case 'feature_used':
-        newUserCount += 1
-        break
-      case 'feature_rated':
-        // This would be handled separately when rating is submitted
-        break
-      case 'feature_feedback':
-        // This would be handled separately when feedback is submitted
-        break
-      default:
-        // For other activities, just increment usage
-        newUserCount += 1
+    // Update engagement metrics based on activity
+    const updates: any = {
+      last_active: new Date().toISOString(),
+      updated_at: new Date().toISOString()
     }
 
-    // Update feature statistics
-    const { error: updateError } = await supabase
-      .from('features')
-      .update({
-        user_count: newUserCount,
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', featureId)
-
-    if (updateError) {
-      console.error('Error updating feature stats:', updateError)
+    switch (activity) {
+      case 'group_joined':
+        updates.groups_joined = (userProfile.groups_joined || 0) + 1
+        break
+      case 'group_created':
+        updates.groups_created = (userProfile.groups_created || 0) + 1
+        break
+      case 'event_attended':
+        updates.events_attended = (userProfile.events_attended || 0) + 1
+        break
+      case 'post_created':
+        updates.posts_created = (userProfile.posts_created || 0) + 1
+        break
     }
+
+    // Update user profile
+    await supabase
+      .from('users')
+      .update(updates)
+      .eq('id', userId)
 
   } catch (error) {
-    console.error('Error updating feature stats:', error)
+    console.error('Error updating user engagement metrics:', error)
   }
 }
 
-// GET endpoint to retrieve analytics data
-export async function GET(request: NextRequest) {
+// Update group activity metrics
+async function updateGroupActivityMetrics(groupId: string, activity: string) {
   try {
-    const { searchParams } = new URL(request.url)
-    const userId = searchParams.get('userId')
-    const featureId = searchParams.get('featureId')
-    const days = parseInt(searchParams.get('days') || '30')
-
-    if (!userId) {
-      return NextResponse.json(
-        { error: 'User ID is required' },
-        { status: 400 }
-      )
-    }
-
-    // Get user activity summary
-    const { data: activities, error: activitiesError } = await supabase
-      .from('user_activities')
+    // Get current group data
+    const { data: group, error: groupError } = await supabase
+      .from('youth_groups')
       .select('*')
-      .eq('user_id', userId)
-      .gte('created_at', new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString())
-      .order('created_at', { ascending: false })
+      .eq('id', groupId)
+      .single()
 
-    if (activitiesError) {
-      console.error('Error fetching activities:', activitiesError)
-      return NextResponse.json(
-        { error: 'Failed to fetch activities' },
-        { status: 500 }
-      )
+    if (groupError || !group) {
+      console.error('Error fetching group:', groupError)
+      return
     }
 
-    // Get feature statistics if featureId is provided
-    let featureStats = null
-    if (featureId) {
-      const { data: feature, error: featureError } = await supabase
-        .from('features')
-        .select('*')
-        .eq('id', featureId)
-        .single()
-
-      if (!featureError && feature) {
-        featureStats = feature
-      }
+    // Update group activity metrics
+    const updates: any = {
+      updated_at: new Date().toISOString()
     }
 
-    // Calculate activity summary
-    const activitySummary = activities?.reduce((summary, activity) => {
-      summary[activity.activity_type] = (summary[activity.activity_type] || 0) + 1
-      return summary
-    }, {} as Record<string, number>) || {}
+    switch (activity) {
+      case 'member_added':
+        updates.member_count = (group.member_count || 0) + 1
+        updates.last_activity = new Date().toISOString()
+        break
+      case 'event_created':
+        updates.events_count = (group.events_count || 0) + 1
+        updates.last_activity = new Date().toISOString()
+        break
+      case 'post_created':
+        updates.posts_count = (group.posts_count || 0) + 1
+        updates.last_activity = new Date().toISOString()
+        break
+    }
 
-    return NextResponse.json({
-      success: true,
-      data: {
-        activities,
-        activitySummary,
-        featureStats,
-        period: `${days} days`
-      }
-    })
+    // Update group
+    await supabase
+      .from('youth_groups')
+      .update(updates)
+      .eq('id', groupId)
 
   } catch (error) {
-    console.error('Analytics retrieval error:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    console.error('Error updating group activity metrics:', error)
   }
 }

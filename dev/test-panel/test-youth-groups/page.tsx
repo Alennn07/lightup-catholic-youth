@@ -1,0 +1,20 @@
+"use client"
+
+import { YouthGroupsTestPanel } from './youth-groups-test-panel'
+
+export default function TestYouthGroupsPage() {
+  return (
+    <div className="container mx-auto py-8">
+      <div className="max-w-6xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">Youth Groups Testing</h1>
+          <p className="text-gray-600 mt-2">
+            Test all high-priority features: Real-time updates, Notifications, Advanced Search, and Analytics
+          </p>
+        </div>
+        
+        <YouthGroupsTestPanel />
+      </div>
+    </div>
+  )
+}

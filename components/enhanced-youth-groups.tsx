@@ -5,6 +5,10 @@ import { useAuth } from '@/contexts/auth-context'
 import { useToast } from '@/hooks/use-toast'
 import { usePermissions } from '@/hooks/use-permissions'
 import { useYouthGroupsApi } from '@/hooks/use-youth-groups-api'
+import { useRealtimeYouthGroups } from '@/hooks/use-realtime-youth-groups'
+import { useRealtimeNotifications } from '@/hooks/use-realtime-notifications'
+import { useAdvancedSearch } from '@/hooks/use-advanced-search'
+import { useActivityTracker } from '@/hooks/use-youth-groups-analytics'
 import { YouthGroup, GroupMember, GroupEvent, GroupPost, CreateGroupFormData, EditGroupFormData, CreateEventFormData, CreatePostFormData } from '@/types/youth-groups'
 import { YouthGroupsErrorBoundary, useErrorHandler } from '@/components/youth-groups-error-boundary'
 import { Button } from '@/components/ui/button'
@@ -17,7 +21,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { Search, Users, MapPin, Calendar, Plus, Settings, MessageSquare, Heart, X, Edit, Trash2, Globe, RefreshCw, UserPlus, Clock, CheckCircle, XCircle, UserCheck, UserX, User } from 'lucide-react'
+import { Search, Users, MapPin, Calendar, Plus, Settings, MessageSquare, Heart, X, Edit, Trash2, Globe, RefreshCw, UserPlus, Clock, CheckCircle, XCircle, UserCheck, UserX, User, Bell } from 'lucide-react'
 import { logIfEnabled } from "@/lib/performance-monitor"
 import { useTranslation } from "@/lib/i18n"
 import { RoleBasedWrapper, CanCreateGroups, GroupOwnerOnly, CanManageMembers } from '@/components/role-based-wrapper'
@@ -31,8 +35,21 @@ function EnhancedYouthGroupsContent() {
   const { user, getAccessToken } = useAuth()
   const { toast } = useToast()
   const { permissions, loading: permissionsLoading } = usePermissions()
+  
+  // Debug permissions
+  useEffect(() => {
+    console.log('🔍 Permissions Debug:', {
+      permissions,
+      permissionsLoading,
+      user,
+      canCreateGroups: permissions?.canCreateGroups
+    })
+  }, [permissions, permissionsLoading, user])
   const { handleError, handleAsyncError } = useErrorHandler()
   const api = useYouthGroupsApi()
+  const { trackGroupJoin, trackGroupCreate, trackEventCreate, trackPostCreate, trackMemberAdd } = useActivityTracker()
+  const { notifications, unreadCount, markAsRead, markAllAsRead } = useRealtimeNotifications()
+  const { filters, updateFilter, search, searchResults } = useAdvancedSearch()
   
   const [groups, setGroups] = useState<YouthGroup[]>([])
   const [loading, setLoading] = useState(true)
@@ -113,6 +130,74 @@ function EnhancedYouthGroupsContent() {
   useEffect(() => {
     fetchGroups()
   }, [])
+
+  // Set up real-time updates
+  useRealtimeYouthGroups({
+    onGroupUpdate: (group) => {
+      setGroups(prevGroups => 
+        prevGroups.map(g => g.id === group.id ? { ...g, ...group } : g)
+      )
+    },
+    onGroupDelete: (groupId) => {
+      setGroups(prevGroups => prevGroups.filter(g => g.id !== groupId))
+    },
+    onMemberJoin: (member) => {
+      if (selectedGroup?.id === member.group_id) {
+        fetchGroupMembers()
+      }
+      // Update group member count
+      setGroups(prevGroups => 
+        prevGroups.map(g => 
+          g.id === member.group_id 
+            ? { ...g, member_count: (g.member_count || 0) + 1 }
+            : g
+        )
+      )
+    },
+    onMemberLeave: (memberId, groupId) => {
+      if (selectedGroup?.id === groupId) {
+        fetchGroupMembers()
+      }
+      // Update group member count
+      setGroups(prevGroups => 
+        prevGroups.map(g => 
+          g.id === groupId 
+            ? { ...g, member_count: Math.max(0, (g.member_count || 0) - 1) }
+            : g
+        )
+      )
+    },
+    onEventCreate: (event) => {
+      if (selectedGroup?.id === event.group_id) {
+        fetchGroupEvents()
+      }
+    },
+    onEventUpdate: (event) => {
+      if (selectedGroup?.id === event.group_id) {
+        fetchGroupEvents()
+      }
+    },
+    onEventDelete: (eventId, groupId) => {
+      if (selectedGroup?.id === groupId) {
+        fetchGroupEvents()
+      }
+    },
+    onPostCreate: (post) => {
+      if (selectedGroup?.id === post.group_id) {
+        fetchGroupPosts()
+      }
+    },
+    onPostUpdate: (post) => {
+      if (selectedGroup?.id === post.group_id) {
+        fetchGroupPosts()
+      }
+    },
+    onPostDelete: (postId, groupId) => {
+      if (selectedGroup?.id === groupId) {
+        fetchGroupPosts()
+      }
+    }
+  })
 
   // Fetch individual group details when modal opens
   const fetchGroupDetails = async (groupId: string) => {
@@ -232,7 +317,7 @@ function EnhancedYouthGroupsContent() {
     if (!permissions?.canCreateGroups) {
       toast({
         title: "Permission Denied",
-        description: "You don't have permission to create groups",
+        description: "You don't have permission to create groups. Please contact an administrator to get verified.",
         variant: "destructive"
       })
       return
@@ -253,6 +338,10 @@ function EnhancedYouthGroupsContent() {
 
       if (response.ok) {
         const data = await response.json()
+        
+        // Track group creation
+        trackGroupCreate(data.data.id)
+        
         toast({
           title: "Success",
           description: "Group created successfully"
@@ -1144,12 +1233,16 @@ function EnhancedYouthGroupsContent() {
         
         <div className="flex items-center space-x-3">
           <NotificationBadge />
-          <CanCreateGroups>
-            <Button onClick={() => setShowCreateForm(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Create Group
-            </Button>
-          </CanCreateGroups>
+          {permissionsLoading ? (
+            <div className="animate-pulse bg-gray-200 h-10 w-32 rounded"></div>
+          ) : (
+            <CanCreateGroups>
+              <Button onClick={() => setShowCreateForm(true)}>
+                <Plus className="h-4 w-4 mr-2" />
+                Create Group
+              </Button>
+            </CanCreateGroups>
+          )}
         </div>
       </div>
 
