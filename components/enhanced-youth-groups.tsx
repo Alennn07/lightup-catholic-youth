@@ -27,6 +27,7 @@ import { useTranslation } from "@/lib/i18n"
 import { RoleBasedWrapper, CanCreateGroups, GroupOwnerOnly, CanManageMembers } from '@/components/role-based-wrapper'
 import { MemberRequestModal } from '@/components/member-request-modal'
 import { NotificationBadge } from '@/components/notification-badge'
+import { GroupCategorySelector, CategoryBadge, CategoryFilter } from '@/components/group-category-selector'
 
 // YouthGroup interface is now imported from types/youth-groups.ts
 
@@ -55,6 +56,7 @@ function EnhancedYouthGroupsContent() {
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | undefined>()
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [showGroupDetails, setShowGroupDetails] = useState(false)
   const [selectedGroup, setSelectedGroup] = useState<YouthGroup | null>(null)
@@ -105,7 +107,8 @@ function EnhancedYouthGroupsContent() {
     age_range: '',
     max_members: '',
     is_public: true,
-    requires_approval: true
+    requires_approval: true,
+    category_id: undefined
   })
 
   // Form state for creating groups
@@ -124,7 +127,8 @@ function EnhancedYouthGroupsContent() {
     age_range: '',
     max_members: 50,
     is_public: true,
-    requires_approval: true
+    requires_approval: true,
+    category_id: undefined
   })
 
   useEffect(() => {
@@ -270,7 +274,8 @@ function EnhancedYouthGroupsContent() {
         age_range: selectedGroup.age_range || '',
         max_members: selectedGroup.max_members?.toString() || '',
         is_public: selectedGroup.is_public || true,
-        requires_approval: selectedGroup.requires_approval || true
+        requires_approval: selectedGroup.requires_approval || true,
+        category_id: selectedGroup.category_id
       })
     }
   }, [selectedGroup, showEditGroup])
@@ -1072,6 +1077,9 @@ function EnhancedYouthGroupsContent() {
       const token = await getAccessToken()
       if (!token) return
 
+      console.log('🔍 Edit Group Form Data:', editGroupForm)
+      console.log('🔍 Category ID being sent:', editGroupForm.category_id)
+
       const response = await fetch(`/api/youth-groups/${selectedGroup.id}`, {
         method: 'PUT',
         headers: {
@@ -1082,18 +1090,18 @@ function EnhancedYouthGroupsContent() {
       })
 
       if (response.ok) {
+        const data = await response.json()
+        console.log('✅ Group update response:', data.data)
+        console.log('🔍 Category in response:', data.data.category)
+        
         toast({
           title: "Success",
           description: "Group updated successfully"
         })
         setShowEditGroup(false)
         
-        // Update the selectedGroup with the new data
-        setSelectedGroup(prev => prev ? { 
-      ...prev, 
-      ...editGroupForm,
-      max_members: parseInt(editGroupForm.max_members) || prev.max_members
-    } : null)
+        // Update the selectedGroup with the response data (includes category)
+        setSelectedGroup(data.data)
         
         // Refresh the groups list
         fetchGroups()
@@ -1120,12 +1128,14 @@ function EnhancedYouthGroupsContent() {
                          group.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          group.parish?.toLowerCase().includes(searchTerm.toLowerCase())
     
-    if (selectedCategory === 'all') return matchesSearch
-    if (selectedCategory === 'my_groups') return matchesSearch && (group.is_owner || group.is_member)
-    if (selectedCategory === 'public') return matchesSearch && group.is_public
-    if (selectedCategory === 'private') return matchesSearch && !group.is_public
+    const matchesCategory = !selectedCategoryId || group.category_id === selectedCategoryId
     
-    return matchesSearch
+    if (selectedCategory === 'all') return matchesSearch && matchesCategory
+    if (selectedCategory === 'my_groups') return matchesSearch && matchesCategory && (group.is_owner || group.is_member)
+    if (selectedCategory === 'public') return matchesSearch && matchesCategory && group.is_public
+    if (selectedCategory === 'private') return matchesSearch && matchesCategory && !group.is_public
+    
+    return matchesSearch && matchesCategory
   })
 
 
@@ -1260,17 +1270,25 @@ function EnhancedYouthGroupsContent() {
           </div>
         </div>
         
-        <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-          <SelectTrigger className="w-full sm:w-48">
-            <SelectValue placeholder="Filter by category" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Groups</SelectItem>
-            <SelectItem value="my_groups">My Groups</SelectItem>
-            <SelectItem value="public">Public Groups</SelectItem>
-            <SelectItem value="private">Private Groups</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="flex gap-2">
+          <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+            <SelectTrigger className="w-full sm:w-48">
+              <SelectValue placeholder="Filter by type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Groups</SelectItem>
+              <SelectItem value="my_groups">My Groups</SelectItem>
+              <SelectItem value="public">Public Groups</SelectItem>
+              <SelectItem value="private">Private Groups</SelectItem>
+            </SelectContent>
+          </Select>
+          
+          <CategoryFilter
+            selectedCategoryId={selectedCategoryId}
+            onCategoryChange={setSelectedCategoryId}
+            className="w-full sm:w-48"
+          />
+        </div>
       </div>
 
       {/* Groups Grid */}
@@ -1297,6 +1315,11 @@ function EnhancedYouthGroupsContent() {
                   <CardTitle className="text-xl sm:text-2xl font-semibold text-gray-900 mb-2">
                     {group.name}
                   </CardTitle>
+                  {group.category && (
+                    <div className="mb-2">
+                      <CategoryBadge category={group.category} />
+                    </div>
+                  )}
                   <div className="flex items-center space-x-2 text-base sm:text-lg text-gray-500 mb-3">
                     <MapPin className="h-5 w-5" />
                     <span>{group.city}, {group.state}</span>
@@ -1481,6 +1504,14 @@ function EnhancedYouthGroupsContent() {
               </div>
             </div>
             
+            <div>
+              <GroupCategorySelector
+                selectedCategoryId={formData.category_id}
+                onCategoryChange={(categoryId) => setFormData(prev => ({ ...prev, category_id: categoryId }))}
+                placeholder="Select a category for your group"
+              />
+            </div>
+            
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="max_members">Maximum Members</Label>
@@ -1600,6 +1631,21 @@ function EnhancedYouthGroupsContent() {
                                 </p>
                               </div>
                             </div>
+                            
+                            {selectedGroup.category && (
+                              <div className="flex items-center space-x-3">
+                                <div 
+                                  className="h-5 w-5 rounded-full flex-shrink-0" 
+                                  style={{ backgroundColor: selectedGroup.category.color }}
+                                />
+                                <div>
+                                  <p className="text-sm font-medium text-gray-900">Category</p>
+                                  <p className="text-sm text-gray-600">
+                                    {selectedGroup.category.name}
+                                  </p>
+                                </div>
+                              </div>
+                            )}
                             
                             <div className="flex items-center space-x-3">
                               <Users className="h-5 w-5 text-gray-400" />
@@ -2180,6 +2226,14 @@ function EnhancedYouthGroupsContent() {
                   value={editGroupForm.age_range}
                   onChange={(e) => setEditGroupForm(prev => ({ ...prev, age_range: e.target.value }))}
                   placeholder="e.g., 18-25"
+                />
+              </div>
+              
+              <div className="md:col-span-2">
+                <GroupCategorySelector
+                  selectedCategoryId={editGroupForm.category_id}
+                  onCategoryChange={(categoryId) => setEditGroupForm(prev => ({ ...prev, category_id: categoryId }))}
+                  placeholder="Select a category for your group"
                 />
               </div>
               

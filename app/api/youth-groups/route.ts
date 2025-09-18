@@ -52,7 +52,15 @@ export async function GET(request: NextRequest) {
           is_active, 
           owner_id, 
           requires_approval,
-          created_at
+          category_id,
+          created_at,
+          group_categories (
+            id,
+            name,
+            description,
+            color,
+            icon
+          )
         `)
         .eq('is_active', true)
         .order('created_at', { ascending: false })
@@ -95,6 +103,7 @@ export async function GET(request: NextRequest) {
      
       return {
         ...group,
+        category: group.group_categories || null,
         is_owner: currentUserId ? group.owner_id === currentUserId : false,
         is_member: !!membership,
         is_pending: !!pendingRequest,
@@ -147,7 +156,7 @@ export async function POST(request: NextRequest) {
     }
     
     const body = await request.json()
-    const { name, description, parish, city, state, country, meeting_time, age_range, max_members, is_public, requires_approval } = body
+    const { name, description, parish, city, state, country, meeting_time, age_range, max_members, is_public, requires_approval, category_id } = body
 
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -183,7 +192,8 @@ export async function POST(request: NextRequest) {
         is_public: is_public !== false,
         is_active: true,
         owner_id: user.id,
-        requires_approval: requires_approval !== false
+        requires_approval: requires_approval !== false,
+        category_id: category_id || null
       }])
       .select()
       .single()

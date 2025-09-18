@@ -1,155 +1,66 @@
--- Group Categories Enhancement Script
--- Adds proper categorization system for Youth Groups
+-- Add Group Categories System to Youth Groups
+-- This script adds proper categorization support for youth groups
 
--- 1. Create group_categories table
+-- Create group_categories table
 CREATE TABLE IF NOT EXISTS group_categories (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     name VARCHAR(100) NOT NULL UNIQUE,
     description TEXT,
-    icon VARCHAR(50),
-    color VARCHAR(20) DEFAULT '#3B82F6',
-    is_active BOOLEAN DEFAULT true,
+    color VARCHAR(7) DEFAULT '#3B82F6', -- Hex color for UI
+    icon VARCHAR(50), -- Icon name for UI
     sort_order INTEGER DEFAULT 0,
+    is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- 2. Add category_id to youth_groups table
+-- Add category_id to youth_groups table
 ALTER TABLE youth_groups 
-ADD COLUMN IF NOT EXISTS category_id UUID REFERENCES group_categories(id) ON DELETE SET NULL,
-ADD COLUMN IF NOT EXISTS group_image_url TEXT,
-ADD COLUMN IF NOT EXISTS group_image_alt TEXT,
-ADD COLUMN IF NOT EXISTS invitation_code VARCHAR(20) UNIQUE,
-ADD COLUMN IF NOT EXISTS invitation_expires_at TIMESTAMP WITH TIME ZONE,
-ADD COLUMN IF NOT EXISTS is_invitation_only BOOLEAN DEFAULT false;
+ADD COLUMN IF NOT EXISTS category_id UUID REFERENCES group_categories(id) ON DELETE SET NULL;
 
--- 3. Create group_invitations table
-CREATE TABLE IF NOT EXISTS group_invitations (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    group_id UUID REFERENCES youth_groups(id) ON DELETE CASCADE,
-    invitation_code VARCHAR(20) UNIQUE NOT NULL,
-    invited_by UUID REFERENCES auth.users(id) ON DELETE CASCADE,
-    invited_email VARCHAR(255),
-    invited_user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
-    message TEXT,
-    expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
-    used_at TIMESTAMP WITH TIME ZONE,
-    used_by UUID REFERENCES auth.users(id) ON DELETE SET NULL,
-    is_active BOOLEAN DEFAULT true,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
+-- Create index for better performance
+CREATE INDEX IF NOT EXISTS idx_youth_groups_category_id ON youth_groups(category_id);
+CREATE INDEX IF NOT EXISTS idx_group_categories_active ON group_categories(is_active);
 
--- 4. Create group_analytics table for detailed metrics
-CREATE TABLE IF NOT EXISTS group_analytics (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    group_id UUID REFERENCES youth_groups(id) ON DELETE CASCADE,
-    metric_type VARCHAR(50) NOT NULL, -- 'views', 'joins', 'events_created', 'posts_created', 'activity_score'
-    metric_value INTEGER DEFAULT 0,
-    metric_date DATE NOT NULL,
-    additional_data JSONB,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    UNIQUE(group_id, metric_type, metric_date)
-);
-
--- 5. Insert default categories
-INSERT INTO group_categories (name, description, icon, color, sort_order) VALUES
-('Prayer & Worship', 'Groups focused on prayer, adoration, and worship', 'prayer', '#8B5CF6', 1),
-('Bible Study', 'Groups for studying Scripture and faith formation', 'book-open', '#10B981', 2),
-('Service & Outreach', 'Groups focused on community service and outreach', 'heart', '#EF4444', 3),
-('Social & Fellowship', 'Groups for building community and friendships', 'users', '#F59E0B', 4),
-('Music & Arts', 'Groups focused on music, art, and creative expression', 'music', '#EC4899', 5),
-('Sports & Recreation', 'Groups for physical activities and sports', 'activity', '#06B6D4', 6),
-('Education & Learning', 'Groups focused on academic and educational pursuits', 'graduation-cap', '#84CC16', 7),
-('Young Adults', 'Groups specifically for young adults (18-35)', 'user-check', '#6366F1', 8),
-('Teens', 'Groups specifically for teenagers (13-17)', 'smile', '#F97316', 9),
-('Family', 'Groups for families and parents', 'home', '#14B8A6', 10)
+-- Insert default categories
+INSERT INTO group_categories (name, description, color, icon, sort_order) VALUES
+('Bible Study', 'Groups focused on studying and discussing the Bible', '#10B981', 'book-open', 1),
+('Prayer Group', 'Groups dedicated to prayer and spiritual growth', '#8B5CF6', 'heart', 2),
+('Service & Outreach', 'Groups focused on community service and helping others', '#F59E0B', 'hands-helping', 3),
+('Youth Ministry', 'General youth ministry and fellowship groups', '#3B82F6', 'users', 4),
+('Music & Worship', 'Groups focused on music, worship, and liturgical arts', '#EF4444', 'music', 5),
+('Sports & Recreation', 'Groups combining faith with physical activities', '#06B6D4', 'activity', 6),
+('Social Justice', 'Groups focused on social justice and advocacy', '#84CC16', 'scale', 7),
+('Leadership Development', 'Groups focused on developing leadership skills', '#F97316', 'award', 8),
+('Campus Ministry', 'Groups for students and campus-based ministry', '#8B5CF6', 'graduation-cap', 9),
+('Family Ministry', 'Groups for families and intergenerational ministry', '#EC4899', 'home', 10)
 ON CONFLICT (name) DO NOTHING;
 
--- 6. Create indexes for performance
-CREATE INDEX IF NOT EXISTS idx_youth_groups_category ON youth_groups(category_id);
-CREATE INDEX IF NOT EXISTS idx_youth_groups_invitation_code ON youth_groups(invitation_code);
-CREATE INDEX IF NOT EXISTS idx_group_invitations_code ON group_invitations(invitation_code);
-CREATE INDEX IF NOT EXISTS idx_group_invitations_group ON group_invitations(group_id);
-CREATE INDEX IF NOT EXISTS idx_group_invitations_email ON group_invitations(invited_email);
-CREATE INDEX IF NOT EXISTS idx_group_analytics_group_date ON group_analytics(group_id, metric_date);
-CREATE INDEX IF NOT EXISTS idx_group_analytics_type ON group_analytics(metric_type);
-
--- 7. Enable RLS
+-- Enable RLS (Row Level Security)
 ALTER TABLE group_categories ENABLE ROW LEVEL SECURITY;
-ALTER TABLE group_invitations ENABLE ROW LEVEL SECURITY;
-ALTER TABLE group_analytics ENABLE ROW LEVEL SECURITY;
 
--- 8. Create RLS policies
--- Categories are public read-only
-CREATE POLICY "Categories are publicly readable" ON group_categories FOR SELECT USING (is_active = true);
+-- Create RLS policies for group_categories
+-- Everyone can read active categories
+CREATE POLICY "Anyone can view active categories" ON group_categories
+    FOR SELECT USING (is_active = true);
 
--- Invitations policies
-CREATE POLICY "Users can view their own invitations" ON group_invitations FOR SELECT USING (
-    invited_user_id = auth.uid() OR 
-    invited_email = (SELECT email FROM auth.users WHERE id = auth.uid())
-);
+-- Only authenticated users can view all categories (for admin purposes)
+CREATE POLICY "Authenticated users can view all categories" ON group_categories
+    FOR SELECT USING (auth.role() = 'authenticated');
 
-CREATE POLICY "Group owners can manage invitations" ON group_invitations FOR ALL USING (
-    group_id IN (SELECT id FROM youth_groups WHERE owner_id = auth.uid())
-);
+-- Only admins can insert/update/delete categories
+CREATE POLICY "Only admins can manage categories" ON group_categories
+    FOR ALL USING (
+        EXISTS (
+            SELECT 1 FROM users 
+            WHERE users.id = auth.uid() 
+            AND users.is_verified = true
+        )
+    );
 
--- Analytics policies
-CREATE POLICY "Group members can view group analytics" ON group_analytics FOR SELECT USING (
-    group_id IN (
-        SELECT gm.group_id FROM group_members gm 
-        WHERE gm.user_id = auth.uid() AND gm.status = 'active'
-    )
-);
+-- Update the youth_groups table to include category information in queries
+-- This will be handled by the API layer, but we ensure the foreign key is properly set up
 
--- 9. Create function to generate invitation codes
-CREATE OR REPLACE FUNCTION generate_invitation_code()
-RETURNS TEXT AS $$
-DECLARE
-    code TEXT;
-    exists BOOLEAN;
-BEGIN
-    LOOP
-        code := upper(substring(md5(random()::text) from 1 for 8));
-        SELECT EXISTS(SELECT 1 FROM group_invitations WHERE invitation_code = code) INTO exists;
-        EXIT WHEN NOT exists;
-    END LOOP;
-    RETURN code;
-END;
-$$ LANGUAGE plpgsql;
-
--- 10. Create function to update group analytics
-CREATE OR REPLACE FUNCTION update_group_analytics(
-    p_group_id UUID,
-    p_metric_type VARCHAR(50),
-    p_increment INTEGER DEFAULT 1
-)
-RETURNS VOID AS $$
-BEGIN
-    INSERT INTO group_analytics (group_id, metric_type, metric_value, metric_date)
-    VALUES (p_group_id, p_metric_type, p_increment, CURRENT_DATE)
-    ON CONFLICT (group_id, metric_type, metric_date)
-    DO UPDATE SET 
-        metric_value = group_analytics.metric_value + p_increment,
-        updated_at = NOW();
-END;
-$$ LANGUAGE plpgsql;
-
--- 11. Create trigger to auto-generate invitation codes
-CREATE OR REPLACE FUNCTION auto_generate_invitation_code()
-RETURNS TRIGGER AS $$
-BEGIN
-    IF NEW.invitation_code IS NULL THEN
-        NEW.invitation_code := generate_invitation_code();
-        NEW.invitation_expires_at := NOW() + INTERVAL '30 days';
-    END IF;
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER trigger_auto_generate_invitation_code
-    BEFORE INSERT ON youth_groups
-    FOR EACH ROW
-    EXECUTE FUNCTION auto_generate_invitation_code();
-
--- Success message
-SELECT 'Group categories, invitations, and analytics system created successfully!' as status;
+-- Add a comment to document the new feature
+COMMENT ON TABLE group_categories IS 'Categories for organizing youth groups by type and focus area';
+COMMENT ON COLUMN youth_groups.category_id IS 'References group_categories.id - categorizes the group type';

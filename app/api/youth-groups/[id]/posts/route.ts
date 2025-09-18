@@ -90,7 +90,7 @@ export async function GET(
     
     return NextResponse.json({
       success: true,
-      posts: enrichedPosts
+      data: enrichedPosts
     })
 
   } catch (error: any) {

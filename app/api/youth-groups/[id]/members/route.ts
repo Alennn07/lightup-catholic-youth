@@ -101,7 +101,7 @@ export async function GET(
     
     return NextResponse.json({
       success: true,
-      members: enrichedMembers
+      data: enrichedMembers
     })
 
   } catch (error: any) {
@@ -158,25 +158,62 @@ export async function POST(
 
     const { email } = await request.json()
     
+    console.log('🔍 Add Member Request:', { groupId, email })
+    
     if (!email) {
       return NextResponse.json({ error: 'Email is required' }, { status: 400 })
     }
 
-    // Find user by email using the auth system
-    const { data: { users }, error: userError } = await supabase.auth.admin.listUsers()
+    // Find user by email - try custom users table first, then sync from auth
+    console.log('🔍 Looking up user by email:', email)
     
-    if (userError) {
-      console.error('Error fetching users:', userError)
-      return NextResponse.json({ error: 'Failed to lookup user' }, { status: 500 })
+    let targetUser = null
+    
+    // First try the custom users table
+    const { data: customUser, error: customUserError } = await supabase
+      .from('users')
+      .select('id, email, name')
+      .eq('email', email)
+      .single()
+    
+    if (customUser && !customUserError) {
+      console.log('✅ User found in custom users table:', customUser)
+      targetUser = customUser
+    } else {
+      console.log('🔍 User not in custom users table, syncing from auth...')
+      
+      // Try to sync user from auth system
+      try {
+        const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace('/rest/v1', '') || 'http://localhost:3000'
+        const syncResponse = await fetch(`${baseUrl}/api/sync-user`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email })
+        })
+        
+        if (syncResponse.ok) {
+          const syncData = await syncResponse.json()
+          console.log('✅ User synced from auth:', syncData.user)
+          targetUser = syncData.user
+        } else {
+          console.log('❌ Failed to sync user from auth')
+        }
+      } catch (syncError) {
+        console.log('❌ Error syncing user:', syncError)
+      }
     }
-
-    const targetUser = users.find(u => u.email === email)
     
     if (!targetUser) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 })
+      console.log('❌ User not found in any table')
+      return NextResponse.json({ error: 'User not found. Please make sure the user is registered and try again.' }, { status: 404 })
     }
 
+    console.log('✅ User found:', targetUser)
+
     // Add member to group
+    console.log('🔍 Adding member to group:', { groupId, userId: targetUser.id, email })
     const { data: member, error: addError } = await supabase
       .from('group_members')
       .insert({
@@ -190,9 +227,12 @@ export async function POST(
       .single()
 
     if (addError) {
+      console.error('❌ Error adding member:', addError)
       logIfEnabled(`❌ Error adding member: ${addError.message}`, 'error')
       return NextResponse.json({ error: 'Failed to add member' }, { status: 500 })
     }
+
+    console.log('✅ Member added successfully:', member)
 
     logIfEnabled(`✅ Member added to group ${groupId}: ${email}`)
     

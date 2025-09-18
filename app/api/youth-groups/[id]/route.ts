@@ -56,8 +56,16 @@ export async function GET(
         is_public,
         is_active,
         owner_id,
+        category_id,
         created_at,
-        updated_at
+        updated_at,
+        group_categories (
+          id,
+          name,
+          description,
+          color,
+          icon
+        )
       `)
       .eq('id', groupId)
       .single()
@@ -90,6 +98,7 @@ export async function GET(
     // Add membership info to group object
     const groupWithMembership = {
       ...group,
+      category: group.group_categories || null,
       is_member: isMember,
       is_owner: isOwner,
       user_role: membership?.role || null,
@@ -160,7 +169,7 @@ export async function PUT(
     // Prepare update object with only allowed fields
     const allowedFields = [
       'name', 'description', 'mission_statement', 'meeting_time', 
-      'meeting_location', 'age_range', 'max_members', 'is_public', 'requires_approval'
+      'meeting_location', 'age_range', 'max_members', 'is_public', 'requires_approval', 'category_id'
     ]
     
     const updateFields: any = {}
@@ -183,7 +192,35 @@ export async function PUT(
         updated_at: new Date().toISOString()
       })
       .eq('id', groupId)
-      .select()
+      .select(`
+        id,
+        name,
+        description,
+        mission_statement,
+        parish,
+        diocese,
+        city,
+        state,
+        country,
+        meeting_location,
+        meeting_time,
+        meeting_frequency,
+        age_range,
+        max_members,
+        is_public,
+        is_active,
+        owner_id,
+        category_id,
+        created_at,
+        updated_at,
+        group_categories (
+          id,
+          name,
+          description,
+          color,
+          icon
+        )
+      `)
       .single()
 
     if (updateError) {
@@ -194,10 +231,16 @@ export async function PUT(
       ), { status: 500 })
     }
 
+    // Add category data to the response
+    const groupWithCategory = {
+      ...updatedGroup,
+      category: updatedGroup.group_categories || null
+    }
+
     logIfEnabled(`✅ Group updated: ${groupId}`)
     
     return NextResponse.json(createSuccessResponse(
-      updatedGroup,
+      groupWithCategory,
       SUCCESS_MESSAGES.GROUP_UPDATED
     ))
 

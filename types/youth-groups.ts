@@ -1,6 +1,18 @@
 // Comprehensive TypeScript types for Youth Groups feature
 // These types match the database schema and API responses
 
+export interface GroupCategory {
+  id: string
+  name: string
+  description?: string
+  color: string
+  icon?: string
+  sort_order: number
+  is_active: boolean
+  created_at: string
+  updated_at: string
+}
+
 export interface YouthGroup {
   id: string
   name: string
@@ -24,6 +36,9 @@ export interface YouthGroup {
   created_by?: string
   created_at: string
   updated_at: string
+  // Category information
+  category_id?: string
+  category?: GroupCategory
   // User-specific fields (added by API)
   is_owner?: boolean
   is_member?: boolean
@@ -144,6 +159,7 @@ export interface CreateGroupFormData {
   max_members: number
   is_public: boolean
   requires_approval: boolean
+  category_id?: string
 }
 
 export interface EditGroupFormData {
@@ -156,6 +172,7 @@ export interface EditGroupFormData {
   max_members: string
   is_public: boolean
   requires_approval: boolean
+  category_id?: string
 }
 
 export interface CreateEventFormData {
@@ -177,6 +194,7 @@ export interface CreatePostFormData {
 export interface GroupFilters {
   search?: string
   category?: 'all' | 'my_groups' | 'public' | 'private'
+  category_id?: string
   ageRange?: string
   location?: string
   page?: number

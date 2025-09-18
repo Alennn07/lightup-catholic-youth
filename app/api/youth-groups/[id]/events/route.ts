@@ -90,7 +90,7 @@ export async function GET(
     
     return NextResponse.json({
       success: true,
-      events: enrichedEvents
+      data: enrichedEvents
     })
 
   } catch (error: any) {
